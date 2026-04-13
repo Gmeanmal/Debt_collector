@@ -5,12 +5,17 @@ import { ForgotPasswordRoute } from "./routes/ForgotPasswordRoute";
 import { ResetPasswordRoute } from "./routes/ResetPasswordRoute";
 import { HomeRoute } from "./routes/HomeRoute";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { RoleProtectedRoute } from "./routes/RoleProtectedRoute";
 import { InviteSubRoute } from "./routes/goddess/InviteSubRoute";
 import { InvitationsListRoute } from "./routes/goddess/InvitationsListRoute";
 import { PaymentMethodsRoute } from "./routes/goddess/PaymentMethodsRoute";
+import { PendingValidationsRoute } from "./routes/goddess/PendingValidationsRoute";
+import { RecordPaymentRoute } from "./routes/goddess/RecordPaymentRoute";
 import { InviteLandingRoute } from "./routes/public/InviteLandingRoute";
 import { SignupRoute } from "./routes/public/SignupRoute";
 import { PendingEntryTributeRoute } from "./routes/sub/PendingEntryTributeRoute";
+import { PaymentFormRoute } from "./routes/sub/PaymentFormRoute";
+import { PaymentHistoryRoute } from "./routes/sub/PaymentHistoryRoute";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginRoute /> },
@@ -55,6 +60,46 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <PendingEntryTributeRoute />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sub/payments",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <PaymentHistoryRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sub/payments/new",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <PaymentFormRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/validations",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <PendingValidationsRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/payments/record",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <RecordPaymentRoute />
+        </RoleProtectedRoute>
       </ProtectedRoute>
     ),
   },

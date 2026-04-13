@@ -276,10 +276,291 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/sub/payments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List own payment history
+     * @description Returns the authenticated sub's payment declarations ordered by declared_at descending.
+     */
+    get: operations["list_my_payments_sub_payments_get"];
+    put?: never;
+    /**
+     * Declare a payment
+     * @description Sub declares a payment they have made. Creates a pending declaration. Category `entry` only allowed while sub status is `pending_entry_tribute`. Category `tribute` allowed for active subs. Categories `rolling`, `weekly_debt`, `debt_payment`, `buyout` are reserved for future phases.
+     */
+    post: operations["declare_payment_sub_payments_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/payments/{declaration_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Cancel a pending declaration
+     * @description Marks a pending declaration as cancelled. Raises 409 if not pending. Cancelled declarations remain in history.
+     */
+    delete: operations["cancel_declaration_sub_payments__declaration_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Edit a pending declaration
+     * @description Partially updates a pending declaration owned by this sub. Only fields supplied are changed. Raises 409 if declaration is not pending.
+     */
+    patch: operations["edit_declaration_sub_payments__declaration_id__patch"];
+    trace?: never;
+  };
+  "/sub/payment-methods": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List enabled payment methods for sub's goddess
+     * @description Returns the enabled payment methods belonging to the authenticated sub's goddess. Used by subs when filing a payment declaration.
+     */
+    get: operations["list_sub_payment_methods_sub_payment_methods_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List pending payment declarations
+     * @description Returns declarations for this goddess filtered by status. Currently only `status=pending` is supported. Other values are ignored and return pending.
+     */
+    get: operations["list_pending_payments_goddess_payments_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payments/{declaration_id}/validate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Validate a pending declaration
+     * @description Validates a pending declaration, optionally re-categorising it first. Emits a payment allocation. On `entry` category, promotes the sub to `active`. Raises 409 if declaration is not pending.
+     */
+    post: operations["validate_declaration_goddess_payments__declaration_id__validate_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payments/{declaration_id}/reject": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Reject a pending declaration
+     * @description Marks a pending declaration as rejected with an optional reason. Raises 409 if declaration is not pending.
+     */
+    post: operations["reject_declaration_goddess_payments__declaration_id__reject_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payments/record": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Record a payment on behalf of a sub
+     * @description Goddess creates an already-validated declaration on behalf of a sub. Emits allocation immediately. On `entry` category, promotes sub to `active`.
+     */
+    post: operations["record_payment_goddess_payments_record_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/subs": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List subs for this goddess
+     * @description Returns a minimal list of users linked to the authenticated goddess.
+     */
+    get: operations["list_goddess_subs_goddess_subs_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** AllocationOut */
+    AllocationOut: {
+      /**
+       * @description What ledger bucket received this allocation
+       * @example entry
+       */
+      target_type: components["schemas"]["AllocationTargetType"];
+      /**
+       * Target Id
+       * @description Polymorphic target ID (None for entry/tribute)
+       * @example null
+       */
+      target_id?: string | null;
+      /**
+       * Amount
+       * @description Allocated amount in GBP
+       * @example 30.00
+       */
+      amount: string;
+      /**
+       * Allocated At
+       * Format: date-time
+       * @description UTC datetime when the allocation was emitted
+       */
+      allocated_at: string;
+    };
+    /**
+     * AllocationTargetType
+     * @enum {string}
+     */
+    AllocationTargetType:
+      | "entry"
+      | "rolling_cycle"
+      | "contract_debt"
+      | "contract_buyout"
+      | "tribute";
+    /** DeclarePaymentIn */
+    DeclarePaymentIn: {
+      /**
+       * Amount
+       * @description Payment amount in GBP
+       * @example 30.00
+       */
+      amount: number | string;
+      /**
+       * Method Id
+       * Format: uuid
+       * @description UUID of the payment method used
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      method_id: string;
+      /**
+       * @description Payment category — determines ledger routing
+       * @example entry
+       */
+      category: components["schemas"]["PaymentCategory"];
+      /**
+       * External Timestamp
+       * @description UTC datetime when the payment was actually made (sub-reported)
+       * @example 2026-04-13T12:00:00
+       */
+      external_timestamp?: string | null;
+      /**
+       * Note
+       * @description Optional note from the sub
+       * @example Sent via Throne
+       */
+      note?: string | null;
+      /**
+       * Target Id
+       * @description Polymorphic target — contract or rolling cycle ID (required for some categories)
+       * @example null
+       */
+      target_id?: string | null;
+    };
+    /** EditDeclarationIn */
+    EditDeclarationIn: {
+      /**
+       * Amount
+       * @description Updated payment amount in GBP
+       * @example 30.00
+       */
+      amount?: number | string | null;
+      /**
+       * Method Id
+       * @description Updated payment method UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      method_id?: string | null;
+      /**
+       * @description Updated payment category
+       * @example tribute
+       */
+      category?: components["schemas"]["PaymentCategory"] | null;
+      /**
+       * External Timestamp
+       * @description Updated external payment timestamp
+       * @example 2026-04-13T12:00:00
+       */
+      external_timestamp?: string | null;
+      /**
+       * Note
+       * @description Updated note
+       * @example Corrected note
+       */
+      note?: string | null;
+      /**
+       * Target Id
+       * @description Updated polymorphic target ID
+       * @example null
+       */
+      target_id?: string | null;
+    };
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -398,6 +679,11 @@ export interface components {
        */
       email: string;
     };
+    /**
+     * PaymentCategory
+     * @enum {string}
+     */
+    PaymentCategory: "entry" | "rolling" | "weekly_debt" | "debt_payment" | "buyout" | "tribute";
     /** PaymentMethodCreate */
     PaymentMethodCreate: {
       /**
@@ -525,6 +811,109 @@ export interface components {
        */
       enabled?: boolean | null;
     };
+    /** PaymentOut */
+    PaymentOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Declaration UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description Sub user UUID
+       */
+      sub_id: string;
+      /**
+       * Sub Display Name
+       * @description Sub display name (first + last)
+       */
+      sub_display_name?: string | null;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Goddess UUID
+       */
+      goddess_id: string;
+      /**
+       * Method Id
+       * Format: uuid
+       * @description Payment method UUID
+       */
+      method_id: string;
+      /**
+       * Method Name
+       * @description Payment method display name
+       */
+      method_name?: string | null;
+      /**
+       * Amount
+       * @description Payment amount in GBP
+       * @example 30.00
+       */
+      amount: string;
+      /**
+       * External Timestamp
+       * @description Sub-reported payment datetime
+       */
+      external_timestamp?: string | null;
+      /**
+       * Note
+       * @description Note from the declarer
+       */
+      note?: string | null;
+      /**
+       * @description Payment category
+       * @example entry
+       */
+      category: components["schemas"]["PaymentCategory"];
+      /**
+       * @description Declaration status
+       * @example pending
+       */
+      status: components["schemas"]["PaymentStatus"];
+      /**
+       * Target Id
+       * @description Polymorphic target ID
+       */
+      target_id?: string | null;
+      /**
+       * Created By
+       * Format: uuid
+       * @description UUID of user who created this declaration
+       */
+      created_by: string;
+      /**
+       * Declared At
+       * Format: date-time
+       * @description UTC datetime of declaration
+       */
+      declared_at: string;
+      /**
+       * Validated At
+       * @description UTC datetime of validation/rejection
+       */
+      validated_at?: string | null;
+      /**
+       * Validated By
+       * @description UUID of goddess who validated/rejected
+       */
+      validated_by?: string | null;
+      /**
+       * Rejection Reason
+       * @description Reason for rejection if rejected
+       */
+      rejection_reason?: string | null;
+      /** @description Allocation record if validated */
+      allocation?: components["schemas"]["AllocationOut"] | null;
+    };
+    /**
+     * PaymentStatus
+     * @enum {string}
+     */
+    PaymentStatus: "pending" | "validated" | "rejected" | "cancelled";
     /** PublicInvitationOut */
     PublicInvitationOut: {
       /**
@@ -558,6 +947,52 @@ export interface components {
        */
       expires_at: string;
     };
+    /** RecordPaymentIn */
+    RecordPaymentIn: {
+      /**
+       * Amount
+       * @description Payment amount in GBP
+       * @example 30.00
+       */
+      amount: number | string;
+      /**
+       * Method Id
+       * Format: uuid
+       * @description UUID of the payment method used
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      method_id: string;
+      /**
+       * @description Payment category — determines ledger routing
+       * @example entry
+       */
+      category: components["schemas"]["PaymentCategory"];
+      /**
+       * External Timestamp
+       * @description UTC datetime when the payment was actually made (sub-reported)
+       * @example 2026-04-13T12:00:00
+       */
+      external_timestamp?: string | null;
+      /**
+       * Note
+       * @description Optional note from the sub
+       * @example Sent via Throne
+       */
+      note?: string | null;
+      /**
+       * Target Id
+       * @description Polymorphic target — contract or rolling cycle ID (required for some categories)
+       * @example null
+       */
+      target_id?: string | null;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description UUID of the sub on whose behalf the goddess is recording
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      sub_id: string;
+    };
     /** RefreshRequest */
     RefreshRequest: {
       /**
@@ -566,6 +1001,15 @@ export interface components {
        * @example abc123
        */
       refresh_token: string;
+    };
+    /** RejectIn */
+    RejectIn: {
+      /**
+       * Reason
+       * @description Optional rejection reason shown to the sub
+       * @example Wrong amount — expected £30.00
+       */
+      reason?: string | null;
     };
     /** ReorderRequest */
     ReorderRequest: {
@@ -701,6 +1145,14 @@ export interface components {
      * @enum {string}
      */
     UserStatus: "pending_entry_tribute" | "active" | "blacklisted" | "deleted";
+    /** ValidateIn */
+    ValidateIn: {
+      /**
+       * @description Optional new category to assign before validating
+       * @example null
+       */
+      recategorize_to?: components["schemas"]["PaymentCategory"] | null;
+    };
     /** ValidationError */
     ValidationError: {
       /** Location */
@@ -1510,6 +1962,579 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  list_my_payments_sub_payments_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  declare_payment_sub_payments_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DeclarePaymentIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"];
+        };
+      };
+      /** @description Bad request — invalid category or business rule violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  cancel_declaration_sub_payments__declaration_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        declaration_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — declaration is not in the expected status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  edit_declaration_sub_payments__declaration_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        declaration_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EditDeclarationIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"];
+        };
+      };
+      /** @description Bad request — invalid category or business rule violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — declaration is not in the expected status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_sub_payment_methods_sub_payment_methods_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentMethodOut"][];
+        };
+      };
+      /** @description Bad request — invalid category or business rule violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_pending_payments_goddess_payments_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  validate_declaration_goddess_payments__declaration_id__validate_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        declaration_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ValidateIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"];
+        };
+      };
+      /** @description Bad request — invalid category or business rule violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — declaration is not in the expected status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  reject_declaration_goddess_payments__declaration_id__reject_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        declaration_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RejectIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — declaration is not in the expected status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  record_payment_goddess_payments_record_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RecordPaymentIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"];
+        };
+      };
+      /** @description Bad request — invalid category or business rule violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_goddess_subs_goddess_subs_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          }[];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
       };
     };
   };
