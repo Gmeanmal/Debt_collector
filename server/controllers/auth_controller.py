@@ -29,7 +29,7 @@ class AuthController:
         user = await self._users.get_by_email(email)
         if not user or not verify_password(password, user.password_hash):
             raise Unauthorized("invalid credentials")
-        if user.status != UserStatus.active:
+        if user.status in (UserStatus.blacklisted, UserStatus.deleted):
             raise Forbidden("account not active")
 
         raw_refresh, _ = create_refresh_token()

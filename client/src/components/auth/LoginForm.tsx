@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { loginApi } from "@/services/auth/authApi";
+import { getMeApi, loginApi } from "@/services/auth/authApi";
 import { setTokens } from "@/services/auth/tokenStorage";
 
 const schema = z.object({
@@ -28,7 +28,8 @@ export function LoginForm() {
     try {
       const pair = await loginApi({ email: values.email, password: values.password });
       setTokens({ access: pair.access_token, refresh: pair.refresh_token });
-      await queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      const me = await getMeApi();
+      queryClient.setQueryData(["auth", "me"], me);
       navigate("/", { replace: true });
     } catch {
       setError("root", { message: "Invalid email or password" });

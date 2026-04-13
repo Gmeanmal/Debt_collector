@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 from models.user import UserRole, UserStatus
 
@@ -30,7 +30,7 @@ class RefreshRequest(BaseModel):
 
 
 class PasswordResetRequest(BaseModel):
-    email: EmailStr = Field(
+    email: str = Field(
         ..., description="Email address of the account to reset", examples=["sub@example.com"]
     )
 
