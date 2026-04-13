@@ -13,10 +13,7 @@ config = context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
 
-config.set_main_option(
-    "sqlalchemy.url",
-    get_settings().database_url.replace("+asyncpg", ""),
-)
+config.set_main_option("sqlalchemy.url", get_settings().database_url)
 target_metadata = SQLModel.metadata
 
 

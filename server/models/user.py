@@ -1,0 +1,64 @@
+from datetime import datetime
+from enum import StrEnum
+from uuid import UUID, uuid4
+
+from sqlmodel import Field, SQLModel
+
+
+class UserRole(StrEnum):
+    ADMIN = "admin"
+    GODDESS = "goddess"
+    SUB = "sub"
+
+
+class UserStatus(StrEnum):
+    PENDING_ENTRY_TRIBUTE = "pending_entry_tribute"
+    ACTIVE = "active"
+    BLACKLISTED = "blacklisted"
+    DELETED = "deleted"
+
+
+class Goddess(SQLModel, table=True):
+    __tablename__ = "goddess"
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    display_name: str
+    email: str = Field(unique=True, index=True)
+    password_hash: str
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+
+
+class User(SQLModel, table=True):
+    __tablename__ = "user"
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    goddess_id: UUID | None = Field(default=None, foreign_key="goddess.id", index=True)
+    username: str = Field(unique=True, index=True)
+    email: str = Field(unique=True, index=True)
+    password_hash: str
+    role: UserRole = Field(index=True)
+    status: UserStatus = Field(default=UserStatus.ACTIVE, index=True)
+    first_name: str | None = None
+    last_name: str | None = None
+    twitter_handle: str | None = None
+    source_note: str | None = None
+    theme_preference: str = Field(default="system")
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+
+
+class RefreshToken(SQLModel, table=True):
+    __tablename__ = "refresh_token"
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    user_id: UUID = Field(foreign_key="user.id", index=True)
+    token_hash: str = Field(unique=True, index=True)
+    expires_at: datetime
+    revoked_at: datetime | None = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class PasswordResetToken(SQLModel, table=True):
+    __tablename__ = "password_reset_token"
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    user_id: UUID = Field(foreign_key="user.id", index=True)
+    token_hash: str = Field(unique=True, index=True)
+    expires_at: datetime
+    used_at: datetime | None = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
