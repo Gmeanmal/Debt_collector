@@ -42,9 +42,29 @@ async def _seed_admin(session: AsyncSession, s: object) -> str:
 async def _seed_goddess(session: AsyncSession, s: object) -> str:
     result = await session.execute(select(User).where(User.email == s.goddess_email))
     existing = result.scalar_one_or_none()
-    if existing is not None:
+
+    if existing is not None and existing.goddess_id is not None:
         log.info("already seeded", email=s.goddess_email)
         return "skipped"
+
+    if existing is not None and existing.goddess_id is None:
+        goddess_result = await session.execute(
+            select(Goddess).where(Goddess.email == s.goddess_email)
+        )
+        goddess = goddess_result.scalar_one_or_none()
+        if goddess is None:
+            goddess = Goddess(
+                id=uuid4(),
+                display_name=s.goddess_display_name,
+                email=s.goddess_email,
+                password_hash=existing.password_hash,
+            )
+            session.add(goddess)
+            await session.flush()
+        existing.goddess_id = goddess.id
+        session.add(existing)
+        log.info("patched goddess link", email=s.goddess_email)
+        return "patched"
 
     goddess_user = User(
         id=uuid4(),
@@ -58,14 +78,17 @@ async def _seed_goddess(session: AsyncSession, s: object) -> str:
     session.add(goddess_user)
     await session.flush()
 
-    session.add(
-        Goddess(
-            id=uuid4(),
-            display_name=s.goddess_display_name,
-            email=s.goddess_email,
-            password_hash=goddess_user.password_hash,
-        )
+    goddess = Goddess(
+        id=uuid4(),
+        display_name=s.goddess_display_name,
+        email=s.goddess_email,
+        password_hash=goddess_user.password_hash,
     )
+    session.add(goddess)
+    await session.flush()
+
+    goddess_user.goddess_id = goddess.id
+    session.add(goddess_user)
     log.info("seeded goddess", email=s.goddess_email)
     return "created"
 
