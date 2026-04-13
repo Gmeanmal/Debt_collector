@@ -174,3 +174,4 @@ backend/generated_pdfs/
 
 # Plannotator output
 .plannotator/
+.playwright-mcp/
