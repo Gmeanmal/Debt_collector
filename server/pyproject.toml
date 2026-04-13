@@ -47,6 +47,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 [tool.ruff.lint.per-file-ignores]
 "routers/*" = ["B008"]
 "dependencies/*" = ["B008"]
+"alembic/versions/*" = ["E501"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

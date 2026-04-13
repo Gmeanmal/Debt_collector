@@ -8,6 +8,18 @@ from core.db import engine
 from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
 from routers import auth, health, invitations, payment_methods, public_invitation, signup
+from routers.payments import (
+    goddess_router as payments_goddess_router,
+)
+from routers.payments import (
+    goddess_subs_router,
+)
+from routers.payments import (
+    sub_methods_router as sub_payment_methods_router,
+)
+from routers.payments import (
+    sub_router as payments_sub_router,
+)
 
 
 @asynccontextmanager
@@ -36,3 +48,7 @@ app.include_router(invitations.router)
 app.include_router(payment_methods.router)
 app.include_router(public_invitation.router)
 app.include_router(signup.router)
+app.include_router(payments_sub_router)
+app.include_router(sub_payment_methods_router)
+app.include_router(payments_goddess_router)
+app.include_router(goddess_subs_router)
