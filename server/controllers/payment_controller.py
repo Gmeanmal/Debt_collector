@@ -4,6 +4,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import col
 
 from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.allocation_dao import PaymentAllocationDao
@@ -293,7 +294,7 @@ class PaymentController:
     async def list_subs(self, goddess_user: User) -> list[dict]:
         goddess_id = await _resolve_goddess_id(self._session, goddess_user.id)
         result = await self._session.execute(
-            select(User).where(User.goddess_id == goddess_id, User.role == UserRole.sub)
+            select(User).where(col(User.goddess_id) == goddess_id, col(User.role) == UserRole.sub)
         )
         subs = result.scalars().all()
         return [
