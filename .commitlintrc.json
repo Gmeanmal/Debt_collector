@@ -5,6 +5,6 @@
     "scope-enum": [2, "always", ["server","client","infra","docs","db","auth","contracts","rollings","payments","admin","notif","ui"]],
     "scope-empty": [2, "never"],
     "subject-case": [2, "always", "lower-case"],
-    "header-max-length": [2, "always", 72]
+    "body-max-line-length": [2, "always", 100]
   }
 }

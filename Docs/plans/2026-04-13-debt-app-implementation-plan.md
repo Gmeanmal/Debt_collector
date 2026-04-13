@@ -21,7 +21,7 @@
 - **One `.env` per service.** `server/.env` and `client/.env` are independent — no root-level `.env`. Each has its own `.env.example` in its folder. Makes it trivial to deploy server and client to different providers later.
 - **Dependency management per service.** `server/pyproject.toml` (uv) and `client/package.json` (pnpm) are installed and managed from inside their own folder. No root `package.json`, no root `pyproject.toml`, no monorepo workspace tooling.
 - **Docker = infra only.** `docker-compose.yml` hosts Postgres + Mailhog. Server and client always run locally (`make server`, `make client`) for proper hot-reload and LSP.
-- **Git commits:** author = repo owner only (never Claude co-authorship). Conventional Commits format: `<type>(<scope>): <summary>` where type ∈ `feat|fix|chore|docs|refactor|test|ci`, scope ∈ `server|client|infra|docs|db|auth|contracts|rollings|payments|admin|notif|ui`, imperative mood, lowercase summary, ≤ 72 chars.
+- **Git commits:** author = repo owner only (never Claude co-authorship). Conventional Commits format: `<type>(<scope>): <summary>` where type ∈ `feat|fix|chore|docs|refactor|test|ci`, scope ∈ `server|client|infra|docs|db|auth|contracts|rollings|payments|admin|notif|ui`, imperative mood, lowercase summary. Header max length follows `@commitlint/config-conventional` default (100 chars); keep subjects terse anyway.
 
 **Design references (single source of truth):**
 
@@ -1148,7 +1148,7 @@ And `.commitlintrc.json` at the root:
     "scope-enum": [2, "always", ["server","client","infra","docs","db","auth","contracts","rollings","payments","admin","notif","ui"]],
     "scope-empty": [2, "never"],
     "subject-case": [2, "always", "lower-case"],
-    "header-max-length": [2, "always", 72]
+    "body-max-line-length": [2, "always", 100]
   }
 }
 ```
