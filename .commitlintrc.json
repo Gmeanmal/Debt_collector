@@ -1,0 +1,10 @@
+{
+  "extends": ["@commitlint/config-conventional"],
+  "rules": {
+    "type-enum": [2, "always", ["feat","fix","chore","docs","refactor","test","ci"]],
+    "scope-enum": [2, "always", ["server","client","infra","docs","db","auth","contracts","rollings","payments","admin","notif","ui"]],
+    "scope-empty": [2, "never"],
+    "subject-case": [2, "always", "lower-case"],
+    "header-max-length": [2, "always", 72]
+  }
+}
