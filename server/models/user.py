@@ -6,16 +6,16 @@ from sqlmodel import Field, SQLModel
 
 
 class UserRole(StrEnum):
-    ADMIN = "admin"
-    GODDESS = "goddess"
-    SUB = "sub"
+    admin = "admin"
+    goddess = "goddess"
+    sub = "sub"
 
 
 class UserStatus(StrEnum):
-    PENDING_ENTRY_TRIBUTE = "pending_entry_tribute"
-    ACTIVE = "active"
-    BLACKLISTED = "blacklisted"
-    DELETED = "deleted"
+    pending_entry_tribute = "pending_entry_tribute"
+    active = "active"
+    blacklisted = "blacklisted"
+    deleted = "deleted"
 
 
 class Goddess(SQLModel, table=True):
@@ -35,7 +35,7 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True, index=True)
     password_hash: str
     role: UserRole = Field(index=True)
-    status: UserStatus = Field(default=UserStatus.ACTIVE, index=True)
+    status: UserStatus = Field(default=UserStatus.active, index=True)
     first_name: str | None = None
     last_name: str | None = None
     twitter_handle: str | None = None

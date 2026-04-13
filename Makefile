@@ -40,10 +40,10 @@ migration:
 	cd server && uv run alembic revision --autogenerate -m "$(m)"
 
 flush-dbs:
-	cd server && uv run python scripts/flush_db.py
+	cd server && uv run python -m scripts.flush_db
 
 init-dbs:
-	cd server && uv run python scripts/flush_db.py && uv run alembic upgrade head && uv run python scripts/init_db.py
+	cd server && uv run python -m scripts.flush_db && uv run alembic upgrade head && uv run python -m scripts.init_db
 
 reset-dbs: init-dbs
 

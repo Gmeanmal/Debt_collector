@@ -8,7 +8,7 @@ from models.user import UserRole, UserStatus
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr = Field(..., description="User email address", examples=["sub@example.com"])
+    email: str = Field(..., description="User email address", examples=["sub@example.com"])
     password: str = Field(..., description="User password", examples=["s3cr3t!"])
 
 

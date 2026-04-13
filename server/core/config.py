@@ -35,8 +35,12 @@ class Settings(BaseSettings):
     app_timezone: str = "Europe/London"
 
     admin_username: str = "admin"
-    admin_email: str = "admin@debt-collector.local"
-    admin_password: str = "change-me"
+    admin_email: str = "admin@localhost"
+    admin_password: str = "ChangeMe!Dev123"
+
+    goddess_email: str = "goddess@localhost"
+    goddess_password: str = "ChangeMe!Dev123"
+    goddess_display_name: str = "Goddess Mean Mal"
 
     @property
     def cors_origins_list(self) -> list[str]:
