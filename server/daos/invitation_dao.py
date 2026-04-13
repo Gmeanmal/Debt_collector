@@ -2,8 +2,8 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import col, select
 
 from models.invitation import Invitation
 from models.user import Goddess
@@ -35,8 +35,8 @@ class InvitationDao:
     async def get_by_token(self, token: str) -> tuple[Invitation, Goddess] | None:
         result = await self._session.execute(
             select(Invitation, Goddess)
-            .join(Goddess, Invitation.goddess_id == Goddess.id)
-            .where(Invitation.token == token)
+            .join(Goddess, col(Invitation.goddess_id) == col(Goddess.id))
+            .where(col(Invitation.token) == token)
         )
         row = result.first()
         if row is None:
@@ -51,7 +51,7 @@ class InvitationDao:
     async def list_by_goddess(self, goddess_id: UUID) -> list[Invitation]:
         result = await self._session.execute(
             select(Invitation)
-            .where(Invitation.goddess_id == goddess_id)
-            .order_by(Invitation.created_at.desc())
+            .where(col(Invitation.goddess_id) == goddess_id)
+            .order_by(col(Invitation.created_at).desc())
         )
         return list(result.scalars().all())

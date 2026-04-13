@@ -2,8 +2,8 @@ import secrets
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import col, select
 
 from core.security import hash_token
 from models.user import PasswordResetToken, RefreshToken
@@ -36,7 +36,7 @@ class TokenDao:
 
     async def get_refresh_by_hash(self, token_hash: str) -> RefreshToken | None:
         result = await self._session.execute(
-            select(RefreshToken).where(RefreshToken.token_hash == token_hash)
+            select(RefreshToken).where(col(RefreshToken.token_hash) == token_hash)
         )
         return result.scalar_one_or_none()
 
@@ -60,7 +60,9 @@ class TokenDao:
 
     async def consume_reset_token(self, raw_token: str) -> PasswordResetToken | None:
         result = await self._session.execute(
-            select(PasswordResetToken).where(PasswordResetToken.token_hash == hash_token(raw_token))
+            select(PasswordResetToken).where(
+                col(PasswordResetToken.token_hash) == hash_token(raw_token)
+            )
         )
         token_row = result.scalar_one_or_none()
         if token_row is None:
@@ -75,8 +77,8 @@ class TokenDao:
     async def revoke_all_refresh_for_user(self, user_id: UUID) -> None:
         result = await self._session.execute(
             select(RefreshToken).where(
-                RefreshToken.user_id == user_id,
-                RefreshToken.revoked_at.is_(None),
+                col(RefreshToken.user_id) == user_id,
+                col(RefreshToken.revoked_at).is_(None),
             )
         )
         now = datetime.now(UTC).replace(tzinfo=None)

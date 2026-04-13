@@ -1,3 +1,5 @@
+from typing import Any
+
 import httpx
 
 from core.exceptions import AppError
@@ -12,7 +14,12 @@ class ResendEmailService:
         if not self._api_key:
             raise AppError("RESEND_API_KEY is not configured")
 
-        payload: dict = {"from": self._mail_from, "to": to, "subject": subject, "html": html}
+        payload: dict[str, Any] = {
+            "from": self._mail_from,
+            "to": to,
+            "subject": subject,
+            "html": html,
+        }
         if text:
             payload["text"] = text
 

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
@@ -72,7 +72,7 @@ class PaymentDeclaration(SQLModel, table=True):
         )
     )
     declared_at: datetime = Field(
-        default_factory=lambda: datetime.utcnow(),
+        default_factory=lambda: datetime.now(UTC).replace(tzinfo=None),
         nullable=False,
     )
     validated_at: datetime | None = Field(default=None, nullable=True)
@@ -101,6 +101,6 @@ class PaymentAllocation(SQLModel, table=True):
     target_id: UUID | None = Field(default=None, nullable=True)
     amount: float = Field(sa_column=Column(Numeric(12, 2), nullable=False))
     allocated_at: datetime = Field(
-        default_factory=lambda: datetime.utcnow(),
+        default_factory=lambda: datetime.now(UTC).replace(tzinfo=None),
         nullable=False,
     )

@@ -6,8 +6,8 @@ import asyncio
 from uuid import uuid4
 
 import structlog
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import col, select
 
 from core.config import Settings, get_settings
 from core.db import SessionMaker
@@ -18,7 +18,7 @@ log = structlog.get_logger()
 
 
 async def _seed_admin(session: AsyncSession, s: Settings) -> str:
-    result = await session.execute(select(User).where(User.email == s.admin_email))
+    result = await session.execute(select(User).where(col(User.email) == s.admin_email))
     existing = result.scalar_one_or_none()
     if existing is not None:
         log.info("already seeded", email=s.admin_email)
@@ -40,7 +40,7 @@ async def _seed_admin(session: AsyncSession, s: Settings) -> str:
 
 
 async def _seed_goddess(session: AsyncSession, s: Settings) -> str:
-    result = await session.execute(select(User).where(User.email == s.goddess_email))
+    result = await session.execute(select(User).where(col(User.email) == s.goddess_email))
     existing = result.scalar_one_or_none()
 
     if existing is not None and existing.goddess_id is not None:
@@ -49,7 +49,7 @@ async def _seed_goddess(session: AsyncSession, s: Settings) -> str:
 
     if existing is not None and existing.goddess_id is None:
         goddess_result = await session.execute(
-            select(Goddess).where(Goddess.email == s.goddess_email)
+            select(Goddess).where(col(Goddess.email) == s.goddess_email)
         )
         goddess = goddess_result.scalar_one_or_none()
         if goddess is None:

@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
+from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import col
+from sqlmodel import col, select
 
 from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.allocation_dao import PaymentAllocationDao
@@ -61,7 +61,9 @@ def _check_category_for_sub(sub: User, category: PaymentCategory) -> None:
 
 async def _resolve_goddess_id(session: AsyncSession, user_id: UUID) -> UUID:
     result = await session.execute(
-        select(Goddess).join(User, User.goddess_id == Goddess.id).where(User.id == user_id)
+        select(Goddess)
+        .join(User, col(User.goddess_id) == col(Goddess.id))
+        .where(col(User.id) == user_id)
     )
     goddess = result.scalar_one_or_none()
     if goddess is None:
@@ -82,18 +84,22 @@ async def _get_method_for_goddess(
 
 async def _load_allocation(session: AsyncSession, declaration_id: UUID) -> PaymentAllocation | None:
     result = await session.execute(
-        select(PaymentAllocation).where(PaymentAllocation.declaration_id == declaration_id)
+        select(PaymentAllocation).where(col(PaymentAllocation.declaration_id) == declaration_id)
     )
     return result.scalar_one_or_none()
 
 
 async def _load_method_name(session: AsyncSession, method_id: UUID) -> str | None:
-    result = await session.execute(select(PaymentMethod.name).where(PaymentMethod.id == method_id))
+    result = await session.execute(
+        select(col(PaymentMethod.name)).where(col(PaymentMethod.id) == method_id)
+    )
     return result.scalar_one_or_none()
 
 
 async def _load_sub_display_name(session: AsyncSession, sub_id: UUID) -> str | None:
-    result = await session.execute(select(User.first_name, User.last_name).where(User.id == sub_id))
+    result = await session.execute(
+        select(col(User.first_name), col(User.last_name)).where(col(User.id) == sub_id)
+    )
     row = result.one_or_none()
     if row is None:
         return None
@@ -181,7 +187,7 @@ class PaymentController:
         _check_category_for_sub(sub, payload.category)
         await _get_method_for_goddess(self._method_dao, goddess_id, payload.method_id)
 
-        now = datetime.utcnow()
+        now = datetime.now(UTC).replace(tzinfo=None)
         decl = await self._decl_dao.create(
             {
                 "sub_id": sub.id,
@@ -236,7 +242,7 @@ class PaymentController:
         if decl.status != PaymentStatus.pending:
             raise Conflict("only pending declarations can be cancelled")
 
-        await self._decl_dao.mark_cancelled(decl, datetime.utcnow())
+        await self._decl_dao.mark_cancelled(decl, datetime.now(UTC).replace(tzinfo=None))
 
     async def validate(
         self,
@@ -259,7 +265,7 @@ class PaymentController:
 
         _check_category_for_sub(sub, category)
 
-        now = datetime.utcnow()
+        now = datetime.now(UTC).replace(tzinfo=None)
         await self._decl_dao.mark_validated(decl, goddess_user.id, now, category)
         await self._emit_allocation(decl)
 
@@ -279,7 +285,7 @@ class PaymentController:
             raise Conflict("only pending declarations can be rejected")
 
         decl.validated_by = goddess_user.id
-        await self._decl_dao.mark_rejected(decl, reason, datetime.utcnow())
+        await self._decl_dao.mark_rejected(decl, reason, datetime.now(UTC).replace(tzinfo=None))
         return await _to_out(self._session, decl)
 
     async def list_my_history(self, sub_user: User) -> list[PaymentOut]:
@@ -291,7 +297,7 @@ class PaymentController:
         decls = await self._decl_dao.list_pending_for_goddess(goddess_id)
         return [await _to_out(self._session, d) for d in decls]
 
-    async def list_subs(self, goddess_user: User) -> list[dict]:
+    async def list_subs(self, goddess_user: User) -> list[dict[str, Any]]:
         goddess_id = await _resolve_goddess_id(self._session, goddess_user.id)
         result = await self._session.execute(
             select(User).where(col(User.goddess_id) == goddess_id, col(User.role) == UserRole.sub)
@@ -307,7 +313,7 @@ class PaymentController:
             for s in subs
         ]
 
-    async def list_sub_payment_methods(self, sub_user: User) -> list:
+    async def list_sub_payment_methods(self, sub_user: User) -> list[PaymentMethod]:
         if sub_user.goddess_id is None:
             raise BadRequest("sub is not linked to a goddess")
         return await self._method_dao.list_by_goddess(sub_user.goddess_id, enabled_only=True)

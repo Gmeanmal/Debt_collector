@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import col, select
 
 from core.exceptions import Forbidden, NotFound
 from daos.payment_method_dao import PaymentMethodDao
@@ -25,7 +25,9 @@ class PaymentMethodController:
 
     async def _resolve_goddess_id(self, user_id: UUID) -> UUID:
         result = await self._session.execute(
-            select(Goddess).join(User, User.goddess_id == Goddess.id).where(User.id == user_id)
+            select(Goddess)
+            .join(User, col(User.goddess_id) == col(Goddess.id))
+            .where(col(User.id) == user_id)
         )
         goddess = result.scalar_one_or_none()
         if goddess is None:

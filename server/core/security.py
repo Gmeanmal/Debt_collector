@@ -1,6 +1,7 @@
 import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import jwt
 from argon2 import PasswordHasher
@@ -28,9 +29,9 @@ def verify_password(plain: str, hashed: str) -> bool:
         return False
 
 
-def create_access_token(subject: str, role: str, extra: dict | None = None) -> str:
+def create_access_token(subject: str, role: str, extra: dict[str, Any] | None = None) -> str:
     now = datetime.now(UTC)
-    payload: dict = {
+    payload: dict[str, Any] = {
         "sub": subject,
         "role": role,
         "iat": int(now.timestamp()),
@@ -47,7 +48,7 @@ def create_refresh_token() -> tuple[str, str]:
     return raw, hash_token(raw)
 
 
-def decode_access_token(token: str) -> dict:
+def decode_access_token(token: str) -> dict[str, Any]:
     try:
         data = jwt.decode(token, _settings.jwt_secret_key, algorithms=[_settings.jwt_algorithm])
     except jwt.ExpiredSignatureError as exc:

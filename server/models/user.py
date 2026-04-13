@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
@@ -24,7 +24,9 @@ class Goddess(SQLModel, table=True):
     display_name: str
     email: str = Field(unique=True, index=True)
     password_hash: str
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC).replace(tzinfo=None), nullable=False
+    )
 
 
 class User(SQLModel, table=True):
@@ -43,7 +45,9 @@ class User(SQLModel, table=True):
     avatar_url: str | None = None
     theme_preference: str = Field(default="system")
     last_login_at: datetime | None = None
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC).replace(tzinfo=None), nullable=False
+    )
 
 
 class RefreshToken(SQLModel, table=True):
@@ -53,7 +57,7 @@ class RefreshToken(SQLModel, table=True):
     token_hash: str = Field(unique=True, index=True)
     expires_at: datetime
     revoked_at: datetime | None = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))
 
 
 class PasswordResetToken(SQLModel, table=True):
@@ -63,4 +67,4 @@ class PasswordResetToken(SQLModel, table=True):
     token_hash: str = Field(unique=True, index=True)
     expires_at: datetime
     used_at: datetime | None = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))

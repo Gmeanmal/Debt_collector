@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -254,7 +255,7 @@ async def record_payment(
     "",
     summary="List subs for this goddess",
     description="Returns a minimal list of users linked to the authenticated goddess.",
-    response_model=list[dict],
+    response_model=list[dict[str, Any]],
     status_code=200,
     tags=["goddess-subs"],
     responses={401: _E401, 403: _E403},
@@ -262,5 +263,5 @@ async def record_payment(
 async def list_goddess_subs(
     user: User = Depends(require_role(UserRole.goddess)),
     ctrl: PaymentController = Depends(_ctrl),
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     return await ctrl.list_subs(user)

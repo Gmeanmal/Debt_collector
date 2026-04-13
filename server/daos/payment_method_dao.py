@@ -1,8 +1,9 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import col, select
 
 from core.exceptions import BadRequest
 from models.payment_method import PaymentMethod
@@ -15,7 +16,9 @@ class PaymentMethodDao:
 
     async def create(self, goddess_id: UUID, payload: PaymentMethodCreate) -> PaymentMethod:
         result = await self._session.execute(
-            select(func.max(PaymentMethod.sort_order)).where(PaymentMethod.goddess_id == goddess_id)
+            select(func.max(PaymentMethod.sort_order)).where(
+                col(PaymentMethod.goddess_id) == goddess_id
+            )
         )
         max_order = result.scalar()
         sort_order = (max_order + 1) if max_order is not None else 0
@@ -36,18 +39,18 @@ class PaymentMethodDao:
     async def list_by_goddess(
         self, goddess_id: UUID, enabled_only: bool = False
     ) -> list[PaymentMethod]:
-        stmt = select(PaymentMethod).where(PaymentMethod.goddess_id == goddess_id)
+        stmt = select(PaymentMethod).where(col(PaymentMethod.goddess_id) == goddess_id)
         if enabled_only:
-            stmt = stmt.where(PaymentMethod.enabled.is_(True))
-        stmt = stmt.order_by(PaymentMethod.sort_order.asc())
+            stmt = stmt.where(col(PaymentMethod.enabled).is_(True))
+        stmt = stmt.order_by(col(PaymentMethod.sort_order).asc())
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
 
     async def get_by_id(self, method_id: UUID, goddess_id: UUID) -> PaymentMethod | None:
         result = await self._session.execute(
             select(PaymentMethod).where(
-                PaymentMethod.id == method_id,
-                PaymentMethod.goddess_id == goddess_id,
+                col(PaymentMethod.id) == method_id,
+                col(PaymentMethod.goddess_id) == goddess_id,
             )
         )
         return result.scalar_one_or_none()
@@ -68,7 +71,7 @@ class PaymentMethodDao:
 
     async def set_sort_orders(self, goddess_id: UUID, ordered_ids: list[UUID]) -> None:
         result = await self._session.execute(
-            select(PaymentMethod).where(PaymentMethod.goddess_id == goddess_id)
+            select(PaymentMethod).where(col(PaymentMethod.goddess_id) == goddess_id)
         )
         owned = {m.id: m for m in result.scalars().all()}
 

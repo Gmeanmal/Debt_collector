@@ -1,8 +1,9 @@
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import col, select
 
 from models.payment import (
     AllocationTargetType,
@@ -37,8 +38,8 @@ class PaymentAllocationDao:
     ) -> list[PaymentAllocation]:
         result = await self._session.execute(
             select(PaymentAllocation).where(
-                PaymentAllocation.target_type == target_type,
-                PaymentAllocation.target_id == target_id,
+                col(PaymentAllocation.target_type) == target_type,
+                col(PaymentAllocation.target_id) == target_id,
             )
         )
         return list(result.scalars().all())
@@ -46,8 +47,8 @@ class PaymentAllocationDao:
     async def sum_for_sub(self, sub_id: UUID) -> Decimal:
         result = await self._session.execute(
             select(func.coalesce(func.sum(PaymentDeclaration.amount), 0)).where(
-                PaymentDeclaration.sub_id == sub_id,
-                PaymentDeclaration.status == PaymentStatus.validated,
+                col(PaymentDeclaration.sub_id) == sub_id,
+                col(PaymentDeclaration.status) == PaymentStatus.validated,
             )
         )
         return Decimal(str(result.scalar_one()))
@@ -55,8 +56,8 @@ class PaymentAllocationDao:
     async def sum_for_goddess(self, goddess_id: UUID) -> Decimal:
         result = await self._session.execute(
             select(func.coalesce(func.sum(PaymentDeclaration.amount), 0)).where(
-                PaymentDeclaration.goddess_id == goddess_id,
-                PaymentDeclaration.status == PaymentStatus.validated,
+                col(PaymentDeclaration.goddess_id) == goddess_id,
+                col(PaymentDeclaration.status) == PaymentStatus.validated,
             )
         )
         return Decimal(str(result.scalar_one()))

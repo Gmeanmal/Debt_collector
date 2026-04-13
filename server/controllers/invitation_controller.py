@@ -2,8 +2,8 @@ import secrets as _secrets
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import col, select
 
 from core.config import get_settings
 from core.exceptions import Conflict, Forbidden, NotFound
@@ -44,7 +44,9 @@ class InvitationController:
 
     async def _get_goddess_profile(self, user_id: UUID) -> Goddess:
         result = await self._session.execute(
-            select(Goddess).join(User, User.goddess_id == Goddess.id).where(User.id == user_id)
+            select(Goddess)
+            .join(User, col(User.goddess_id) == col(Goddess.id))
+            .where(col(User.id) == user_id)
         )
         goddess = result.scalar_one_or_none()
         if goddess is None:

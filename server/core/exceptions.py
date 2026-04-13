@@ -1,9 +1,12 @@
+from typing import Any
+
+
 class AppError(Exception):
     """Base application exception."""
 
     status_code = 500
 
-    def __init__(self, message: str, **context):
+    def __init__(self, message: str, **context: Any):
         super().__init__(message)
         self.message = message
         self.context = context
