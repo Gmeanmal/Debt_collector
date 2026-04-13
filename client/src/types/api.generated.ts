@@ -144,6 +144,70 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/goddess/invitations/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List all invitations created by the Goddess
+     * @description Returns all invitations created by this Goddess, ordered newest first. Includes pending, expired, and used invitations.
+     */
+    get: operations["list_invitations_goddess_invitations__get"];
+    put?: never;
+    /**
+     * Create an invitation link
+     * @description Creates a new invitation token that a sub can use to sign up. Sets an entry tribute amount the sub must declare after signup. The invitation expires after `expires_in_days` days (default 7) and is single-use.
+     */
+    post: operations["create_invitation_goddess_invitations__post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/invite/{token}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Fetch public invitation details
+     * @description Returns the public information for a valid, unused, non-expired invitation. Used by the invitation landing page before the sub signs up.
+     */
+    get: operations["get_invitation_invite__token__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/invite/{token}/signup": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Sign up via invitation link
+     * @description Creates a new sub account linked to the Goddess who owns the invitation. The sub is created with `status=pending_entry_tribute`. The invitation token is consumed atomically with user creation. Returns a token pair so the sub is immediately logged in.
+     */
+    post: operations["signup_via_invite_invite__token__signup_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -152,6 +216,79 @@ export interface components {
     HTTPValidationError: {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
+    };
+    /** InvitationCreate */
+    InvitationCreate: {
+      /**
+       * Entry Tribute Amount
+       * @description Entry tribute amount in GBP that the sub must declare on signup
+       * @example 50.00
+       */
+      entry_tribute_amount: number | string;
+      /**
+       * Note
+       * @description Optional private note visible to the sub on the invitation landing page
+       * @example Welcome, slave.
+       */
+      note?: string | null;
+      /**
+       * Expires In Days
+       * @description How many days from now until the invitation link expires
+       * @default 7
+       * @example 7
+       */
+      expires_in_days: number;
+    };
+    /** InvitationOut */
+    InvitationOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Invitation UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      id: string;
+      /**
+       * Token
+       * @description URL-safe token embedded in the invite link
+       * @example abc123xyz
+       */
+      token: string;
+      /**
+       * Url
+       * @description Full invite URL to share with the sub
+       * @example http://localhost:5173/invite/abc123xyz
+       */
+      url: string;
+      /**
+       * Entry Tribute Amount
+       * @description Entry tribute amount in GBP
+       * @example 50.00
+       */
+      entry_tribute_amount: string;
+      /**
+       * Note
+       * @description Optional note
+       * @example Welcome.
+       */
+      note?: string | null;
+      /**
+       * Expires At
+       * Format: date-time
+       * @description UTC expiry datetime of the invitation
+       */
+      expires_at: string;
+      /**
+       * Used At
+       * @description UTC datetime when the invitation was consumed
+       */
+      used_at?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime when the invitation was created
+       */
+      created_at: string;
     };
     /** LoginRequest */
     LoginRequest: {
@@ -193,6 +330,39 @@ export interface components {
        */
       email: string;
     };
+    /** PublicInvitationOut */
+    PublicInvitationOut: {
+      /**
+       * Token
+       * @description Invitation token
+       * @example abc123xyz
+       */
+      token: string;
+      /**
+       * Goddess Display Name
+       * @description Display name of the Goddess who created the invitation
+       * @example Goddess Mean Mal
+       */
+      goddess_display_name: string;
+      /**
+       * Note
+       * @description Optional note from the Goddess
+       * @example Welcome.
+       */
+      note?: string | null;
+      /**
+       * Entry Tribute Amount
+       * @description Amount the sub must tribute on signup (GBP)
+       * @example 50.00
+       */
+      entry_tribute_amount: string;
+      /**
+       * Expires At
+       * Format: date-time
+       * @description UTC expiry datetime of the invitation
+       */
+      expires_at: string;
+    };
     /** RefreshRequest */
     RefreshRequest: {
       /**
@@ -201,6 +371,39 @@ export interface components {
        * @example abc123
        */
       refresh_token: string;
+    };
+    /** SignupRequest */
+    SignupRequest: {
+      /**
+       * Email
+       * @description Sub's email address
+       * @example slave@example.com
+       */
+      email: string;
+      /**
+       * Password
+       * @description Sub's password (min 8 characters)
+       * @example s3cr3tP@ss
+       */
+      password: string;
+      /**
+       * Username
+       * @description Unique username for the sub
+       * @example slave42
+       */
+      username: string;
+      /**
+       * First Name
+       * @description Sub's first name
+       * @example John
+       */
+      first_name?: string | null;
+      /**
+       * Last Name
+       * @description Sub's last name
+       * @example Doe
+       */
+      last_name?: string | null;
     };
     /** TokenPair */
     TokenPair: {
@@ -589,6 +792,225 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["HTTPValidationError"];
         };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_invitations_goddess_invitations__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvitationOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  create_invitation_goddess_invitations__post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InvitationCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvitationOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  get_invitation_invite__token__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        token: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PublicInvitationOut"];
+        };
+      };
+      /** @description Not found — token does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invitation has expired or has already been used */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  signup_via_invite_invite__token__signup_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        token: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SignupRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TokenPair"];
+        };
+      };
+      /** @description Bad request — duplicate email or username */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — token does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invitation expired, already used, or email/username taken */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Internal server error */
       500: {
