@@ -1,7 +1,7 @@
-class DomainError(Exception):
-    """Base domain exception."""
+class AppError(Exception):
+    """Base application exception."""
 
-    status_code = 400
+    status_code = 500
 
     def __init__(self, message: str, **context):
         super().__init__(message)
@@ -9,21 +9,21 @@ class DomainError(Exception):
         self.context = context
 
 
-class NotFound(DomainError):
+class NotFound(AppError):
     status_code = 404
 
 
-class Unauthorized(DomainError):
+class Unauthorized(AppError):
     status_code = 401
 
 
-class Forbidden(DomainError):
+class Forbidden(AppError):
     status_code = 403
 
 
-class Conflict(DomainError):
+class Conflict(AppError):
     status_code = 409
 
 
-class ValidationError(DomainError):
+class Validation(AppError):
     status_code = 422

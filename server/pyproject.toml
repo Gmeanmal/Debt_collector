@@ -10,7 +10,9 @@ dependencies = [
     "asyncpg>=0.30",
     "alembic>=1.14",
     "pydantic-settings>=2.6",
-    "python-jose[cryptography]>=3.3",
+    "pyjwt[crypto]>=2.8",
+    "email-validator>=2.1",
+    "orjson>=3.10",
     "argon2-cffi>=23.1",
     "apscheduler>=3.10",
     "structlog>=24.4",
@@ -38,8 +40,7 @@ line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
-ignore = ["E501"]
+select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

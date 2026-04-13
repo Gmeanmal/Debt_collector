@@ -1,19 +1,22 @@
 import asyncio
-import os
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel
 
 import models  # noqa: F401 — ensure all models are imported before metadata is read
+from alembic import context
+from core.config import get_settings
 
 config = context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
+config.set_main_option(
+    "sqlalchemy.url",
+    get_settings().database_url.replace("+asyncpg", ""),
+)
 target_metadata = SQLModel.metadata
 
 

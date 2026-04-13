@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
 
 router = APIRouter(tags=["infra"])
 
@@ -14,7 +13,10 @@ router = APIRouter(tags=["infra"])
     response_model=dict[str, str],
     status_code=200,
     responses={
-        200: {"description": "Server is alive", "content": {"application/json": {"example": {"status": "ok"}}}},
+        200: {
+            "description": "Server is alive",
+            "content": {"application/json": {"example": {"status": "ok"}}},
+        },
     },
 )
 async def health() -> dict[str, str]:

@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import get_settings
+from core.db import engine
 from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
 from routers import health
@@ -13,6 +14,7 @@ from routers import health
 async def lifespan(_: FastAPI):
     configure_logging(dev=True)
     yield
+    await engine.dispose()
 
 
 app = FastAPI(title="Debt Collector API", version="0.1.0", lifespan=lifespan)
