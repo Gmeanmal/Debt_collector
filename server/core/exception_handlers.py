@@ -1,10 +1,25 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from core.exceptions import AppError, Conflict, Forbidden, NotFound, Unauthorized, Validation
+from core.exceptions import (
+    AppError,
+    BadRequest,
+    Conflict,
+    Forbidden,
+    NotFound,
+    Unauthorized,
+    Validation,
+)
 
 
 def register(app: FastAPI) -> None:
+    @app.exception_handler(BadRequest)
+    async def _handle_bad_request(_: Request, exc: BadRequest) -> JSONResponse:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "BadRequest", "message": exc.message, "context": exc.context},
+        )
+
     @app.exception_handler(NotFound)
     async def _handle_not_found(_: Request, exc: NotFound) -> JSONResponse:
         return JSONResponse(

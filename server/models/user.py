@@ -40,7 +40,9 @@ class User(SQLModel, table=True):
     last_name: str | None = None
     twitter_handle: str | None = None
     source_note: str | None = None
+    avatar_url: str | None = None
     theme_preference: str = Field(default="system")
+    last_login_at: datetime | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
 

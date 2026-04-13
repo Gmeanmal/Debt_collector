@@ -25,5 +25,9 @@ class Conflict(AppError):
     status_code = 409
 
 
+class BadRequest(AppError):
+    status_code = 400
+
+
 class Validation(AppError):
     status_code = 422

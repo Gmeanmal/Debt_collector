@@ -7,7 +7,7 @@ from core.config import get_settings
 from core.db import engine
 from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
-from routers import health
+from routers import auth, health
 
 
 @asynccontextmanager
@@ -31,3 +31,4 @@ app.add_middleware(
 register_exception_handlers(app)
 
 app.include_router(health.router)
+app.include_router(auth.router)
