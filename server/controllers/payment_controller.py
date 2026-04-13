@@ -18,7 +18,7 @@ from models.payment import (
     PaymentStatus,
 )
 from models.payment_method import PaymentMethod
-from models.user import Goddess, User, UserStatus
+from models.user import Goddess, User, UserRole, UserStatus
 from schemas.payment import (
     AllocationOut,
     DeclarePaymentIn,
@@ -292,7 +292,9 @@ class PaymentController:
 
     async def list_subs(self, goddess_user: User) -> list[dict]:
         goddess_id = await _resolve_goddess_id(self._session, goddess_user.id)
-        result = await self._session.execute(select(User).where(User.goddess_id == goddess_id))
+        result = await self._session.execute(
+            select(User).where(User.goddess_id == goddess_id, User.role == UserRole.sub)
+        )
         subs = result.scalars().all()
         return [
             {

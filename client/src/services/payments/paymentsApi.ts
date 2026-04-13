@@ -17,6 +17,12 @@ function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function extractDetail(error: unknown, fallback: string): string {
+  const err = error as { message?: string; detail?: string } | null;
+  const msg = err?.message ?? err?.detail;
+  return typeof msg === "string" && msg.length > 0 ? msg : fallback;
+}
+
 export async function declarePaymentApi(body: DeclarePaymentIn): Promise<PaymentOut> {
   const { data, error } = await apiClient.POST("/sub/payments", {
     body,
@@ -80,7 +86,7 @@ export async function validateDeclarationApi(
     body,
     headers: authHeaders(),
   });
-  if (error || !data) throw new Error("Failed to validate declaration");
+  if (error || !data) throw new Error(extractDetail(error, "Failed to validate declaration"));
   return data;
 }
 
@@ -93,7 +99,7 @@ export async function rejectDeclarationApi(
     body,
     headers: authHeaders(),
   });
-  if (error || !data) throw new Error("Failed to reject declaration");
+  if (error || !data) throw new Error(extractDetail(error, "Failed to reject declaration"));
   return data;
 }
 

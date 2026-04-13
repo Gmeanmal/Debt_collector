@@ -110,7 +110,7 @@ export function PendingValidationsRoute() {
   }
 
   return (
-    <div className="min-h-screen bg-base-bg p-4 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-3xl mx-auto flex flex-col gap-6">
         <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
           Pending Validations
@@ -121,6 +121,12 @@ export function PendingValidationsRoute() {
 
         {!isLoading && !isError && pending.length === 0 && (
           <p className="text-base-text-muted text-sm">No pending declarations.</p>
+        )}
+
+        {validateMutation.isError && (
+          <p className="text-sm text-status-danger">
+            {(validateMutation.error as Error)?.message ?? "Validation failed"}
+          </p>
         )}
 
         <div className="flex flex-col gap-3">

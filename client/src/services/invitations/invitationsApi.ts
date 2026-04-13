@@ -31,33 +31,36 @@ export async function listInvitationsApi(): Promise<InvitationOut[]> {
 }
 
 export async function getPublicInvitationApi(token: string): Promise<PublicInvitationOut> {
-  const { data, error } = await apiClient.GET("/invite/{token}", {
+  const { data, error, response } = await apiClient.GET("/invite/{token}", {
     params: { path: { token } },
   });
   if (error || !data) {
-    const err = error as { status?: number; detail?: string } | undefined;
-    const status = err?.status;
+    const status = response?.status;
+    const msg = error as { message?: string; detail?: string } | undefined;
+    const detail = msg?.message ?? msg?.detail ?? "";
     if (status === 404) throw Object.assign(new Error("Invitation not found"), { status: 404 });
-    if (status === 409) {
-      const detail = err?.detail ?? "";
-      throw Object.assign(new Error("Invitation expired or used"), { status: 409, detail });
-    }
+    if (status === 409)
+      throw Object.assign(new Error(detail || "Invitation expired or used"), { status: 409 });
     throw new Error("Failed to fetch invitation");
   }
   return data;
 }
 
 export async function signupViaInviteApi(token: string, body: SignupRequest): Promise<TokenPair> {
-  const { data, error } = await apiClient.POST("/invite/{token}/signup", {
+  const { data, error, response } = await apiClient.POST("/invite/{token}/signup", {
     params: { path: { token } },
     body,
   });
   if (error || !data) {
-    const status = (error as { status?: number } | undefined)?.status;
+    const status = response?.status;
+    const msg = error as { message?: string; detail?: string } | undefined;
+    const detail = msg?.message ?? msg?.detail ?? "";
     if (status === 409)
-      throw Object.assign(new Error("Email or username already taken"), { status: 409 });
+      throw Object.assign(new Error(detail || "Email or username already taken"), { status: 409 });
     if (status === 404) throw Object.assign(new Error("Invitation not found"), { status: 404 });
-    throw new Error("Signup failed");
+    if (status === 410)
+      throw Object.assign(new Error(detail || "Invitation expired or used"), { status: 410 });
+    throw new Error(detail || "Signup failed");
   }
   return data;
 }

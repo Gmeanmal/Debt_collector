@@ -49,10 +49,13 @@ export function SignupRoute() {
       navigate("/pending-entry-tribute", { replace: true });
     } catch (err) {
       const status = (err as { status?: number } | null)?.status;
+      const message = (err as { message?: string } | null)?.message;
       if (status === 409) {
-        setError("root", { message: "Email or username already registered." });
+        setError("root", { message: message || "Email or username already registered." });
+      } else if (status === 404 || status === 410) {
+        setError("root", { message: "This invitation is no longer valid." });
       } else {
-        setError("root", { message: "Signup failed. The invitation may have expired." });
+        setError("root", { message: message || "Signup failed. Please try again." });
       }
     }
   }

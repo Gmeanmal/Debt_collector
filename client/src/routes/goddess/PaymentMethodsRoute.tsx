@@ -24,6 +24,7 @@ import {
   updatePaymentMethodApi,
   type PaymentMethodCreate,
   type PaymentMethodOut,
+  type PaymentMethodUpdate,
 } from "@/services/paymentMethods/paymentMethodsApi";
 
 const TYPE_COLOURS: Record<string, string> = {
@@ -36,10 +37,11 @@ const TYPE_COLOURS: Record<string, string> = {
 interface SortableCardProps {
   method: PaymentMethodOut;
   onEdit: (m: PaymentMethodOut) => void;
-  onDelete: (id: string) => void;
+  onDisable: (id: string) => void;
+  onEnable: (id: string) => void;
 }
 
-function SortableCard({ method, onEdit, onDelete }: SortableCardProps) {
+function SortableCard({ method, onEdit, onDisable, onEnable }: SortableCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: method.id,
   });
@@ -96,13 +98,23 @@ function SortableCard({ method, onEdit, onDelete }: SortableCardProps) {
         >
           Edit
         </button>
-        <button
-          onClick={() => onDelete(method.id)}
-          aria-label={`Delete ${method.name}`}
-          className="text-xs text-status-danger hover:text-debt-primary-hover px-2 py-1 rounded border border-debt-muted transition-colors focus-visible:ring-2 focus-visible:ring-debt-primary"
-        >
-          Delete
-        </button>
+        {method.enabled ? (
+          <button
+            onClick={() => onDisable(method.id)}
+            aria-label={`Disable ${method.name}`}
+            className="text-xs text-status-danger hover:text-debt-primary-hover px-2 py-1 rounded border border-debt-muted transition-colors focus-visible:ring-2 focus-visible:ring-debt-primary"
+          >
+            Disable
+          </button>
+        ) : (
+          <button
+            onClick={() => onEnable(method.id)}
+            aria-label={`Enable ${method.name}`}
+            className="text-xs text-status-success hover:text-status-success/80 px-2 py-1 rounded border border-status-success/30 transition-colors focus-visible:ring-2 focus-visible:ring-status-success"
+          >
+            Enable
+          </button>
+        )}
       </div>
     </div>
   );
@@ -167,7 +179,7 @@ export function PaymentMethodsRoute() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, patch }: { id: string; patch: PaymentMethodCreate }) =>
+    mutationFn: ({ id, patch }: { id: string; patch: PaymentMethodUpdate }) =>
       updatePaymentMethodApi(id, patch),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["paymentMethods", "goddess"] });
@@ -212,12 +224,16 @@ export function PaymentMethodsRoute() {
     updateMutation.mutate({ id: editTarget.id, patch: data });
   }
 
-  function handleDelete(id: string) {
+  function handleDisable(id: string) {
     deleteMutation.mutate(id);
   }
 
+  function handleEnable(id: string) {
+    updateMutation.mutate({ id, patch: { enabled: true } });
+  }
+
   return (
-    <div className="min-h-screen bg-base-bg p-4 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
@@ -246,7 +262,8 @@ export function PaymentMethodsRoute() {
                   key={method.id}
                   method={method}
                   onEdit={setEditTarget}
-                  onDelete={handleDelete}
+                  onDisable={handleDisable}
+                  onEnable={handleEnable}
                 />
               ))}
             </div>
