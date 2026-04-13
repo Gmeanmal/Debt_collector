@@ -14,9 +14,7 @@ export function HealthRoute() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-base-surface border border-base-border rounded-md p-8">
-        <h1 className="font-display text-2xl text-pink-primary">
-          Debt Collector
-        </h1>
+        <h1 className="font-display text-2xl text-pink-primary">Debt Collector</h1>
         <p className="mt-2 text-base-text-muted">
           Server: {isLoading ? "..." : error ? "DOWN" : (data?.status ?? "—")}
         </p>

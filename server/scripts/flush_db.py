@@ -1,6 +1,9 @@
 """Drop every table in the public schema. Used by `make flush-dbs`."""
+
 import asyncio
+
 from sqlalchemy import text
+
 from core.db import engine
 
 

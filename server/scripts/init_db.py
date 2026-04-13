@@ -1,5 +1,7 @@
 """Seed realistic dev data. Assumes `alembic upgrade head` has run."""
+
 import asyncio
+
 from seeds.bootstrap import seed_admin_and_goddess
 from seeds.fake_data import seed_fake_data
 

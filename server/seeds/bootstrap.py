@@ -1,4 +1,5 @@
 """Bootstrap admin + goddess accounts. Full logic lands in Phase 2 (Task 2.5)."""
+
 from __future__ import annotations
 
 

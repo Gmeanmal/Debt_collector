@@ -7,7 +7,7 @@ router = APIRouter(tags=["infra"])
     "/health",
     summary="Health check",
     description=(
-        "Returns `{\"status\": \"ok\"}` when the server process is running. "
+        'Returns `{"status": "ok"}` when the server process is running. '
         "Does not verify database connectivity — use this as a liveness probe only."
     ),
     response_model=dict[str, str],
