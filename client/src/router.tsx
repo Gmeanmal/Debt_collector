@@ -7,6 +7,7 @@ import { HomeRoute } from "./routes/HomeRoute";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { InviteSubRoute } from "./routes/goddess/InviteSubRoute";
 import { InvitationsListRoute } from "./routes/goddess/InvitationsListRoute";
+import { PaymentMethodsRoute } from "./routes/goddess/PaymentMethodsRoute";
 import { InviteLandingRoute } from "./routes/public/InviteLandingRoute";
 import { SignupRoute } from "./routes/public/SignupRoute";
 import { PendingEntryTributeRoute } from "./routes/sub/PendingEntryTributeRoute";
@@ -38,6 +39,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <InvitationsListRoute />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/payment-methods",
+    element: (
+      <ProtectedRoute>
+        <PaymentMethodsRoute />
       </ProtectedRoute>
     ),
   },

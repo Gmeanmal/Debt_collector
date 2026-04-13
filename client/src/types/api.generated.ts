@@ -168,6 +168,74 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/goddess/payment-methods/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List payment methods
+     * @description Returns all payment methods owned by the authenticated Goddess, ordered by sort_order ascending. Pass `?enabled=true` to return only enabled methods.
+     */
+    get: operations["list_payment_methods_goddess_payment_methods__get"];
+    put?: never;
+    /**
+     * Create a payment method
+     * @description Creates a new payment method for the authenticated Goddess. The new method receives sort_order = max(existing) + 1 (appended to the bottom).
+     */
+    post: operations["create_payment_method_goddess_payment_methods__post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payment-methods/{method_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Soft-delete a payment method
+     * @description Disables a payment method by setting `enabled=false`. The record is retained for historical references in payment declarations.
+     */
+    delete: operations["delete_payment_method_goddess_payment_methods__method_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a payment method
+     * @description Partially updates a payment method owned by the authenticated Goddess. Only fields present in the request body are changed (patch semantics).
+     */
+    patch: operations["update_payment_method_goddess_payment_methods__method_id__patch"];
+    trace?: never;
+  };
+  "/goddess/payment-methods/reorder": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Reorder payment methods
+     * @description Accepts a list of all payment method IDs in the desired display order. The position in the list becomes the new sort_order (0 = top). Raises 400 if any ID does not belong to this Goddess.
+     */
+    post: operations["reorder_payment_methods_goddess_payment_methods_reorder_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/invite/{token}": {
     parameters: {
       query?: never;
@@ -330,6 +398,133 @@ export interface components {
        */
       email: string;
     };
+    /** PaymentMethodCreate */
+    PaymentMethodCreate: {
+      /**
+       * Name
+       * @description Display label for this payment method
+       * @example Throne — jane-mm
+       */
+      name: string;
+      /**
+       * @description Category of payment method
+       * @example throne
+       */
+      type: components["schemas"]["PaymentMethodType"];
+      /**
+       * Handle Or Link
+       * @description The @handle, URL, or account reference for this method
+       * @example @jane-mm
+       */
+      handle_or_link: string;
+      /**
+       * Note
+       * @description Optional free-text note visible to Goddess only
+       * @example Primary tribute method
+       */
+      note?: string | null;
+      /**
+       * Enabled
+       * @description Whether this method is active and shown to subs
+       * @default true
+       * @example true
+       */
+      enabled: boolean;
+    };
+    /** PaymentMethodOut */
+    PaymentMethodOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Payment method UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      id: string;
+      /**
+       * Name
+       * @description Display label for this payment method
+       * @example Throne — jane-mm
+       */
+      name: string;
+      /**
+       * @description Category of payment method
+       * @example throne
+       */
+      type: components["schemas"]["PaymentMethodType"];
+      /**
+       * Handle Or Link
+       * @description The @handle, URL, or account reference
+       * @example @jane-mm
+       */
+      handle_or_link: string;
+      /**
+       * Note
+       * @description Optional free-text note
+       * @example Primary tribute method
+       */
+      note?: string | null;
+      /**
+       * Enabled
+       * @description Whether this method is active
+       * @example true
+       */
+      enabled: boolean;
+      /**
+       * Sort Order
+       * @description Display order (ascending = top)
+       * @example 0
+       */
+      sort_order: number;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime when the method was created
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description UTC datetime when the method was last updated
+       */
+      updated_at: string;
+    };
+    /**
+     * PaymentMethodType
+     * @enum {string}
+     */
+    PaymentMethodType: "throne" | "paypal" | "bank" | "other";
+    /** PaymentMethodUpdate */
+    PaymentMethodUpdate: {
+      /**
+       * Name
+       * @description Updated display label
+       * @example Throne — jane-mm
+       */
+      name?: string | null;
+      /**
+       * @description Updated payment method category
+       * @example paypal
+       */
+      type?: components["schemas"]["PaymentMethodType"] | null;
+      /**
+       * Handle Or Link
+       * @description Updated @handle, URL, or account reference
+       * @example paypal.me/jane-mm
+       */
+      handle_or_link?: string | null;
+      /**
+       * Note
+       * @description Updated free-text note
+       * @example Secondary method
+       */
+      note?: string | null;
+      /**
+       * Enabled
+       * @description Enable or disable this method
+       * @example false
+       */
+      enabled?: boolean | null;
+    };
     /** PublicInvitationOut */
     PublicInvitationOut: {
       /**
@@ -371,6 +566,18 @@ export interface components {
        * @example abc123
        */
       refresh_token: string;
+    };
+    /** ReorderRequest */
+    ReorderRequest: {
+      /**
+       * Method Ids
+       * @description Payment method IDs in the desired display order (index 0 = top)
+       * @example [
+       *       "00000000-0000-0000-0000-000000000001",
+       *       "00000000-0000-0000-0000-000000000002"
+       *     ]
+       */
+      method_ids: string[];
     };
     /** SignupRequest */
     SignupRequest: {
@@ -876,6 +1083,291 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["InvitationOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_payment_methods_goddess_payment_methods__get: {
+    parameters: {
+      query?: {
+        /** @description When true, return only enabled methods */
+        enabled?: boolean;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentMethodOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  create_payment_method_goddess_payment_methods__post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PaymentMethodCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentMethodOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  delete_payment_method_goddess_payment_methods__method_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        method_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — payment method does not exist or belongs to another goddess */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_payment_method_goddess_payment_methods__method_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        method_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PaymentMethodUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentMethodOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — payment method does not exist or belongs to another goddess */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  reorder_payment_methods_goddess_payment_methods_reorder_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReorderRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentMethodOut"][];
         };
       };
       /** @description Unauthorized — missing or invalid access token */
