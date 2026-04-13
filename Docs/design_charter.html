@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debt Collector — Design Charter</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800&family=JetBrains+Mono:wght@400;600&family=Playfair+Display:wght@700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Base */
+    --bg:#05020a;
+    --surface:#0f0a18;
+    --surface-raised:#1a1226;
+    --border:#2a1e3a;
+    --text:#f4ecff;
+    --text-muted:#b8a8cf;
+    --text-subtle:#7a6a92;
+
+    /* Pink */
+    --pink:#ff4fa3;
+    --pink-hover:#ff6fb5;
+    --pink-active:#e6458f;
+    --pink-ring:#ff4fa355;
+    --pink-fg:#1a0510;
+    --pink-muted:#3a0f22;
+
+    /* Violet */
+    --violet:#7c3aed;
+    --violet-hover:#8b4df0;
+    --violet-active:#6d28d9;
+    --violet-ring:#7c3aed55;
+    --violet-fg:#f5f3ff;
+    --violet-muted:#1c0f32;
+
+    /* Gold */
+    --gold:#f5c242;
+    --gold-hover:#f7cc5a;
+    --gold-fg:#1a1200;
+    --gold-ring:#f5c24255;
+
+    /* Crimson (debt) */
+    --debt:#dc2626;
+    --debt-hover:#ef4444;
+    --debt-muted:#3f0a0a;
+    --debt-ring:#dc262655;
+
+    /* Status */
+    --success:#22c55e;
+    --warning:#f59e0b;
+    --danger:#ef4444;
+    --info:#38bdf8;
+
+    /* Radii */
+    --r-xs:2px; --r-sm:6px; --r-md:10px; --r-lg:16px; --r-xl:24px; --r-full:9999px;
+
+    /* Shadows */
+    --sh-card: 0 6px 24px rgba(0,0,0,.45);
+    --sh-pink: 0 0 40px rgba(255,79,163,.25);
+    --sh-violet: 0 0 40px rgba(124,58,237,.25);
+    --sh-gold: 0 0 40px rgba(245,194,66,.25);
+    --sh-debt: 0 0 40px rgba(220,38,38,.3);
+
+    /* Motion */
+    --d-fast:120ms; --d-normal:200ms; --d-slow:320ms;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .page{max-width:1320px;margin:0 auto;padding:56px 32px 120px}
+
+  /* Header */
+  .hero{border:1px solid var(--border);border-radius:var(--r-xl);padding:48px;background:
+    radial-gradient(circle at 20% 20%, rgba(255,79,163,.15), transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(220,38,38,.12), transparent 60%),
+    var(--surface);
+    margin-bottom:64px;position:relative;overflow:hidden}
+  .hero h1{font-family:'Orbitron',monospace;font-size:52px;font-weight:800;letter-spacing:2px;background:linear-gradient(90deg,var(--pink),var(--gold),var(--debt));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px;line-height:1.05}
+  .hero .tag{font-family:'Orbitron',monospace;font-size:14px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px}
+  .hero p{color:var(--text-muted);font-size:16px;max-width:720px}
+  .hero .meta{display:flex;gap:24px;margin-top:28px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-subtle)}
+  .hero .meta strong{color:var(--text);display:block;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+
+  /* Sections */
+  .section{margin-bottom:96px}
+  .section-head{display:flex;align-items:baseline;gap:20px;margin-bottom:8px}
+  .section-num{font-family:'Orbitron',monospace;font-size:13px;color:var(--gold);letter-spacing:2px}
+  .section h2{font-family:'Orbitron',monospace;font-size:28px;font-weight:700;color:var(--pink);letter-spacing:1px;text-transform:uppercase}
+  .section .lead{color:var(--text-muted);font-size:14px;margin-bottom:32px;max-width:760px}
+
+  /* Subsection */
+  h3{font-family:'Inter',sans-serif;font-size:16px;font-weight:600;color:var(--text);margin:32px 0 12px;text-transform:uppercase;letter-spacing:1.5px}
+  h4{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);margin:18px 0 8px;text-transform:uppercase;letter-spacing:1.5px}
+
+  p{color:var(--text-muted);font-size:14px;margin-bottom:12px}
+  code{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--pink-hover);background:var(--surface-raised);padding:2px 8px;border-radius:var(--r-xs)}
+
+  /* Colour grid */
+  .palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+  .swatch{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;display:flex;flex-direction:column;transition:transform var(--d-fast) var(--ease)}
+  .swatch:hover{transform:translateY(-2px)}
+  .swatch .chip{height:88px;position:relative}
+  .swatch .chip::after{content:'';position:absolute;inset:0;box-shadow:inset 0 -1px 0 rgba(0,0,0,.25)}
+  .swatch .info{padding:12px 14px}
+  .swatch .name{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);display:block}
+  .swatch .hex{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-subtle);margin-top:2px;display:block}
+  .swatch .use{font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.4}
+
+  /* Typography specimens */
+  .type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+  .type-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:24px}
+  .type-card .sample{margin-bottom:14px;color:var(--text)}
+  .type-card .meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-subtle);border-top:1px solid var(--border);padding-top:10px;margin-top:12px}
+  .type-card .meta span{display:inline-block;margin-right:14px}
+
+  /* Buttons */
+  .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+  button, .btn{font-family:'Inter',sans-serif;font-weight:600;font-size:14px;border:none;cursor:pointer;padding:10px 18px;border-radius:var(--r-sm);transition:all var(--d-fast) var(--ease);display:inline-flex;align-items:center;gap:8px}
+  .btn-primary{background:var(--pink);color:var(--pink-fg)}
+  .btn-primary:hover{background:var(--pink-hover);box-shadow:var(--sh-pink)}
+  .btn-primary:active{background:var(--pink-active)}
+  .btn-primary:focus-visible{outline:3px solid var(--pink-ring);outline-offset:1px}
+  .btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+  .btn-secondary:hover{background:var(--surface-raised);border-color:var(--text-subtle)}
+  .btn-destructive{background:var(--debt);color:#fff}
+  .btn-destructive:hover{background:var(--debt-hover);box-shadow:var(--sh-debt)}
+  .btn-gold{background:var(--gold);color:var(--gold-fg)}
+  .btn-gold:hover{background:var(--gold-hover);box-shadow:var(--sh-gold)}
+  .btn-violet{background:var(--violet);color:var(--violet-fg)}
+  .btn-violet:hover{background:var(--violet-hover);box-shadow:var(--sh-violet)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.ghost-pink{background:transparent;color:var(--pink);border:1px solid var(--pink)}
+  .btn.ghost-pink:hover{background:var(--pink-muted)}
+
+  /* Inputs */
+  .input-wrap{display:flex;flex-direction:column;gap:6px;max-width:360px}
+  label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+  input[type="text"],input[type="email"],input[type="number"],input[type="password"],select,textarea{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;font-family:'Inter',sans-serif;font-size:14px;font-variant-numeric:tabular-nums;transition:border-color var(--d-fast) var(--ease), box-shadow var(--d-fast) var(--ease)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px var(--pink-ring)}
+  input[type="text"].error{border-color:var(--danger)}
+  .helper{font-size:11px;color:var(--text-subtle)}
+  .helper.err{color:var(--danger)}
+  .money-input{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;max-width:240px}
+  .money-input .prefix{padding:10px 12px;background:var(--surface-raised);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;border-right:1px solid var(--border)}
+  .money-input input{border:none;background:transparent;text-align:right;flex:1;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-weight:600}
+  .money-input input:focus{box-shadow:none}
+
+  /* Cards */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:24px;box-shadow:var(--sh-card)}
+  .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .card-head h5{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px}
+  .card.late{border-left:3px solid var(--debt)}
+  .card.drained{position:relative;overflow:hidden}
+  .card.drained::before{content:'';position:absolute;top:-50%;left:-20%;width:140%;height:200%;background:radial-gradient(circle,rgba(245,194,66,.08),transparent 50%);pointer-events:none}
+  .amount{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-weight:600}
+  .amount.big{font-size:32px;color:var(--text)}
+  .amount.gold{color:var(--gold)}
+  .amount.debt{color:var(--debt-hover)}
+  .amount.small{font-size:14px;color:var(--text-muted)}
+
+  /* Chips */
+  .chip-tag{display:inline-flex;align-items:center;padding:2px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;font-family:'Inter',sans-serif}
+  .chip-success{background:rgba(34,197,94,.18);color:var(--success)}
+  .chip-pending{background:rgba(245,158,11,.18);color:var(--warning)}
+  .chip-rejected{background:var(--surface-raised);color:var(--text-muted)}
+  .chip-breached{background:var(--debt-muted);color:var(--debt-hover)}
+  .chip-closed{background:var(--surface-raised);color:var(--gold)}
+  .chip-info{background:rgba(56,189,248,.18);color:var(--info)}
+
+  /* Toasts */
+  .toasts{display:flex;flex-direction:column;gap:10px;max-width:400px}
+  .toast{background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--sh-card);font-size:13px}
+  .toast .bar{width:3px;align-self:stretch;border-radius:2px}
+  .toast.success .bar{background:var(--success)}
+  .toast.danger .bar{background:var(--danger)}
+  .toast.warn .bar{background:var(--warning)}
+  .toast.info .bar{background:var(--violet)}
+  .toast .body{flex:1}
+  .toast .title{font-weight:600;color:var(--text);margin-bottom:2px}
+  .toast .msg{color:var(--text-muted);font-size:12px}
+
+  /* Radii / Shadow demos */
+  .shape-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
+  .shape{width:120px;height:80px;background:var(--surface-raised);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted)}
+  .shadow-row{display:flex;gap:32px;flex-wrap:wrap;margin-top:14px}
+  .shadow-box{width:160px;height:110px;background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);text-align:center;padding:12px}
+
+  /* Motion */
+  .motion-box{width:80px;height:80px;border-radius:var(--r-md);background:var(--pink);animation:pulse 2s var(--ease) infinite}
+  @keyframes pulse{0%,100%{transform:scale(1);box-shadow:none}50%{transform:scale(1.08);box-shadow:var(--sh-pink)}}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
+  th{text-align:left;padding:10px 14px;background:var(--surface-raised);font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:600}
+  td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+  td.amt{text-align:right;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:var(--gold)}
+  tr:hover td{background:rgba(255,79,163,.04)}
+
+  /* Icons preview */
+  .icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
+  .icon-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;text-align:center;transition:all var(--d-fast) var(--ease)}
+  .icon-tile:hover{border-color:var(--pink);transform:translateY(-2px)}
+  .icon-tile .glyph{font-size:28px;margin-bottom:8px;display:block}
+  .icon-tile .label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted)}
+
+  /* Microcopy */
+  .copy-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .copy-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;font-size:13px}
+  .copy-item .ctx{display:block;font-size:11px;color:var(--text-subtle);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+  .copy-item em{font-style:italic;color:var(--text)}
+
+  /* Mocked screens */
+  .screen{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-card)}
+  .screen-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--surface-raised)}
+  .screen-head .brand{font-family:'Orbitron',monospace;font-weight:700;font-size:14px;color:var(--pink);letter-spacing:1px}
+  .screen-head .nav{display:flex;gap:18px;font-size:13px;color:var(--text-muted)}
+  .screen-head .nav a{color:var(--text-muted);text-decoration:none}
+  .screen-head .nav a.active{color:var(--pink)}
+  .screen-head .avatar{width:32px;height:32px;border-radius:var(--r-full);background:linear-gradient(135deg,var(--pink),var(--violet))}
+  .screen-body{padding:24px;display:grid;grid-template-columns:2fr 1fr;gap:20px}
+
+  /* Banner */
+  .banner-late{background:var(--debt-muted);border:1px solid var(--debt);border-radius:var(--r-md);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;color:var(--text)}
+  .banner-late .text strong{color:var(--debt-hover);display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+  .banner-late .text span{font-size:14px;color:var(--text)}
+  .banner-late .amount{font-size:28px;color:var(--debt-hover)}
+
+  /* Footer */
+  footer{margin-top:80px;padding-top:32px;border-top:1px solid var(--border);text-align:center;color:var(--text-subtle);font-size:12px}
+
+  /* Responsive */
+  @media (max-width:760px){
+    .hero h1{font-size:32px}
+    .screen-body{grid-template-columns:1fr}
+    .copy-grid{grid-template-columns:1fr}
+    .page{padding:32px 16px 80px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═════════════ HERO ═════════════ -->
+  <div class="hero">
+    <div class="tag">Design Charter · v1.0</div>
+    <h1>Debt<br>Collector</h1>
+    <p>Dark, luxurious, financial-domination aesthetic for Goddess Mean Mal's private enslavement platform. A living style guide: every colour, typeface, component, and piece of voice you need before writing a single line of UI.</p>
+    <div class="meta">
+      <div><strong>Owner</strong>Goddess Mean Mal</div>
+      <div><strong>Brand family</strong>Malverse</div>
+      <div><strong>Tone</strong>Direct. Possessive. Playfully cruel.</div>
+      <div><strong>Mode</strong>Dark only (v1)</div>
+    </div>
+  </div>
+
+  <!-- ═════════════ 01 · COLOURS ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">01</span><h2>Colour System</h2></div>
+    <p class="lead">All colours live as CSS tokens (<code>--color-*</code>). Never hardcode a hex value in JSX or components — always reference a token via Tailwind utilities.</p>
+
+    <h3>Base surfaces</h3>
+    <div class="palette">
+      <div class="swatch"><div class="chip" style="background:#05020a"></div><div class="info"><span class="name">base-bg</span><span class="hex">#05020a</span><span class="use">Page background</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#0f0a18"></div><div class="info"><span class="name">base-surface</span><span class="hex">#0f0a18</span><span class="use">Cards, panels</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#1a1226"></div><div class="info"><span class="name">base-surface-raised</span><span class="hex">#1a1226</span><span class="use">Modals, drawers</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#2a1e3a"></div><div class="info"><span class="name">base-border</span><span class="hex">#2a1e3a</span><span class="use">Dividers, input borders</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#f4ecff"></div><div class="info"><span class="name">base-text</span><span class="hex">#f4ecff</span><span class="use">Primary text</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#b8a8cf"></div><div class="info"><span class="name">base-text-muted</span><span class="hex">#b8a8cf</span><span class="use">Secondary text</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#7a6a92"></div><div class="info"><span class="name">base-text-subtle</span><span class="hex">#7a6a92</span><span class="use">Helper text, timestamps</span></div></div>
+    </div>
+
+    <h3>Pink — Goddess & sub surfaces</h3>
+    <div class="palette">
+      <div class="swatch"><div class="chip" style="background:#ff4fa3"></div><div class="info"><span class="name">pink-primary</span><span class="hex">#ff4fa3</span><span class="use">Primary buttons, links, Goddess accents</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#ff6fb5"></div><div class="info"><span class="name">pink-primary-hover</span><span class="hex">#ff6fb5</span><span class="use">Hover state</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#e6458f"></div><div class="info"><span class="name">pink-primary-active</span><span class="hex">#e6458f</span><span class="use">Active / pressed</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#3a0f22"></div><div class="info"><span class="name">pink-muted</span><span class="hex">#3a0f22</span><span class="use">Tinted backgrounds</span></div></div>
+    </div>
+
+    <h3>Violet — Admin surface</h3>
+    <div class="palette">
+      <div class="swatch"><div class="chip" style="background:#7c3aed"></div><div class="info"><span class="name">violet-primary</span><span class="hex">#7c3aed</span><span class="use">Admin accents</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#8b4df0"></div><div class="info"><span class="name">violet-primary-hover</span><span class="hex">#8b4df0</span><span class="use">Hover</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#6d28d9"></div><div class="info"><span class="name">violet-primary-active</span><span class="hex">#6d28d9</span><span class="use">Active</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#1c0f32"></div><div class="info"><span class="name">violet-muted</span><span class="hex">#1c0f32</span><span class="use">Tinted backgrounds</span></div></div>
+    </div>
+
+    <h3>Gold — Money counters, buyouts, prestige</h3>
+    <div class="palette">
+      <div class="swatch"><div class="chip" style="background:#f5c242"></div><div class="info"><span class="name">gold-accent</span><span class="hex">#f5c242</span><span class="use">Drained counters, buyout CTA</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#f7cc5a"></div><div class="info"><span class="name">gold-accent-hover</span><span class="hex">#f7cc5a</span><span class="use">Hover</span></div></div>
+    </div>
+
+    <h3>Crimson — Debt, late, penalty, breach</h3>
+    <div class="palette">
+      <div class="swatch"><div class="chip" style="background:#dc2626"></div><div class="info"><span class="name">debt-primary</span><span class="hex">#dc2626</span><span class="use">Late banners, penalties, BREACHED</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#ef4444"></div><div class="info"><span class="name">debt-primary-hover</span><span class="hex">#ef4444</span><span class="use">Hover</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#3f0a0a"></div><div class="info"><span class="name">debt-muted</span><span class="hex">#3f0a0a</span><span class="use">Danger zone tints</span></div></div>
+    </div>
+
+    <h3>Status — semantic</h3>
+    <div class="palette">
+      <div class="swatch"><div class="chip" style="background:#22c55e"></div><div class="info"><span class="name">status-success</span><span class="hex">#22c55e</span><span class="use">Validated, active</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#f59e0b"></div><div class="info"><span class="name">status-warning</span><span class="hex">#f59e0b</span><span class="use">Pending, late reminder</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#ef4444"></div><div class="info"><span class="name">status-danger</span><span class="hex">#ef4444</span><span class="use">Errors, destructive</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#38bdf8"></div><div class="info"><span class="name">status-info</span><span class="hex">#38bdf8</span><span class="use">Informational</span></div></div>
+    </div>
+  </section>
+
+  <!-- ═════════════ 02 · TYPOGRAPHY ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">02</span><h2>Typography</h2></div>
+    <p class="lead">Inter for body, Orbitron for display/brand, JetBrains Mono for numbers and code, Playfair Display + Source Serif Pro for PDF contracts.</p>
+
+    <div class="type-grid">
+      <div class="type-card">
+        <div class="sample" style="font-family:'Orbitron';font-weight:800;font-size:42px;letter-spacing:2px;background:linear-gradient(90deg,var(--pink),var(--debt));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Display</div>
+        <div class="meta"><span>Orbitron</span><span>800</span><span>42px</span><span>+2 tracking</span></div>
+      </div>
+      <div class="type-card">
+        <div class="sample" style="font-weight:700;font-size:28px;letter-spacing:-0.02em">Page Title H1</div>
+        <div class="meta"><span>Inter</span><span>700</span><span>28px</span></div>
+      </div>
+      <div class="type-card">
+        <div class="sample" style="font-weight:600;font-size:22px;letter-spacing:-0.01em">Section Heading H2</div>
+        <div class="meta"><span>Inter</span><span>600</span><span>22px</span></div>
+      </div>
+      <div class="type-card">
+        <div class="sample" style="font-weight:600;font-size:18px">Subheading H3</div>
+        <div class="meta"><span>Inter</span><span>600</span><span>18px</span></div>
+      </div>
+      <div class="type-card">
+        <div class="sample" style="font-size:14px;color:var(--text)">Body text. The weekly tribute is due every Friday at 12:00 UK time. Failure to pay doubles the amount the next day. This is what you signed.</div>
+        <div class="meta"><span>Inter</span><span>400</span><span>14px</span><span>line 1.55</span></div>
+      </div>
+      <div class="type-card">
+        <div class="sample" style="font-size:12px;color:var(--text-muted)">Muted / helper text. Used for timestamps, captions, secondary metadata.</div>
+        <div class="meta"><span>Inter</span><span>400</span><span>12px</span></div>
+      </div>
+      <div class="type-card">
+        <div class="sample" style="font-family:'JetBrains Mono';font-weight:600;font-size:32px;color:var(--gold);font-variant-numeric:tabular-nums">£1,247.50</div>
+        <div class="meta"><span>JetBrains Mono</span><span>600</span><span>32px</span><span>tabular</span></div>
+      </div>
+      <div class="type-card">
+        <div class="sample" style="font-family:'JetBrains Mono';font-size:14px;color:var(--text-muted)">total_drained_from_sub</div>
+        <div class="meta"><span>JetBrains Mono</span><span>400</span><span>14px</span><span>code</span></div>
+      </div>
+      <div class="type-card" style="background:#f8f4ec;color:#1a0510;border-color:#d8cfc0">
+        <div class="sample" style="font-family:'Playfair Display';font-weight:700;font-size:22px;color:#1a0510">Contract of Enslavement</div>
+        <div class="sample" style="font-family:'Source Serif Pro';font-weight:400;font-size:13px;color:#3a2f22">By signing below, I acknowledge that I am, from this day forward, property under the terms agreed with Goddess Mean Mal.</div>
+        <div class="meta" style="color:#7a6a5a;border-color:#d8cfc0"><span>Playfair 700 / Source Serif 400</span><span>PDF only</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ 03 · BUTTONS ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">03</span><h2>Buttons</h2></div>
+    <p class="lead">Pink primary drives Goddess/sub flows. Gold is reserved for money actions (buyout). Crimson destroys (breach). Violet appears only in admin.</p>
+
+    <h4>Primary (pink) — default CTA</h4>
+    <div class="row">
+      <button class="btn btn-primary">Invite new sub</button>
+      <button class="btn btn-primary">Validate payment</button>
+      <button class="btn btn-primary">Sign contract</button>
+      <button class="btn btn-primary" disabled>Disabled</button>
+    </div>
+
+    <h4>Secondary — neutral</h4>
+    <div class="row">
+      <button class="btn btn-secondary">Cancel</button>
+      <button class="btn btn-secondary">View details</button>
+      <button class="btn ghost-pink">Counter-propose</button>
+    </div>
+
+    <h4>Gold — money actions</h4>
+    <div class="row">
+      <button class="btn btn-gold">Buy my freedom — £520</button>
+      <button class="btn btn-gold">Record payment</button>
+    </div>
+
+    <h4>Destructive (crimson)</h4>
+    <div class="row">
+      <button class="btn btn-destructive">Mark as breached</button>
+      <button class="btn btn-destructive">Reject payment</button>
+      <button class="btn btn-destructive">Delete invite</button>
+    </div>
+
+    <h4>Violet — admin only</h4>
+    <div class="row">
+      <button class="btn btn-violet">Edit any field</button>
+      <button class="btn btn-violet">Recompute balance</button>
+    </div>
+  </section>
+
+  <!-- ═════════════ 04 · INPUTS ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">04</span><h2>Inputs & Forms</h2></div>
+    <p class="lead">Focus ring pink @ 3px. Currency inputs right-aligned with £ prefix. Errors in crimson with helper text.</p>
+
+    <div class="row" style="align-items:flex-start">
+      <div class="input-wrap">
+        <label>Username</label>
+        <input type="text" placeholder="johnsub">
+        <span class="helper">Used to log in and on contracts.</span>
+      </div>
+      <div class="input-wrap">
+        <label>Email</label>
+        <input type="email" value="bad@example" class="error">
+        <span class="helper err">Invalid email address.</span>
+      </div>
+      <div class="input-wrap">
+        <label>Entry tribute</label>
+        <div class="money-input"><span class="prefix">£</span><input type="number" value="30"></div>
+        <span class="helper">Due before account activation.</span>
+      </div>
+      <div class="input-wrap">
+        <label>Payment method</label>
+        <select>
+          <option>Throne — throne.com/meanmal</option>
+          <option>PayPal — paypal.me/meanmal</option>
+          <option>Bank — UK account</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ 05 · CARDS ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">05</span><h2>Cards</h2></div>
+    <p class="lead">Variants: default, late (crimson accent), drained (gold glow). All use <code>radius-md</code> and <code>shadow-card</code>.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-head"><h5>Active contracts</h5><span class="chip-tag chip-success">3 active</span></div>
+        <div class="amount big">£2,340.00</div>
+        <div class="amount small">total outstanding balance</div>
+      </div>
+
+      <div class="card late">
+        <div class="card-head"><h5>Late — subslave_42</h5><span class="chip-tag chip-breached">3 days</span></div>
+        <div class="amount big debt">£200.00</div>
+        <div class="amount small">owed since Friday 12:00 UK</div>
+      </div>
+
+      <div class="card drained">
+        <div class="card-head"><h5>Total drained</h5><span class="chip-tag chip-closed">lifetime</span></div>
+        <div class="amount big gold">£12,450.00</div>
+        <div class="amount small">across 8 subs</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ 06 · CHIPS ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">06</span><h2>Status Chips</h2></div>
+    <p class="lead">Pill-shaped (<code>radius-full</code>), 11px uppercase, +1px letter-spacing. One chip per state.</p>
+    <div class="row">
+      <span class="chip-tag chip-success">Active</span>
+      <span class="chip-tag chip-success">Validated</span>
+      <span class="chip-tag chip-pending">Pending sub signature</span>
+      <span class="chip-tag chip-pending">Pending validation</span>
+      <span class="chip-tag chip-rejected">Rejected</span>
+      <span class="chip-tag chip-rejected">Cancelled by dom</span>
+      <span class="chip-tag chip-breached">Breached</span>
+      <span class="chip-tag chip-breached">Blacklisted</span>
+      <span class="chip-tag chip-closed">Closed</span>
+      <span class="chip-tag chip-closed">Completed</span>
+      <span class="chip-tag chip-info">Paused</span>
+    </div>
+  </section>
+
+  <!-- ═════════════ 07 · TABLE ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">07</span><h2>Data Tables</h2></div>
+    <p class="lead">44px row height, numeric columns right-aligned and tabular, hover row gets a 4% pink tint.</p>
+    <table>
+      <thead>
+        <tr><th>Sub</th><th>Category</th><th>Method</th><th>Date</th><th>Status</th><th style="text-align:right">Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>slave_42</td><td>Weekly debt</td><td>Throne</td><td>Fri, 10:32</td><td><span class="chip-tag chip-success">Validated</span></td><td class="amt">£70.00</td></tr>
+        <tr><td>kneeling_j</td><td>Rolling</td><td>Throne</td><td>Fri, 11:58</td><td><span class="chip-tag chip-pending">Pending</span></td><td class="amt">£50.00</td></tr>
+        <tr><td>collar.23</td><td>Tribute</td><td>PayPal</td><td>Thu, 23:14</td><td><span class="chip-tag chip-success">Validated</span></td><td class="amt">£120.00</td></tr>
+        <tr><td>owned_will</td><td>Buyout</td><td>Bank</td><td>Wed, 14:02</td><td><span class="chip-tag chip-closed">Closed</span></td><td class="amt">£520.00</td></tr>
+        <tr><td>debt.4ever</td><td>Rolling</td><td>Bank</td><td>Mon, 09:14</td><td><span class="chip-tag chip-breached">Rejected</span></td><td class="amt" style="color:var(--debt-hover)">£50.00</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═════════════ 08 · TOASTS ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">08</span><h2>Toast Notifications</h2></div>
+    <p class="lead">Top-right stack. Auto-dismiss 4s (6s for warnings/errors). Colour comes from a 3px left accent bar.</p>
+    <div class="toasts">
+      <div class="toast success"><div class="bar"></div><div class="body"><div class="title">Payment validated</div><div class="msg">£70.00 applied to slave_42's weekly debt.</div></div></div>
+      <div class="toast danger"><div class="bar"></div><div class="body"><div class="title">Breach registered</div><div class="msg">owned_will marked as breached. All active contracts closed. Account blacklisted.</div></div></div>
+      <div class="toast warn"><div class="bar"></div><div class="body"><div class="title">Late payment</div><div class="msg">collar.23 missed his Friday deadline. Multiplier is now 2×.</div></div></div>
+      <div class="toast info"><div class="bar"></div><div class="body"><div class="title">New declaration</div><div class="msg">kneeling_j declared a £50 rolling payment via Throne.</div></div></div>
+    </div>
+  </section>
+
+  <!-- ═════════════ 09 · BANNER ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">09</span><h2>Late Banner (sub view)</h2></div>
+    <p class="lead">Shown at the top of the sub dashboard when a payment is overdue. Designed to be impossible to miss.</p>
+    <div class="banner-late">
+      <div class="text">
+        <strong>You are 3 days late</strong>
+        <span>Pay before midnight UK or it climbs again.</span>
+      </div>
+      <div class="amount">£200.00</div>
+    </div>
+  </section>
+
+  <!-- ═════════════ 10 · RADII / SHADOWS / MOTION ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">10</span><h2>Radii · Shadows · Motion</h2></div>
+
+    <h3>Radii</h3>
+    <div class="shape-row">
+      <div class="shape" style="border-radius:var(--r-xs)">xs · 2px</div>
+      <div class="shape" style="border-radius:var(--r-sm)">sm · 6px</div>
+      <div class="shape" style="border-radius:var(--r-md)">md · 10px</div>
+      <div class="shape" style="border-radius:var(--r-lg)">lg · 16px</div>
+      <div class="shape" style="border-radius:var(--r-xl)">xl · 24px</div>
+      <div class="shape" style="border-radius:var(--r-full)">full</div>
+    </div>
+
+    <h3>Shadows</h3>
+    <div class="shadow-row">
+      <div class="shadow-box" style="box-shadow:var(--sh-card)">card</div>
+      <div class="shadow-box" style="box-shadow:var(--sh-pink)">pink-glow</div>
+      <div class="shadow-box" style="box-shadow:var(--sh-violet)">violet-glow</div>
+      <div class="shadow-box" style="box-shadow:var(--sh-gold)">gold-glow</div>
+      <div class="shadow-box" style="box-shadow:var(--sh-debt)">debt-glow</div>
+    </div>
+
+    <h3>Motion</h3>
+    <p>Fast 120ms · Normal 200ms · Slow 320ms. Easing <code>cubic-bezier(0.2, 0, 0, 1)</code>. Always respect <code>prefers-reduced-motion</code>.</p>
+    <div class="row" style="margin-top:14px">
+      <div class="motion-box"></div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:12px">pulse · 2s · infinite</p>
+    </div>
+  </section>
+
+  <!-- ═════════════ 11 · ICONS ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">11</span><h2>Iconography</h2></div>
+    <p class="lead">Lucide icons (<code>lucide-react</code>). 20px default, 1.5px stroke. Emoji used here only as visual placeholder — production uses Lucide SVGs.</p>
+    <div class="icon-grid">
+      <div class="icon-tile"><span class="glyph">👑</span><span class="label">crown · Goddess</span></div>
+      <div class="icon-tile"><span class="glyph">🔗</span><span class="label">link · sub</span></div>
+      <div class="icon-tile"><span class="glyph">🛡️</span><span class="label">shield · admin</span></div>
+      <div class="icon-tile"><span class="glyph">🪙</span><span class="label">coins · tribute</span></div>
+      <div class="icon-tile"><span class="glyph">🔒</span><span class="label">file-lock · contract</span></div>
+      <div class="icon-tile"><span class="glyph">🔥</span><span class="label">flame · penalty</span></div>
+      <div class="icon-tile"><span class="glyph">⚠️</span><span class="label">alert · late</span></div>
+      <div class="icon-tile"><span class="glyph">💀</span><span class="label">skull · breach</span></div>
+      <div class="icon-tile"><span class="glyph">📈</span><span class="label">trending · drained</span></div>
+      <div class="icon-tile"><span class="glyph">🔔</span><span class="label">bell · notifs</span></div>
+    </div>
+  </section>
+
+  <!-- ═════════════ 12 · VOICE ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">12</span><h2>Voice & Microcopy</h2></div>
+    <p class="lead">Direct, possessive, knowing. No apology-speak, no corporate cheer, no emojis in UI (toasts may carry one small glyph).</p>
+    <div class="copy-grid">
+      <div class="copy-item"><span class="ctx">Goddess dashboard empty state</span><em>No subs yet. Send your first invite and start draining.</em></div>
+      <div class="copy-item"><span class="ctx">Sub — late banner</span><em>You are 3 days late. You owe £200. Pay before midnight or it climbs again.</em></div>
+      <div class="copy-item"><span class="ctx">Sub — buyout CTA</span><em>Buy my freedom — £520</em></div>
+      <div class="copy-item"><span class="ctx">Goddess — breach confirm</span><em>Cut him loose and blacklist. This cannot be undone easily.</em></div>
+      <div class="copy-item"><span class="ctx">Sub — signature screen</span><em>By signing, I acknowledge I am property under the terms above.</em></div>
+      <div class="copy-item"><span class="ctx">Sub — entry tribute lock</span><em>Your account awaits your first tribute.</em></div>
+      <div class="copy-item"><span class="ctx">Sub — payment rejected</span><em>Your declared payment was rejected. The Goddess says the money didn't land.</em></div>
+      <div class="copy-item"><span class="ctx">Goddess — severe penalty warning</span><em>⚠ This severity makes the debt grow faster than the minimum payment can repay. The sub will need to overpay or settle in full.</em></div>
+    </div>
+  </section>
+
+  <!-- ═════════════ 13 · MOCKED SCREEN ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">13</span><h2>Screen Preview — Goddess Dashboard</h2></div>
+    <p class="lead">Non-interactive mock. Shows how tokens and components compose on a real page.</p>
+    <div class="screen">
+      <div class="screen-head">
+        <div class="brand">DEBT COLLECTOR</div>
+        <div class="nav">
+          <a href="#" class="active">Dashboard</a>
+          <a href="#">Subs</a>
+          <a href="#">Contracts</a>
+          <a href="#">Blacklist</a>
+          <a href="#">Settings</a>
+        </div>
+        <div class="avatar"></div>
+      </div>
+      <div class="screen-body">
+        <div>
+          <h3 style="margin-top:0">Late payments</h3>
+          <div class="banner-late" style="margin-bottom:16px">
+            <div class="text"><strong>4 subs are late</strong><span>Total owed across all rolling & debts</span></div>
+            <div class="amount">£840.00</div>
+          </div>
+          <div class="cards" style="grid-template-columns:1fr 1fr">
+            <div class="card late">
+              <div class="card-head"><h5>slave_42 · rolling</h5><span class="chip-tag chip-breached">3 days</span></div>
+              <div class="amount big debt">£200.00</div>
+              <div class="amount small">Fri deadline missed</div>
+            </div>
+            <div class="card late">
+              <div class="card-head"><h5>collar.23 · debt #7</h5><span class="chip-tag chip-breached">1 week</span></div>
+              <div class="amount big debt">£340.00</div>
+              <div class="amount small">period closed, penalty applied</div>
+            </div>
+          </div>
+          <h3>Pending validations</h3>
+          <table>
+            <thead><tr><th>Sub</th><th>Category</th><th style="text-align:right">Amount</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>kneeling_j</td><td>Rolling</td><td class="amt">£50.00</td><td style="text-align:right"><button class="btn btn-primary" style="padding:6px 12px;font-size:12px">Validate</button></td></tr>
+              <tr><td>owned_will</td><td>Weekly debt</td><td class="amt">£70.00</td><td style="text-align:right"><button class="btn btn-primary" style="padding:6px 12px;font-size:12px">Validate</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div class="card drained" style="margin-bottom:16px">
+            <div class="card-head"><h5>Total drained · lifetime</h5></div>
+            <div class="amount big gold">£12,450.00</div>
+            <div class="amount small">across 8 subs</div>
+          </div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-head"><h5>This month</h5></div>
+            <div class="amount big gold">£1,820.00</div>
+            <div class="amount small">+14% vs last month</div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h5>Active</h5></div>
+            <div class="row" style="margin-bottom:0">
+              <span class="chip-tag chip-success">8 subs</span>
+              <span class="chip-tag chip-info">5 rollings</span>
+              <span class="chip-tag chip-info">3 contracts</span>
+              <span class="chip-tag chip-breached">2 blacklisted</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ 14 · ACCESSIBILITY ═════════════ -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">14</span><h2>Accessibility</h2></div>
+    <p class="lead">All text meets WCAG AA. Focus rings visible. Keyboard-navigable everywhere. Icons-as-controls carry <code>aria-label</code>.</p>
+    <ul style="color:var(--text-muted);font-size:14px;line-height:2;padding-left:22px">
+      <li>Contrast ratio ≥ 4.5:1 for body text against its background</li>
+      <li>All interactive elements get a 3px focus ring (pink @ 33% alpha)</li>
+      <li>Modals trap focus; <kbd>Esc</kbd> closes</li>
+      <li>Live regions (<code>role="status"</code>) on updating counters</li>
+      <li><code>prefers-reduced-motion</code> disables pulse / glow animations</li>
+    </ul>
+  </section>
+
+  <footer>
+    Design Charter · Debt Collector · v1.0 · 2026-04-13 · Part of the Malverse brand family.
+  </footer>
+
+</div>
+</body>
+</html>

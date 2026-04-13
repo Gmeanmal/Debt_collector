@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debt Collector — Diagrams</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      darkMode: true,
+      background: '#05020a',
+      primaryColor: '#1a1226',
+      primaryTextColor: '#f4ecff',
+      primaryBorderColor: '#ff4fa3',
+      lineColor: '#7c3aed',
+      secondaryColor: '#0f0a18',
+      tertiaryColor: '#05020a',
+      fontFamily: 'Inter, system-ui, sans-serif'
+    },
+    er: { useMaxWidth: false },
+    stateDiagram: { useMaxWidth: false },
+    flowchart: { useMaxWidth: false, htmlLabels: true }
+  });
+</script>
+<style>
+  :root {
+    --bg-base:#05020a; --bg-elevated:#0f0a18; --bg-overlay:#1a1226; --bg-interactive:#2a1e3a;
+    --pink:#ff4fa3; --pink-light:#ff6fb5; --pink-subtle:rgba(255,79,163,.10);
+    --violet:#7c3aed; --violet-soft:#8b4df0; --violet-subtle:rgba(124,58,237,.10);
+    --gold:#f5c242; --gold-light:#f7cc5a;
+    --debt:#dc2626; --debt-light:#ef4444; --debt-subtle:rgba(220,38,38,.12);
+    --text:#f4ecff; --text-muted:#b8a8cf; --text-subtle:#7a6a92;
+    --success:#22c55e; --warning:#f59e0b; --info:#38bdf8;
+    --border:rgba(255,255,255,.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg-base);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.55;padding-bottom:80px}
+  .page{max-width:1400px;margin:0 auto;padding:40px 24px}
+  h1{font-family:'Orbitron',monospace;font-size:32px;background:linear-gradient(90deg,var(--pink),var(--debt));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;letter-spacing:1px}
+  .subtitle{color:var(--text-muted);font-size:15px;margin-bottom:40px;max-width:820px}
+  h2{font-family:'Orbitron',monospace;font-size:15px;color:var(--pink);text-transform:uppercase;letter-spacing:2px;margin:56px 0 16px;display:flex;align-items:center;gap:12px}
+  h2::after{content:'';flex:1;height:1px;background:var(--border)}
+  h3{font-family:'Orbitron',monospace;font-size:12px;color:var(--pink-light);text-transform:uppercase;letter-spacing:2px;margin:24px 0 10px}
+  p{color:var(--text-muted);font-size:13px;margin-bottom:10px}
+  p code, li code{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--pink-light);background:var(--bg-overlay);padding:1px 6px;border-radius:3px}
+  .card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+  .mermaid-wrap{background:#030108;border:1px solid var(--violet);border-radius:10px;padding:20px;overflow-x:auto;margin-top:12px}
+  .mermaid{min-width:100%}
+
+  table{width:100%;border-collapse:collapse;font-size:12px;font-family:'JetBrains Mono',monospace;margin-top:12px}
+  th{text-align:left;padding:10px 12px;background:var(--bg-overlay);font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:600;font-family:'Inter',sans-serif}
+  td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top}
+  td.pk{color:var(--gold);font-weight:600}
+  td.fk{color:var(--violet-soft)}
+  td.enum{color:var(--info)}
+  td.bool{color:var(--warning)}
+  td.money{color:var(--gold)}
+  tr:hover td{background:rgba(255,79,163,.04)}
+
+  .entity-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-top:12px}
+  .entity-card{background:var(--bg-overlay);border:1px solid var(--border);border-radius:10px;padding:18px;border-left:3px solid var(--pink)}
+  .entity-card.violet{border-left-color:var(--violet)}
+  .entity-card.gold{border-left-color:var(--gold)}
+  .entity-card.debt{border-left-color:var(--debt)}
+  .entity-card h4{font-family:'Orbitron',monospace;font-size:12px;color:var(--pink-light);text-transform:uppercase;letter-spacing:2px;margin-bottom:4px}
+  .entity-card .role{font-size:11px;color:var(--text-subtle);margin-bottom:12px;font-style:italic}
+  .entity-card ul{list-style:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);display:flex;flex-direction:column;gap:3px}
+  .entity-card li::before{content:'◇ ';color:var(--pink)}
+  .entity-card.violet li::before{color:var(--violet-soft)}
+  .entity-card.gold li::before{color:var(--gold)}
+  .entity-card.debt li::before{color:var(--debt-light)}
+  .entity-card li .t{color:var(--text-subtle);margin-left:6px}
+
+  .legend{display:flex;gap:22px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);margin-top:14px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend .tag{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:600}
+
+  .toc{background:var(--bg-overlay);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:40px}
+  .toc h3{margin-top:0}
+  .toc ol{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);padding-left:22px;line-height:2}
+  .toc a{color:var(--pink-light);text-decoration:none}
+  .toc a:hover{color:var(--pink);text-decoration:underline}
+
+  .callout{padding:14px 16px;border-radius:8px;font-size:12px;margin:12px 0;display:flex;gap:10px;align-items:flex-start}
+  .callout.info{background:rgba(56,189,248,.08);border-left:3px solid var(--info);color:var(--text)}
+  .callout.warn{background:rgba(245,158,11,.08);border-left:3px solid var(--warning);color:var(--text)}
+  .callout.debt{background:var(--debt-subtle);border-left:3px solid var(--debt);color:var(--text)}
+  .callout strong{color:var(--text);text-transform:uppercase;font-size:10px;letter-spacing:1.5px;margin-right:6px}
+
+  code.block{display:block;background:var(--bg-base);border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--pink-light);white-space:pre-wrap;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Debt Collector — Diagrams</h1>
+  <p class="subtitle">
+    Visual reference for the data model, state machines, and lifecycle flows. Everything here mirrors the <code>2026-04-13-debt-app-design.md</code> document — if they diverge, the design doc wins.
+  </p>
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#erd">Entity Relationship Diagram (ERD)</a></li>
+      <li><a href="#entities">Entity reference cards</a></li>
+      <li><a href="#contract-sm">Debt contract state machine</a></li>
+      <li><a href="#payment-sm">Payment declaration state machine</a></li>
+      <li><a href="#account-sm">Sub account lifecycle</a></li>
+      <li><a href="#rolling-sm">Rolling tribute cycle</a></li>
+      <li><a href="#events-ledger">Debt event ledger flow</a></li>
+      <li><a href="#cronjob">Daily cronjob flow</a></li>
+      <li><a href="#permission-matrix">Permission matrix</a></li>
+    </ol>
+  </div>
+
+  <!-- ═════════════ ERD ═════════════ -->
+  <h2 id="erd">1 · Entity Relationship Diagram</h2>
+  <div class="card">
+    <p>All tables, all relationships. <code>goddess_id</code> appears on every sub-owned table so that opening the app to multiple Goddesses is a non-breaking change later.</p>
+
+    <div class="mermaid-wrap">
+<div class="mermaid">
+erDiagram
+    Goddess ||--o{ User : "owns subs"
+    Goddess ||--o{ Invitation : "creates"
+    Goddess ||--o{ PaymentMethod : "configures"
+    Goddess ||--o{ BlacklistEntry : "keeps"
+
+    User ||--o| RollingTribute : "has one"
+    User ||--o{ DebtContract : "signs"
+    User ||--o{ PaymentDeclaration : "declares"
+    User ||--o{ Notification : "receives"
+    User ||--o{ RefreshToken : "owns"
+    User ||--o{ PasswordResetToken : "owns"
+    User ||--o| BlacklistEntry : "may appear in"
+
+    Invitation }o--|| User : "becomes on signup"
+
+    DebtContract ||--o{ DebtEvent : "accumulates"
+    DebtContract ||--o{ DebtAdjustment : "may receive"
+    DebtContract ||--o{ PaymentAllocation : "is target of"
+
+    RollingTribute ||--o{ PaymentAllocation : "is target of"
+
+    PaymentDeclaration ||--|| PaymentAllocation : "produces on validation"
+    PaymentDeclaration }o--|| PaymentMethod : "uses"
+
+    Goddess {
+        uuid id PK
+        string display_name
+        string email
+        string password_hash
+        datetime created_at
+    }
+    User {
+        uuid id PK
+        uuid goddess_id FK
+        string username UK
+        string email
+        string password_hash
+        string role
+        string status
+        string first_name
+        string last_name
+        string twitter_handle
+        string source_note
+        datetime created_at
+    }
+    Invitation {
+        uuid id PK
+        uuid goddess_id FK
+        string token UK
+        decimal entry_tribute_amount
+        string note
+        datetime expires_at
+        datetime used_at
+    }
+    PaymentMethod {
+        uuid id PK
+        uuid goddess_id FK
+        string name
+        string type
+        string handle_or_link
+        string note
+        bool enabled
+        int sort_order
+    }
+    RollingTribute {
+        uuid id PK
+        uuid sub_id FK
+        uuid goddess_id FK
+        decimal amount
+        string deadline_day
+        time deadline_time
+        int late_multiplier_per_day
+        bool paused
+        string notes
+        datetime last_paid_at
+    }
+    DebtContract {
+        uuid id PK
+        uuid sub_id FK
+        uuid goddess_id FK
+        decimal principal
+        decimal interest_rate
+        string interest_period
+        int duration_periods
+        string payment_frequency
+        decimal minimum_payment
+        string late_penalty_severity
+        decimal late_penalty_percent
+        bool dom_can_add_surprise_penalty
+        string mid_contract_addition_mode
+        decimal exit_amount
+        string status
+        decimal balance_cached
+        decimal total_paid_cached
+        string signed_pdf_url
+        string signed_pdf_sha256
+        datetime signed_at
+        datetime activated_at
+        datetime created_at
+    }
+    DebtEvent {
+        uuid id PK
+        uuid contract_id FK
+        string event_type
+        decimal amount
+        string reason
+        int period_index
+        uuid created_by FK
+        datetime created_at
+    }
+    DebtAdjustment {
+        uuid id PK
+        uuid contract_id FK
+        decimal amount
+        string reason
+        string status
+        uuid proposed_by FK
+        uuid resolved_by FK
+        datetime created_at
+        datetime resolved_at
+    }
+    PaymentDeclaration {
+        uuid id PK
+        uuid sub_id FK
+        uuid goddess_id FK
+        uuid method_id FK
+        decimal amount
+        datetime external_timestamp
+        string note
+        string category
+        string status
+        uuid created_by FK
+        datetime declared_at
+        datetime validated_at
+        uuid validated_by FK
+        string rejection_reason
+    }
+    PaymentAllocation {
+        uuid id PK
+        uuid declaration_id FK
+        string target_type
+        uuid target_id
+        decimal amount
+    }
+    Notification {
+        uuid id PK
+        uuid user_id FK
+        string type
+        json payload
+        datetime created_at
+        datetime read_at
+    }
+    BlacklistEntry {
+        uuid id PK
+        uuid goddess_id FK
+        uuid sub_id FK
+        string reason
+        uuid contract_ref_id FK
+        decimal balance_at_breach
+        datetime breached_at
+        datetime forgiven_at
+        decimal reinstatement_fee_paid
+    }
+    RefreshToken {
+        uuid id PK
+        uuid user_id FK
+        string hash
+        datetime expires_at
+    }
+    PasswordResetToken {
+        uuid id PK
+        uuid user_id FK
+        string hash
+        datetime expires_at
+        datetime used_at
+    }
+</div>
+    </div>
+
+    <div class="legend">
+      <span><span class="tag" style="background:var(--pink-subtle);color:var(--pink)">PK</span> primary key</span>
+      <span><span class="tag" style="background:var(--violet-subtle);color:var(--violet-soft)">FK</span> foreign key</span>
+      <span><span class="tag" style="background:var(--bg-overlay);color:var(--info)">UK</span> unique</span>
+      <span><span class="tag" style="background:var(--debt-subtle);color:var(--debt-light)">enum</span> enumerated</span>
+    </div>
+  </div>
+
+  <!-- ═════════════ ENTITIES ═════════════ -->
+  <h2 id="entities">2 · Entity reference cards</h2>
+  <p>Grouped by concern. Pink = core identity. Violet = auth & access. Gold = money. Crimson = debt mechanics.</p>
+
+  <div class="entity-grid">
+
+    <div class="entity-card">
+      <h4>Goddess</h4>
+      <div class="role">The Dom. Owns everything downstream.</div>
+      <ul>
+        <li>id <span class="t">uuid</span></li>
+        <li>display_name <span class="t">string</span></li>
+        <li>email <span class="t">string</span></li>
+        <li>password_hash <span class="t">argon2id</span></li>
+      </ul>
+    </div>
+
+    <div class="entity-card">
+      <h4>User (sub)</h4>
+      <div class="role">A slave. role ∈ {sub, admin}.</div>
+      <ul>
+        <li>goddess_id <span class="t">FK</span></li>
+        <li>username <span class="t">unique</span></li>
+        <li>first_name, last_name</li>
+        <li>twitter_handle, source_note</li>
+        <li>status <span class="t">pending_entry / active / blacklisted</span></li>
+      </ul>
+    </div>
+
+    <div class="entity-card">
+      <h4>Invitation</h4>
+      <div class="role">Single-use token to create a sub account.</div>
+      <ul>
+        <li>token <span class="t">uuid unique</span></li>
+        <li>entry_tribute_amount <span class="t">gbp</span></li>
+        <li>expires_at</li>
+        <li>used_at <span class="t">nullable</span></li>
+      </ul>
+    </div>
+
+    <div class="entity-card gold">
+      <h4>PaymentMethod</h4>
+      <div class="role">Where subs send money to the Goddess.</div>
+      <ul>
+        <li>name, type <span class="t">Throne/PayPal/Bank/…</span></li>
+        <li>handle_or_link</li>
+        <li>enabled, sort_order</li>
+      </ul>
+    </div>
+
+    <div class="entity-card gold">
+      <h4>RollingTribute</h4>
+      <div class="role">One per sub. amount=0 ⇒ disabled.</div>
+      <ul>
+        <li>amount, deadline_day, deadline_time</li>
+        <li>late_multiplier_per_day</li>
+        <li>paused</li>
+        <li>last_paid_at</li>
+      </ul>
+    </div>
+
+    <div class="entity-card debt">
+      <h4>DebtContract</h4>
+      <div class="role">Signed debt. Core entity.</div>
+      <ul>
+        <li>principal, interest_rate, interest_period</li>
+        <li>duration_periods, payment_frequency</li>
+        <li>minimum_payment</li>
+        <li>late_penalty_severity, late_penalty_percent</li>
+        <li>dom_can_add_surprise_penalty</li>
+        <li>mid_contract_addition_mode</li>
+        <li>exit_amount</li>
+        <li>status, balance_cached</li>
+        <li>signed_pdf_url, signed_pdf_sha256</li>
+      </ul>
+    </div>
+
+    <div class="entity-card debt">
+      <h4>DebtEvent</h4>
+      <div class="role">Append-only ledger. Source of truth for balance.</div>
+      <ul>
+        <li>event_type <span class="t">enum</span></li>
+        <li>amount, reason</li>
+        <li>period_index</li>
+        <li>created_by, created_at</li>
+      </ul>
+    </div>
+
+    <div class="entity-card debt">
+      <h4>DebtAdjustment</h4>
+      <div class="role">Mid-contract additions (optional sub approval).</div>
+      <ul>
+        <li>amount, reason</li>
+        <li>status <span class="t">applied / pending / accepted / refused</span></li>
+        <li>proposed_by, resolved_by</li>
+      </ul>
+    </div>
+
+    <div class="entity-card gold">
+      <h4>PaymentDeclaration</h4>
+      <div class="role">What the sub (or Goddess) says has been paid.</div>
+      <ul>
+        <li>amount, method_id</li>
+        <li>category <span class="t">entry/rolling/weekly_debt/…</span></li>
+        <li>status <span class="t">pending/validated/rejected/cancelled</span></li>
+        <li>external_timestamp, note</li>
+      </ul>
+    </div>
+
+    <div class="entity-card gold">
+      <h4>PaymentAllocation</h4>
+      <div class="role">Validated ledger line. One per declaration.</div>
+      <ul>
+        <li>declaration_id <span class="t">FK unique</span></li>
+        <li>target_type <span class="t">enum</span></li>
+        <li>target_id <span class="t">polymorphic</span></li>
+        <li>amount</li>
+      </ul>
+    </div>
+
+    <div class="entity-card violet">
+      <h4>Notification</h4>
+      <div class="role">In-app notif, pushed via WebSocket.</div>
+      <ul>
+        <li>user_id, type</li>
+        <li>payload (json)</li>
+        <li>created_at, read_at</li>
+      </ul>
+    </div>
+
+    <div class="entity-card debt">
+      <h4>BlacklistEntry</h4>
+      <div class="role">Hall of shame. Forgivable.</div>
+      <ul>
+        <li>sub_id, reason</li>
+        <li>contract_ref_id</li>
+        <li>balance_at_breach</li>
+        <li>breached_at, forgiven_at</li>
+        <li>reinstatement_fee_paid</li>
+      </ul>
+    </div>
+
+    <div class="entity-card violet">
+      <h4>RefreshToken</h4>
+      <div class="role">JWT refresh pair.</div>
+      <ul>
+        <li>user_id, hash</li>
+        <li>expires_at</li>
+      </ul>
+    </div>
+
+    <div class="entity-card violet">
+      <h4>PasswordResetToken</h4>
+      <div class="role">One-time token, 1h TTL.</div>
+      <ul>
+        <li>user_id, hash</li>
+        <li>expires_at, used_at</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ═════════════ CONTRACT SM ═════════════ -->
+  <h2 id="contract-sm">3 · Debt contract state machine</h2>
+  <div class="card">
+    <p>One round of negotiation at most per side. The Goddess always has the last word. A never-signed contract stays in <code>PENDING_SUB_SIGNATURE</code> until she closes it manually.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> DRAFT_DOM : Goddess initiates
+    [*] --> DRAFT_SUB : Sub initiates
+
+    DRAFT_DOM --> PENDING_SUB_REVIEW : send
+    PENDING_SUB_REVIEW --> PENDING_SUB_SIGNATURE : sub accepts as-is
+    PENDING_SUB_REVIEW --> PENDING_DOM_COUNTER : sub counters once
+
+    PENDING_DOM_COUNTER --> PENDING_SUB_SIGNATURE : Goddess accepts counter
+    PENDING_DOM_COUNTER --> PENDING_SUB_SIGNATURE : Goddess rejects (sub keeps original)
+
+    DRAFT_SUB --> PENDING_DOM_REVIEW : send
+    PENDING_DOM_REVIEW --> PENDING_SUB_SIGNATURE : Goddess accepts
+    PENDING_DOM_REVIEW --> PENDING_SUB_SIGNATURE : Goddess counters
+
+    PENDING_SUB_SIGNATURE --> ACTIVE : sub signs (PDF)
+    PENDING_SUB_SIGNATURE --> CANCELLED_BY_DOM : Goddess closes
+
+    ACTIVE --> CLOSED : buyout validated
+    ACTIVE --> BREACHED : Goddess marks breached
+    ACTIVE --> COMPLETED : balance reaches 0
+
+    CLOSED --> [*]
+    BREACHED --> [*]
+    COMPLETED --> [*]
+    CANCELLED_BY_DOM --> [*]
+</div>
+    </div>
+    <div class="callout debt"><strong>cascade</strong> Marking a contract <code>BREACHED</code> also transitions <em>every other</em> <code>ACTIVE</code> contract of that sub to <code>BREACHED</code> and the user to <code>BLACKLISTED</code>.</div>
+  </div>
+
+  <!-- ═════════════ PAYMENT SM ═════════════ -->
+  <h2 id="payment-sm">4 · Payment declaration state machine</h2>
+  <div class="card">
+    <p>Every tribute is declared as a single line (no split). On validation, a <code>PaymentAllocation</code> row is created and the target balance/counter updates.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> PENDING : sub declares
+    [*] --> VALIDATED : Goddess records directly
+
+    PENDING --> PENDING : sub edits (amount / method / category / note)
+    PENDING --> CANCELLED : sub cancels
+    PENDING --> VALIDATED : Goddess validates (may re-categorize first)
+    PENDING --> REJECTED : Goddess rejects (optional reason)
+
+    VALIDATED --> [*] : allocation emitted, counters updated
+    REJECTED --> [*]
+    CANCELLED --> [*]
+</div>
+    </div>
+  </div>
+
+  <!-- ═════════════ ACCOUNT SM ═════════════ -->
+  <h2 id="account-sm">5 · Sub account lifecycle</h2>
+  <div class="card">
+    <p>The <code>status</code> column on <code>User</code> drives login authorisation and UI locking.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> PENDING_ENTRY_TRIBUTE : signup via invitation
+    PENDING_ENTRY_TRIBUTE --> ACTIVE : entry tribute validated
+    PENDING_ENTRY_TRIBUTE --> DELETED : Goddess rejects / invite expired
+    ACTIVE --> BLACKLISTED : Goddess marks breach (cascade)
+    BLACKLISTED --> ACTIVE : Goddess forgives (records reinstatement fee)
+    DELETED --> [*]
+    ACTIVE --> [*]
+</div>
+    </div>
+  </div>
+
+  <!-- ═════════════ ROLLING SM ═════════════ -->
+  <h2 id="rolling-sm">6 · Rolling tribute cycle</h2>
+  <div class="card">
+    <p>A cycle runs from deadline to deadline. Paying the due amount resets it. Each extra day multiplies the amount.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> ON_TIME : cycle start (amount = base)
+    ON_TIME --> PAID : sub pays in time
+    ON_TIME --> LATE_D1 : deadline passed (+1 day)
+    LATE_D1 --> PAID : sub pays 2x base
+    LATE_D1 --> LATE_D2 : next day (+1)
+    LATE_D2 --> PAID : sub pays 3x base
+    LATE_D2 --> LATE_DN : continues (n+1)x
+    LATE_DN --> PAID : sub pays (n+1)x base
+    PAID --> ON_TIME : cycle reset for next week
+
+    note right of LATE_DN
+      Late multiplier is configurable per
+      rolling (default +1 per day).
+      late_paid triggers a notification
+      to both sub and Goddess every morning.
+    end note
+</div>
+    </div>
+  </div>
+
+  <!-- ═════════════ EVENTS LEDGER ═════════════ -->
+  <h2 id="events-ledger">7 · Debt event ledger flow</h2>
+  <div class="card">
+    <p>All balance changes on a debt contract are modelled as events. The balance is derived (or cached then recomputed on demand) from the sum of events. Events are append-only for auditability.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+flowchart TD
+    START([Contract ACTIVE]) --> PERIOD{Period start?}
+    PERIOD -- yes --> INTEREST["period_interest<br/>balance *= (1 + r_month * period_factor)"]
+    INTEREST --> PREV{Previous period paid?}
+    PREV -- no --> PENALTY["late_penalty<br/>balance *= (1 + late_penalty_percent)"]
+    PENALTY --> NOTIFY[Notify sub + Goddess]
+    PREV -- yes --> WAIT
+    NOTIFY --> WAIT
+    PERIOD -- no --> WAIT([Wait for events])
+    WAIT --> DECL{Payment validated?}
+    DECL -- weekly_debt --> APPLY_W["payment_applied<br/>balance -= amount<br/>period marked paid"]
+    DECL -- debt_payment --> APPLY_P["payment_applied<br/>balance -= amount<br/>(period NOT marked paid)"]
+    DECL -- buyout --> CLOSE["buyout_paid<br/>status = CLOSED"]
+    WAIT --> ADJ{Adjustment?}
+    ADJ -- applied --> APPLY_A["adjustment<br/>balance += amount"]
+    WAIT --> SURP{Surprise penalty?}
+    SURP -- applied --> APPLY_S["surprise_penalty<br/>balance += amount"]
+    APPLY_W --> WAIT
+    APPLY_P --> WAIT
+    APPLY_A --> WAIT
+    APPLY_S --> WAIT
+    CLOSE --> END([Contract CLOSED])
+</div>
+    </div>
+    <div class="callout info"><strong>idempotency</strong> Period events carry a <code>(contract_id, period_index, event_type)</code> unique key. Re-running the cronjob for a day that already emitted its events is safe.</div>
+  </div>
+
+  <!-- ═════════════ CRONJOB ═════════════ -->
+  <h2 id="cronjob">8 · Daily cronjob flow (08:00 Europe/London)</h2>
+  <div class="card">
+    <p>APScheduler embedded in FastAPI. Runs once a day. Idempotent.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+flowchart TD
+    CRON([08:00 UK daily]) --> SUBS[List all ACTIVE subs]
+    SUBS --> R{For each sub: rolling?}
+    R -- "amount > 0 & not paused" --> R_DUE{Deadline in ≤24h and unpaid?}
+    R_DUE -- yes --> R_REMIND[Notify sub: reminder]
+    R_DUE -- no --> R_LATE{Deadline passed and unpaid?}
+    R_LATE -- yes --> R_MULT[Recompute multiplier]
+    R_MULT --> R_NOTIFY[Notify sub + Goddess: LATE]
+    SUBS --> D{For each ACTIVE contract}
+    D --> P_END{Period ends in ≤24h and unpaid?}
+    P_END -- yes --> P_REMIND[Notify sub: reminder]
+    D --> P_NEW{Period just ended?}
+    P_NEW -- unpaid --> APPLY_PEN[Emit late_penalty event]
+    APPLY_PEN --> APPLY_INT[Emit period_interest event for new period]
+    P_NEW -- paid --> APPLY_INT
+    APPLY_INT --> D_NOTIFY[Notify sub + Goddess]
+    R_NOTIFY --> LATE_PAGE[Update Late Payments page]
+    D_NOTIFY --> LATE_PAGE
+    LATE_PAGE --> DONE([Done])
+</div>
+    </div>
+  </div>
+
+  <!-- ═════════════ PERMS ═════════════ -->
+  <h2 id="permission-matrix">9 · Permission matrix</h2>
+  <div class="card">
+    <p>All rules enforced server-side. UI visibility also follows this matrix.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Sub (self)</th>
+          <th>Sub (other)</th>
+          <th>Goddess</th>
+          <th>Admin</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>View own dashboard</td><td class="money">✓</td><td>—</td><td class="money">✓ (all subs)</td><td class="money">✓</td></tr>
+        <tr><td>Declare a payment</td><td class="money">✓</td><td>—</td><td class="money">✓ (record on sub's behalf)</td><td class="money">✓</td></tr>
+        <tr><td>Validate / reject / re-categorize a payment</td><td>—</td><td>—</td><td class="money">✓</td><td class="money">✓</td></tr>
+        <tr><td>Edit / cancel own pending declaration</td><td class="money">✓</td><td>—</td><td class="money">✓</td><td class="money">✓</td></tr>
+        <tr><td>Create invitation</td><td>—</td><td>—</td><td class="money">✓</td><td class="money">✓</td></tr>
+        <tr><td>Attribute / edit rolling</td><td>—</td><td>—</td><td class="money">✓</td><td class="money">✓</td></tr>
+        <tr><td>Initiate debt contract</td><td class="money">✓ (own)</td><td>—</td><td class="money">✓</td><td class="money">✓</td></tr>
+        <tr><td>Counter-propose contract</td><td class="money">✓ (once)</td><td>—</td><td class="money">✓ (once)</td><td class="money">✓</td></tr>
+        <tr><td>Close pending contract</td><td>—</td><td>—</td><td class="money">✓</td><td class="money">✓</td></tr>
+        <tr><td>Sign contract</td><td class="money">✓ (own)</td><td>—</td><td>—</td><td class="money">✓</td></tr>
+        <tr><td>Buy out contract</td><td class="money">✓ (own)</td><td>—</td><td>—</td><td class="money">✓</td></tr>
+        <tr><td>Add surprise penalty / adjustment</td><td>—</td><td>—</td><td class="money">✓ (if contract permits)</td><td class="money">✓</td></tr>
+        <tr><td>Approve / refuse an adjustment</td><td class="money">✓ (own, if contract requires it)</td><td>—</td><td>—</td><td class="money">✓</td></tr>
+        <tr><td>Mark contract as breached</td><td>—</td><td>—</td><td class="money">✓</td><td class="money">✓</td></tr>
+        <tr><td>Forgive a blacklisted sub</td><td>—</td><td>—</td><td class="money">✓</td><td class="money">✓</td></tr>
+        <tr><td>Manage payment methods</td><td>—</td><td>—</td><td class="money">✓</td><td class="money">✓</td></tr>
+        <tr><td>Access /admin console</td><td>—</td><td>—</td><td>—</td><td class="money">✓</td></tr>
+        <tr><td>Edit any row on any table</td><td>—</td><td>—</td><td>—</td><td class="money">✓</td></tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      <span><span class="tag" style="background:rgba(245,194,66,.14);color:var(--gold)">✓</span> allowed</span>
+      <span><span class="tag" style="background:var(--bg-overlay);color:var(--text-subtle)">—</span> denied</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
