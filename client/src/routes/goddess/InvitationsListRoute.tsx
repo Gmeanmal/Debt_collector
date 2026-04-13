@@ -45,14 +45,8 @@ export function InvitationsListRoute() {
   });
 
   return (
-    <div className="min-h-screen bg-base-bg p-4 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
-        <div className="text-center">
-          <h1 className="font-display text-3xl font-bold text-pink-primary tracking-wider">
-            Debt Collector
-          </h1>
-        </div>
-
         <div className="bg-base-surface border border-base-border rounded-lg p-6 shadow-[var(--shadow-card)]">
           <h2 className="text-xl font-semibold text-base-text mb-4">Invitations</h2>
 

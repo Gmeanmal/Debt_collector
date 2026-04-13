@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/services/auth/useAuth";
 
 interface ProtectedRouteProps {
@@ -21,5 +22,5 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
+  return <AppLayout>{children}</AppLayout>;
 }

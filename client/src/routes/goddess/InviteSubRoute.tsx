@@ -57,14 +57,8 @@ export function InviteSubRoute() {
   }
 
   return (
-    <div className="min-h-screen bg-base-bg flex items-center justify-center p-4">
-      <div className="w-full max-w-lg flex flex-col gap-6">
-        <div className="text-center">
-          <h1 className="font-display text-3xl font-bold text-pink-primary tracking-wider">
-            Debt Collector
-          </h1>
-        </div>
-
+    <div className="p-4 md:p-8">
+      <div className="w-full max-w-lg mx-auto flex flex-col gap-6">
         <div className="bg-base-surface border border-base-border rounded-lg p-8 shadow-[var(--shadow-card)]">
           <h2 className="text-xl font-semibold text-base-text mb-6">Create Invitation</h2>
 

@@ -146,7 +146,7 @@ export function PaymentHistoryRoute() {
   });
 
   return (
-    <div className="min-h-screen bg-base-bg p-4 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">

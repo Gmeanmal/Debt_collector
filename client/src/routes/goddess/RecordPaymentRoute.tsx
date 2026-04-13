@@ -70,7 +70,7 @@ export function RecordPaymentRoute() {
   }
 
   return (
-    <div className="min-h-screen bg-base-bg p-4 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-lg mx-auto flex flex-col gap-6">
         <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
           Record Payment
