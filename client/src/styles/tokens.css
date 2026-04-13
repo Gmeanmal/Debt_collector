@@ -1,0 +1,77 @@
+:root {
+  /* Base surfaces (dark — default) */
+  --color-base-bg: #05020a;
+  --color-base-surface: #0f0a18;
+  --color-base-surface-raised: #1a1226;
+  --color-base-border: #2a1e3a;
+  --color-base-text: #f4ecff;
+  --color-base-text-muted: #b8a8cf;
+  --color-base-text-subtle: #7a6a92;
+
+  /* Pink — Goddess & sub surfaces */
+  --color-pink-primary: #ff4fa3;
+  --color-pink-primary-hover: #ff6fb5;
+  --color-pink-primary-active: #e6458f;
+  --color-pink-ring: #ff4fa355;
+  --color-pink-foreground: #1a0510;
+  --color-pink-muted: #3a0f22;
+  --color-pink-glow: 0 0 40px rgba(255, 79, 163, 0.25);
+
+  /* Violet — Admin surface */
+  --color-violet-primary: #7c3aed;
+  --color-violet-primary-hover: #8b4df0;
+  --color-violet-primary-active: #6d28d9;
+  --color-violet-ring: #7c3aed55;
+  --color-violet-foreground: #f5f3ff;
+  --color-violet-muted: #1c0f32;
+
+  /* Gold — Drained counters, buyouts, prestige */
+  --color-gold-accent: #f5c242;
+  --color-gold-accent-hover: #f7cc5a;
+  --color-gold-foreground: #1a1200;
+  --color-gold-ring: #f5c24255;
+
+  /* Crimson — Debt, late, penalty, breach */
+  --color-debt-primary: #dc2626;
+  --color-debt-primary-hover: #ef4444;
+  --color-debt-muted: #3f0a0a;
+  --color-debt-ring: #dc262655;
+
+  /* Status (semantic) */
+  --color-status-danger: #ef4444;
+  --color-status-warning: #f59e0b;
+  --color-status-success: #22c55e;
+  --color-status-info: #38bdf8;
+
+  /* Radii */
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.45);
+  --shadow-pink-glow: 0 0 40px rgba(255, 79, 163, 0.25);
+  --shadow-violet-glow: 0 0 40px rgba(124, 58, 237, 0.25);
+  --shadow-gold-glow: 0 0 40px rgba(245, 194, 66, 0.25);
+  --shadow-debt-glow: 0 0 40px rgba(220, 38, 38, 0.3);
+
+  /* Motion */
+  --motion-duration-fast: 120ms;
+  --motion-duration-normal: 200ms;
+  --motion-duration-slow: 320ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Light theme — base surfaces only; accent tokens unchanged */
+[data-theme="light"] {
+  --color-base-bg: #faf7ff;
+  --color-base-surface: #ffffff;
+  --color-base-surface-raised: #f4eeff;
+  --color-base-border: #e4dcf0;
+  --color-base-text: #1a0f24;
+  --color-base-text-muted: #5a4a70;
+  --color-base-text-subtle: #8c7ea5;
+}

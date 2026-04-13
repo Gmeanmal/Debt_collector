@@ -1,0 +1,42 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+@theme inline {
+  --color-base-bg: var(--color-base-bg);
+  --color-base-surface: var(--color-base-surface);
+  --color-base-surface-raised: var(--color-base-surface-raised);
+  --color-base-border: var(--color-base-border);
+  --color-base-text: var(--color-base-text);
+  --color-base-text-muted: var(--color-base-text-muted);
+  --color-base-text-subtle: var(--color-base-text-subtle);
+  --color-pink-primary: var(--color-pink-primary);
+  --color-pink-primary-hover: var(--color-pink-primary-hover);
+  --color-violet-primary: var(--color-violet-primary);
+  --color-gold-accent: var(--color-gold-accent);
+  --color-debt-primary: var(--color-debt-primary);
+  --color-status-success: var(--color-status-success);
+  --color-status-warning: var(--color-status-warning);
+  --color-status-danger: var(--color-status-danger);
+  --color-status-info: var(--color-status-info);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Orbitron", monospace;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+html[data-theme="light"] {
+  color-scheme: light;
+}
+html,
+body {
+  background: var(--color-base-bg);
+  color: var(--color-base-text);
+}
+body {
+  font-family: var(--font-sans);
+}
