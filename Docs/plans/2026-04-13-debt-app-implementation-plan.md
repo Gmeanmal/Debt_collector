@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the full Debt Collector app end-to-end: React 19 + Tailwind frontend, FastAPI + SQLModel + Alembic + Postgres backend, WebSocket notifications, WeasyPrint PDF contracts, R2 storage, Resend email, custom admin console. Deferred: tests (retrofitted at the end), hosting decision.
+**Goal:** Build the full Debt Collector app end-to-end: React 19 + Tailwind client, FastAPI + SQLModel + Alembic + Postgres server, WebSocket notifications, WeasyPrint PDF contracts, R2 storage, Resend email, custom admin console. Deferred: tests (retrofitted at the end), hosting decision.
 
-**Architecture:** Layered backend (`routers → controllers → daos → models`), one-way frontend imports (`components → services/hooks → api`), event-sourced debt balance via `debt_event` ledger, in-process APScheduler daily job, WebSocket push for notifications with in-process publisher (swappable to Redis later).
+**Architecture:** Layered server (`routers → controllers → daos → models`), one-way client imports (`components → services/hooks → api`), event-sourced debt balance via `debt_event` ledger, in-process APScheduler daily job, WebSocket push for notifications with in-process publisher (swappable to Redis later).
 
 **Tech Stack:** Python 3.12, FastAPI, SQLModel, asyncpg, Alembic, APScheduler, WeasyPrint, aiobotocore (R2), Resend SDK, argon2-cffi, PyJWT. React 19, TypeScript, Vite, Tailwind 4, TanStack Query, openapi-fetch, Zod, lucide-react. Postgres 16, docker-compose for dev.
 
@@ -14,7 +14,14 @@
 - **All source code, comments, commits, file names in English.** Design charter + specs already match.
 - **GBP (£) everywhere, English only, Europe/London timezone.**
 - **Never inline hex colours** — use Tailwind utilities generated from `tokens.css`.
+- **No inline CSS** — no `style={{ ... }}`, no `<style>` tags, no raw `style=""` in templates. Everything goes through Tailwind utilities or `*.css` module files. Exception: values that are physically impossible to express in CSS ahead of time (e.g. a runtime-computed progress width) — even then, prefer CSS variables set at the component root over inline rules.
 - **300-line limit per React component**, named exports only, one-way imports.
+- **Minimal comments.** Well-named identifiers document themselves. Only comment when the WHY is non-obvious (hidden constraints, invariants, workarounds). If a method feels like it needs a comment block to explain its flow, it's too complex — **split it** into smaller named functions instead of documenting the mess.
+- **Rich OpenAPI docs for every route.** FastAPI routes MUST have `summary`, `description`, explicit `response_model`, `status_code`, `tags`, and `responses={}` enumerating error cases. Pydantic schemas use `Field(..., description="…", examples=[…])`. The Swagger UI at `/docs` is the server's contract — treat it as first-class.
+- **One `.env` per service.** `server/.env` and `client/.env` are independent — no root-level `.env`. Each has its own `.env.example` in its folder. Makes it trivial to deploy server and client to different providers later.
+- **Dependency management per service.** `server/pyproject.toml` (uv) and `client/package.json` (pnpm) are installed and managed from inside their own folder. No root `package.json`, no root `pyproject.toml`, no monorepo workspace tooling.
+- **Docker = infra only.** `docker-compose.yml` hosts Postgres + Mailhog. Server and client always run locally (`make server`, `make client`) for proper hot-reload and LSP.
+- **Git commits:** author = repo owner only (never Claude co-authorship). Conventional Commits format: `<type>(<scope>): <summary>` where type ∈ `feat|fix|chore|docs|refactor|test|ci`, scope ∈ `server|client|infra|docs|db|auth|contracts|rollings|payments|admin|notif|ui`, imperative mood, lowercase summary, ≤ 72 chars.
 
 **Design references (single source of truth):**
 
@@ -29,7 +36,7 @@
 
 | # | Phase | Outcome |
 |---|-------|---------|
-| 1 | Foundation & dev env | `docker-compose up` boots Postgres + backend + frontend; `/health` replies OK |
+| 1 | Foundation & dev env | Infra in Docker (Postgres + Mailhog), server/client run locally, `make` scripts + CI green |
 | 2 | Auth & users | Goddess + admin can log in; password reset works via Resend |
 | 3 | Invitations & entry tribute | Goddess invites sub → sub signs up → declares entry → activation |
 | 4 | Payment methods + declarations | Goddess configures methods; sub declares payments; Goddess validates |
@@ -47,14 +54,17 @@ Each phase ends with a working, commitable milestone. Phases depend in order.
 Do NOT start phase N+1 until all of these pass. Treat failures as phase-blocking.
 
 - [ ] `pre-commit run --all-files` → clean (ruff, ruff-format, prettier on everything)
-- [ ] `cd backend && uv run ruff check . && uv run ruff format --check .` → clean
-- [ ] `cd backend && uv run mypy .` → 0 errors (strict from Phase 10 onwards, non-strict before)
-- [ ] `cd frontend && pnpm lint && pnpm tsc --noEmit` → clean
-- [ ] `cd frontend && pnpm sync-types` → no diff (OpenAPI types match backend)
-- [ ] `docker compose up -d && curl http://localhost:8000/health` → 200 OK
-- [ ] Backend imports cleanly: `cd backend && uv run python -c "from main import app"` → no error
-- [ ] Frontend builds: `cd frontend && pnpm build` → no error
-- [ ] Alembic head is current: `cd backend && uv run alembic current` → matches latest migration file; `uv run alembic upgrade head` is a no-op
+- [ ] `cd server && uv run ruff check . && uv run ruff format --check .` → clean
+- [ ] `cd server && uv run mypy .` → 0 errors (strict from Phase 10 onwards, non-strict before)
+- [ ] `cd client && pnpm lint && pnpm tsc --noEmit` → clean
+- [ ] `cd client && pnpm sync-types` → no diff (OpenAPI types match server)
+- [ ] `make up && make server` in the background, then `curl http://localhost:8000/health` → 200 OK (server runs locally, not in docker)
+- [ ] `make init-dbs` succeeds end-to-end (drops, migrates, seeds) with no exceptions
+- [ ] No inline CSS regressions: `grep -rE 'style=\{|style="' client/src | grep -v '\.test\.' | wc -l` returns 0 (or only documented exceptions)
+- [ ] Every new FastAPI route has `summary`, `description`, `response_model`, `status_code`, `tags`, `responses={}` → spot-check at `/docs`
+- [ ] Server imports cleanly: `cd server && uv run python -c "from main import app"` → no error
+- [ ] Client builds: `cd client && pnpm build` → no error
+- [ ] Alembic head is current: `cd server && uv run alembic current` → matches latest migration file; `uv run alembic upgrade head` is a no-op
 - [ ] From Phase 2 onwards: manual smoke of the phase's golden path in the browser (login for P2, invite flow for P3, etc.) — document in a one-line commit message
 - [ ] Git working tree clean (all changes committed, no stray files)
 
@@ -64,28 +74,33 @@ If any step fails, fix it in a dedicated commit **within the current phase** bef
 
 # Phase 1 — Foundation & Development Environment
 
-**Goal:** Monorepo scaffolded, Docker Compose boots the whole stack locally, pre-commit hooks in place, health endpoint green.
+**Goal:** Monorepo scaffolded, Docker Compose runs only infra (Postgres + Mailhog), server and client run locally, `make` targets in place, pre-commit + CI green, `make init-dbs` seeds realistic fake data.
 
 **Files created:**
 
 ```
 /
-├── docker-compose.yml
-├── .env.example
+├── Makefile
+├── docker-compose.yml          # postgres + mailhog only
 ├── .gitignore
 ├── .editorconfig
 ├── README.md
 ├── .pre-commit-config.yaml
+├── .commitlintrc.json
+├── .github/
+│   └── workflows/
+│       ├── ci.yml
+│       └── commit-convention.yml
 ├── CLAUDE.md                    # root project instructions
-├── backend/
-│   ├── Dockerfile.dev
+├── server/
+│   ├── .env.example             # server-only env
 │   ├── pyproject.toml
 │   ├── uv.lock
 │   ├── CLAUDE.md
 │   ├── main.py                  # FastAPI app + lifespan
 │   ├── core/
 │   │   ├── __init__.py
-│   │   ├── config.py            # Pydantic Settings
+│   │   ├── config.py            # Pydantic Settings (reads server/.env)
 │   │   ├── db.py                # AsyncSession factory
 │   │   ├── logging.py           # structlog setup
 │   │   ├── exceptions.py        # domain exception hierarchy
@@ -101,13 +116,19 @@ If any step fails, fix it in a dedicated commit **within the current phase** bef
 │   ├── middleware/__init__.py
 │   ├── workers/__init__.py
 │   ├── utils/__init__.py
-│   ├── seeds/__init__.py
+│   ├── scripts/
+│   │   ├── init_db.py
+│   │   └── flush_db.py
+│   ├── seeds/
+│   │   ├── __init__.py
+│   │   ├── bootstrap.py
+│   │   └── fake_data.py
 │   └── alembic/
 │       ├── env.py
 │       ├── script.py.mako
 │       └── versions/
-├── frontend/
-│   ├── Dockerfile.dev
+├── client/
+│   ├── .env.example             # client-only env
 │   ├── package.json
 │   ├── pnpm-lock.yaml
 │   ├── vite.config.ts
@@ -185,11 +206,12 @@ trim_trailing_whitespace = true
 indent_size = 4
 ```
 
-- [ ] **Step 3:** Create `.env.example`:
+- [ ] **Step 3:** Create **two separate** `.env.example` files — one per service. No root-level `.env`.
+
+`server/.env.example`:
 
 ```
-# --- Backend ---
-DATABASE_URL=postgresql+asyncpg://debt:debt@postgres:5432/debt
+DATABASE_URL=postgresql+asyncpg://debt:debt@localhost:5432/debt
 JWT_SECRET_KEY=change-me-in-production-use-a-long-random-string
 JWT_ACCESS_TTL_MINUTES=15
 JWT_REFRESH_TTL_DAYS=30
@@ -198,26 +220,36 @@ ARGON2_TIME_COST=3
 ARGON2_PARALLELISM=4
 CORS_ORIGINS=http://localhost:5173
 
-# --- Resend (password reset only) ---
+# Resend (password reset only) — in dev, leave empty to use the fake provider + Mailhog
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=noreply@debt-collector.local
+SMTP_HOST=localhost
+SMTP_PORT=1025
 
-# --- R2 (PDFs) ---
+# R2 (contract PDFs)
 R2_ACCOUNT_ID=
 R2_ACCESS_KEY_ID=
 R2_SECRET_ACCESS_KEY=
 R2_BUCKET=debt-collector-dev
 R2_PUBLIC_URL=https://debt-collector-dev.r2.dev
 
-# --- App ---
 APP_URL=http://localhost:5173
 APP_TIMEZONE=Europe/London
 
-# --- Admin bootstrap ---
+# Admin bootstrap (seeded on first run)
 ADMIN_USERNAME=admin
 ADMIN_EMAIL=admin@debt-collector.local
 ADMIN_PASSWORD=change-me
 ```
+
+`client/.env.example`:
+
+```
+VITE_API_BASE_URL=http://localhost:8000
+VITE_WS_BASE_URL=ws://localhost:8000
+```
+
+`Settings` in `server/core/config.py` reads from `server/.env` only; Vite reads from `client/.env` only. Makes it trivial to deploy server and client on separate providers later.
 
 - [ ] **Step 4:** Create root `README.md`:
 
@@ -229,39 +261,45 @@ Private financial-domination tracker for Goddess Mean Mal. See `Docs/` for specs
 ## Quick start
 
 ```bash
-cp .env.example .env
-docker compose up --build
+cp server/.env.example server/.env
+cp client/.env.example client/.env
+make install       # uv sync + pnpm install (per service)
+make up            # postgres + mailhog in docker
+make init-dbs      # migrate + seed realistic fake data
+make server        # terminal 1
+make client        # terminal 2
 ```
 
-- Backend: http://localhost:8000
-- Frontend: http://localhost:5173
+- Server: http://localhost:8000 (Swagger at `/docs`)
+- Client: http://localhost:5173
 - Admin UI: http://localhost:5173/admin
+- Mailhog: http://localhost:8025
 
 ## Tree
 
-- `backend/` — FastAPI + SQLModel + Alembic + Postgres
-- `frontend/` — React + Vite + Tailwind
+- `server/` — FastAPI + SQLModel + Alembic + Postgres
+- `client/` — React + Vite + Tailwind
 - `Docs/` — design, use cases, diagrams, plans
 
-See `backend/CLAUDE.md` and `frontend/CLAUDE.md` for stack-specific rules.
+See `server/CLAUDE.md` and `client/CLAUDE.md` for stack-specific rules.
 ````
 
 - [ ] **Step 5:** Commit.
 
 ```bash
 git add -A
-git commit -m "chore: initialize repo with editor and env baseline"
+git commit -m "chore(infra): initialize repo with editor and env baseline"
 ```
 
 ---
 
-### Task 1.2 — Backend Python project
+### Task 1.2 — Server Python project
 
-- [ ] **Step 1:** Write `backend/pyproject.toml`:
+- [ ] **Step 1:** Write `server/pyproject.toml`:
 
 ```toml
 [project]
-name = "debt-collector-backend"
+name = "debt-collector-server"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
@@ -298,28 +336,19 @@ ignore = ["E501"]
 asyncio_mode = "auto"
 ```
 
-- [ ] **Step 2:** Write `backend/Dockerfile.dev`:
+- [ ] **Step 2:** Install locally (no Dockerfile for server — it runs on the host via `make server`). Ensure system deps for WeasyPrint are available on the dev machine:
 
-```dockerfile
-FROM python:3.12-slim
+```bash
+# Debian/Ubuntu
+sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b \
+    libfontconfig1 libcairo2 libgdk-pixbuf-2.0-0 shared-mime-info fonts-liberation
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b \
-    libfontconfig1 libcairo2 libgdk-pixbuf-2.0-0 shared-mime-info \
-    fonts-liberation && rm -rf /var/lib/apt/lists/*
-
-RUN pip install --no-cache-dir uv
-
-WORKDIR /app
-COPY pyproject.toml ./
-RUN uv pip install --system -e .
-
-COPY . .
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+cd server && uv sync
 ```
 
-- [ ] **Step 3:** Write `backend/core/config.py`:
+These are WeasyPrint runtime dependencies used in Phase 7. Install them now so Phase 7 doesn't stall.
+
+- [ ] **Step 3:** Write `server/core/config.py`:
 
 ```python
 from functools import lru_cache
@@ -364,7 +393,7 @@ def get_settings() -> Settings:
     return Settings()  # type: ignore[call-arg]
 ```
 
-- [ ] **Step 4:** Write `backend/core/db.py`:
+- [ ] **Step 4:** Write `server/core/db.py`:
 
 ```python
 from collections.abc import AsyncGenerator
@@ -382,7 +411,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 ```
 
-- [ ] **Step 5:** Write `backend/core/logging.py`:
+- [ ] **Step 5:** Write `server/core/logging.py`:
 
 ```python
 import logging
@@ -406,7 +435,7 @@ def configure_logging(dev: bool = True) -> None:
     structlog.configure(processors=processors, wrapper_class=structlog.make_filtering_bound_logger(logging.INFO))
 ```
 
-- [ ] **Step 6:** Write `backend/core/exceptions.py`:
+- [ ] **Step 6:** Write `server/core/exceptions.py`:
 
 ```python
 class DomainError(Exception):
@@ -439,7 +468,7 @@ class ValidationError(DomainError):
     status_code = 422
 ```
 
-- [ ] **Step 7:** Write `backend/core/exception_handlers.py`:
+- [ ] **Step 7:** Write `server/core/exception_handlers.py`:
 
 ```python
 from fastapi import FastAPI, Request
@@ -457,7 +486,7 @@ def register(app: FastAPI) -> None:
         )
 ```
 
-- [ ] **Step 8:** Write `backend/routers/health.py`:
+- [ ] **Step 8:** Write `server/routers/health.py`:
 
 ```python
 from fastapi import APIRouter
@@ -470,7 +499,7 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 ```
 
-- [ ] **Step 9:** Write `backend/main.py`:
+- [ ] **Step 9:** Write `server/main.py`:
 
 ```python
 from contextlib import asynccontextmanager
@@ -506,10 +535,10 @@ register_exception_handlers(app)
 app.include_router(health.router)
 ```
 
-- [ ] **Step 10:** Write `backend/alembic.ini` and init Alembic:
+- [ ] **Step 10:** Write `server/alembic.ini` and init Alembic:
 
 ```bash
-cd backend
+cd server
 alembic init alembic
 ```
 
@@ -555,30 +584,30 @@ async def run_migrations_online() -> None:
 asyncio.run(run_migrations_online())
 ```
 
-- [ ] **Step 11:** Write `backend/CLAUDE.md` — layer discipline and local conventions. Copy the backend section from `BEST_PRACTICES.md` at repo root, adapting paths.
+- [ ] **Step 11:** Write `server/CLAUDE.md` — layer discipline and local conventions. Copy the server section from `BEST_PRACTICES.md` at repo root, adapting paths.
 
 - [ ] **Step 12:** Commit.
 
 ```bash
-git add backend/ .gitignore .env.example README.md .editorconfig
-git commit -m "feat(backend): scaffold FastAPI app with health endpoint and Alembic"
+git add server/ .gitignore .env.example README.md .editorconfig
+git commit -m "feat(server): scaffold fastapi app with health endpoint and alembic"
 ```
 
 ---
 
-### Task 1.3 — Frontend React project
+### Task 1.3 — Client React project
 
-- [ ] **Step 1:** Initialize frontend with Vite:
+- [ ] **Step 1:** Initialize client with Vite:
 
 ```bash
-cd frontend
+cd client
 pnpm create vite@latest . --template react-ts
 pnpm add -D tailwindcss@next @tailwindcss/vite postcss autoprefixer
 pnpm add react-router-dom @tanstack/react-query openapi-fetch zod lucide-react clsx
 pnpm add -D @types/node eslint prettier eslint-plugin-react-hooks eslint-plugin-react-refresh typescript-eslint
 ```
 
-- [ ] **Step 2:** Write `frontend/vite.config.ts`:
+- [ ] **Step 2:** Write `client/vite.config.ts`:
 
 ```ts
 import { defineConfig } from "vite";
@@ -591,9 +620,9 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3:** Copy tokens into `frontend/src/styles/tokens.css`. Use the full content from `Docs/design_charter.md` section 2, wrapped in `:root { ... }` (dark values as default). Add a `[data-theme="light"] { ... }` block with the light-theme base-surface overrides from charter section 2.7 (accent tokens unchanged). All tokens: base surfaces, pink, violet, gold, crimson (debt), status, radii, shadows, motion.
+- [ ] **Step 3:** Copy tokens into `client/src/styles/tokens.css`. Use the full content from `Docs/design_charter.md` section 2, wrapped in `:root { ... }` (dark values as default). Add a `[data-theme="light"] { ... }` block with the light-theme base-surface overrides from charter section 2.7 (accent tokens unchanged). All tokens: base surfaces, pink, violet, gold, crimson (debt), status, radii, shadows, motion.
 
-- [ ] **Step 4:** Write `frontend/src/styles/globals.css`:
+- [ ] **Step 4:** Write `client/src/styles/globals.css`:
 
 ```css
 @import "tailwindcss";
@@ -630,7 +659,7 @@ html, body { background: var(--color-base-bg); color: var(--color-base-text); }
 body { font-family: var(--font-sans); }
 ```
 
-- [ ] **Step 5:** Write `frontend/index.html` with the three fonts preloaded:
+- [ ] **Step 5:** Write `client/index.html` with the three fonts preloaded:
 
 ```html
 <!DOCTYPE html>
@@ -651,7 +680,7 @@ body { font-family: var(--font-sans); }
 </html>
 ```
 
-- [ ] **Step 6:** Write `frontend/src/main.tsx`:
+- [ ] **Step 6:** Write `client/src/main.tsx`:
 
 ```tsx
 import React from "react";
@@ -674,7 +703,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 );
 ```
 
-- [ ] **Step 7:** Write `frontend/src/router.tsx`:
+- [ ] **Step 7:** Write `client/src/router.tsx`:
 
 ```tsx
 import { createBrowserRouter } from "react-router-dom";
@@ -685,7 +714,7 @@ export const router = createBrowserRouter([
 ]);
 ```
 
-- [ ] **Step 8:** Write `frontend/src/routes/HealthRoute.tsx`:
+- [ ] **Step 8:** Write `client/src/routes/HealthRoute.tsx`:
 
 ```tsx
 import { useQuery } from "@tanstack/react-query";
@@ -704,7 +733,7 @@ export function HealthRoute() {
       <div className="bg-base-surface border border-base-border rounded-md p-8">
         <h1 className="font-display text-2xl text-pink-primary">Debt Collector</h1>
         <p className="mt-2 text-base-text-muted">
-          Backend: {isLoading ? "..." : error ? "DOWN" : data?.status}
+          Server: {isLoading ? "..." : error ? "DOWN" : data?.status}
         </p>
       </div>
     </div>
@@ -712,30 +741,20 @@ export function HealthRoute() {
 }
 ```
 
-- [ ] **Step 9:** Write `frontend/Dockerfile.dev`:
+- [ ] **Step 9:** Write `client/CLAUDE.md` covering folder structure, one-way imports, 300-line rule, tokens-only colour rule, **no inline CSS** rule, **minimal comments** rule. Copy and adapt the client section from `BEST_PRACTICES.md`. No Dockerfile — the client runs on the host via `make client`.
 
-```dockerfile
-FROM node:22-slim
-RUN corepack enable
-WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
-COPY . .
-CMD ["pnpm", "run", "dev"]
-```
-
-- [ ] **Step 10:** Write `frontend/CLAUDE.md` covering folder structure, one-way imports, 300-line rule, tokens-only colour rule. Copy and adapt the frontend section from `BEST_PRACTICES.md`.
-
-- [ ] **Step 11:** Commit.
+- [ ] **Step 10:** Commit.
 
 ```bash
-git add frontend/
-git commit -m "feat(frontend): scaffold React app with Tailwind tokens and health page"
+git add client/
+git commit -m "feat(client): scaffold react app with tailwind tokens and health page"
 ```
 
 ---
 
-### Task 1.4 — Docker Compose
+### Task 1.4 — Docker Compose (infra only) + local run scripts
+
+**Rule:** Docker hosts **only** stateful/infra services (Postgres, Mailhog). Server and client always run **locally** (`uv run` / `pnpm dev`) so hot-reload, LSP, and debugging work without container round-trips.
 
 - [ ] **Step 1:** Write root `docker-compose.yml`:
 
@@ -757,51 +776,50 @@ services:
       timeout: 3s
       retries: 10
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.dev
-    env_file: .env
-    environment:
-      DATABASE_URL: postgresql+asyncpg://debt:debt@postgres:5432/debt
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - ./backend:/app
+  mailhog:
+    image: mailhog/mailhog:latest
     ports:
-      - "8000:8000"
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    ports:
-      - "5173:5173"
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
 
 volumes:
   postgres_data:
 ```
 
-- [ ] **Step 2:** Boot + verify:
+- [ ] **Step 2:** Write a root `Makefile` with the developer entrypoints (see Task 1.6 for the full version). Minimal version here:
 
-```bash
-cp .env.example .env
-docker compose up --build -d
-curl http://localhost:8000/health
-# Expected: {"status":"ok"}
+```makefile
+.PHONY: up down server client
+
+up:
+	docker compose up -d
+
+down:
+	docker compose down
+
+server:
+	cd server && uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+client:
+	cd client && pnpm dev
 ```
 
-Open http://localhost:5173 and verify the health banner renders.
-
-- [ ] **Step 3:** Commit.
+- [ ] **Step 3:** Boot infra + run services locally in two terminals:
 
 ```bash
-git add docker-compose.yml
-git commit -m "chore: docker compose for dev with postgres, backend, frontend"
+make up                 # starts postgres + mailhog
+make server             # terminal 1 — FastAPI on :8000
+make client             # terminal 2 — Vite on :5173
+curl http://localhost:8000/health    # {"status":"ok"}
+```
+
+Open http://localhost:5173 and verify the health banner renders. Mailhog UI at http://localhost:8025.
+
+- [ ] **Step 4:** Commit.
+
+```bash
+git add docker-compose.yml Makefile
+git commit -m "chore(infra): docker compose with postgres + mailhog; local server/client run scripts"
 ```
 
 ---
@@ -822,7 +840,7 @@ repos:
     rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
-        files: ^frontend/
+        files: ^client/
 ```
 
 - [ ] **Step 2:** Install + activate:
@@ -832,7 +850,7 @@ pip install pre-commit
 pre-commit install
 ```
 
-- [ ] **Step 3:** Wire up type sync. Add to `frontend/package.json` scripts:
+- [ ] **Step 3:** Wire up type sync. Add to `client/package.json` scripts:
 
 ```json
 "scripts": {
@@ -850,9 +868,299 @@ pnpm sync-types
 - [ ] **Step 4:** Commit.
 
 ```bash
-git add .pre-commit-config.yaml frontend/package.json frontend/pnpm-lock.yaml frontend/src/types/
-git commit -m "chore: pre-commit hooks and OpenAPI type sync"
+git add .pre-commit-config.yaml client/package.json client/pnpm-lock.yaml client/src/types/
+git commit -m "chore(infra): pre-commit hooks and OpenAPI type sync"
 ```
+
+---
+
+### Task 1.6 — Makefile + fake data seed system
+
+**Files:**
+- Create: `Makefile`, `server/seeds/fake_data.py`, `server/scripts/init_db.py`, `server/scripts/flush_db.py`
+- Modify: `server/pyproject.toml` (add dev dep `faker`)
+
+**Goal:** One-command dev DB reset + rich, realistic fake data that exercises every feature of the app. Run `make init-dbs` before trying a feature, `make flush-dbs` to wipe, re-run `init-dbs` to replay from a clean slate.
+
+- [ ] **Step 1:** Install `faker` in the server:
+
+```bash
+cd server && uv add --dev faker
+```
+
+- [ ] **Step 2:** Write the final root `Makefile` (supersedes the minimal version from Task 1.4):
+
+```makefile
+.PHONY: help up down server client install init-dbs flush-dbs reset-dbs migrate migration fmt lint typecheck check
+
+help:
+	@echo "Targets:"
+	@echo "  install       install server + client deps"
+	@echo "  up            start postgres + mailhog (docker)"
+	@echo "  down          stop docker services"
+	@echo "  server        run FastAPI locally with reload"
+	@echo "  client        run Vite dev server locally"
+	@echo "  migrate       apply alembic migrations"
+	@echo "  migration m=  create a new alembic migration from models (autogenerate)"
+	@echo "  init-dbs      flush + migrate + seed rich fake data"
+	@echo "  flush-dbs     drop all tables and re-create schema (no data)"
+	@echo "  reset-dbs     alias for init-dbs"
+	@echo "  fmt           format server (ruff) + client (prettier)"
+	@echo "  lint          lint server (ruff) + client (eslint)"
+	@echo "  typecheck     mypy on server, tsc --noEmit on client"
+	@echo "  check         fmt + lint + typecheck + tests (ci-equivalent)"
+
+install:
+	cd server && uv sync
+	cd client && pnpm install
+
+up:
+	docker compose up -d
+
+down:
+	docker compose down
+
+server:
+	cd server && uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+client:
+	cd client && pnpm dev
+
+migrate:
+	cd server && uv run alembic upgrade head
+
+migration:
+	cd server && uv run alembic revision --autogenerate -m "$(m)"
+
+flush-dbs:
+	cd server && uv run python scripts/flush_db.py
+
+init-dbs:
+	cd server && uv run python scripts/flush_db.py && uv run alembic upgrade head && uv run python scripts/init_db.py
+
+reset-dbs: init-dbs
+
+fmt:
+	cd server && uv run ruff format .
+	cd client && pnpm format
+
+lint:
+	cd server && uv run ruff check .
+	cd client && pnpm lint
+
+typecheck:
+	cd server && uv run mypy .
+	cd client && pnpm tsc --noEmit
+
+check: fmt lint typecheck
+	cd server && uv run pytest -q || true   # tests retrofit in phase 10
+	cd client && pnpm test -- --run || true
+```
+
+- [ ] **Step 3:** Write `server/scripts/flush_db.py`:
+
+```python
+"""Drop every table in the public schema. Used by `make flush-dbs`."""
+import asyncio
+from sqlalchemy import text
+from core.db import engine
+
+async def main() -> None:
+    async with engine.begin() as conn:
+        await conn.execute(text("DROP SCHEMA public CASCADE;"))
+        await conn.execute(text("CREATE SCHEMA public;"))
+    print("public schema dropped and re-created.")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+- [ ] **Step 4:** Write `server/scripts/init_db.py`:
+
+```python
+"""Seed realistic dev data. Assumes `alembic upgrade head` has run."""
+import asyncio
+from seeds.bootstrap import seed_admin_and_goddess
+from seeds.fake_data import seed_fake_data
+
+async def main() -> None:
+    await seed_admin_and_goddess()
+    await seed_fake_data()
+    print("DB initialized with realistic fake data.")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+- [ ] **Step 5:** Write `server/seeds/fake_data.py`. Must produce a rich, end-to-end dataset that exercises **every** feature:
+  - **8 subs** linked to the goddess, with varied `twitter_handle`, `first_name`, `last_name`, `source_note`, `created_at` spread over the last 6 months.
+  - **2 subs** in `BLACKLISTED` state with a `blacklist_entry` row (one forgiven with `reinstatement_fee_paid`, one not).
+  - **4 payment methods** for the goddess (Throne, PayPal, Bank, Apple Pay) with display handles.
+  - **5 invitations** (2 used, 2 pending with `expires_at` in future, 1 expired).
+  - **Rollings:**
+    - 3 subs with active rolling at varied amounts (£30, £50, £100) and varied weekday/time.
+    - 1 sub with a paused rolling.
+    - 1 sub with a late rolling (`days_late=2`, compounded amount visible on dashboard).
+  - **Debt contracts** — one per state to cover the full state machine:
+    - `PENDING_SUB` (goddess proposed, sub not responded)
+    - `PENDING_DOM_COUNTER` (sub counter-proposed)
+    - `PENDING_SUB_SIGNATURE` (both agreed, waiting signature)
+    - `ACTIVE` x2 (one healthy, one with `days_late=5` that will trigger cron on next run)
+    - `CLOSED` (fully paid)
+    - `BREACHED` (for one of the blacklisted subs)
+    - `COMPLETED` via buyout (with `buyout_paid` event)
+    - `CANCELLED_BY_DOM`
+  - **Debt events** seeded on active contracts: 3 `period_interest`, 2 `payment_applied`, 1 `late_penalty`, 1 `surprise_penalty`, 1 `adjustment`. Balances cached on contracts must match ledger replay.
+  - **Payments** declared by subs in every category (`entry`, `rolling`, `weekly_debt`, `debt_payment`, `buyout`, `tribute`), in every state (`pending`, `validated`, `rejected`), with allocations wired to rollings/contracts.
+  - **Notifications** — 6 unread + 4 read for the goddess, 3 unread for each active sub, varying kinds (`payment_declared`, `rolling_late`, `contract_signed`, `contract_breached`, `buyout_paid`).
+  - **Credentials for dev login** printed at the end of the seed:
+    - `admin@example.com` / `adminpass123`
+    - `goddess@example.com` / `goddesspass123`
+    - `sub1@example.com` … `sub8@example.com` / `subpass123`
+    - `blacklisted1@example.com` / `subpass123` (cannot log in)
+
+Use `faker` (locale `en_GB`) for names, timestamps, hashes. Amounts are deterministic (from the list above) so the UX is predictable. Wrap the whole seed in a single transaction; if anything fails, rollback.
+
+- [ ] **Step 6:** Run it end to end:
+
+```bash
+make init-dbs
+```
+
+Then `make server` + `make client`, log in as each role, walk every dashboard. Every list should be non-empty; every state chip should appear somewhere.
+
+- [ ] **Step 7:** Commit.
+
+```bash
+git add Makefile server/pyproject.toml server/uv.lock server/scripts/ server/seeds/fake_data.py
+git commit -m "chore(db): make targets + realistic fake data seed system"
+```
+
+---
+
+### Task 1.7 — GitHub Actions CI
+
+**Files:**
+- Create: `.github/workflows/ci.yml`, `.github/workflows/commit-convention.yml`
+
+**Goal:** Every push and PR runs the same quality checks that the local phase gate demands. Failing CI blocks merges.
+
+- [ ] **Step 1:** Write `.github/workflows/ci.yml`:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: debt
+          POSTGRES_PASSWORD: debt
+          POSTGRES_DB: debt
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U debt"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: server
+    env:
+      DATABASE_URL: postgresql+asyncpg://debt:debt@localhost:5432/debt
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync --all-extras
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy .
+      - run: uv run alembic upgrade head
+      - run: uv run pytest -q || [ "${{ github.event_name }}" = "pull_request" ] # tests retrofit phase 10
+
+  client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: client/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm tsc --noEmit
+      - run: pnpm build
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pre-commit
+      - run: pre-commit run --all-files
+```
+
+- [ ] **Step 2:** Write `.github/workflows/commit-convention.yml` — enforces Conventional Commits on PR titles and commits:
+
+```yaml
+name: Commit convention
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  lint-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: .commitlintrc.json
+```
+
+And `.commitlintrc.json` at the root:
+
+```json
+{
+  "extends": ["@commitlint/config-conventional"],
+  "rules": {
+    "type-enum": [2, "always", ["feat","fix","chore","docs","refactor","test","ci"]],
+    "scope-enum": [2, "always", ["server","client","infra","docs","db","auth","contracts","rollings","payments","admin","notif","ui"]],
+    "scope-empty": [2, "never"],
+    "subject-case": [2, "always", "lower-case"],
+    "header-max-length": [2, "always", 72]
+  }
+}
+```
+
+- [ ] **Step 3:** Commit (messages themselves conform to the convention; no Claude co-authorship trailer).
+
+```bash
+git add .github/ .commitlintrc.json
+git commit -m "ci(infra): github actions for server, client, pre-commit, commit convention"
+```
+
+- [ ] **Step 4:** Push the branch and verify both workflows run green on GitHub.
 
 ---
 
@@ -863,46 +1171,46 @@ git commit -m "chore: pre-commit hooks and OpenAPI type sync"
 **Files created:**
 
 ```
-backend/models/
+server/models/
 ├── user.py              # User, Goddess, RefreshToken, PasswordResetToken models + schemas
-backend/core/security.py # password hashing + JWT helpers
-backend/services/email/
+server/core/security.py # password hashing + JWT helpers
+server/services/email/
 ├── provider.py          # Protocol
 ├── handler.py           # EmailHandler
 ├── factory.py
 └── providers/
     ├── resend.py
     └── fake.py          # for dev without Resend key
-backend/daos/user_dao.py
-backend/daos/token_dao.py
-backend/controllers/auth_controller.py
-backend/routers/auth.py
-backend/routers/users.py
-backend/dependencies/auth.py  # current_user, require_role
-backend/seeds/bootstrap.py    # creates admin + goddess if missing
+server/daos/user_dao.py
+server/daos/token_dao.py
+server/controllers/auth_controller.py
+server/routers/auth.py
+server/routers/users.py
+server/dependencies/auth.py  # current_user, require_role
+server/seeds/bootstrap.py    # creates admin + goddess if missing
 
-frontend/src/api/client.ts
-frontend/src/api/auth.ts
-frontend/src/hooks/useAuth.ts
-frontend/src/services/authStore.ts  # zustand or context, no persistence
-frontend/src/components/ui/
+client/src/api/client.ts
+client/src/api/auth.ts
+client/src/hooks/useAuth.ts
+client/src/services/authStore.ts  # zustand or context, no persistence
+client/src/components/ui/
 ├── Button.tsx
 ├── Input.tsx
 ├── Card.tsx
 └── Chip.tsx
-frontend/src/routes/
+client/src/routes/
 ├── LoginRoute.tsx
 ├── ForgotPasswordRoute.tsx
 ├── ResetPasswordRoute.tsx
 └── DashboardRoute.tsx  # placeholder protected page
-frontend/src/routes/guards.tsx   # RequireAuth, RequireRole
+client/src/routes/guards.tsx   # RequireAuth, RequireRole
 ```
 
 ---
 
 ### Task 2.1 — User / Goddess / token models + first migration
 
-- [ ] **Step 1:** Write `backend/models/user.py`:
+- [ ] **Step 1:** Write `server/models/user.py`:
 
 ```python
 from datetime import datetime
@@ -971,7 +1279,7 @@ class PasswordResetToken(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 ```
 
-- [ ] **Step 2:** Write `backend/models/__init__.py` to import all models for Alembic:
+- [ ] **Step 2:** Write `server/models/__init__.py` to import all models for Alembic:
 
 ```python
 from models.user import Goddess, PasswordResetToken, RefreshToken, User, UserRole, UserStatus  # noqa: F401
@@ -980,24 +1288,24 @@ from models.user import Goddess, PasswordResetToken, RefreshToken, User, UserRol
 - [ ] **Step 3:** Generate first migration using the `new-migration` skill (command already provided in your config):
 
 ```bash
-docker compose exec backend alembic revision --autogenerate -m "phase2 auth tables"
-docker compose exec backend alembic upgrade head
+docker compose exec server alembic revision --autogenerate -m "phase2 auth tables"
+docker compose exec server alembic upgrade head
 ```
 
-Inspect the generated migration; tweak if autogenerate missed enums or defaults. Commit the file under `backend/alembic/versions/`.
+Inspect the generated migration; tweak if autogenerate missed enums or defaults. Commit the file under `server/alembic/versions/`.
 
 - [ ] **Step 4:** Commit.
 
 ```bash
-git add backend/models/ backend/alembic/versions/
-git commit -m "feat(auth): User, Goddess, RefreshToken, PasswordResetToken models"
+git add server/models/ server/alembic/versions/
+git commit -m "feat(auth): user, goddess, refresh-token and password-reset-token models"
 ```
 
 ---
 
 ### Task 2.2 — Password hashing & JWT helpers
 
-- [ ] **Step 1:** Write `backend/core/security.py`:
+- [ ] **Step 1:** Write `server/core/security.py`:
 
 ```python
 from datetime import UTC, datetime, timedelta
@@ -1064,15 +1372,15 @@ def decode_token(token: str, expected_type: str) -> dict:
 - [ ] **Step 2:** Commit.
 
 ```bash
-git add backend/core/security.py
-git commit -m "feat(auth): argon2id hashing and JWT helpers"
+git add server/core/security.py
+git commit -m "feat(auth): argon2id hashing and jwt helpers"
 ```
 
 ---
 
 ### Task 2.3 — Email service adapter (Resend + fake)
 
-- [ ] **Step 1:** Write `backend/services/email/provider.py`:
+- [ ] **Step 1:** Write `server/services/email/provider.py`:
 
 ```python
 from typing import Protocol
@@ -1082,7 +1390,7 @@ class EmailProvider(Protocol):
     async def send(self, *, to: str, subject: str, html: str) -> None: ...
 ```
 
-- [ ] **Step 2:** Write `backend/services/email/providers/resend.py`:
+- [ ] **Step 2:** Write `server/services/email/providers/resend.py`:
 
 ```python
 import resend
@@ -1098,7 +1406,7 @@ class ResendEmailProvider(EmailProvider):
         resend.Emails.send({"from": self.from_email, "to": to, "subject": subject, "html": html})
 ```
 
-- [ ] **Step 3:** Write `backend/services/email/providers/fake.py`:
+- [ ] **Step 3:** Write `server/services/email/providers/fake.py`:
 
 ```python
 import structlog
@@ -1114,7 +1422,7 @@ class FakeEmailProvider(EmailProvider):
         log.info("fake_email_send", to=to, subject=subject, html=html)
 ```
 
-- [ ] **Step 4:** Write `backend/services/email/handler.py`:
+- [ ] **Step 4:** Write `server/services/email/handler.py`:
 
 ```python
 from services.email.provider import EmailProvider
@@ -1133,7 +1441,7 @@ class EmailHandler:
         await self._provider.send(to=to, subject="Reset your password", html=html)
 ```
 
-- [ ] **Step 5:** Write `backend/services/email/factory.py`:
+- [ ] **Step 5:** Write `server/services/email/factory.py`:
 
 ```python
 from core.config import Settings
@@ -1153,15 +1461,15 @@ def build_email_handler(settings: Settings) -> EmailHandler:
 - [ ] **Step 6:** Commit.
 
 ```bash
-git add backend/services/email/
-git commit -m "feat(email): Resend + fake providers behind EmailHandler"
+git add server/services/email/
+git commit -m "feat(auth): resend and fake email providers behind handler"
 ```
 
 ---
 
 ### Task 2.4 — Auth DAO, controller, routes
 
-- [ ] **Step 1:** Write `backend/daos/user_dao.py`:
+- [ ] **Step 1:** Write `server/daos/user_dao.py`:
 
 ```python
 from uuid import UUID
@@ -1199,7 +1507,7 @@ class UserDAO:
             self.session.add(user)
 ```
 
-- [ ] **Step 2:** Write `backend/daos/token_dao.py`:
+- [ ] **Step 2:** Write `server/daos/token_dao.py`:
 
 ```python
 import hashlib
@@ -1248,7 +1556,7 @@ class TokenDAO:
         return None
 ```
 
-- [ ] **Step 3:** Write `backend/controllers/auth_controller.py`:
+- [ ] **Step 3:** Write `server/controllers/auth_controller.py`:
 
 ```python
 import secrets
@@ -1322,7 +1630,7 @@ class AuthController:
         self.users.session.add(user)
 ```
 
-- [ ] **Step 4:** Write `backend/dependencies/auth.py`:
+- [ ] **Step 4:** Write `server/dependencies/auth.py`:
 
 ```python
 from uuid import UUID
@@ -1362,7 +1670,7 @@ def require_role(*allowed: UserRole):
     return guard
 ```
 
-- [ ] **Step 5:** Write `backend/routers/auth.py` using `new-backend-route` conventions:
+- [ ] **Step 5:** Write `server/routers/auth.py` using `new-server-route` conventions:
 
 ```python
 from fastapi import APIRouter, Depends
@@ -1456,15 +1764,15 @@ app.include_router(auth_router.router)
 - [ ] **Step 6:** Commit.
 
 ```bash
-git add backend/
-git commit -m "feat(auth): login, refresh, logout, password reset end-to-end"
+git add server/
+git commit -m "feat(auth): login, refresh, logout and password-reset end-to-end"
 ```
 
 ---
 
 ### Task 2.5 — Seed admin + goddess + goddess_id on admin user
 
-- [ ] **Step 1:** Write `backend/seeds/bootstrap.py`:
+- [ ] **Step 1:** Write `server/seeds/bootstrap.py`:
 
 ```python
 import asyncio
@@ -1514,7 +1822,7 @@ if __name__ == "__main__":
 Wire into lifespan for dev convenience:
 
 ```python
-# in backend/main.py lifespan
+# in server/main.py lifespan
 from core.db import SessionMaker
 from seeds.bootstrap import bootstrap
 
@@ -1522,7 +1830,7 @@ async with SessionMaker() as session:
     await bootstrap(session)
 ```
 
-- [ ] **Step 2:** Restart backend, verify admin login via curl:
+- [ ] **Step 2:** Restart server, verify admin login via curl:
 
 ```bash
 curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" \
@@ -1534,17 +1842,17 @@ Expected: JSON with `access_token`, `refresh_token`, `role: "admin"`.
 - [ ] **Step 3:** Commit.
 
 ```bash
-git add backend/seeds/ backend/main.py
-git commit -m "feat(seed): bootstrap admin and goddess on startup"
+git add server/seeds/ server/main.py
+git commit -m "feat(db): bootstrap admin and goddess on startup"
 ```
 
 ---
 
-### Task 2.6 — Frontend auth: client, hooks, login screen
+### Task 2.6 — Client auth: client, hooks, login screen
 
 - [ ] **Step 1:** Run `pnpm sync-types` to refresh `api.generated.ts` now that `/auth/*` exists.
 
-- [ ] **Step 2:** Write `frontend/src/api/client.ts`:
+- [ ] **Step 2:** Write `client/src/api/client.ts`:
 
 ```ts
 import createClient from "openapi-fetch";
@@ -1563,7 +1871,7 @@ export function setAccessToken(token: string | null) {
 }
 ```
 
-- [ ] **Step 3:** Write `frontend/src/services/authStore.ts` (React context):
+- [ ] **Step 3:** Write `client/src/services/authStore.ts` (React context):
 
 ```ts
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
@@ -1617,9 +1925,9 @@ export function useAuth() {
 
 Mount `AuthProvider` around the router in `main.tsx`.
 
-- [ ] **Step 4:** Scaffold design-system primitives via `new-frontend-component` command. Create `frontend/src/components/ui/Button.tsx`, `Input.tsx`, `Card.tsx`, `Chip.tsx` — each reading styles from `design_charter.html` mocks (variants: `primary` / `secondary` / `gold` / `destructive` / `violet`; chips: success/pending/rejected/breached/closed/info). **Strict:** pure presentational, no API calls; no inline hex.
+- [ ] **Step 4:** Scaffold design-system primitives via `new-client-component` command. Create `client/src/components/ui/Button.tsx`, `Input.tsx`, `Card.tsx`, `Chip.tsx` — each reading styles from `design_charter.html` mocks (variants: `primary` / `secondary` / `gold` / `destructive` / `violet`; chips: success/pending/rejected/breached/closed/info). **Strict:** pure presentational, no API calls; no inline hex.
 
-- [ ] **Step 5:** Write `frontend/src/routes/LoginRoute.tsx`:
+- [ ] **Step 5:** Write `client/src/routes/LoginRoute.tsx`:
 
 ```tsx
 import { useState } from "react";
@@ -1664,7 +1972,7 @@ export function LoginRoute() {
 }
 ```
 
-- [ ] **Step 6:** Write `frontend/src/routes/guards.tsx`:
+- [ ] **Step 6:** Write `client/src/routes/guards.tsx`:
 
 ```tsx
 import { Navigate } from "react-router-dom";
@@ -1692,8 +2000,8 @@ export function RequireRole({ roles, children }: { roles: ("admin" | "goddess" |
 - [ ] **Step 10:** Commit.
 
 ```bash
-git add frontend/
-git commit -m "feat(frontend): auth store, login/forgot/reset screens, UI primitives"
+git add client/
+git commit -m "feat(client): auth store, login/forgot/reset screens and ui primitives"
 ```
 
 ---
@@ -1705,17 +2013,17 @@ git commit -m "feat(frontend): auth store, login/forgot/reset screens, UI primit
 **Files created:**
 
 ```
-backend/models/invitation.py
-backend/daos/invitation_dao.py
-backend/controllers/invitation_controller.py
-backend/routers/invitations.py   # /goddess/invitations (create) + /invite/{token} (public)
-backend/routers/signup.py        # /invite/{token}/signup
+server/models/invitation.py
+server/daos/invitation_dao.py
+server/controllers/invitation_controller.py
+server/routers/invitations.py   # /goddess/invitations (create) + /invite/{token} (public)
+server/routers/signup.py        # /invite/{token}/signup
 
-frontend/src/routes/goddess/InviteSubRoute.tsx
-frontend/src/routes/goddess/InvitationsListRoute.tsx
-frontend/src/routes/public/InviteLandingRoute.tsx
-frontend/src/routes/public/SignupRoute.tsx
-frontend/src/routes/sub/PendingEntryTributeRoute.tsx
+client/src/routes/goddess/InviteSubRoute.tsx
+client/src/routes/goddess/InvitationsListRoute.tsx
+client/src/routes/public/InviteLandingRoute.tsx
+client/src/routes/public/SignupRoute.tsx
+client/src/routes/sub/PendingEntryTributeRoute.tsx
 ```
 
 Core steps:
@@ -1726,12 +2034,12 @@ Core steps:
 - `POST /goddess/invitations` (goddess-only) returns URL + token, `days` expiration default 7.
 - `GET /invite/{token}` public: returns goddess display_name, note, entry amount, expiry.
 - `POST /invite/{token}/signup` creates sub with `status=PENDING_ENTRY_TRIBUTE`, links `goddess_id`, consumes invitation, returns session like login.
-- Frontend: `InviteSubRoute` form — **`entry_tribute_amount` (GBP, required, positive Decimal, no default pre-filled)**, note (optional), expiry in days. Shows generated URL in a copy card. Validation rejects 0 or blank.
-- Backend: `entry_tribute_amount` validated as `Decimal > 0`, stored at 2 decimals.
-- Frontend: `InviteLandingRoute` fetches `/invite/{token}` and renders signup form.
+- Client: `InviteSubRoute` form — **`entry_tribute_amount` (GBP, required, positive Decimal, no default pre-filled)**, note (optional), expiry in days. Shows generated URL in a copy card. Validation rejects 0 or blank.
+- Server: `entry_tribute_amount` validated as `Decimal > 0`, stored at 2 decimals.
+- Client: `InviteLandingRoute` fetches `/invite/{token}` and renders signup form.
 - `PendingEntryTributeRoute` shows Goddess's payment methods (Phase 4) and a "Declare payment" button — stub link for now.
 
-Each task follows the Phase 2 pattern: model → migration → DAO → controller → router → frontend route → commit. Each task ≤ 120 min.
+Each task follows the Phase 2 pattern: model → migration → DAO → controller → router → client route → commit. Each task ≤ 120 min.
 
 Per-task checkbox skeleton (apply to every task above):
 
@@ -1741,7 +2049,7 @@ Per-task checkbox skeleton (apply to every task above):
 - [ ] Step 4: Write controller with domain errors (`NotFound` for bad token, `Conflict` if consumed/expired).
 - [ ] Step 5: Write router with Pydantic In/Out schemas.
 - [ ] Step 6: Mount router in `main.py`, run `pnpm sync-types`.
-- [ ] Step 7: Write frontend route(s), keep under 300 lines.
+- [ ] Step 7: Write client route(s), keep under 300 lines.
 - [ ] Step 8: Verify flow manually in browser (Goddess creates invite → sub opens URL in incognito → signup → redirect).
 - [ ] Step 9: Commit per task.
 
@@ -1759,7 +2067,7 @@ Tables: `payment_method` (id, goddess_id, name, type enum, handle_or_link, note,
 - [ ] DAO (`list_active_by_goddess`, `create`, `update`, `delete_soft` via `enabled=false`).
 - [ ] Controller with reorder action (`set_sort_order(method_id, position)`).
 - [ ] Router `/goddess/payment-methods` (full CRUD).
-- [ ] Frontend `PaymentMethodsRoute.tsx` with drag-reorder (use `@dnd-kit/core`, install if needed).
+- [ ] Client `PaymentMethodsRoute.tsx` with drag-reorder (use `@dnd-kit/core`, install if needed).
 - [ ] Commit.
 
 ### Task 4.2 — Payment declaration model + allocation
@@ -1796,12 +2104,12 @@ Validation rules (enforce in controller):
   - `POST /goddess/payments/{id}/validate` (body: `{recategorize_to?: Category}`)
   - `POST /goddess/payments/{id}/reject` (body: `{reason?: string}`)
   - `POST /goddess/payments/record` (direct record, body: sub_id + fields)
-- [ ] Frontend:
+- [ ] Client:
   - `PaymentFormRoute.tsx` (sub): category radio, amount, method select (fetches Goddess methods), optional timestamp, note, submit.
   - `PaymentHistoryRoute.tsx` (sub): list with chips (pending/validated/rejected).
   - `PendingValidationsRoute.tsx` (Goddess): table with Validate / Reject / Re-categorize inline dropdown.
   - `RecordPaymentRoute.tsx` (Goddess): direct-entry form.
-- [ ] Run `sync-types` after backend changes.
+- [ ] Run `sync-types` after server changes.
 - [ ] Commit per sub-task.
 
 ---
@@ -1852,7 +2160,7 @@ def amount_due(rolling: RollingTribute, now: datetime) -> float:
 ```
 
 - [ ] Controller + router `/goddess/subs/{sub_id}/rolling` (GET, PUT for upsert; DELETE sets amount=0).
-- [ ] Frontend: inline edit on `SubDetailRoute.tsx` (Phase 9 dashboard) — for now a standalone `RollingEditorRoute.tsx` is sufficient.
+- [ ] Client: inline edit on `SubDetailRoute.tsx` (Phase 9 dashboard) — for now a standalone `RollingEditorRoute.tsx` is sufficient.
 - [ ] Wire `mark_paid` in `PaymentController.validate` when allocation target_type == `rolling`.
 - [ ] Commit.
 
@@ -1936,7 +2244,7 @@ def severe_warning(contract: DebtContract) -> bool:
 - `GET /sub/debts` / `GET /goddess/debts`
 - `POST /debts/{id}/simulate` (stateless; also callable on draft) — returns projection
 
-### Task 6.5 — Frontend
+### Task 6.5 — Client
 - `ContractFormRoute.tsx` (Goddess or Sub) with all fields, live simulation graph (use `recharts`), severe-warning banner.
 - `ContractReviewRoute.tsx` showing diff between original and counter (use `diff-match-patch` or custom side-by-side).
 - `ContractSignRoute.tsx` — defers to Phase 7 for signature; for now just "Sign" button placeholder.
@@ -1980,10 +2288,10 @@ def generate(contract: DebtContract, goddess_name: str, sub_full_name: str, sign
     return pdf_bytes, sha
 ```
 
-Template `backend/services/pdf/templates/contract.html`: style with Playfair Display + Source Serif Pro per design charter. Include all contract terms, exit amount, schedule simulation table, signature block embedding the PNG inline (`<img src="data:image/png;base64,{{signature_b64}}">`), signed date.
+Template `server/services/pdf/templates/contract.html`: style with Playfair Display + Source Serif Pro per design charter. Include all contract terms, exit amount, schedule simulation table, signature block embedding the PNG inline (`<img src="data:image/png;base64,{{signature_b64}}">`), signed date.
 
 ### Task 7.3 — Signature canvas component
-Frontend `components/signature/SignaturePad.tsx` using `react-signature-canvas` (install: `pnpm add react-signature-canvas`). Exposes `getDataURL()`.
+Client `components/signature/SignaturePad.tsx` using `react-signature-canvas` (install: `pnpm add react-signature-canvas`). Exposes `getDataURL()`.
 
 ### Task 7.4 — Sign endpoint
 `POST /sub/debts/{id}/sign` — body: `{signature_png_b64: string}`. Controller:
@@ -1998,7 +2306,7 @@ Frontend `components/signature/SignaturePad.tsx` using `react-signature-canvas` 
 ### Task 7.5 — Download endpoint
 `GET /debts/{id}/pdf` — 302 to presigned R2 URL (owner check: sub owns it, or goddess owns the sub).
 
-### Task 7.6 — Frontend sign screen wired + download button on contract detail page. Commit.
+### Task 7.6 — Client sign screen wired + download button on contract detail page. Commit.
 
 ---
 
@@ -2216,7 +2524,7 @@ async def notifications_ws(ws: WebSocket, token: str = Query(...)):
         await publisher.unsubscribe(user_id, q)
 ```
 
-### Task 9.3 — Frontend notifications
+### Task 9.3 — Client notifications
 
 - `hooks/useNotificationsSocket.ts` opening WS, writing to a Zustand/Context store.
 - `components/layout/NotificationBell.tsx` with unread counter, drawer listing recent notifs, deep-link on click.
@@ -2224,13 +2532,13 @@ async def notifications_ws(ws: WebSocket, token: str = Query(...)):
 ### Task 9.3b — Theme toggle (dark / light)
 
 **Files:**
-- Create: `frontend/src/hooks/useTheme.ts`, `frontend/src/components/layout/ThemeToggle.tsx`
-- Modify: `frontend/src/components/layout/AppHeader.tsx`, `frontend/src/main.tsx` (pre-hydration script), `backend/routers/me.py` (add `PATCH /me/preferences` with `theme_preference`)
-- Modify: `backend/models/user.py` (field already added in Task 2.1), `backend/daos/user_dao.py` (add `update_theme_preference`)
+- Create: `client/src/hooks/useTheme.ts`, `client/src/components/layout/ThemeToggle.tsx`
+- Modify: `client/src/components/layout/AppHeader.tsx`, `client/src/main.tsx` (pre-hydration script), `server/routers/me.py` (add `PATCH /me/preferences` with `theme_preference`)
+- Modify: `server/models/user.py` (field already added in Task 2.1), `server/daos/user_dao.py` (add `update_theme_preference`)
 
-- [ ] **Step 1:** Backend — add endpoint `PATCH /me/preferences` that accepts `{ theme_preference: "system" | "dark" | "light" }` and persists it on the authenticated user. Regenerate openapi client.
+- [ ] **Step 1:** Server — add endpoint `PATCH /me/preferences` that accepts `{ theme_preference: "system" | "dark" | "light" }` and persists it on the authenticated user. Regenerate openapi client.
 
-- [ ] **Step 2:** Frontend — add a pre-hydration inline script in `index.html` `<head>` before the app loads:
+- [ ] **Step 2:** Client — add a pre-hydration inline script in `index.html` `<head>` before the app loads:
 
 ```html
 <script>
@@ -2309,7 +2617,7 @@ export function useTheme() {
 
 ### Task 9.7 — Admin console
 
-- Backend `/admin/{entity}` generic routes using a small helper:
+- Server `/admin/{entity}` generic routes using a small helper:
 
 ```python
 # routers/admin.py — pseudo-pattern, repeat per entity
@@ -2333,7 +2641,7 @@ router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(requir
 
 Implement one generic endpoint factory `register_crud(router, Model, prefix)` to avoid duplication across 12 entities.
 
-- Frontend: `/admin` route with sidebar listing entities; each entity page uses `<AdminTable>` + `<AdminForm>` generic components driven by TypeScript schema (hand-write the column/field maps per entity — no need for runtime reflection).
+- Client: `/admin` route with sidebar listing entities; each entity page uses `<AdminTable>` + `<AdminForm>` generic components driven by TypeScript schema (hand-write the column/field maps per entity — no need for runtime reflection).
 
 ### Task 9.8 — Commit each sub-task.
 
@@ -2347,7 +2655,7 @@ Implement one generic endpoint factory `register_crud(router, Model, prefix)` to
 
 ### Task 10.3 — Mobile responsive audit: sub dashboard ≤ 760 px, modal full-screen on mobile, header collapses.
 
-### Task 10.4 — Pre-commit strengthening: add `mypy --strict` on backend, `tsc --noEmit` on frontend via hook.
+### Task 10.4 — Pre-commit strengthening: add `mypy --strict` on server, `tsc --noEmit` on client via hook.
 
 ### Task 10.5 — Pytest retrofit
 
@@ -2371,10 +2679,10 @@ Follow `visual-regression` skill: Playwright snapshots for login, Goddess dashbo
 
 ```bash
 # From root
-pnpm --prefix frontend lint --fix
-pnpm --prefix frontend format
-cd backend && uv run ruff check . --fix && uv run ruff format .
-cd .. && git add -A && git commit -m "chore: final polish pass"
+pnpm --prefix client lint --fix
+pnpm --prefix client format
+cd server && uv run ruff check . --fix && uv run ruff format .
+cd .. && git add -A && git commit -m "chore(infra): final polish pass"
 git tag v0.1.0
 ```
 
@@ -2386,11 +2694,11 @@ git tag v0.1.0
 
 - **Commit discipline:** each task ends with a focused commit. Prefix: `feat(scope):`, `fix(scope):`, `chore:`, `refactor(scope):`. No AI attribution trailers.
 - **Before every commit:** run `precommit-fix` command.
-- **After every backend endpoint change:** run `pnpm sync-types` in frontend.
+- **After every server endpoint change:** run `pnpm sync-types` in client.
 - **After every model change:** use `new-migration` command; review the autogen diff; round-trip test (`alembic upgrade head && alembic downgrade -1 && alembic upgrade head`).
 - **GoddessId on every new sub-owned table** — never forget.
-- **Always use `Decimal` for money**, never `float`. Frontend too: strings crossing the wire, `Decimal.js` or manual rounding for display.
-- **Timezones:** backend stores UTC; all business deadlines computed in `Europe/London`; frontend displays local time with UK label.
+- **Always use `Decimal` for money**, never `float`. Client too: strings crossing the wire, `Decimal.js` or manual rounding for display.
+- **Timezones:** server stores UTC; all business deadlines computed in `Europe/London`; client displays local time with UK label.
 
 ---
 
