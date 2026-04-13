@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 import jwt
 from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError
+from argon2.exceptions import InvalidHashError, VerifyMismatchError
 
 from core.config import get_settings
 from core.exceptions import Unauthorized
@@ -16,8 +16,6 @@ _hasher = PasswordHasher(
     parallelism=_settings.argon2_parallelism,
 )
 
-_ALGO = "HS256"
-
 
 def hash_password(plain: str) -> str:
     return _hasher.hash(plain)
@@ -26,7 +24,7 @@ def hash_password(plain: str) -> str:
 def verify_password(plain: str, hashed: str) -> bool:
     try:
         return _hasher.verify(hashed, plain)
-    except (VerifyMismatchError, Exception):
+    except (VerifyMismatchError, InvalidHashError, ValueError):
         return False
 
 
@@ -41,7 +39,7 @@ def create_access_token(subject: str, role: str, extra: dict | None = None) -> s
     }
     if extra:
         payload.update(extra)
-    return jwt.encode(payload, _settings.jwt_secret_key, algorithm=_ALGO)
+    return jwt.encode(payload, _settings.jwt_secret_key, algorithm=_settings.jwt_algorithm)
 
 
 def create_refresh_token() -> tuple[str, str]:
@@ -51,7 +49,7 @@ def create_refresh_token() -> tuple[str, str]:
 
 def decode_access_token(token: str) -> dict:
     try:
-        data = jwt.decode(token, _settings.jwt_secret_key, algorithms=[_ALGO])
+        data = jwt.decode(token, _settings.jwt_secret_key, algorithms=[_settings.jwt_algorithm])
     except jwt.ExpiredSignatureError as exc:
         raise Unauthorized("token expired") from exc
     except jwt.InvalidTokenError as exc:
