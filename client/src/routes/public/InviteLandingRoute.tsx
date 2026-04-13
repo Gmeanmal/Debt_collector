@@ -2,6 +2,18 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicInvitationApi } from "@/services/invitations/invitationsApi";
 
+function errorMessage(err: unknown): string {
+  const e = err as { status?: number; detail?: string } | null;
+  if (!e) return "This invitation link is invalid or no longer exists.";
+  if (e.status === 404) return "This invitation link is invalid or no longer exists.";
+  if (e.status === 409) {
+    const detail = (e.detail ?? "").toLowerCase();
+    if (detail.includes("expired")) return "This invitation has expired.";
+    if (detail.includes("used")) return "This invitation has already been used.";
+  }
+  return "This invitation link is invalid or no longer exists.";
+}
+
 export function InviteLandingRoute() {
   const { token } = useParams<{ token: string }>();
 
@@ -36,9 +48,7 @@ export function InviteLandingRoute() {
         {isInvalid && (
           <div className="bg-base-surface border border-base-border rounded-lg p-8 text-center flex flex-col gap-3">
             <p className="text-base-text font-semibold">Invitation no longer valid</p>
-            <p className="text-base-text-muted text-sm">
-              This invitation link has expired, been used, or does not exist.
-            </p>
+            <p className="text-base-text-muted text-sm">{errorMessage(error)}</p>
           </div>
         )}
 

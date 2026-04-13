@@ -35,10 +35,13 @@ export async function getPublicInvitationApi(token: string): Promise<PublicInvit
     params: { path: { token } },
   });
   if (error || !data) {
-    const status = (error as { status?: number } | undefined)?.status;
+    const err = error as { status?: number; detail?: string } | undefined;
+    const status = err?.status;
     if (status === 404) throw Object.assign(new Error("Invitation not found"), { status: 404 });
-    if (status === 409)
-      throw Object.assign(new Error("Invitation expired or used"), { status: 409 });
+    if (status === 409) {
+      const detail = err?.detail ?? "";
+      throw Object.assign(new Error("Invitation expired or used"), { status: 409, detail });
+    }
     throw new Error("Failed to fetch invitation");
   }
   return data;
