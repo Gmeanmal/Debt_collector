@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/api/client";
 
 export function HealthRoute() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["health"],
     queryFn: async () => {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"}/health`,
-      );
-      return res.json() as Promise<{ status: string }>;
+      const { data, error } = await apiClient.GET("/health");
+      if (error) throw error;
+      return data;
     },
   });
 
