@@ -10,8 +10,8 @@ type InvitationOut = components["schemas"]["InvitationOut"];
 const schema = z.object({
   entry_tribute_amount: z
     .string()
-    .min(1, "Amount is required")
-    .refine((v) => !isNaN(Number(v)) && Number(v) > 0, "Amount must be a positive number"),
+    .regex(/^\d+(\.\d{1,2})?$/, "Amount must be a GBP value with up to 2 decimals")
+    .refine((v) => Number(v) > 0, "Amount must be greater than 0"),
   note: z.string().optional(),
   expires_in_days: z.string().refine((v) => {
     const n = parseInt(v, 10);
@@ -78,9 +78,8 @@ export function InviteSubRoute() {
               </label>
               <input
                 id="entry_tribute_amount"
-                type="number"
-                step="0.01"
-                min="0.01"
+                type="text"
+                inputMode="decimal"
                 placeholder="£ amount"
                 className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
                 {...register("entry_tribute_amount")}
