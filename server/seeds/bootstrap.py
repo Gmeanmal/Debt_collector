@@ -9,7 +9,7 @@ import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.config import get_settings
+from core.config import Settings, get_settings
 from core.db import SessionMaker
 from core.security import hash_password
 from models.user import Goddess, User, UserRole, UserStatus
@@ -17,7 +17,7 @@ from models.user import Goddess, User, UserRole, UserStatus
 log = structlog.get_logger()
 
 
-async def _seed_admin(session: AsyncSession, s: object) -> str:
+async def _seed_admin(session: AsyncSession, s: Settings) -> str:
     result = await session.execute(select(User).where(User.email == s.admin_email))
     existing = result.scalar_one_or_none()
     if existing is not None:
@@ -39,7 +39,7 @@ async def _seed_admin(session: AsyncSession, s: object) -> str:
     return "created"
 
 
-async def _seed_goddess(session: AsyncSession, s: object) -> str:
+async def _seed_goddess(session: AsyncSession, s: Settings) -> str:
     result = await session.execute(select(User).where(User.email == s.goddess_email))
     existing = result.scalar_one_or_none()
 

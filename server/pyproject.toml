@@ -30,7 +30,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.8",
-    "mypy>=1.13",
+    "pyright>=1.1.390",
     "pytest>=8.3",
     "pytest-asyncio>=0.24",
     "httpx>=0.28",
@@ -48,6 +48,18 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 "routers/*" = ["B008"]
 "dependencies/*" = ["B008"]
 "alembic/versions/*" = ["E501"]
+
+[tool.pyright]
+include = ["."]
+exclude = ["**/__pycache__", ".venv", "alembic"]
+pythonVersion = "3.12"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+reportUnusedFunction = false
+reportAssignmentType = false
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

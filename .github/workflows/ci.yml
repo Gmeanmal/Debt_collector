@@ -37,7 +37,7 @@ jobs:
       - run: uv sync --all-extras
       - run: uv run ruff check .
       - run: uv run ruff format --check .
-      - run: uv run mypy .
+      - run: uv run pyright
       - run: uv run alembic upgrade head
       # tests retrofit phase 10 — allowed to fail until then
       - run: uv run pytest -q || [ "${{ github.event_name }}" = "pull_request" ]

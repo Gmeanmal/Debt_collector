@@ -56,7 +56,7 @@ lint:
 	cd client && pnpm lint
 
 typecheck:
-	cd server && uv run mypy .
+	cd server && uv run pyright
 	cd client && pnpm tsc --noEmit
 
 check: fmt lint typecheck
