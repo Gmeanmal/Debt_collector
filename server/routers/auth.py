@@ -64,7 +64,6 @@ def _user_out(user: User) -> UserOut:
     ),
     response_model=TokenPair,
     status_code=200,
-    tags=["auth"],
     responses={
         401: _ERROR_401,
         403: _ERROR_403,
@@ -94,7 +93,6 @@ async def login(
     ),
     response_model=TokenPair,
     status_code=200,
-    tags=["auth"],
     responses={
         401: _ERROR_401,
         422: _ERROR_422,
@@ -120,7 +118,6 @@ async def refresh(
     ),
     response_model=None,
     status_code=204,
-    tags=["auth"],
     responses={
         422: _ERROR_422,
         500: _ERROR_500,
@@ -145,7 +142,6 @@ async def logout(
     ),
     response_model=None,
     status_code=202,
-    tags=["auth"],
     responses={
         422: _ERROR_422,
         500: _ERROR_500,
@@ -170,7 +166,6 @@ async def password_reset_request(
     ),
     response_model=None,
     status_code=204,
-    tags=["auth"],
     responses={
         400: _ERROR_400,
         422: _ERROR_422,
@@ -193,7 +188,6 @@ async def password_reset_confirm(
     description="Decodes the Bearer access token and returns the caller's profile.",
     response_model=UserOut,
     status_code=200,
-    tags=["auth"],
     responses={
         401: _ERROR_401,
         500: _ERROR_500,

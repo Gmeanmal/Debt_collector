@@ -1,5 +1,5 @@
 import secrets
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import select
@@ -24,8 +24,6 @@ class TokenDao:
         user_agent: str | None,
         ip: str | None,
     ) -> RefreshToken:
-        from datetime import timedelta
-
         expires_at = datetime.now(UTC).replace(tzinfo=None) + timedelta(days=self._refresh_ttl_days)
         rt = RefreshToken(
             user_id=user_id,
@@ -47,8 +45,6 @@ class TokenDao:
         self._session.add(rt)
 
     async def create_reset_token(self, user_id: UUID) -> tuple[str, PasswordResetToken]:
-        from datetime import timedelta
-
         raw = secrets.token_urlsafe(48)
         expires_at = datetime.now(UTC).replace(tzinfo=None) + timedelta(
             minutes=self._reset_ttl_minutes

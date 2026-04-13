@@ -38,7 +38,10 @@ class PasswordResetRequest(BaseModel):
 class PasswordResetConfirm(BaseModel):
     token: str = Field(..., description="Reset token from the email link", examples=["abc123"])
     new_password: str = Field(
-        ..., description="New password to set (min 8 chars)", examples=["n3wP@ssw0rd"]
+        ...,
+        min_length=8,
+        description="New password to set (min 8 chars)",
+        examples=["n3wP@ssw0rd"],
     )
 
 

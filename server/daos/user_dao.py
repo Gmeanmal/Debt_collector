@@ -21,3 +21,6 @@ class UserDao:
     async def update_last_login(self, user: User, now: datetime) -> None:
         user.last_login_at = now
         self._session.add(user)
+
+    async def save(self, user: User) -> None:
+        self._session.add(user)

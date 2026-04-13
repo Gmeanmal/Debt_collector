@@ -97,5 +97,5 @@ class AuthController:
             raise BadRequest("user not found")
 
         user.password_hash = hash_password(new_password)
-        self._users._session.add(user)
+        await self._users.save(user)
         await self._tokens.revoke_all_refresh_for_user(user.id)
