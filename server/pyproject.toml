@@ -24,6 +24,7 @@ dependencies = [
     "httpx>=0.28",
     "websockets>=13.1",
     "tzdata",
+    "aiosmtplib>=5.1.0",
 ]
 
 [dependency-groups]
@@ -42,6 +43,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["B008"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<!-- Email template: inline styles required for email client compatibility -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to Goddess Mean Mal</title>
+  <style>
+    body { font-family: sans-serif; background: #f9f9f9; color: #111; margin: 0; padding: 0; }
+    .wrapper { max-width: 480px; margin: 40px auto; background: #fff; border-radius: 8px; padding: 32px; }
+    .btn { display: inline-block; padding: 12px 24px; background: #7c3aed; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 600; }
+    .footer { margin-top: 24px; font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h2>Welcome, {{ display_name }}.</h2>
+    <p>Your account on Goddess Mean Mal is ready.</p>
+    <p><a class="btn" href="{{ login_url }}">Sign in</a></p>
+    <div class="footer">Goddess Mean Mal &mdash; automated message, do not reply.</div>
+  </div>
+</body>
+</html>

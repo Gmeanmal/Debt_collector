@@ -17,8 +17,13 @@ class Settings(BaseSettings):
     argon2_parallelism: int = 4
     cors_origins: str = "http://localhost:5173"
 
+    email_driver: str = "smtp"
+    mail_from: str = "Goddess Mean Mal <no-reply@localhost>"
     resend_api_key: str = ""
     resend_from_email: str = "noreply@debt-collector.local"
+    smtp_host: str = "localhost"
+    smtp_port: int = 1025
+    public_base_url: str = "http://localhost:5173"
 
     r2_account_id: str = ""
     r2_access_key_id: str = ""
