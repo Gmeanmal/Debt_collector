@@ -49,7 +49,7 @@ class UserOut(BaseModel):
     id: UUID = Field(
         ..., description="User UUID", examples=["00000000-0000-0000-0000-000000000001"]
     )
-    email: EmailStr = Field(..., description="User email", examples=["sub@example.com"])
+    email: str = Field(..., description="User email", examples=["sub@example.com"])
     role: UserRole = Field(..., description="User role", examples=["sub"])
     status: UserStatus = Field(..., description="Account status", examples=["active"])
     display_name: str = Field(..., description="User display name", examples=["Jane"])
