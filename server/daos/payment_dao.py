@@ -3,7 +3,6 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from models.payment import PaymentCategory, PaymentDeclaration, PaymentStatus
 
@@ -20,9 +19,7 @@ class PaymentDeclarationDao:
 
     async def get_by_id(self, declaration_id: UUID) -> PaymentDeclaration | None:
         result = await self._session.execute(
-            select(PaymentDeclaration)
-            .where(PaymentDeclaration.id == declaration_id)
-            .options(selectinload(PaymentDeclaration.allocation))  # type: ignore[attr-defined]
+            select(PaymentDeclaration).where(PaymentDeclaration.id == declaration_id)
         )
         return result.scalar_one_or_none()
 
