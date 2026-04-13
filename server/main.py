@@ -7,7 +7,7 @@ from core.config import get_settings
 from core.db import engine
 from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
-from routers import auth, health
+from routers import auth, health, invitations, public_invitation, signup
 
 
 @asynccontextmanager
@@ -32,3 +32,6 @@ register_exception_handlers(app)
 
 app.include_router(health.router)
 app.include_router(auth.router)
+app.include_router(invitations.router)
+app.include_router(public_invitation.router)
+app.include_router(signup.router)
