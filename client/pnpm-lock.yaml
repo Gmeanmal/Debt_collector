@@ -10,6 +10,9 @@ importers:
       "@dnd-kit/core":
         specifier: ^6.3.1
         version: 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      "@hookform/resolvers":
+        specifier: ^5.2.2
+        version: 5.2.2(react-hook-form@7.72.1(react@18.3.1))
       "@tanstack/react-query":
         specifier: ^5.99.0
         version: 5.99.0(react@18.3.1)
@@ -25,6 +28,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      react-hook-form:
+        specifier: ^7.72.1
+        version: 7.72.1(react@18.3.1)
       react-router-dom:
         specifier: ^7.14.0
         version: 7.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -535,6 +541,14 @@ packages:
       }
     engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
 
+  "@hookform/resolvers@5.2.2":
+    resolution:
+      {
+        integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==,
+      }
+    peerDependencies:
+      react-hook-form: ^7.55.0
+
   "@humanfs/core@0.19.1":
     resolution:
       {
@@ -831,6 +845,12 @@ packages:
       }
     cpu: [x64]
     os: [win32]
+
+  "@standard-schema/utils@0.3.0":
+    resolution:
+      {
+        integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==,
+      }
 
   "@tailwindcss/node@4.2.2":
     resolution:
@@ -2068,6 +2088,15 @@ packages:
     peerDependencies:
       react: ^18.3.1
 
+  react-hook-form@7.72.1:
+    resolution:
+      {
+        integrity: sha512-RhwBoy2ygeVZje+C+bwJ8g0NjTdBmDlJvAUHTxRjTmSUKPYsKfMphkS2sgEMotsY03bP358yEYlnUeZy//D9Ig==,
+      }
+    engines: { node: ">=18.0.0" }
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
+
   react-is@16.13.1:
     resolution:
       {
@@ -2681,6 +2710,11 @@ snapshots:
       "@eslint/core": 0.17.0
       levn: 0.4.1
 
+  "@hookform/resolvers@5.2.2(react-hook-form@7.72.1(react@18.3.1))":
+    dependencies:
+      "@standard-schema/utils": 0.3.0
+      react-hook-form: 7.72.1(react@18.3.1)
+
   "@humanfs/core@0.19.1": {}
 
   "@humanfs/node@0.16.7":
@@ -2810,6 +2844,8 @@ snapshots:
 
   "@rollup/rollup-win32-x64-msvc@4.60.1":
     optional: true
+
+  "@standard-schema/utils@0.3.0": {}
 
   "@tailwindcss/node@4.2.2":
     dependencies:
@@ -3515,6 +3551,10 @@ snapshots:
       loose-envify: 1.4.0
       react: 18.3.1
       scheduler: 0.23.2
+
+  react-hook-form@7.72.1(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   react-is@16.13.1: {}
 
