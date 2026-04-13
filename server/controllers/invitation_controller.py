@@ -100,8 +100,8 @@ class InvitationController:
         if existing_email is not None:
             raise Conflict("email already registered")
 
-        result = await self._session.execute(select(User).where(User.username == signup.username))
-        if result.scalar_one_or_none() is not None:
+        existing_username = await self._users.get_by_username(signup.username)
+        if existing_username is not None:
             raise Conflict("username already taken")
 
         user = User(

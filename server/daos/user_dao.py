@@ -22,5 +22,9 @@ class UserDao:
         user.last_login_at = now
         self._session.add(user)
 
+    async def get_by_username(self, username: str) -> User | None:
+        result = await self._session.execute(select(User).where(User.username == username))
+        return result.scalar_one_or_none()
+
     async def save(self, user: User) -> None:
         self._session.add(user)
