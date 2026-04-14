@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminList, adminDelete } from "@/services/admin/adminApi";
 import type { EntitySchema } from "@/services/admin/entitySchemas";
 import { AdminForm } from "@/components/admin/AdminForm";
+import { useAuth } from "@/services/auth/useAuth";
 
 interface AdminTableProps {
   schema: EntitySchema;
@@ -26,7 +27,9 @@ export function AdminTable({ schema }: AdminTableProps) {
   const [creating, setCreating] = useState(false);
 
   const queryClient = useQueryClient();
+  const { impersonate } = useAuth();
   const queryKey = ["admin", schema.entity, q, page] as const;
+  const isUsers = schema.entity === "users";
 
   const query = useQuery({
     queryKey,
@@ -99,7 +102,7 @@ export function AdminTable({ schema }: AdminTableProps) {
                   {col.label}
                 </th>
               ))}
-              <th className="px-3 py-2 border-b border-base-border w-24"></th>
+              <th className="px-3 py-2 border-b border-base-border w-40"></th>
             </tr>
           </thead>
           <tbody>
@@ -127,16 +130,30 @@ export function AdminTable({ schema }: AdminTableProps) {
                     </td>
                   ))}
                   <td className="px-3 py-2 text-right">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(id);
-                      }}
-                      className="text-xs text-status-danger hover:underline"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center justify-end gap-3">
+                      {isUsers && row.role !== "admin" && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void impersonate(id);
+                          }}
+                          className="text-xs text-pink-primary hover:underline"
+                        >
+                          Impersonate
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(id);
+                        }}
+                        className="text-xs text-status-danger hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

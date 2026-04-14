@@ -56,3 +56,24 @@ class UserOut(BaseModel):
     avatar_url: str | None = Field(None, description="Avatar URL", examples=[None])
     theme_preference: str = Field(..., description="UI theme preference", examples=["system"])
     created_at: datetime = Field(..., description="Account creation timestamp (UTC)")
+    impersonator_id: UUID | None = Field(
+        None,
+        description="Set when this session is an admin impersonation. UUID of the admin.",
+        examples=[None],
+    )
+    impersonator_display_name: str | None = Field(
+        None,
+        description="Display name of the impersonating admin, when applicable.",
+        examples=[None],
+    )
+
+
+class ImpersonationAccess(BaseModel):
+    access_token: str = Field(
+        ...,
+        description="Short-lived access token impersonating the target user",
+        examples=["eyJ..."],
+    )
+    expires_in: int = Field(
+        ..., description="Impersonation access token lifetime in seconds", examples=[1800]
+    )

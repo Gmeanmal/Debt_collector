@@ -8,10 +8,11 @@ from sqlalchemy import func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, select
 
+from core.config import get_settings
 from core.db import get_session
-from core.exceptions import BadRequest, NotFound
-from core.security import hash_password
-from dependencies.auth import require_role
+from core.exceptions import BadRequest, Forbidden, NotFound
+from core.security import create_access_token, hash_password
+from dependencies.auth import get_current_user, require_role
 from models.adjustment import ContractAdjustment
 from models.blacklist import BlacklistEntry
 from models.debt import DebtContract
@@ -22,6 +23,7 @@ from models.payment import PaymentDeclaration
 from models.payment_method import PaymentMethod
 from models.rolling import RollingTribute
 from models.user import Goddess, User, UserRole
+from schemas.auth import ImpersonationAccess
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
 _E403 = {"description": "Forbidden — admin role required"}
@@ -44,6 +46,41 @@ router = APIRouter(
     tags=["admin"],
     dependencies=[Depends(require_role(UserRole.admin))],
 )
+
+
+@router.post(
+    "/impersonate/{user_id}",
+    summary="Impersonate a user as admin",
+    description=(
+        "Issues a short-lived access token authenticating as the target user, carrying an "
+        "`imp` claim referencing the admin. No refresh token is returned — when the token "
+        "expires or the caller triggers `/auth/refresh`, the original admin session resumes."
+    ),
+    response_model=ImpersonationAccess,
+    status_code=200,
+    responses={401: _E401, 403: _E403, 404: _E404, 500: _E500},
+)
+async def impersonate(
+    user_id: UUID,
+    admin: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> ImpersonationAccess:
+    if admin.id == user_id:
+        raise BadRequest("cannot impersonate yourself")
+    target = await session.get(User, user_id)
+    if target is None:
+        raise NotFound("user not found")
+    if target.role == UserRole.admin:
+        raise Forbidden("cannot impersonate another admin")
+    settings = get_settings()
+    minutes = settings.impersonation_ttl_minutes
+    token = create_access_token(
+        str(target.id),
+        target.role,
+        extra={"imp": str(admin.id)},
+        ttl_minutes=minutes,
+    )
+    return ImpersonationAccess(access_token=token, expires_in=minutes * 60)
 
 
 def _jsonable(row: SQLModel) -> dict[str, Any]:

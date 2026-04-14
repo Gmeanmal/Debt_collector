@@ -6,7 +6,7 @@ from core.config import get_settings
 from core.db import get_session
 from daos.token_dao import TokenDao
 from daos.user_dao import UserDao
-from dependencies.auth import get_current_user
+from dependencies.auth import AuthContext, get_auth_context
 from models.user import User
 from schemas.auth import (
     LoginRequest,
@@ -40,18 +40,23 @@ def _build_controller(session: AsyncSession = Depends(get_session)) -> AuthContr
     )
 
 
-def _user_out(user: User) -> UserOut:
+def _display_name(user: User) -> str:
     parts = [p for p in [user.first_name, user.last_name] if p]
-    display_name = " ".join(parts) if parts else user.username
+    return " ".join(parts) if parts else user.username
+
+
+def _user_out(user: User, impersonator: User | None = None) -> UserOut:
     return UserOut(
         id=user.id,
         email=user.email,
         role=user.role,
         status=user.status,
-        display_name=display_name,
+        display_name=_display_name(user),
         avatar_url=user.avatar_url,
         theme_preference=user.theme_preference,
         created_at=user.created_at,
+        impersonator_id=impersonator.id if impersonator else None,
+        impersonator_display_name=_display_name(impersonator) if impersonator else None,
     )
 
 
@@ -193,5 +198,5 @@ async def password_reset_confirm(
         500: _ERROR_500,
     },
 )
-async def me(user: User = Depends(get_current_user)) -> UserOut:
-    return _user_out(user)
+async def me(ctx: AuthContext = Depends(get_auth_context)) -> UserOut:
+    return _user_out(ctx.user, ctx.impersonator)

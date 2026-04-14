@@ -29,13 +29,19 @@ def verify_password(plain: str, hashed: str) -> bool:
         return False
 
 
-def create_access_token(subject: str, role: str, extra: dict[str, Any] | None = None) -> str:
+def create_access_token(
+    subject: str,
+    role: str,
+    extra: dict[str, Any] | None = None,
+    ttl_minutes: int | None = None,
+) -> str:
     now = datetime.now(UTC)
+    minutes = ttl_minutes if ttl_minutes is not None else _settings.jwt_access_ttl_minutes
     payload: dict[str, Any] = {
         "sub": subject,
         "role": role,
         "iat": int(now.timestamp()),
-        "exp": int((now + timedelta(minutes=_settings.jwt_access_ttl_minutes)).timestamp()),
+        "exp": int((now + timedelta(minutes=minutes)).timestamp()),
         "typ": "access",
     }
     if extra:

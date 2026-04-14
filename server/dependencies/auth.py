@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from uuid import UUID
 
 from fastapi import Depends, Header
@@ -10,10 +11,16 @@ from daos.user_dao import UserDao
 from models.user import User, UserRole
 
 
-async def get_current_user(
+@dataclass
+class AuthContext:
+    user: User
+    impersonator: User | None
+
+
+async def get_auth_context(
     authorization: str | None = Header(default=None),
     session: AsyncSession = Depends(get_session),
-) -> User:
+) -> AuthContext:
     if not authorization or not authorization.lower().startswith("bearer "):
         raise Unauthorized("missing bearer token")
     token = authorization.split(" ", 1)[1]
@@ -21,10 +28,19 @@ async def get_current_user(
         data = decode_access_token(token)
     except Exception as exc:
         raise Unauthorized("invalid access token") from exc
-    user = await UserDao(session).get_by_id(UUID(data["sub"]))
+    dao = UserDao(session)
+    user = await dao.get_by_id(UUID(data["sub"]))
     if user is None:
         raise Unauthorized("user not found")
-    return user
+    impersonator: User | None = None
+    imp = data.get("imp")
+    if imp:
+        impersonator = await dao.get_by_id(UUID(imp))
+    return AuthContext(user=user, impersonator=impersonator)
+
+
+async def get_current_user(ctx: AuthContext = Depends(get_auth_context)) -> User:
+    return ctx.user
 
 
 def require_role(*roles: UserRole):

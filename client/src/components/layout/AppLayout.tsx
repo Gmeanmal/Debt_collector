@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/services/auth/useAuth";
+import { ImpersonationBanner } from "@/components/layout/ImpersonationBanner";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useTheme, type ThemePref } from "@/hooks/useTheme";
@@ -85,6 +86,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-base-bg flex flex-col">
+      <ImpersonationBanner />
       <header className="sticky top-0 z-40 border-b border-base-border/60 bg-base-bg/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center gap-8 px-6 py-4">
           <NavLink to="/" className="flex items-center gap-2.5 group">

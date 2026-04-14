@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { getMeApi, loginApi, logoutApi } from "./authApi";
+import { getMeApi, impersonateApi, loginApi, logoutApi, refreshApi } from "./authApi";
 import { clearTokens, getRefreshToken, setTokens } from "./tokenStorage";
 import type { components } from "@/types/api.generated";
 
@@ -47,5 +47,23 @@ export function useAuth() {
     navigate("/login", { replace: true });
   }
 
-  return { user, isAuthenticated, isLoading, login, logout };
+  async function impersonate(userId: string): Promise<void> {
+    const { access_token } = await impersonateApi(userId);
+    const refresh = getRefreshToken();
+    if (!refresh) throw new Error("Missing refresh token");
+    setTokens({ access: access_token, refresh });
+    await queryClient.invalidateQueries({ queryKey: ME_KEY });
+    navigate("/", { replace: true });
+  }
+
+  async function stopImpersonating(): Promise<void> {
+    const refresh = getRefreshToken();
+    if (!refresh) throw new Error("Missing refresh token");
+    const pair = await refreshApi(refresh);
+    setTokens({ access: pair.access_token, refresh: pair.refresh_token });
+    await queryClient.invalidateQueries({ queryKey: ME_KEY });
+    navigate("/admin", { replace: true });
+  }
+
+  return { user, isAuthenticated, isLoading, login, logout, impersonate, stopImpersonating };
 }

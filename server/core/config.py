@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     jwt_access_ttl_minutes: int = 15
     jwt_refresh_ttl_days: int = 30
     password_reset_ttl_minutes: int = 30
+    impersonation_ttl_minutes: int = 30
     argon2_memory_cost: int = 65536
     argon2_time_cost: int = 3
     argon2_parallelism: int = 4
