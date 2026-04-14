@@ -8,10 +8,13 @@ from sqlmodel import col, select
 
 from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.allocation_dao import PaymentAllocationDao
+from daos.debt_dao import DebtContractAuditDao, DebtContractDao
 from daos.payment_dao import PaymentDeclarationDao
 from daos.payment_method_dao import PaymentMethodDao
 from daos.rolling_dao import RollingTributeDao
 from daos.user_dao import UserDao
+from models.debt import DebtContractAudit, DebtContractEventType, DebtContractStatus
+from models.debt_event import DebtEvent, EventType
 from models.payment import (
     AllocationTargetType,
     PaymentAllocation,
@@ -28,17 +31,22 @@ from schemas.payment import (
     PaymentOut,
     RecordPaymentIn,
 )
+from utils.ledger import apply_event_and_recompute
 
-_UNSUPPORTED_CATEGORIES = {
-    PaymentCategory.weekly_debt,
-    PaymentCategory.debt_payment,
-    PaymentCategory.buyout,
-}
+_UNSUPPORTED_CATEGORIES: set[PaymentCategory] = set()
 
 _CATEGORY_TO_ALLOCATION_TARGET: dict[PaymentCategory, AllocationTargetType] = {
     PaymentCategory.entry: AllocationTargetType.entry,
     PaymentCategory.tribute: AllocationTargetType.tribute,
     PaymentCategory.rolling: AllocationTargetType.rolling_cycle,
+    PaymentCategory.weekly_debt: AllocationTargetType.contract_debt,
+    PaymentCategory.debt_payment: AllocationTargetType.contract_debt,
+    PaymentCategory.buyout: AllocationTargetType.contract_buyout,
+}
+
+_DEBT_PAYMENT_CATEGORIES = {
+    PaymentCategory.weekly_debt,
+    PaymentCategory.debt_payment,
 }
 
 
@@ -151,6 +159,8 @@ class PaymentController:
         self._method_dao = PaymentMethodDao(session)
         self._user_dao = UserDao(session)
         self._rolling_dao = RollingTributeDao(session)
+        self._contract_dao = DebtContractDao(session)
+        self._audit_dao = DebtContractAuditDao(session)
 
     async def _check_rolling_active(self, sub_id: UUID) -> None:
         record = await self._rolling_dao.get_for_sub(sub_id)
@@ -219,6 +229,10 @@ class PaymentController:
             await self._promote_sub(sub)
         if payload.category == PaymentCategory.rolling:
             await self._rolling_dao.mark_paid(sub.id, now)
+        if payload.category in _DEBT_PAYMENT_CATEGORIES:
+            await self._apply_debt_payment(decl, sub.id)
+        if payload.category == PaymentCategory.buyout:
+            await self._apply_buyout(decl, sub.id, goddess_user.id, now)
 
         return await _to_out(self._session, decl)
 
@@ -288,6 +302,10 @@ class PaymentController:
             await self._promote_sub(sub)
         if category == PaymentCategory.rolling:
             await self._rolling_dao.mark_paid(decl.sub_id, now)
+        if category in _DEBT_PAYMENT_CATEGORIES:
+            await self._apply_debt_payment(decl, sub.id)
+        if category == PaymentCategory.buyout:
+            await self._apply_buyout(decl, sub.id, goddess_user.id, now)
 
         return await _to_out(self._session, decl)
 
@@ -351,3 +369,52 @@ class PaymentController:
         sub.status = UserStatus.active
         self._session.add(sub)
         await self._session.flush()
+
+    async def _load_active_contract_for_sub(self, sub_id: UUID, contract_id: UUID | None):
+        if contract_id is None:
+            raise BadRequest("target_id (contract_id) is required for debt payments")
+        contract = await self._contract_dao.get_by_id(contract_id)
+        if contract is None or contract.sub_id != sub_id:
+            raise BadRequest("contract not found for this sub")
+        if contract.status != DebtContractStatus.active:
+            raise BadRequest("contract is not active")
+        return contract
+
+    async def _apply_debt_payment(self, decl: PaymentDeclaration, sub_id: UUID) -> None:
+        await self._load_active_contract_for_sub(sub_id, decl.target_id)
+        assert decl.target_id is not None
+        event = DebtEvent(
+            contract_id=decl.target_id,
+            event_type=EventType.payment_applied,
+            amount=Decimal(str(decl.amount)),
+            note="payment validation",
+        )
+        await apply_event_and_recompute(self._session, event)
+
+    async def _apply_buyout(
+        self, decl: PaymentDeclaration, sub_id: UUID, actor_id: UUID, now: datetime
+    ) -> None:
+        contract = await self._load_active_contract_for_sub(sub_id, decl.target_id)
+        assert decl.target_id is not None
+        event = DebtEvent(
+            contract_id=decl.target_id,
+            event_type=EventType.buyout_paid,
+            amount=Decimal(str(decl.amount)),
+        )
+        await apply_event_and_recompute(self._session, event)
+
+        from_status = contract.status
+        contract.status = DebtContractStatus.closed
+        contract.updated_at = now
+        self._session.add(contract)
+        await self._session.flush()
+
+        await self._audit_dao.append(
+            DebtContractAudit(
+                contract_id=contract.id,
+                event_type=DebtContractEventType.closed,
+                actor_id=actor_id,
+                from_status=from_status,
+                to_status=DebtContractStatus.closed,
+            )
+        )

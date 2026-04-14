@@ -33,6 +33,7 @@ class Settings(BaseSettings):
 
     app_url: str = "http://localhost:5173"
     app_timezone: str = "Europe/London"
+    cron_enabled: bool = True
 
     admin_username: str = "admin"
     admin_email: str = "admin@localhost"

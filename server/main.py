@@ -8,7 +8,10 @@ from core.db import engine
 from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
 from routers import (
+    adjustments,
+    admin_cron,
     auth,
+    blacklist,
     debt_contracts,
     health,
     invitations,
@@ -29,13 +32,20 @@ from routers.payments import (
 from routers.payments import (
     sub_router as payments_sub_router,
 )
+from workers.daily_cron import start_scheduler
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     configure_logging(dev=True)
-    yield
-    await engine.dispose()
+    settings = get_settings()
+    scheduler = start_scheduler() if settings.cron_enabled else None
+    try:
+        yield
+    finally:
+        if scheduler is not None:
+            scheduler.shutdown(wait=False)
+        await engine.dispose()
 
 
 app = FastAPI(title="Debt Collector API", version="0.1.0", lifespan=lifespan)
@@ -63,3 +73,6 @@ app.include_router(payments_goddess_router)
 app.include_router(goddess_subs_router)
 app.include_router(rolling.router)
 app.include_router(debt_contracts.router)
+app.include_router(blacklist.router)
+app.include_router(adjustments.router)
+app.include_router(admin_cron.router)

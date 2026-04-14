@@ -7,16 +7,22 @@ from sqlmodel import col, select
 
 from controllers._goddess import resolve_goddess_id
 from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
+from daos.adjustment_dao import AdjustmentDao
 from daos.debt_dao import DebtContractAuditDao, DebtContractDao, DebtContractVersionDao
+from daos.payment_method_dao import PaymentMethodDao
 from daos.user_dao import UserDao
+from models.adjustment import AdjustmentStatus, ContractAdjustment
 from models.debt import (
     DebtContract,
     DebtContractAudit,
     DebtContractEventType,
     DebtContractStatus,
     DebtContractVersion,
+    MidContractAdditionMode,
 )
+from models.debt_event import DebtEvent, EventType
 from models.user import Goddess, User, UserRole
+from schemas.adjustment import ContractAdjustmentOut
 from schemas.debt import (
     DebtContractAuditOut,
     DebtContractCounter,
@@ -26,6 +32,9 @@ from schemas.debt import (
 )
 from services.pdf.generator import generate as generate_contract_pdf
 from services.storage.factory import get_storage_service
+from utils.finance import exit_due
+from utils.ledger import apply_event_and_recompute
+from utils.periods import current_period_index
 
 _PENDING_STATUSES = {
     DebtContractStatus.pending_sub,
@@ -130,6 +139,20 @@ def _apply_version_to_contract(contract: DebtContract, version: DebtContractVers
     contract.exit_amount = version.exit_amount
 
 
+def _adjustment_out(adjustment: ContractAdjustment) -> ContractAdjustmentOut:
+    return ContractAdjustmentOut(
+        id=adjustment.id,
+        contract_id=adjustment.contract_id,
+        proposed_by=adjustment.proposed_by,
+        amount=Decimal(str(adjustment.amount)),
+        reason=adjustment.reason,
+        status=adjustment.status,
+        created_at=adjustment.created_at,
+        updated_at=adjustment.updated_at,
+        resolved_at=adjustment.resolved_at,
+    )
+
+
 class DebtController:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
@@ -137,6 +160,8 @@ class DebtController:
         self._version_dao = DebtContractVersionDao(session)
         self._audit_dao = DebtContractAuditDao(session)
         self._user_dao = UserDao(session)
+        self._adjustment_dao = AdjustmentDao(session)
+        self._method_dao = PaymentMethodDao(session)
 
     async def propose_as_goddess(
         self, goddess_user: User, sub_id: UUID, payload: DebtContractCreate
@@ -563,3 +588,139 @@ class DebtController:
                 raise Forbidden("contract does not belong to this goddess")
         else:
             raise Forbidden("only sub or goddess users may view contracts")
+
+    async def buyout_intent(self, sub_user: User, contract_id: UUID) -> dict[str, object]:
+        contract = await self._get_contract_or_404(contract_id)
+        if contract.sub_id != sub_user.id:
+            raise Forbidden("contract does not belong to this sub")
+        if contract.status != DebtContractStatus.active:
+            raise Conflict("buyout only available on active contracts")
+
+        elapsed = current_period_index(contract, _now_utc())
+        amount = exit_due(contract, elapsed)
+
+        methods = await self._method_dao.list_by_goddess(contract.goddess_id, enabled_only=True)
+        return {"exit_amount": amount, "payment_methods": methods}
+
+    async def surprise_penalty(
+        self,
+        goddess_user: User,
+        contract_id: UUID,
+        amount: Decimal,
+        reason: str | None,
+    ) -> DebtContractOut:
+        contract = await self._get_contract_or_404(contract_id)
+        goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
+        if contract.goddess_id != goddess_id:
+            raise Forbidden("contract does not belong to this goddess")
+        if not contract.dom_can_add_surprise_penalty:
+            raise Forbidden("surprise penalty not enabled on this contract")
+        if contract.status != DebtContractStatus.active:
+            raise Conflict("surprise penalty only allowed on active contracts")
+
+        event = DebtEvent(
+            contract_id=contract.id,
+            event_type=EventType.surprise_penalty,
+            amount=amount,
+            note=reason,
+        )
+        await apply_event_and_recompute(self._session, event)
+
+        contract.updated_at = _now_utc()
+        await self._dao.save(contract)
+        current_version = await self._load_current_version(contract)
+        return _contract_out(contract, current_version)
+
+    async def create_adjustment(
+        self,
+        goddess_user: User,
+        contract_id: UUID,
+        amount: Decimal,
+        reason: str | None,
+    ) -> ContractAdjustmentOut:
+        contract = await self._get_contract_or_404(contract_id)
+        goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
+        if contract.goddess_id != goddess_id:
+            raise Forbidden("contract does not belong to this goddess")
+        if contract.status != DebtContractStatus.active:
+            raise Conflict("adjustments only allowed on active contracts")
+
+        mode = contract.mid_contract_addition_mode
+        if mode == MidContractAdditionMode.disabled:
+            raise Forbidden("mid-contract additions disabled on this contract")
+
+        now = _now_utc()
+        if mode == MidContractAdditionMode.dom_controlled:
+            status = AdjustmentStatus.applied
+        else:
+            status = AdjustmentStatus.pending_sub_approval
+
+        adjustment = ContractAdjustment(
+            contract_id=contract.id,
+            proposed_by=goddess_user.id,
+            amount=amount,
+            reason=reason,
+            status=status,
+            created_at=now,
+            updated_at=now,
+            resolved_at=now if status == AdjustmentStatus.applied else None,
+        )
+        adjustment = await self._adjustment_dao.create(adjustment)
+
+        if status == AdjustmentStatus.applied:
+            await self._emit_adjustment_event(contract.id, amount, reason)
+
+        return _adjustment_out(adjustment)
+
+    async def accept_adjustment(self, sub_user: User, adjustment_id: UUID) -> ContractAdjustmentOut:
+        adjustment = await self._adjustment_dao.get(adjustment_id)
+        if adjustment is None:
+            raise NotFound("adjustment not found")
+        contract = await self._get_contract_or_404(adjustment.contract_id)
+        if contract.sub_id != sub_user.id:
+            raise Forbidden("adjustment does not belong to this sub")
+        if adjustment.status != AdjustmentStatus.pending_sub_approval:
+            raise Conflict("adjustment is not pending sub approval")
+
+        now = _now_utc()
+        adjustment.status = AdjustmentStatus.accepted
+        adjustment.updated_at = now
+        adjustment.resolved_at = now
+        await self._adjustment_dao.save(adjustment)
+
+        await self._emit_adjustment_event(
+            contract.id, Decimal(str(adjustment.amount)), adjustment.reason
+        )
+        return _adjustment_out(adjustment)
+
+    async def refuse_adjustment(self, sub_user: User, adjustment_id: UUID) -> ContractAdjustmentOut:
+        adjustment = await self._adjustment_dao.get(adjustment_id)
+        if adjustment is None:
+            raise NotFound("adjustment not found")
+        contract = await self._get_contract_or_404(adjustment.contract_id)
+        if contract.sub_id != sub_user.id:
+            raise Forbidden("adjustment does not belong to this sub")
+        if adjustment.status != AdjustmentStatus.pending_sub_approval:
+            raise Conflict("adjustment is not pending sub approval")
+
+        now = _now_utc()
+        adjustment.status = AdjustmentStatus.refused
+        adjustment.updated_at = now
+        adjustment.resolved_at = now
+        await self._adjustment_dao.save(adjustment)
+        return _adjustment_out(adjustment)
+
+    async def list_pending_adjustments(self, sub_user: User) -> list[ContractAdjustmentOut]:
+        rows = await self._adjustment_dao.list_pending_for_sub(sub_user.id)
+        return [_adjustment_out(r) for r in rows]
+
+    async def _emit_adjustment_event(
+        self, contract_id: UUID, amount: Decimal, reason: str | None
+    ) -> None:
+        event = DebtEvent(
+            contract_id=contract_id,
+            event_type=EventType.adjustment,
+            amount=amount,
+            note=reason,
+        )
+        await apply_event_and_recompute(self._session, event)
