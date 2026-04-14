@@ -27,6 +27,10 @@ import { PendingAdjustmentsRoute } from "./routes/sub/PendingAdjustmentsRoute";
 import { BlacklistRoute } from "./routes/goddess/BlacklistRoute";
 import { BreachSubRoute } from "./routes/goddess/BreachSubRoute";
 import { AdminCronRoute } from "./routes/admin/AdminCronRoute";
+import { AdminRoute } from "./routes/admin/AdminRoute";
+import { DashboardRoute as GoddessDashboardRoute } from "./routes/goddess/DashboardRoute";
+import { SubDashboardRoute } from "./routes/sub/DashboardRoute";
+import { SubDetailRoute } from "./routes/goddess/SubDetailRoute";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginRoute /> },
@@ -213,11 +217,51 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: "/admin",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="admin">
+          <AdminRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: "/admin/cron",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="admin">
           <AdminCronRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/dashboard",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <GoddessDashboardRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sub/dashboard",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <SubDashboardRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/subs/:subId",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <SubDetailRoute />
         </RoleProtectedRoute>
       </ProtectedRoute>
     ),

@@ -9,6 +9,7 @@ from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
 from routers import (
     adjustments,
+    admin,
     admin_cron,
     auth,
     blacklist,
@@ -80,6 +81,7 @@ app.include_router(debt_contracts.router)
 app.include_router(blacklist.router)
 app.include_router(adjustments.router)
 app.include_router(admin_cron.router)
+app.include_router(admin.router)
 app.include_router(notifications.router)
 app.include_router(me_preferences.router)
 app.include_router(dashboards.goddess_router)

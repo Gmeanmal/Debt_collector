@@ -29,7 +29,11 @@ const SUB_NAV: NavItem[] = [
   { to: "/sub/payments/new", label: "Declare a payment" },
 ];
 
-const ADMIN_NAV: NavItem[] = [{ to: "/", label: "Dashboard" }];
+const ADMIN_NAV: NavItem[] = [
+  { to: "/", label: "Dashboard" },
+  { to: "/admin", label: "Console" },
+  { to: "/admin/cron", label: "Cron" },
+];
 
 function isThemePref(value: string | null | undefined): value is ThemePref {
   return value === "system" || value === "dark" || value === "light";

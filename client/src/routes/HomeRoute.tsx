@@ -12,6 +12,11 @@ interface ActionCard {
 
 const GODDESS_ACTIONS: ActionCard[] = [
   {
+    to: "/goddess/dashboard",
+    title: "Dashboard",
+    description: "Overview of subs, rolling, contracts, and late payments.",
+  },
+  {
     to: "/goddess/invitations",
     title: "Invitations",
     description: "View all invitations you have issued and their status.",
@@ -49,6 +54,11 @@ const GODDESS_ACTIONS: ActionCard[] = [
 ];
 
 const SUB_ACTIONS: ActionCard[] = [
+  {
+    to: "/sub/dashboard",
+    title: "Dashboard",
+    description: "See amount due, active contracts, and recent activity.",
+  },
   {
     to: "/sub/payments",
     title: "My payments",
@@ -207,6 +217,47 @@ function BreachSubNavCard() {
   );
 }
 
+function SubDetailNavCard() {
+  const navigate = useNavigate();
+  const [subId, setSubId] = useState("");
+  const { data: subs = [] } = useQuery({
+    queryKey: ["goddessSubs"],
+    queryFn: listGoddessSubsApi,
+  });
+
+  return (
+    <div className="bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-3">
+      <h3 className="text-base-text font-semibold">View sub detail</h3>
+      <p className="text-base-text-muted text-sm">
+        Open the full detail page for a specific sub: rolling, contracts, payments.
+      </p>
+      <div className="flex gap-2 flex-wrap items-center">
+        <select
+          value={subId}
+          onChange={(e) => setSubId(e.target.value)}
+          aria-label="Select sub to view detail"
+          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-1.5 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary flex-1 min-w-0"
+        >
+          <option value="">Select a sub</option>
+          {subs.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.display_name} ({s.username})
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          disabled={!subId}
+          onClick={() => navigate(`/goddess/subs/${subId}`)}
+          className="px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary shrink-0"
+        >
+          Go
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ActionGrid({ actions }: { actions: ActionCard[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -240,6 +291,7 @@ export function HomeRoute() {
           </p>
         </div>
         <ActionGrid actions={GODDESS_ACTIONS} />
+        <SubDetailNavCard />
         <RollingNavCard />
         <NewContractNavCard />
         <BreachSubNavCard />
