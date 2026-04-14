@@ -380,3 +380,38 @@ class AdminRowContractAdjustment(BaseModel):
     resolved_at: datetime | None = Field(
         None, description="Resolution timestamp (UTC)", examples=[None]
     )
+
+
+class AdminRowAdminAction(BaseModel):
+    id: UUID = Field(
+        ..., description="Primary key", examples=["00000000-0000-0000-0000-00000000000c"]
+    )
+    admin_id: UUID = Field(
+        ...,
+        description="Admin who performed the action",
+        examples=["00000000-0000-0000-0000-000000000001"],
+    )
+    acting_as_user_id: UUID | None = Field(
+        None,
+        description="User being impersonated at the time, if any",
+        examples=[None],
+    )
+    action: str = Field(
+        ...,
+        description="Action identifier (e.g. 'admin_update', 'impersonate')",
+        examples=["admin_update"],
+    )
+    entity: str | None = Field(
+        None, description="Entity type affected (e.g. 'users')", examples=["users"]
+    )
+    entity_id: UUID | None = Field(
+        None, description="Primary key of the affected row", examples=[None]
+    )
+    payload_json: dict[str, Any] | None = Field(
+        None, description="Redacted audit payload (JSONB)", examples=[None]
+    )
+    created_at: datetime = Field(
+        ...,
+        description="Timestamp when the action was recorded (UTC)",
+        examples=["2026-01-01T00:00:00"],
+    )

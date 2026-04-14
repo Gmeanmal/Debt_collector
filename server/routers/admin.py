@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, Query, Response
 from pydantic import BaseModel
-from sqlalchemy import func, or_
+from sqlalchemy import desc, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, select
 
@@ -15,6 +15,7 @@ from core.security import create_access_token, hash_password
 from daos.admin_action_dao import AdminActionDao
 from dependencies.auth import get_current_user, require_role
 from models.adjustment import ContractAdjustment
+from models.admin_action import AdminAction
 from models.blacklist import BlacklistEntry
 from models.debt import DebtContract
 from models.debt_event import DebtEvent
@@ -26,6 +27,7 @@ from models.rolling import RollingTribute
 from models.user import Goddess, User, UserRole
 from schemas.admin import (
     AdminListOut,
+    AdminRowAdminAction,
     AdminRowBlacklistEntry,
     AdminRowContractAdjustment,
     AdminRowDebtContract,
@@ -355,6 +357,82 @@ def _register_crud(
         await session.delete(row)
         await session.commit()
         return Response(status_code=204)
+
+
+_AdminActionListOut = AdminListOut[AdminRowAdminAction]  # type: ignore[valid-type]
+
+
+@router.get(
+    "/admin_actions",
+    summary="List admin audit log entries",
+    description=(
+        "Returns a paginated list of `admin_action` rows in reverse-chronological order. "
+        "Supports free-text search across `action` and `entity`. "
+        "This endpoint is intentionally read-only — POST, PATCH, and DELETE are not registered "
+        "to prevent mutation of the append-only audit log."
+    ),
+    response_model=_AdminActionListOut,
+    status_code=200,
+    tags=["admin"],
+    responses={401: _E401, 403: _E403, 500: _E500},
+)
+async def list_admin_actions(
+    q: str | None = Query(
+        default=None, description="Case-insensitive substring filter on action or entity"
+    ),
+    page: int = Query(default=1, ge=1, description="1-based page number"),
+    page_size: int = Query(default=50, ge=1, le=200, description="Rows per page (max 200)"),
+    session: AsyncSession = Depends(get_session),
+) -> AdminListOut[AdminRowAdminAction]:
+    stmt = select(AdminAction)
+    count_stmt = select(func.count()).select_from(AdminAction)
+    if q:
+        like = f"%{q}%"
+        clauses = [
+            getattr(AdminAction, field).ilike(like)
+            for field in ("action", "entity")
+            if hasattr(AdminAction, field)
+        ]
+        where = or_(*clauses)
+        stmt = stmt.where(where)
+        count_stmt = count_stmt.where(where)
+    stmt = (
+        stmt.order_by(desc(AdminAction.created_at))  # type: ignore[arg-type]
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    )
+    result = await session.execute(stmt)
+    rows = list(result.scalars().all())
+    total_result = await session.execute(count_stmt)
+    total = int(total_result.scalar_one())
+    return AdminListOut(
+        items=[AdminRowAdminAction.model_validate(_jsonable(r)) for r in rows],
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@router.get(
+    "/admin_actions/{item_id}",
+    summary="Get a single admin audit log entry",
+    description=(
+        "Returns the full `admin_action` row including `payload_json`. "
+        "No write operations are exposed on this resource."
+    ),
+    response_model=AdminRowAdminAction,
+    status_code=200,
+    tags=["admin"],
+    responses={401: _E401, 403: _E403, 404: _E404, 500: _E500},
+)
+async def get_admin_action(
+    item_id: UUID,
+    session: AsyncSession = Depends(get_session),
+) -> AdminRowAdminAction:
+    row = await session.get(AdminAction, item_id)
+    if row is None:
+        raise NotFound("admin_action not found")
+    return AdminRowAdminAction.model_validate(_jsonable(row))
 
 
 _register_crud(

@@ -19,6 +19,7 @@ export interface EntitySchema {
   label: string;
   columns: ColumnDef[];
   fields: FieldDef[];
+  readonly?: boolean;
 }
 
 const commonText = (key: string, label: string): FieldDef => ({ key, label, kind: "text" });
@@ -218,6 +219,22 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
       { key: "amount", label: "Amount", kind: "number" },
       commonText("reason", "Reason"),
       commonText("status", "Status"),
+    ],
+  },
+  {
+    entity: "admin_actions",
+    label: "Audit log",
+    readonly: true,
+    columns: [
+      { key: "created_at", label: "Created at" },
+      { key: "action", label: "Action" },
+      { key: "entity", label: "Entity" },
+      { key: "entity_id", label: "Entity ID" },
+      { key: "admin_id", label: "Admin ID" },
+      { key: "acting_as_user_id", label: "Acting as" },
+    ],
+    fields: [
+      { key: "payload_json", label: "Payload", kind: "json" },
     ],
   },
 ];

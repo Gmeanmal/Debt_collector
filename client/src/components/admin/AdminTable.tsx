@@ -38,6 +38,7 @@ export function AdminTable({ schema }: AdminTableProps) {
   const { impersonate } = useAuth();
   const queryKey = ["admin", schema.entity, q, page] as const;
   const isUsers = schema.entity === "users";
+  const isReadonly = schema.readonly === true;
 
   const query = useQuery({
     queryKey,
@@ -91,13 +92,15 @@ export function AdminTable({ schema }: AdminTableProps) {
           >
             Search
           </button>
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="px-3 py-1.5 text-sm bg-violet-primary text-violet-foreground font-semibold rounded-md hover:bg-violet-primary-hover"
-          >
-            + New
-          </button>
+          {!isReadonly && (
+            <button
+              type="button"
+              onClick={() => setCreating(true)}
+              className="px-3 py-1.5 text-sm bg-violet-primary text-violet-foreground font-semibold rounded-md hover:bg-violet-primary-hover"
+            >
+              + New
+            </button>
+          )}
         </form>
       </div>
 
@@ -165,8 +168,8 @@ export function AdminTable({ schema }: AdminTableProps) {
               return (
                 <tr
                   key={id}
-                  className="border-b border-base-border hover:bg-base-surface-raised cursor-pointer"
-                  onClick={() => setEditing(row)}
+                  className={`border-b border-base-border hover:bg-base-surface-raised ${isReadonly ? "" : "cursor-pointer"}`}
+                  onClick={() => { if (!isReadonly) setEditing(row); }}
                 >
                   {schema.columns.map((col) => (
                     <td key={col.key} className="px-3 py-2 text-base-text align-top">
@@ -187,16 +190,18 @@ export function AdminTable({ schema }: AdminTableProps) {
                           Impersonate
                         </button>
                       )}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(id);
-                        }}
-                        className="text-xs text-status-danger hover:underline"
-                      >
-                        Delete
-                      </button>
+                      {!isReadonly && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(id);
+                          }}
+                          className="text-xs text-status-danger hover:underline"
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -238,7 +243,7 @@ export function AdminTable({ schema }: AdminTableProps) {
         </button>
       </div>
 
-      {editing && (
+      {!isReadonly && editing && (
         <AdminForm
           schema={schema}
           mode="edit"
@@ -250,7 +255,7 @@ export function AdminTable({ schema }: AdminTableProps) {
           }}
         />
       )}
-      {creating && (
+      {!isReadonly && creating && (
         <AdminForm
           schema={schema}
           mode="create"
