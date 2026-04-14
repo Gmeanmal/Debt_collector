@@ -21,6 +21,7 @@ import { PaymentFormRoute } from "./routes/sub/PaymentFormRoute";
 import { PaymentHistoryRoute } from "./routes/sub/PaymentHistoryRoute";
 import { SubContractsRoute } from "./routes/sub/SubContractsRoute";
 import { ProposeContractRoute } from "./routes/sub/ProposeContractRoute";
+import { ContractSignRoute } from "./routes/sub/ContractSignRoute";
 import { ContractDetailRoute } from "./routes/ContractDetailRoute";
 
 export const router = createBrowserRouter([
@@ -155,6 +156,16 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RoleProtectedRoute role="sub">
           <ProposeContractRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sub/debts/:contractId/sign",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <ContractSignRoute />
         </RoleProtectedRoute>
       </ProtectedRoute>
     ),

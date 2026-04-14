@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { ContractActions } from "@/components/contracts/ContractActions";
 import { ContractAuditLog } from "@/components/contracts/ContractAuditLog";
 import { SimulationChart } from "@/components/contracts/SimulationChart";
 import {
+  downloadContractPdfApi,
   getContractApi,
   getContractAuditApi,
   simulateDraftApi,
@@ -136,6 +137,23 @@ export function ContractDetailRoute() {
     );
 
   const role = user?.role ?? "sub";
+  const canSubSign =
+    role === "sub" &&
+    (contract.status === "pending_sub" || contract.status === "pending_sub_signature");
+  const canDownloadPdf = contract.status === "active" && Boolean(contract.signed_pdf_url);
+
+  async function handleDownloadPdf() {
+    try {
+      const url = await downloadContractPdfApi(contract!.id);
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to download PDF";
+      setBanner({ msg, kind: "error" });
+    }
+  }
+
+  const btnBase =
+    "px-4 py-2 text-sm font-semibold rounded-md transition-colors disabled:opacity-50 focus-visible:ring-2";
 
   return (
     <div className="p-4 md:p-8">
@@ -165,6 +183,26 @@ export function ContractDetailRoute() {
             <h2 className="text-sm font-semibold text-base-text mb-3">Projection</h2>
             <SimulationPanel contract={contract} />
           </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {canSubSign && (
+            <Link
+              to={`/sub/debts/${contract.id}/sign`}
+              className={`${btnBase} bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover focus-visible:ring-pink-primary`}
+            >
+              Sign contract
+            </Link>
+          )}
+          {canDownloadPdf && (
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
+            >
+              Download signed PDF
+            </button>
+          )}
         </div>
 
         <ContractActions

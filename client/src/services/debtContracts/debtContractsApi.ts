@@ -4,6 +4,7 @@ import type { components } from "@/types/api.generated";
 
 export type DebtContractCreate = components["schemas"]["DebtContractCreate"];
 export type DebtContractCounter = components["schemas"]["DebtContractCounter"];
+export type DebtContractSignIn = components["schemas"]["DebtContractSignIn"];
 export type DebtContractOut = components["schemas"]["DebtContractOut"];
 export type DebtContractVersionOut = components["schemas"]["DebtContractVersionOut"];
 export type DebtContractAuditOut = components["schemas"]["DebtContractAuditOut"];
@@ -79,13 +80,30 @@ export async function rejectCounterApi(contractId: string): Promise<DebtContract
   return data;
 }
 
-export async function signContractApi(contractId: string): Promise<DebtContractOut> {
+export async function signContractApi(
+  contractId: string,
+  signaturePngB64: string,
+): Promise<DebtContractOut> {
   const { data, error } = await apiClient.POST("/debts/{contract_id}/sign", {
     params: { path: { contract_id: contractId } },
+    body: { signature_png_b64: signaturePngB64 },
     headers: authHeaders(),
   });
   if (error || !data) throw new Error(extractMessage(error, "Failed to sign contract"));
   return data;
+}
+
+export async function downloadContractPdfApi(contractId: string): Promise<string> {
+  const base = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+  const url = `${base}/debts/${contractId}/pdf`;
+  const response = await fetch(url, {
+    headers: authHeaders(),
+    redirect: "follow",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch contract PDF (${response.status})`);
+  }
+  return response.url;
 }
 
 export async function closeContractApi(contractId: string): Promise<DebtContractOut> {

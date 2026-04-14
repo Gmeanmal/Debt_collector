@@ -607,9 +607,29 @@ export interface paths {
     put?: never;
     /**
      * Sign a debt contract as sub
-     * @description Sub signs the finalised contract, transitioning it to `active`. Valid when status is `pending_sub` (direct sign on goddess proposal) or `pending_sub_signature` (post-negotiation). The `signed_pdf_url` and `signed_pdf_sha256` are populated in Phase 7.
+     * @description Sub signs the finalised contract, transitioning it to `active`. Valid when status is `pending_sub` (direct sign on goddess proposal) or `pending_sub_signature` (post-negotiation). Renders the signed PDF from the supplied signature PNG, uploads it to object storage, and populates `signed_pdf_url` and `signed_pdf_sha256` on the contract.
      */
     post: operations["sign_as_sub_debts__contract_id__sign_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/pdf": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Download the signed contract PDF
+     * @description Returns a 302 redirect to a short-lived presigned URL for the contract's signed PDF. Accessible to the contract's sub and to the owning goddess. Returns 404 when the contract has not been signed yet.
+     */
+    get: operations["download_contract_pdf_debts__contract_id__pdf_get"];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -1033,6 +1053,15 @@ export interface components {
        * @description UTC datetime of last update
        */
       updated_at: string;
+    };
+    /** DebtContractSignIn */
+    DebtContractSignIn: {
+      /**
+       * Signature Png B64
+       * @description Base64-encoded PNG of the sub's signature
+       * @example iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==
+       */
+      signature_png_b64: string;
     };
     /**
      * DebtContractStatus
@@ -3993,7 +4022,11 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DebtContractSignIn"];
+      };
+    };
     responses: {
       /** @description Successful Response */
       200: {
@@ -4027,6 +4060,63 @@ export interface operations {
       };
       /** @description Conflict — transition not valid from the current contract status */
       409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  download_contract_pdf_debts__contract_id__pdf_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Redirect to the presigned PDF URL */
+      302: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
         headers: {
           [name: string]: unknown;
         };

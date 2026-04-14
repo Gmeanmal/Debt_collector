@@ -5,7 +5,6 @@ import {
   counterProposeApi,
   acceptCounterApi,
   rejectCounterApi,
-  signContractApi,
   closeContractApi,
   type DebtContractOut,
   type DebtContractCreate,
@@ -81,15 +80,6 @@ export function ContractActions({ contract, role, onBanner }: Props) {
     onError: (err: Error) => onBanner(err.message, "error"),
   });
 
-  const signMutation = useMutation({
-    mutationFn: () => signContractApi(contract.id),
-    onSuccess: () => {
-      onBanner("Contract signed.", "success");
-      invalidate();
-    },
-    onError: (err: Error) => onBanner(err.message, "error"),
-  });
-
   const closeMutation = useMutation({
     mutationFn: () => closeContractApi(contract.id),
     onSuccess: () => {
@@ -103,8 +93,6 @@ export function ContractActions({ contract, role, onBanner }: Props) {
   const isPending = PENDING_STATUSES.includes(status);
 
   const canSubCounter =
-    role === "sub" && (status === "pending_sub" || status === "pending_sub_signature");
-  const canSubSign =
     role === "sub" && (status === "pending_sub" || status === "pending_sub_signature");
   const canGoddessCounter = role === "goddess" && status === "pending_dom";
   const canGoddessAcceptCounter = role === "goddess" && status === "pending_dom_counter";
@@ -137,17 +125,6 @@ export function ContractActions({ contract, role, onBanner }: Props) {
             className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
           >
             Counter-propose
-          </button>
-        )}
-
-        {canSubSign && (
-          <button
-            type="button"
-            disabled={signMutation.isPending}
-            onClick={() => signMutation.mutate()}
-            className={`${btnBase} bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover focus-visible:ring-pink-primary`}
-          >
-            {signMutation.isPending ? "Signing…" : "Sign contract"}
           </button>
         )}
 
