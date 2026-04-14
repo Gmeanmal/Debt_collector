@@ -29,10 +29,13 @@ interface NavItem {
 
 const GODDESS_NAV: NavItem[] = [
   { to: "/", label: "Dashboard" },
+  { to: "/goddess/subs", label: "Subs" },
   { to: "/goddess/invitations", label: "Invitations" },
   { to: "/goddess/validations", label: "Validations" },
   { to: "/goddess/payments/record", label: "Record" },
   { to: "/goddess/payment-methods", label: "Methods" },
+  { to: "/goddess/weekly", label: "Weekly" },
+  { to: "/goddess/late", label: "Late" },
 ];
 
 const SUB_NAV: NavItem[] = [

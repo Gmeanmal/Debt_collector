@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { HealthRoute } from "./routes/HealthRoute";
 import { LoginRoute } from "./routes/LoginRoute";
 import { ForgotPasswordRoute } from "./routes/ForgotPasswordRoute";
@@ -11,9 +11,10 @@ import { InvitationsListRoute } from "./routes/goddess/InvitationsListRoute";
 import { PaymentMethodsRoute } from "./routes/goddess/PaymentMethodsRoute";
 import { PendingValidationsRoute } from "./routes/goddess/PendingValidationsRoute";
 import { RecordPaymentRoute } from "./routes/goddess/RecordPaymentRoute";
-import { RollingEditorRoute } from "./routes/goddess/RollingEditorRoute";
 import { ContractFormRoute } from "./routes/goddess/ContractFormRoute";
 import { GoddessContractsRoute } from "./routes/goddess/GoddessContractsRoute";
+import { SubsListRoute } from "./routes/goddess/SubsListRoute";
+import { SubManageRoute } from "./routes/goddess/subs/SubManageRoute";
 import { InviteLandingRoute } from "./routes/public/InviteLandingRoute";
 import { SignupRoute } from "./routes/public/SignupRoute";
 import { PendingEntryTributeRoute } from "./routes/sub/PendingEntryTributeRoute";
@@ -29,8 +30,9 @@ import { BreachSubRoute } from "./routes/goddess/BreachSubRoute";
 import { AdminCronRoute } from "./routes/admin/AdminCronRoute";
 import { AdminRoute } from "./routes/admin/AdminRoute";
 import { DashboardRoute as GoddessDashboardRoute } from "./routes/goddess/DashboardRoute";
+import { WeeklyPaymentsRoute } from "./routes/goddess/WeeklyPaymentsRoute";
+import { LateSubsRoute } from "./routes/goddess/LateSubsRoute";
 import { SubDashboardRoute } from "./routes/sub/DashboardRoute";
-import { SubDetailRoute } from "./routes/goddess/SubDetailRoute";
 import { NotFoundRoute, RouterErrorBoundary } from "./routes/NotFoundRoute";
 import { ProfileRoute } from "./routes/ProfileRoute";
 
@@ -122,13 +124,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/goddess/subs/:subId/rolling",
-    element: (
-      <ProtectedRoute>
-        <RoleProtectedRoute role="goddess">
-          <RollingEditorRoute />
-        </RoleProtectedRoute>
-      </ProtectedRoute>
-    ),
+    element: <Navigate to=".." replace relative="path" />,
   },
   {
     path: "/goddess/subs/:subId/debts/new",
@@ -259,11 +255,41 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: "/goddess/subs",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <SubsListRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: "/goddess/subs/:subId",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
-          <SubDetailRoute />
+          <SubManageRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/weekly",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <WeeklyPaymentsRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/late",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <LateSubsRoute />
         </RoleProtectedRoute>
       </ProtectedRoute>
     ),

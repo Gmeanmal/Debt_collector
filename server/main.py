@@ -15,6 +15,7 @@ from routers import (
     blacklist,
     dashboards,
     debt_contracts,
+    goddess_views,
     health,
     invitations,
     me_preferences,
@@ -86,4 +87,5 @@ app.include_router(notifications.router)
 app.include_router(me_preferences.router)
 app.include_router(dashboards.goddess_router)
 app.include_router(dashboards.sub_router)
+app.include_router(goddess_views.router)
 app.include_router(ws.router)

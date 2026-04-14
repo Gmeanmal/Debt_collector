@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from decimal import Decimal
 from typing import Literal
 from uuid import UUID
@@ -118,7 +118,7 @@ class ActiveContractSummary(BaseModel):
         description="Contract status",
         examples=["active"],
     )
-    next_period_due_at: datetime | None = Field(
+    next_period_due_at: datetime.datetime | None = Field(
         default=None,
         description="UTC datetime when the next period payment is due (null if not computable)",
         examples=["2026-04-20T00:00:00"],
@@ -151,4 +151,75 @@ class SubDashboardOut(BaseModel):
         ...,
         description="Sum of all validated payments by this sub (GBP)",
         examples=[Decimal("450.00")],
+    )
+
+
+class WeeklyPaymentTotal(BaseModel):
+    week_start: datetime.date = Field(
+        ...,
+        description="ISO date of the Monday starting this week",
+        examples=["2026-04-07"],
+    )
+    total: Decimal = Field(
+        ...,
+        description="Sum of all validated payment amounts for this week (GBP)",
+        examples=[Decimal("75.00")],
+    )
+
+
+class UpcomingPaymentItem(BaseModel):
+    date: datetime.date = Field(
+        ...,
+        description="Europe/London calendar date the payment is due",
+        examples=["2026-04-21"],
+    )
+    amount: Decimal = Field(
+        ...,
+        description="Amount due in GBP",
+        examples=[Decimal("50.00")],
+    )
+    kind: Literal["rolling", "contract_instalment"] = Field(
+        ...,
+        description="Origin of the obligation: rolling tribute or contract instalment",
+        examples=["rolling"],
+    )
+    label: str = Field(
+        ...,
+        description=(
+            "Human-readable description for the tooltip"
+            " (e.g. 'Weekly tribute', 'Contract instalment £50/wk')"
+        ),
+        examples=["Weekly tribute"],
+    )
+
+
+class SubPlanningOut(BaseModel):
+    upcoming: list[UpcomingPaymentItem] = Field(
+        default_factory=list,
+        description="Payment deadlines in the next 30 Europe/London calendar days, sorted by date",
+    )
+    weekly_history: list[WeeklyPaymentTotal] = Field(
+        default_factory=list,
+        description=(
+            "Validated payment totals for the last 12 weeks (oldest first), "
+            "each keyed by the Monday of that week"
+        ),
+    )
+    total_paid_all_time: Decimal = Field(
+        ...,
+        description="Lifetime sum of all validated payments by this sub (GBP)",
+        examples=[Decimal("450.00")],
+    )
+    total_paid_this_month: Decimal = Field(
+        ...,
+        description="Sum of validated payments in the current Europe/London calendar month (GBP)",
+        examples=[Decimal("120.00")],
+    )
+    rolling_remaining_this_month: Decimal = Field(
+        ...,
+        description=(
+            "Estimated rolling amount still owed before end of current month "
+            "(0 if no active rolling tribute)"
+        ),
+        examples=[Decimal("50.00")],
     )

@@ -1631,6 +1631,66 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/sub/planning": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Sub 30-day payment planning data
+     * @description Returns upcoming payment deadlines for the next 30 Europe/London calendar days (rolling tribute cycles and active contract instalments), the last 12 weeks of validated payment history (totals per week), and KPI figures: total paid all-time, total paid this calendar month, and the estimated rolling amount still owed before the end of the current month.
+     */
+    get: operations["sub_planning_sub_planning_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payments/weekly": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Fetch weekly payment aggregates
+     * @description Returns 8 ISO week buckets (current week plus 7 previous) for the calling goddess. Each bucket contains the total validated payment amount and count of declarations validated in that Europe/London week (Monday–Sunday). Weeks are ordered newest first. Only `validated` declarations are counted.
+     */
+    get: operations["weekly_payments_goddess_payments_weekly_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/subs/late": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List subs currently late on their rolling tribute
+     * @description Returns all active subs under this goddess whose rolling tribute is currently late — i.e. the last cycle deadline has passed without a validated payment. Includes days late, the overdue amount (with any late penalty applied), and the datetime of the last validated payment if one exists. Sorted by days_late descending.
+     */
+    get: operations["late_subs_goddess_subs_late_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2218,6 +2278,52 @@ export interface components {
        * @description UTC datetime of last update
        */
       updated_at: string;
+      /**
+       * Total Paid
+       * @description Sum of all validated payment allocations targeting this contract (GBP)
+       * @example 150.00
+       */
+      total_paid: string;
+      /**
+       * Total Due
+       * @description Agreed total amount due over the full term (minimum_payment × duration_periods, GBP)
+       * @example 600.00
+       */
+      total_due: string;
+      /**
+       * Remaining
+       * @description total_due minus total_paid, clamped to 0 (GBP)
+       * @example 450.00
+       */
+      remaining: string;
+      /**
+       * Progress Pct
+       * @description Repayment progress as a percentage 0–100, rounded to 1 decimal place
+       * @example 25
+       */
+      progress_pct: number;
+      /**
+       * Payment Count
+       * @description Number of validated payments applied to this contract
+       * @example 3
+       */
+      payment_count: number;
+      /**
+       * Last Payment At
+       * @description UTC datetime of the most recent validated payment, or null if none
+       */
+      last_payment_at?: string | null;
+      /**
+       * First Payment At
+       * @description UTC datetime of the earliest validated payment, or null if none
+       */
+      first_payment_at?: string | null;
+      /**
+       * On Track
+       * @description True when total_paid meets or exceeds the expected cumulative instalment total up to today (period_index × minimum_payment). Always true for contracts that have not yet been signed.
+       * @example true
+       */
+      on_track: boolean;
     };
     /** DebtContractSignIn */
     DebtContractSignIn: {
@@ -2660,6 +2766,40 @@ export interface components {
      * @enum {string}
      */
     LatePenaltySeverity: "light" | "medium" | "severe";
+    /** LateSubItem */
+    LateSubItem: {
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description UUID of the sub who is late
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      sub_id: string;
+      /**
+       * Display Name
+       * @description Display name of the sub (first + last, or username fallback)
+       * @example Jane Doe
+       */
+      display_name?: string | null;
+      /**
+       * Days Late
+       * @description Number of calendar days past the rolling tribute deadline
+       * @example 3
+       */
+      days_late: number;
+      /**
+       * Overdue Amount
+       * @description Amount overdue in GBP (rolling amount_due including any late penalty)
+       * @example 55.00
+       */
+      overdue_amount: string;
+      /**
+       * Last Payment At
+       * @description UTC datetime of the most recent validated payment, or null if none
+       * @example 2026-04-01T12:00:00
+       */
+      last_payment_at?: string | null;
+    };
     /** LoginRequest */
     LoginRequest: {
       /**
@@ -3380,6 +3520,37 @@ export interface components {
        */
       total_sent: string;
     };
+    /** SubPlanningOut */
+    SubPlanningOut: {
+      /**
+       * Upcoming
+       * @description Payment deadlines in the next 30 Europe/London calendar days, sorted by date
+       */
+      upcoming?: components["schemas"]["UpcomingPaymentItem"][];
+      /**
+       * Weekly History
+       * @description Validated payment totals for the last 12 weeks (oldest first), each keyed by the Monday of that week
+       */
+      weekly_history?: components["schemas"]["WeeklyPaymentTotal"][];
+      /**
+       * Total Paid All Time
+       * @description Lifetime sum of all validated payments by this sub (GBP)
+       * @example 450.00
+       */
+      total_paid_all_time: string;
+      /**
+       * Total Paid This Month
+       * @description Sum of validated payments in the current Europe/London calendar month (GBP)
+       * @example 120.00
+       */
+      total_paid_this_month: string;
+      /**
+       * Rolling Remaining This Month
+       * @description Estimated rolling amount still owed before end of current month (0 if no active rolling tribute)
+       * @example 50.00
+       */
+      rolling_remaining_this_month: string;
+    };
     /** SurprisePenaltyIn */
     SurprisePenaltyIn: {
       /**
@@ -3422,6 +3593,35 @@ export interface components {
        * @example 900
        */
       expires_in: number;
+    };
+    /** UpcomingPaymentItem */
+    UpcomingPaymentItem: {
+      /**
+       * Date
+       * Format: date
+       * @description Europe/London calendar date the payment is due
+       * @example 2026-04-21
+       */
+      date: string;
+      /**
+       * Amount
+       * @description Amount due in GBP
+       * @example 50.00
+       */
+      amount: string;
+      /**
+       * Kind
+       * @description Origin of the obligation: rolling tribute or contract instalment
+       * @example rolling
+       * @enum {string}
+       */
+      kind: "rolling" | "contract_instalment";
+      /**
+       * Label
+       * @description Human-readable description for the tooltip (e.g. 'Weekly tribute', 'Contract instalment £50/wk')
+       * @example Weekly tribute
+       */
+      label: string;
     };
     /** UpdatePreferencesIn */
     UpdatePreferencesIn: {
@@ -3543,6 +3743,51 @@ export interface components {
       input?: unknown;
       /** Context */
       ctx?: Record<string, never>;
+    };
+    /** WeeklyPaymentBucket */
+    WeeklyPaymentBucket: {
+      /**
+       * Week Start
+       * Format: date
+       * @description Monday of the ISO week (Europe/London)
+       * @example 2026-04-07
+       */
+      week_start: string;
+      /**
+       * Week End
+       * Format: date
+       * @description Sunday of the ISO week (Europe/London)
+       * @example 2026-04-13
+       */
+      week_end: string;
+      /**
+       * Total
+       * @description Sum of validated payments received in this week (GBP)
+       * @example 125.00
+       */
+      total: string;
+      /**
+       * Count
+       * @description Number of validated payment declarations in this week
+       * @example 3
+       */
+      count: number;
+    };
+    /** WeeklyPaymentTotal */
+    WeeklyPaymentTotal: {
+      /**
+       * Week Start
+       * Format: date
+       * @description ISO date of the Monday starting this week
+       * @example 2026-04-07
+       */
+      week_start: string;
+      /**
+       * Total
+       * @description Sum of all validated payment amounts for this week (GBP)
+       * @example 75.00
+       */
+      total: string;
     };
   };
   responses: never;
@@ -10358,6 +10603,162 @@ export interface operations {
         content?: never;
       };
       /** @description Forbidden — caller role is not permitted for this dashboard */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  sub_planning_sub_planning_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SubPlanningOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller role is not permitted for this dashboard */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  weekly_payments_goddess_payments_weekly_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WeeklyPaymentBucket"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  late_subs_goddess_subs_late_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LateSubItem"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess */
       403: {
         headers: {
           [name: string]: unknown;
