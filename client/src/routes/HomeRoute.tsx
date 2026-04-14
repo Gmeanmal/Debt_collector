@@ -1,8 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/services/auth/useAuth";
-import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
 
 interface ActionCard {
   to: string;
@@ -94,129 +91,6 @@ const ADMIN_ACTIONS: ActionCard[] = [
   },
 ];
 
-function NewContractNavCard() {
-  const navigate = useNavigate();
-  const [subId, setSubId] = useState("");
-  const { data: subs = [] } = useQuery({
-    queryKey: ["goddessSubs"],
-    queryFn: listGoddessSubsApi,
-  });
-
-  return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-3">
-      <h3 className="text-base-text font-semibold">New contract</h3>
-      <p className="text-base-text-muted text-sm">Propose a debt contract for a specific sub.</p>
-      <div className="flex gap-2 flex-wrap items-center">
-        <select
-          value={subId}
-          onChange={(e) => setSubId(e.target.value)}
-          aria-label="Select sub for new contract"
-          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-1.5 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary flex-1 min-w-0"
-        >
-          <option value="">Select a sub</option>
-          {subs.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.display_name} ({s.username})
-            </option>
-          ))}
-        </select>
-        <button
-          type="button"
-          disabled={!subId}
-          onClick={() => navigate(`/goddess/subs/${subId}/debts/new`)}
-          className="px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary shrink-0"
-        >
-          Go
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function RollingNavCard() {
-  const navigate = useNavigate();
-  const [subId, setSubId] = useState("");
-  const { data: subs = [] } = useQuery({
-    queryKey: ["goddessSubs"],
-    queryFn: listGoddessSubsApi,
-  });
-
-  return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-3">
-      <h3 className="text-base-text font-semibold">Manage rolling</h3>
-      <p className="text-base-text-muted text-sm">
-        Configure a sub's weekly rolling tribute schedule.
-      </p>
-      <div className="flex gap-2 flex-wrap items-center">
-        <select
-          value={subId}
-          onChange={(e) => setSubId(e.target.value)}
-          aria-label="Select sub for rolling editor"
-          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-1.5 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary flex-1 min-w-0"
-        >
-          <option value="">Select a sub</option>
-          {subs.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.display_name} ({s.username})
-            </option>
-          ))}
-        </select>
-        <button
-          type="button"
-          disabled={!subId}
-          onClick={() => navigate(`/goddess/subs/${subId}/rolling`)}
-          className="px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary shrink-0"
-        >
-          Go
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function BreachSubNavCard() {
-  const navigate = useNavigate();
-  const [subId, setSubId] = useState("");
-  const { data: subs = [] } = useQuery({
-    queryKey: ["goddessSubs"],
-    queryFn: listGoddessSubsApi,
-  });
-
-  return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-3">
-      <h3 className="text-base-text font-semibold">Breach a sub</h3>
-      <p className="text-base-text-muted text-sm">
-        Mark a sub as breached and move them to the blacklist.
-      </p>
-      <div className="flex gap-2 flex-wrap items-center">
-        <select
-          value={subId}
-          onChange={(e) => setSubId(e.target.value)}
-          aria-label="Select sub to breach"
-          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-1.5 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-debt-primary flex-1 min-w-0"
-        >
-          <option value="">Select a sub</option>
-          {subs
-            .filter((s) => s.status === "active")
-            .map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.display_name} ({s.username})
-              </option>
-            ))}
-        </select>
-        <button
-          type="button"
-          disabled={!subId}
-          onClick={() => navigate(`/goddess/subs/${subId}/breach`)}
-          className="px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded-md hover:bg-debt-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-debt-primary shrink-0"
-        >
-          Go
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function ActionGrid({ actions }: { actions: ActionCard[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -250,9 +124,6 @@ export function HomeRoute() {
           </p>
         </div>
         <ActionGrid actions={GODDESS_ACTIONS} />
-        <RollingNavCard />
-        <NewContractNavCard />
-        <BreachSubNavCard />
       </div>
     );
   }
