@@ -3,13 +3,29 @@
 > Read on session start. Update on session end.
 
 **Last updated:** 2026-04-14
-**Active phase:** Phase 7 closed → **next is Phase 8 (Ledger, Cronjob, Contract Lifecycle)**
+**Active phase:** Phase 9 closed → **next is Phase 10 (Polish & Tests Retrofit)**
 **Plan:** `Docs/plans/2026-04-13-debt-app-implementation-plan.md`
 
 ---
 
 ## Done
 
+- **Phase 9** — Notifications, Dashboards, Admin:
+  - `notification` table + `InProcessPublisher` + WS `/ws/notifications?token=` with exponential backoff client hook, bell UI with badge/drawer.
+  - `notify()` helper wired across payment, debt, blacklist, cron controllers.
+  - `GET /goddess/dashboard` + `GET /sub/dashboard` backend with late-payment detection (rolling + contract), total_drained/total_sent aggregates.
+  - Goddess + sub dashboard routes with stat cards, late-payment list, active-contract cards with progress bars, recent payments.
+  - `/goddess/subs/:subId` per-sub detail view (rolling + contracts + payments sections).
+  - Theme toggle (system/dark/light) persisted via `PATCH /me/preferences`, pre-hydration script in index.html.
+  - Admin console: generic `/admin/{entity}` CRUD over 11 entities (users/goddesses/invitations/payment_methods/declarations/rolling_tributes/debt_contracts/blacklist_entries/notifications/debt_events/contract_adjustments), client sidebar + table + modal form.
+- **Phase 8** — Ledger, cronjob, contract lifecycle:
+  - `debt_event` ledger + `utils/ledger.py` (event replay, two-place quantize, buyout close).
+  - Payment validate emits `payment_applied` / `buyout_paid` events; buyout closes contract.
+  - `CronController.run_daily` + APScheduler @ 08:00 Europe/London; `POST /admin/cron/run-now`.
+  - Late detection via `utils/periods.current_period_index` + ledger replay; idempotent via unique period-bound key.
+  - Blacklist (breach cascades contracts → breached, revokes refresh tokens, snapshots balance; forgive reinstates).
+  - Surprise penalty + mid-contract adjustments (mode-gated: disabled/dom_controlled/sub_approval_required).
+  - Buyout intent endpoint + client panel; sub/goddess UI for all of the above.
 - **Phase 7** — Signature & PDF:
   - `services/storage/` with `aiobotocore`-backed R2 adapter + fake filesystem fallback + factory switcher (no `r2_account_id` → Fake).
   - `services/pdf/generator.py` WeasyPrint + Jinja2, template `contract.html` (Playfair Display + Source Serif Pro, terms table, GBP formatting, signature inline base64 PNG).
@@ -48,26 +64,19 @@
 
 ---
 
-## Next up — Phase 8: Ledger, Cronjob, Contract Lifecycle
+## Next up — Phase 10: Polish & Tests Retrofit
 
-Plan reference: plan lines 2313+. Spec: `Docs/specs.md` §7–§8.
+Plan reference: plan lines 2650+.
 
-Big phase. Tasks (roughly):
-1. **8.1** — `debt_event` ledger table + enum + migration.
-2. **8.2** — Ledger service: post events, replay to recompute balance.
-3. **8.3** — Wire payment validation on `weekly_debt`/`debt_payment`/`buyout` categories → ledger events (unblock `_check_category_supported` in `payment_controller.py`).
-4. **8.4/8.5** — Cronjob (APScheduler): weekly interest tick + missed-period late penalty.
-5. **8.6** — Buyout flow (approve + settle).
-6. **8.7** — Breach + forgive transitions.
-7. **8.8** — Mid-contract addition + surprise penalty.
-8. Client — contract detail ledger view, buyout/forgive/addition UI.
-
-### Suggested subagent split
-
-- Sonnet A — 8.1 + 8.2 (ledger model + service).
-- Sonnet B (after A) — 8.3 (payment wiring) **parallel** with Sonnet C (8.4/8.5 cronjob).
-- Sonnet D (after B+C) — 8.6/8.7/8.8 controllers + routers.
-- Sonnet E — client UI.
+1. **10.1** — Empty and error states on all lists / cards.
+2. **10.2** — Accessibility pass (focus rings, aria-labels, live regions, axe-core via Playwright).
+3. **10.3** — Mobile responsive audit (≤ 760px).
+4. **10.4** — Pre-commit strengthening (tsc --noEmit).
+5. **10.5** — Pytest retrofit (finance/rolling/ledger utils + debt/payment/cron controllers).
+6. **10.6** — Vitest retrofit (services, hooks, forms).
+7. **10.7** — Visual regression (Playwright snapshots).
+8. **10.8** — Final sweep + tag v0.1.0.
+9. **10.9** — Hosting decision (deferred).
 
 ---
 
