@@ -3,13 +3,22 @@
 > Read on session start. Update on session end.
 
 **Last updated:** 2026-04-14
-**Active phase:** Phase 9 closed → **next is Phase 10 (Polish & Tests Retrofit)**
+**Active phase:** Phase 10 closed → **v0.1.0 tagged**; 10.7 (visual regression) + 10.9 (hosting) deferred.
 **Plan:** `Docs/plans/2026-04-13-debt-app-implementation-plan.md`
 
 ---
 
 ## Done
 
+- **Phase 10** — Polish & Tests Retrofit:
+  - `utils/ledger.replay_events` pure helper extracted; `recompute_balance` delegates.
+  - Pytest retrofit: 21 unit tests (finance/rolling/periods/ledger); integration tests scaffolded but skipped (aiosqlite incompat with self-FK `use_alter=True` + Postgres enum types → needs real postgres fixture).
+  - Vitest retrofit: pinned `vitest@^2.1.9` (Vite 5 compat), 17 unit tests across `debtContractsApi`, `notificationsApi`, `notificationsStore`.
+  - UI primitives: `EmptyState`, `ErrorState`, `Skeleton`, `Modal` (focus-trap, Esc close, focus restoration, `aria-modal`).
+  - Empty/error/loading states on dashboard (goddess+sub), contract lists, blacklist, pending validations, payment history, pending adjustments, sub detail sections.
+  - Phase-8 dialogs + edit/reject/forgive modals refactored onto `Modal` base.
+  - Mobile-first grids on goddess dashboard; `type="button"`, aria-labels, `role="status"` on live amounts.
+  - Makefile: `cd client && pnpm vitest run` (fixed zsh `--` quoting).
 - **Phase 9** — Notifications, Dashboards, Admin:
   - `notification` table + `InProcessPublisher` + WS `/ws/notifications?token=` with exponential backoff client hook, bell UI with badge/drawer.
   - `notify()` helper wired across payment, debt, blacklist, cron controllers.
@@ -64,19 +73,13 @@
 
 ---
 
-## Next up — Phase 10: Polish & Tests Retrofit
+## Next up — post-v0.1.0
 
-Plan reference: plan lines 2650+.
+All planned phases 1–10 shipped. Deferred:
 
-1. **10.1** — Empty and error states on all lists / cards.
-2. **10.2** — Accessibility pass (focus rings, aria-labels, live regions, axe-core via Playwright).
-3. **10.3** — Mobile responsive audit (≤ 760px).
-4. **10.4** — Pre-commit strengthening (tsc --noEmit).
-5. **10.5** — Pytest retrofit (finance/rolling/ledger utils + debt/payment/cron controllers).
-6. **10.6** — Vitest retrofit (services, hooks, forms).
-7. **10.7** — Visual regression (Playwright snapshots).
-8. **10.8** — Final sweep + tag v0.1.0.
-9. **10.9** — Hosting decision (deferred).
+- **10.7** — Visual regression via Playwright snapshots (deferred; no baseline captured).
+- **10.9** — Hosting decision (deferred per plan).
+- Integration pytest suite needs real Postgres fixture before it can run; aiosqlite cannot host `debt_contract`'s self-FK with `use_alter=True` + Postgres enum types.
 
 ---
 
