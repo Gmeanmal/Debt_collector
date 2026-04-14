@@ -8,6 +8,8 @@ import {
   type PaymentCategory,
 } from "@/services/payments/paymentsApi";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { MethodIcon, METHOD_LABELS } from "@/components/paymentMethods/MethodIcon";
+import { cn } from "@/lib/utils";
 
 const ACTIVE_CATEGORIES: { value: PaymentCategory; label: string }[] = [
   { value: "entry", label: "Entry tribute" },
@@ -127,29 +129,47 @@ export function PaymentFormRoute() {
           </div>
 
           {/* Method */}
-          <div className="flex flex-col gap-1">
-            <label htmlFor="method" className="text-sm font-semibold text-base-text">
-              Payment method
-            </label>
+          <fieldset>
+            <legend className="text-sm font-semibold text-base-text mb-2">Payment method</legend>
             {methodsLoading ? (
               <p className="text-xs text-base-text-muted">Loading methods…</p>
+            ) : methods.length === 0 ? (
+              <p className="text-xs text-base-text-muted">No payment methods available.</p>
             ) : (
-              <select
-                id="method"
-                value={methodId}
-                onChange={(e) => setMethodId(e.target.value)}
-                required
-                className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
-              >
-                <option value="">Select a method</option>
-                {methods.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {methods.map((m) => {
+                  const selected = methodId === m.id;
+                  return (
+                    <label
+                      key={m.id}
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-md border cursor-pointer transition-colors",
+                        selected
+                          ? "border-pink-primary bg-pink-primary/10"
+                          : "border-base-border hover:border-base-border/80 hover:bg-base-surface-raised",
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="method"
+                        value={m.id}
+                        checked={selected}
+                        onChange={() => setMethodId(m.id)}
+                        className="sr-only"
+                      />
+                      <MethodIcon type={m.type} size="md" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-base-text truncate">{m.name}</p>
+                        <p className="text-xs text-base-text-muted truncate">
+                          {METHOD_LABELS[m.type]}
+                        </p>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
             )}
-          </div>
+          </fieldset>
 
           {/* External timestamp */}
           <div className="flex flex-col gap-1">

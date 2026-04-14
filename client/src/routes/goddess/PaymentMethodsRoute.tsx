@@ -16,6 +16,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { PaymentMethodForm } from "@/components/paymentMethods/PaymentMethodForm";
+import { MethodIcon, METHOD_LABELS } from "@/components/paymentMethods/MethodIcon";
 import {
   createPaymentMethodApi,
   deletePaymentMethodApi,
@@ -26,13 +27,6 @@ import {
   type PaymentMethodOut,
   type PaymentMethodUpdate,
 } from "@/services/paymentMethods/paymentMethodsApi";
-
-const TYPE_COLOURS: Record<string, string> = {
-  throne: "bg-pink-muted text-pink-primary",
-  paypal: "bg-base-surface-raised text-status-info",
-  bank: "bg-base-surface-raised text-status-success",
-  other: "bg-base-surface-raised text-base-text-muted",
-};
 
 interface SortableCardProps {
   method: PaymentMethodOut;
@@ -73,14 +67,12 @@ function SortableCard({ method, onEdit, onDisable, onEnable }: SortableCardProps
         ⠿
       </button>
 
+      <MethodIcon type={method.type} size="lg" />
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-semibold text-base-text text-sm truncate">{method.name}</span>
-          <span
-            className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold capitalize ${TYPE_COLOURS[method.type] ?? ""}`}
-          >
-            {method.type}
-          </span>
+          <span className="text-xs text-base-text-subtle">{METHOD_LABELS[method.type]}</span>
           {!method.enabled && (
             <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-debt-muted text-status-danger">
               disabled

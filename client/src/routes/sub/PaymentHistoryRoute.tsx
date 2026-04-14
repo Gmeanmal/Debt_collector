@@ -14,6 +14,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
+import { MethodIcon, METHOD_LABELS } from "@/components/paymentMethods/MethodIcon";
+import { cn } from "@/lib/utils";
 
 const SOURCE_LABEL: Record<DeclarationSource, string> = {
   sub_declared: "Self-declared",
@@ -90,18 +92,36 @@ function EditModal({ decl, onClose }: EditModalProps) {
         <label className="text-sm font-medium text-base-text" htmlFor="edit-method">
           Method
         </label>
-        <select
-          id="edit-method"
-          value={methodId}
-          onChange={(e) => setMethodId(e.target.value)}
-          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
-        >
-          {methods.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name}
-            </option>
-          ))}
-        </select>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="edit-method">
+          {methods.map((m) => {
+            const selected = methodId === m.id;
+            return (
+              <label
+                key={m.id}
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-md border cursor-pointer transition-colors",
+                  selected
+                    ? "border-pink-primary bg-pink-primary/10"
+                    : "border-base-border hover:border-base-border/80 hover:bg-base-surface-raised",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="edit-method"
+                  value={m.id}
+                  checked={selected}
+                  onChange={() => setMethodId(m.id)}
+                  className="sr-only"
+                />
+                <MethodIcon type={m.type} size="md" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-base-text truncate">{m.name}</p>
+                  <p className="text-xs text-base-text-muted truncate">{METHOD_LABELS[m.type]}</p>
+                </div>
+              </label>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex flex-col gap-1">
@@ -235,9 +255,14 @@ export function PaymentHistoryRoute() {
                 )}
               </div>
 
-              <div className="text-xs text-base-text-muted flex gap-3 flex-wrap">
+              <div className="text-xs text-base-text-muted flex gap-3 flex-wrap items-center">
                 <span>{formatDate(p.declared_at)}</span>
-                {p.method_name && <span>{p.method_name}</span>}
+                {p.method_name && (
+                  <span className="inline-flex items-center gap-1.5">
+                    {p.method_type && <MethodIcon type={p.method_type} size="sm" />}
+                    {p.method_name}
+                  </span>
+                )}
                 {p.note && <span className="italic">{p.note}</span>}
               </div>
 

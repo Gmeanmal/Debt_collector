@@ -12,7 +12,7 @@ from models.payment import (
     PaymentCategory,
     PaymentDeclaration,
 )
-from models.payment_method import PaymentMethod
+from models.payment_method import PaymentMethod, PaymentMethodType
 from models.user import Goddess, User, UserStatus
 from schemas.payment import AllocationOut, PaymentOut
 
@@ -86,6 +86,21 @@ async def load_method_name(session: AsyncSession, method_id: UUID) -> str | None
     return result.scalar_one_or_none()
 
 
+async def load_method_summary(
+    session: AsyncSession, method_id: UUID
+) -> tuple[str | None, PaymentMethodType | None]:
+    result = await session.execute(
+        select(col(PaymentMethod.name), col(PaymentMethod.type)).where(
+            col(PaymentMethod.id) == method_id
+        )
+    )
+    row = result.one_or_none()
+    if row is None:
+        return None, None
+    name, type_ = row
+    return name, type_
+
+
 async def load_sub_display_name(session: AsyncSession, sub_id: UUID) -> str | None:
     result = await session.execute(
         select(col(User.first_name), col(User.last_name)).where(col(User.id) == sub_id)
@@ -100,7 +115,7 @@ async def load_sub_display_name(session: AsyncSession, sub_id: UUID) -> str | No
 
 async def to_out(session: AsyncSession, decl: PaymentDeclaration) -> PaymentOut:
     allocation = await load_allocation(session, decl.id)
-    method_name = await load_method_name(session, decl.method_id)
+    method_name, method_type = await load_method_summary(session, decl.method_id)
     sub_display_name = await load_sub_display_name(session, decl.sub_id)
 
     alloc_out: AllocationOut | None = None
@@ -119,6 +134,7 @@ async def to_out(session: AsyncSession, decl: PaymentDeclaration) -> PaymentOut:
         goddess_id=decl.goddess_id,
         method_id=decl.method_id,
         method_name=method_name,
+        method_type=method_type,
         amount=Decimal(str(decl.amount)),
         external_timestamp=decl.external_timestamp,
         note=decl.note,

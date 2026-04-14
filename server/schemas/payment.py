@@ -5,6 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from models.payment import AllocationTargetType, DeclarationSource, PaymentCategory, PaymentStatus
+from models.payment_method import PaymentMethodType
 
 
 class DeclarePaymentIn(BaseModel):
@@ -145,6 +146,11 @@ class PaymentOut(BaseModel):
     goddess_id: UUID = Field(..., description="Goddess UUID")
     method_id: UUID = Field(..., description="Payment method UUID")
     method_name: str | None = Field(default=None, description="Payment method display name")
+    method_type: PaymentMethodType | None = Field(
+        default=None,
+        description="Payment method type (brand key)",
+        examples=["paypal"],
+    )
     amount: Decimal = Field(..., description="Payment amount in GBP", examples=["30.00"])
     external_timestamp: datetime | None = Field(
         default=None, description="Sub-reported payment datetime"

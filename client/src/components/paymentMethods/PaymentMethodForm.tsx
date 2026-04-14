@@ -6,8 +6,16 @@ import type {
   PaymentMethodCreate,
   PaymentMethodOut,
 } from "@/services/paymentMethods/paymentMethodsApi";
+import {
+  ALL_METHOD_TYPES,
+  METHOD_LABELS,
+  MethodIcon,
+} from "@/components/paymentMethods/MethodIcon";
 
-const PAYMENT_TYPES = ["throne", "paypal", "bank", "other"] as const;
+const PAYMENT_TYPES = ALL_METHOD_TYPES as readonly [
+  (typeof ALL_METHOD_TYPES)[number],
+  ...(typeof ALL_METHOD_TYPES)[number][],
+];
 
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(200),
@@ -36,6 +44,7 @@ export function PaymentMethodForm({
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -89,17 +98,20 @@ export function PaymentMethodForm({
         <label className="text-sm font-medium text-base-text-muted" htmlFor="pm-type">
           Type
         </label>
-        <select
-          id="pm-type"
-          {...register("type")}
-          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus:ring-2 focus:ring-pink-primary"
-        >
-          {PAYMENT_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t.charAt(0).toUpperCase() + t.slice(1)}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-3">
+          <MethodIcon type={watch("type")} size="md" />
+          <select
+            id="pm-type"
+            {...register("type")}
+            className="flex-1 bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus:ring-2 focus:ring-pink-primary"
+          >
+            {PAYMENT_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {METHOD_LABELS[t]}
+              </option>
+            ))}
+          </select>
+        </div>
         {errors.type && <p className="text-status-danger text-xs">{errors.type.message}</p>}
       </div>
 

@@ -85,9 +85,7 @@ def build_mermaid() -> str:
             parent = fk.column.table.name
             child_col = fk.parent.name
             parent_col = fk.column.name
-            rel_key: frozenset[str] = frozenset(
-                {f"{child}.{child_col}", f"{parent}.{parent_col}"}
-            )
+            rel_key: frozenset[str] = frozenset({f"{child}.{child_col}", f"{parent}.{parent_col}"})
             if rel_key in seen_rels:
                 continue
             seen_rels.add(rel_key)
@@ -148,10 +146,7 @@ def main() -> None:
     write_mermaid()
     success = try_eralchemy()
     if not success:
-        print(
-            "SVG/PNG not generated (eralchemy2 unavailable). "
-            "Mermaid ERD written to Docs/erd.mmd"
-        )
+        print("SVG/PNG not generated (eralchemy2 unavailable). Mermaid ERD written to Docs/erd.mmd")
 
 
 if __name__ == "__main__":

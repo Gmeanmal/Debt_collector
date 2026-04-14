@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
+import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
 
 const CATEGORIES: PaymentCategory[] = ["entry", "tribute"];
 
@@ -155,9 +156,16 @@ export function PendingValidationsRoute() {
                   <p className="font-semibold text-base-text text-sm">
                     {p.sub_display_name ?? "Sub"} — £{Number(p.amount).toFixed(2)}
                   </p>
-                  <p className="text-xs text-base-text-muted capitalize mt-0.5">
-                    {p.category.replace(/_/g, " ")} · {formatDate(p.declared_at)}
-                    {p.method_name && ` · ${p.method_name}`}
+                  <p className="text-xs text-base-text-muted capitalize mt-0.5 inline-flex items-center gap-1.5 flex-wrap">
+                    <span>
+                      {p.category.replace(/_/g, " ")} · {formatDate(p.declared_at)}
+                    </span>
+                    {p.method_name && (
+                      <span className="inline-flex items-center gap-1.5">
+                        ·{p.method_type && <MethodIcon type={p.method_type} size="sm" />}
+                        {p.method_name}
+                      </span>
+                    )}
                   </p>
                   <Badge
                     variant={SOURCE_VARIANT[p.source as DeclarationSource] ?? "default"}

@@ -625,7 +625,7 @@ export interface paths {
         };
         /**
          * Download the signed contract PDF
-         * @description Returns a 302 redirect to a short-lived presigned URL for the contract's signed PDF. Accessible to the contract's sub and to the owning goddess. Returns 404 when the contract has not been signed yet.
+         * @description Returns the signed contract PDF. In production the response is a 302 redirect to a short-lived presigned R2 URL; in dev (fake storage) the bytes are streamed inline. Accessible to the contract's sub and to the owning goddess. Returns 404 when the contract has not been signed yet.
          */
         get: operations["download_contract_pdf_debts__contract_id__pdf_get"];
         put?: never;
@@ -4205,7 +4205,7 @@ export interface components {
          * PaymentMethodType
          * @enum {string}
          */
-        PaymentMethodType: "throne" | "paypal" | "bank" | "other";
+        PaymentMethodType: "throne" | "paypal" | "cashapp" | "venmo" | "revolut" | "amazon" | "wishtender" | "tipfunder" | "onlyfans" | "loyalfans" | "premium_chat" | "sentbio" | "sumeria" | "btc" | "eth" | "bank" | "other";
         /** PaymentMethodUpdate */
         PaymentMethodUpdate: {
             /**
@@ -4275,6 +4275,11 @@ export interface components {
              * @description Payment method display name
              */
             method_name?: string | null;
+            /**
+             * @description Payment method type (brand key)
+             * @example paypal
+             */
+            method_type?: components["schemas"]["PaymentMethodType"] | null;
             /**
              * Amount
              * @description Payment amount in GBP
@@ -7056,7 +7061,16 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Redirect to the presigned PDF URL */
+            /** @description Signed contract PDF bytes (fake storage) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Redirect to the presigned PDF URL (R2) */
             302: {
                 headers: {
                     [name: string]: unknown;

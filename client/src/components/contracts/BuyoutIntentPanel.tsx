@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { buyoutIntentApi, type BuyoutIntentOut } from "@/services/debtContracts/debtContractsApi";
+import { MethodIcon, METHOD_LABELS } from "@/components/paymentMethods/MethodIcon";
 
 interface Props {
   contractId: string;
@@ -81,20 +82,23 @@ export function BuyoutIntentPanel({ contractId, onClose }: Props) {
                   {intent.payment_methods.map((pm) => (
                     <li
                       key={pm.id}
-                      className="bg-base-surface-raised border border-base-border rounded p-3"
+                      className="bg-base-surface-raised border border-base-border rounded p-3 flex items-start gap-3"
                     >
-                      <p className="text-sm font-semibold text-base-text">
-                        {pm.name}{" "}
-                        <span className="text-xs text-base-text-muted font-normal">
-                          · {pm.type}
-                        </span>
-                      </p>
-                      <p className="text-xs text-base-text-muted mt-0.5 break-all">
-                        {pm.handle_or_link}
-                      </p>
-                      {pm.note && (
-                        <p className="text-xs text-base-text-subtle italic mt-1">{pm.note}</p>
-                      )}
+                      <MethodIcon type={pm.type} size="md" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-base-text">
+                          {pm.name}{" "}
+                          <span className="text-xs text-base-text-muted font-normal">
+                            · {METHOD_LABELS[pm.type]}
+                          </span>
+                        </p>
+                        <p className="text-xs text-base-text-muted mt-0.5 break-all">
+                          {pm.handle_or_link}
+                        </p>
+                        {pm.note && (
+                          <p className="text-xs text-base-text-subtle italic mt-1">{pm.note}</p>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>

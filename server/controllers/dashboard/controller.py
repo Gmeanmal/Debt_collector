@@ -371,9 +371,13 @@ class DashboardController:
         )
         allocation = alloc_result.scalar_one_or_none()
         method_result = await self._session.execute(
-            select(col(PaymentMethod.name)).where(col(PaymentMethod.id) == decl.method_id)
+            select(col(PaymentMethod.name), col(PaymentMethod.type)).where(
+                col(PaymentMethod.id) == decl.method_id
+            )
         )
-        method_name = method_result.scalar_one_or_none()
+        method_row = method_result.one_or_none()
+        method_name = method_row[0] if method_row else None
+        method_type = method_row[1] if method_row else None
 
         alloc_out: AllocationOut | None = None
         if allocation is not None:
@@ -391,6 +395,7 @@ class DashboardController:
             goddess_id=decl.goddess_id,
             method_id=decl.method_id,
             method_name=method_name,
+            method_type=method_type,
             amount=Decimal(str(decl.amount)),
             external_timestamp=decl.external_timestamp,
             note=decl.note,
