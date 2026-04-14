@@ -3,13 +3,19 @@
 > Read on session start. Update on session end.
 
 **Last updated:** 2026-04-14
-**Active phase:** Phase 6 closed → **next is Phase 7 (Signature & PDF)**
+**Active phase:** Phase 7 closed → **next is Phase 8 (Ledger, Cronjob, Contract Lifecycle)**
 **Plan:** `Docs/plans/2026-04-13-debt-app-implementation-plan.md`
 
 ---
 
 ## Done
 
+- **Phase 7** — Signature & PDF:
+  - `services/storage/` with `aiobotocore`-backed R2 adapter + fake filesystem fallback + factory switcher (no `r2_account_id` → Fake).
+  - `services/pdf/generator.py` WeasyPrint + Jinja2, template `contract.html` (Playfair Display + Source Serif Pro, terms table, GBP formatting, signature inline base64 PNG).
+  - `sign_as_sub` renders signed PDF, uploads to `contracts/{goddess_id}/{contract_id}.pdf`, stores object key in `signed_pdf_url` + `signed_pdf_sha256`, audit row.
+  - `POST /debts/{id}/sign` accepts `{signature_png_b64}`. `GET /debts/{id}/pdf` returns 302 to 15-min presigned download (owner check).
+  - Client `SignaturePad` (react-signature-canvas wrapper), `ContractSignRoute`, "Sign contract" + "Download signed PDF" buttons on `ContractDetailRoute`, `downloadContractPdfApi`.
 - **Phase 6** — Debt contracts & negotiation:
   - `debt_contract`, `debt_contract_version`, `debt_contract_audit` tables (self-FK `current_version_id` via `use_alter=True`) + enums (`InterestPeriod`, `PaymentFrequency`, `LatePenaltySeverity`, `MidContractAdditionMode`, `DebtContractStatus`, `DebtContractEventType`).
   - `utils/finance.py` — pure Decimal `monthly_rate` (AER), `period_rate`, `simulate`, `exit_due`, `severe_warning`.
@@ -42,14 +48,26 @@
 
 ---
 
-## Next up — Phase 7: Signature & PDF
+## Next up — Phase 8: Ledger, Cronjob, Contract Lifecycle
 
-Plan reference: plan lines 2256+. Spec: `Docs/specs.md` §7.
+Plan reference: plan lines 2313+. Spec: `Docs/specs.md` §7–§8.
 
-1. **Task 7.1 — R2 storage adapter** — Cloudflare R2 client + presigned URL helper.
-2. **Task 7.2 — Signature canvas** — `ContractSignRoute` with HTML canvas signature capture, base64 PNG upload.
-3. **Task 7.3 — PDF generation** — WeasyPrint template for signed contract, stored in R2, `signed_pdf_url` + `signed_pdf_sha256` populated on `sign_as_sub`.
-4. **Task 7.4 — Wire into state machine** — `sign_as_sub` controller method calls PDF service, updates contract fields, writes audit.
+Big phase. Tasks (roughly):
+1. **8.1** — `debt_event` ledger table + enum + migration.
+2. **8.2** — Ledger service: post events, replay to recompute balance.
+3. **8.3** — Wire payment validation on `weekly_debt`/`debt_payment`/`buyout` categories → ledger events (unblock `_check_category_supported` in `payment_controller.py`).
+4. **8.4/8.5** — Cronjob (APScheduler): weekly interest tick + missed-period late penalty.
+5. **8.6** — Buyout flow (approve + settle).
+6. **8.7** — Breach + forgive transitions.
+7. **8.8** — Mid-contract addition + surprise penalty.
+8. Client — contract detail ledger view, buyout/forgive/addition UI.
+
+### Suggested subagent split
+
+- Sonnet A — 8.1 + 8.2 (ledger model + service).
+- Sonnet B (after A) — 8.3 (payment wiring) **parallel** with Sonnet C (8.4/8.5 cronjob).
+- Sonnet D (after B+C) — 8.6/8.7/8.8 controllers + routers.
+- Sonnet E — client UI.
 
 ---
 
