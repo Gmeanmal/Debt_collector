@@ -1,4 +1,4 @@
-.PHONY: help up down server client install init-dbs flush-dbs reset-dbs migrate migration fmt lint typecheck check
+.PHONY: help up down server client install init-dbs flush-dbs reset-dbs migrate migration fmt lint typecheck check erd
 
 help:
 	@echo "Targets:"
@@ -58,6 +58,9 @@ lint:
 typecheck:
 	cd server && uv run pyright
 	cd client && pnpm tsc --noEmit
+
+erd:
+	cd server && uv run python scripts/generate_erd.py
 
 check: fmt lint typecheck
 	cd server && uv run pytest -q || true   # tests retrofit in phase 10

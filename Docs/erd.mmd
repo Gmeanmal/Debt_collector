@@ -1,0 +1,239 @@
+erDiagram
+    admin_action {
+        UUID id PK
+        UUID admin_id FK
+        UUID acting_as_user_id FK
+        STRING action
+        STRING entity
+        UUID entity_id
+        json payload_json
+        DATETIME created_at
+    }
+    blacklist_entry {
+        UUID id PK
+        UUID goddess_id FK
+        UUID sub_id FK
+        AUTOSTRING reason
+        decimal balance_snapshot
+        decimal reinstatement_fee_paid
+        DATETIME breached_at
+        DATETIME forgiven_at
+        DATETIME created_at
+    }
+    contract_adjustment {
+        UUID id PK
+        UUID contract_id FK
+        UUID proposed_by FK
+        decimal amount
+        AUTOSTRING reason
+        ENUM status
+        DATETIME created_at
+        DATETIME updated_at
+        DATETIME resolved_at
+    }
+    debt_contract {
+        UUID id PK
+        UUID sub_id FK
+        UUID goddess_id FK
+        boolean sub_initiated
+        decimal principal
+        decimal interest_rate
+        ENUM interest_period
+        int duration_periods
+        ENUM payment_frequency
+        decimal minimum_payment
+        ENUM late_penalty_severity
+        decimal late_penalty_percent
+        boolean dom_can_add_surprise_penalty
+        ENUM mid_contract_addition_mode
+        decimal exit_amount
+        ENUM status
+        UUID current_version_id FK
+        AUTOSTRING signed_pdf_url
+        AUTOSTRING signed_pdf_sha256
+        DATETIME signed_at
+        decimal balance
+        DATETIME created_at
+        DATETIME updated_at
+    }
+    debt_contract_audit {
+        UUID id PK
+        UUID contract_id FK
+        ENUM event_type
+        UUID actor_id FK
+        ENUM from_status
+        ENUM to_status
+        string note
+        DATETIME created_at
+    }
+    debt_contract_version {
+        UUID id PK
+        UUID contract_id FK
+        int round_no
+        UUID proposed_by FK
+        DATETIME proposed_at
+        decimal principal
+        decimal interest_rate
+        ENUM interest_period
+        int duration_periods
+        ENUM payment_frequency
+        decimal minimum_payment
+        ENUM late_penalty_severity
+        decimal late_penalty_percent
+        boolean dom_can_add_surprise_penalty
+        ENUM mid_contract_addition_mode
+        decimal exit_amount
+    }
+    debt_event {
+        UUID id PK
+        UUID contract_id FK
+        ENUM event_type
+        decimal amount
+        int period_index
+        string note
+        DATETIME created_at
+    }
+    goddess {
+        UUID id PK
+        AUTOSTRING display_name
+        AUTOSTRING email
+        AUTOSTRING password_hash
+        DATETIME created_at
+    }
+    invitation {
+        UUID id PK
+        AUTOSTRING token
+        UUID goddess_id FK
+        decimal entry_tribute_amount
+        string note
+        DATETIME expires_at
+        DATETIME used_at
+        UUID used_by_user_id FK
+        DATETIME created_at
+    }
+    notification {
+        UUID id PK
+        UUID user_id FK
+        ENUM type
+        AUTOSTRING title
+        string body
+        AUTOSTRING link
+        json payload
+        DATETIME read_at
+        DATETIME created_at
+    }
+    password_reset_token {
+        UUID id PK
+        UUID user_id FK
+        AUTOSTRING token_hash
+        DATETIME expires_at
+        DATETIME used_at
+        DATETIME created_at
+    }
+    payment_allocation {
+        UUID id PK
+        UUID declaration_id FK
+        ENUM target_type
+        UUID target_id
+        decimal amount
+        DATETIME allocated_at
+    }
+    payment_declaration {
+        UUID id PK
+        UUID sub_id FK
+        UUID goddess_id FK
+        UUID method_id FK
+        decimal amount
+        DATETIME external_timestamp
+        AUTOSTRING note
+        ENUM category
+        ENUM status
+        UUID target_id
+        UUID created_by FK
+        DATETIME declared_at
+        DATETIME validated_at
+        UUID validated_by FK
+        AUTOSTRING rejection_reason
+        ENUM source
+    }
+    payment_method {
+        UUID id PK
+        UUID goddess_id FK
+        AUTOSTRING name
+        ENUM type
+        AUTOSTRING handle_or_link
+        string note
+        boolean enabled
+        int sort_order
+        DATETIME created_at
+        DATETIME updated_at
+    }
+    refresh_token {
+        UUID id PK
+        UUID user_id FK
+        AUTOSTRING token_hash
+        DATETIME expires_at
+        DATETIME revoked_at
+        DATETIME created_at
+    }
+    rolling_tribute {
+        UUID id PK
+        UUID sub_id FK
+        UUID goddess_id FK
+        decimal amount
+        ENUM deadline_day
+        TIME deadline_time
+        int late_multiplier_per_day
+        boolean paused
+        string notes
+        DATETIME last_paid_at
+        DATETIME created_at
+        DATETIME updated_at
+    }
+    user {
+        UUID id PK
+        UUID goddess_id FK
+        AUTOSTRING username
+        AUTOSTRING email
+        AUTOSTRING password_hash
+        ENUM role
+        ENUM status
+        AUTOSTRING first_name
+        AUTOSTRING last_name
+        AUTOSTRING twitter_handle
+        AUTOSTRING source_note
+        AUTOSTRING avatar_url
+        AUTOSTRING bio
+        AUTOSTRING theme_preference
+        DATETIME last_login_at
+        DATETIME created_at
+    }
+    user ||--o{ admin_action : "acting_as_user_id"
+    user ||--o{ admin_action : "admin_id"
+    user ||--o{ blacklist_entry : "sub_id"
+    goddess ||--o{ blacklist_entry : "goddess_id"
+    debt_contract ||--o{ contract_adjustment : "contract_id"
+    user ||--o{ contract_adjustment : "proposed_by"
+    user ||--o{ debt_contract : "sub_id"
+    goddess ||--o{ debt_contract : "goddess_id"
+    debt_contract_version ||--o{ debt_contract : "current_version_id"
+    user ||--o{ debt_contract_audit : "actor_id"
+    debt_contract ||--o{ debt_contract_audit : "contract_id"
+    user ||--o{ debt_contract_version : "proposed_by"
+    debt_contract ||--o{ debt_contract_version : "contract_id"
+    debt_contract ||--o{ debt_event : "contract_id"
+    user ||--o{ invitation : "used_by_user_id"
+    goddess ||--o{ invitation : "goddess_id"
+    user ||--o{ notification : "user_id"
+    user ||--o{ password_reset_token : "user_id"
+    payment_declaration ||--o{ payment_allocation : "declaration_id"
+    user ||--o{ payment_declaration : "validated_by"
+    user ||--o{ payment_declaration : "created_by"
+    payment_method ||--o{ payment_declaration : "method_id"
+    user ||--o{ payment_declaration : "sub_id"
+    goddess ||--o{ payment_declaration : "goddess_id"
+    goddess ||--o{ payment_method : "goddess_id"
+    user ||--o{ refresh_token : "user_id"
+    goddess ||--o{ rolling_tribute : "goddess_id"
+    user ||--o{ rolling_tribute : "sub_id"
+    goddess ||--o{ user : "goddess_id"
