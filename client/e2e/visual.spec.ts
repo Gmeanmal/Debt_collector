@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { GODDESS, login } from "./fixtures/auth";
+import { ADMIN, GODDESS, login } from "./fixtures/auth";
 
 test.describe("visual regression", () => {
   test("login page", async ({ page }) => {
@@ -29,17 +29,17 @@ test.describe("visual regression", () => {
     await expect(page).toHaveScreenshot("goddess-blacklist.png", { fullPage: true });
   });
 
-  test("admin users table", async ({ page }) => {
-    await login(page, GODDESS.email, GODDESS.password);
-    await page.goto("/admin/users");
+  test("admin console", async ({ page }) => {
+    await login(page, ADMIN.email, ADMIN.password);
+    await page.goto("/admin");
     await page.waitForLoadState("networkidle");
-    await expect(page).toHaveScreenshot("admin-users.png", { fullPage: true });
+    await expect(page).toHaveScreenshot("admin-console.png", { fullPage: true });
   });
 
-  test("contract form — new", async ({ page }) => {
-    await login(page, GODDESS.email, GODDESS.password);
-    await page.goto("/goddess/debts");
+  test("admin cron", async ({ page }) => {
+    await login(page, ADMIN.email, ADMIN.password);
+    await page.goto("/admin/cron");
     await page.waitForLoadState("networkidle");
-    await expect(page).toHaveScreenshot("goddess-contracts-list.png", { fullPage: true });
+    await expect(page).toHaveScreenshot("admin-cron.png", { fullPage: true });
   });
 });
