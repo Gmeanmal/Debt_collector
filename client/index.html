@@ -5,10 +5,10 @@
     <script>
       (function () {
         var saved = localStorage.getItem("theme") || "system";
-        var isLight =
-          saved === "light" ||
-          (saved === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
-        if (isLight) document.documentElement.setAttribute("data-theme", "light");
+        var isDark =
+          saved === "dark" ||
+          (saved === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (!isDark) document.documentElement.setAttribute("data-theme", "light");
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

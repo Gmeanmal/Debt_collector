@@ -12,8 +12,8 @@ function readStoredPref(): ThemePref {
 }
 
 function applyTheme(pref: ThemePref): void {
-  const mql = window.matchMedia("(prefers-color-scheme: light)");
-  const effective: "light" | "dark" = pref === "system" ? (mql.matches ? "light" : "dark") : pref;
+  const mql = window.matchMedia("(prefers-color-scheme: dark)");
+  const effective: "light" | "dark" = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
   if (effective === "light") {
     document.documentElement.setAttribute("data-theme", "light");
   } else {
@@ -28,7 +28,7 @@ export function useTheme() {
     applyTheme(pref);
     localStorage.setItem(STORAGE_KEY, pref);
     if (pref !== "system") return;
-    const mql = window.matchMedia("(prefers-color-scheme: light)");
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = () => applyTheme("system");
     mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
