@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from models.debt import (
     DebtContractEventType,
@@ -271,3 +271,25 @@ class DebtContractAuditOut(BaseModel):
     created_at: datetime = Field(..., description="UTC datetime of the audit event")
 
     model_config = {"from_attributes": True}
+
+
+class DebtSimulationPeriod(BaseModel):
+    period: int = Field(..., ge=1, description="Period index (1-based)")
+    balance_before_payment: Decimal = Field(
+        ..., description="Balance after interest, before payment"
+    )
+    payment: Decimal = Field(..., description="Payment applied this period")
+    balance_end: Decimal = Field(..., description="Balance after payment")
+
+    model_config = ConfigDict(json_encoders={Decimal: str})
+
+
+class DebtSimulationOut(BaseModel):
+    periods: list[DebtSimulationPeriod] = Field(..., description="Period-by-period projection")
+    severe_warning: bool = Field(
+        ..., description="True if minimum payment cannot keep up with interest growth"
+    )
+    period_rate: Decimal = Field(..., description="Per-period interest rate (fraction)")
+    monthly_rate: Decimal = Field(..., description="Derived monthly interest rate (fraction)")
+
+    model_config = ConfigDict(json_encoders={Decimal: str})

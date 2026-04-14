@@ -7,7 +7,16 @@ from core.config import get_settings
 from core.db import engine
 from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
-from routers import auth, health, invitations, payment_methods, public_invitation, rolling, signup
+from routers import (
+    auth,
+    debt_contracts,
+    health,
+    invitations,
+    payment_methods,
+    public_invitation,
+    rolling,
+    signup,
+)
 from routers.payments import (
     goddess_router as payments_goddess_router,
 )
@@ -53,3 +62,4 @@ app.include_router(sub_payment_methods_router)
 app.include_router(payments_goddess_router)
 app.include_router(goddess_subs_router)
 app.include_router(rolling.router)
+app.include_router(debt_contracts.router)
