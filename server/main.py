@@ -7,6 +7,7 @@ from core.config import get_settings
 from core.db import engine
 from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
+from middleware.security_headers import SecurityHeadersMiddleware
 from routers import (
     adjustments,
     admin,
@@ -58,11 +59,15 @@ app = FastAPI(title="Debt Collector API", version="0.1.0", lifespan=lifespan)
 
 _settings = get_settings()
 app.add_middleware(
+    SecurityHeadersMiddleware,
+    enable_hsts=_settings.refresh_cookie_secure,
+)
+app.add_middleware(
     CORSMiddleware,
     allow_origins=_settings.cors_origins_list,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],
 )
 
 register_exception_handlers(app)

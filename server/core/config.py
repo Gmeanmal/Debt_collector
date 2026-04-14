@@ -11,8 +11,12 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_access_ttl_minutes: int = 15
     jwt_refresh_ttl_days: int = 30
-    password_reset_ttl_minutes: int = 30
+    password_reset_ttl_minutes: int = 60
     impersonation_ttl_minutes: int = 30
+    refresh_cookie_name: str = "debt_refresh"
+    refresh_cookie_secure: bool = False
+    refresh_cookie_samesite: str = "lax"
+    refresh_cookie_domain: str = ""
     argon2_memory_cost: int = 65536
     argon2_time_cost: int = 3
     argon2_parallelism: int = 4
@@ -36,13 +40,19 @@ class Settings(BaseSettings):
     app_timezone: str = "Europe/London"
     cron_enabled: bool = True
 
-    admin_username: str = "admin"
-    admin_email: str = "admin+dev@debt-collector.uk"
-    admin_password: str = "177@tTr$EbgA2CvMr@&4FM#DYaq6"
+    admin_username: str
+    admin_email: str
+    admin_password: str
 
-    goddess_email: str = "meanmal@debt-collector.uk"
-    goddess_password: str = "!Z#9by05NEnHsi*m%Q&8XKS$d2$%"
+    goddess_email: str
+    goddess_password: str
     goddess_display_name: str = "Mean Mal"
+
+    rate_limit_enabled: bool = True
+    rate_limit_login: str = "10/minute"
+    rate_limit_signup: str = "5/minute"
+    rate_limit_password_reset: str = "3/minute"
+    rate_limit_public_invitation: str = "30/minute"
 
     @property
     def cors_origins_list(self) -> list[str]:

@@ -87,14 +87,13 @@ Open:
 | http://localhost:8000/docs       | Swagger UI (full API contract)          |
 | http://localhost:8025            | Mailhog inbox (catches all dev emails)  |
 
-### Default credentials (from `server/.env.example`)
+### Default credentials
 
-| Role     | Email                  | Password           |
-| -------- | ---------------------- | ------------------ |
-| Admin    | `admin+dev@debt-collector.uk`   | `177@tTr$EbgA2CvMr@&4FM#DYaq6`   |
-| Goddess  | `meanmal@debt-collector.uk`     | `!Z#9by05NEnHsi*m%Q&8XKS$d2$%`   |
+Credentials are **not committed**. Copy `server/.env.example` → `server/.env` and pick your own local dev values for `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `GODDESS_EMAIL` / `GODDESS_PASSWORD`. `make init-dbs` seeds whatever you put there.
 
-`make init-dbs` also seeds 11 subs, each pre-set to a different state so every UI path has live data. All sub passwords: `ChangeMe!Dev123`.
+For prod, generate strong unique passwords (`pwgen -s 32 1`) and rotate `JWT_SECRET_KEY` (`openssl rand -hex 32`).
+
+`make init-dbs` also seeds 11 subs, each pre-set to a different state so every UI path has live data. All sub passwords: `ChangeMe!Dev123` (dev-only, defined in `seeds/fake_data.py`).
 
 | Username | State                                                            |
 | -------- | ---------------------------------------------------------------- |
