@@ -1,6 +1,22 @@
-# Debt Collector
+<h1 align="center">Debt Collector</h1>
 
-Payment and debt tracker for findom-style relationships: a goddess onboards subs via invitation, records tributes, validates declared payments, and tracks rollings and debt contracts over time.
+<p align="center">
+  Payment and debt tracker for findom-style relationships — invitations, tributes, rollings and debt contracts in one self-hosted app.
+</p>
+
+<p align="center">
+  <img alt="python" src="https://img.shields.io/badge/python-3.12+-3776ab?logo=python&logoColor=white">
+  <img alt="fastapi" src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white">
+  <img alt="react" src="https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=000">
+  <img alt="tailwind" src="https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white">
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-ec4899">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/login.png" alt="Login" width="48%">
+  <img src="docs/screenshots/dashboard.png" alt="Goddess dashboard" width="48%">
+</p>
+
 
 ## What it is
 
