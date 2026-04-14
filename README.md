@@ -191,10 +191,6 @@ Full list with inline comments lives in `server/.env.example` and `client/.env.e
 | `ADMIN_*` / `GODDESS_*`      | see `.env.example`     | bootstrap credentials seeded on first `make init-dbs`                   |
 | `VITE_API_BASE_URL`          | `http://localhost:8000`| client-side base for openapi-fetch                                      |
 
-## Deploy
-
-See [`DEPLOY.md`](./DEPLOY.md) for the Hetzner playbook.
-
 ## License
 
 MIT

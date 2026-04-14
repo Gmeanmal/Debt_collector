@@ -11,7 +11,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - `admin_action` audit log table with DAO + migration; impersonation and admin CRUD mutations are recorded.
 - Typed Swagger response schemas for every `/admin/*` entity (`AdminRow*` + generic `AdminListOut`).
 - Postgres-backed integration test suite (22 tests) via `testcontainers`: auth flow, rate limit, admin CRUD, impersonation, contract state machine, blacklist cascade.
-- `SECURITY.md`, `CONTRIBUTING.md`, `CHANGELOG.md`.
+- `CONTRIBUTING.md`, `CHANGELOG.md`.
 
 ### Changed
 - Refresh token moved from JSON body to `debt_refresh` HttpOnly cookie on `/auth/login`, `/auth/refresh`, `/auth/logout`. Body fallback retained for legacy clients.
@@ -43,7 +43,7 @@ First tagged build. Implementation phases 1–10.
 - Phase 7 — Signature + PDF: WeasyPrint contract template, R2 storage adapter + fake-filesystem fallback, canvas signature, SHA-256 integrity, presigned download URLs (15 min TTL).
 - Phase 8 — Ledger + daily cron: `debt_event` ledger, APScheduler @ 08:00 Europe/London, idempotent late detection, blacklist cascade, surprise penalties, mid-contract adjustments (mode-gated), buyout intent flow.
 - Phase 9 — Notifications, dashboards, admin: in-process WS publisher with exponential-backoff reconnect, bell + drawer, goddess + sub dashboards with late lists and progress bars, theme toggle, generic `/admin/{entity}` console over 11 entities.
-- Phase 10 — Polish + tests retrofit: 21 pytest unit tests, 17 vitest unit tests, UI primitives (`EmptyState`, `ErrorState`, `Skeleton`, `Modal` with focus-trap), empty/error/loading states across all surfaces, mobile-first grids, Playwright visual scaffold, Hetzner `DEPLOY.md`.
+- Phase 10 — Polish + tests retrofit: 21 pytest unit tests, 17 vitest unit tests, UI primitives (`EmptyState`, `ErrorState`, `Skeleton`, `Modal` with focus-trap), empty/error/loading states across all surfaces, mobile-first grids, Playwright visual scaffold, Hetzner deploy playbook.
 
 ### Infrastructure
 - Pyright strict typecheck replaces mypy.
