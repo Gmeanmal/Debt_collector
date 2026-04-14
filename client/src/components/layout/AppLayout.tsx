@@ -1,6 +1,6 @@
-import { useEffect, useRef, type ReactNode } from "react";
-import { NavLink } from "react-router-dom";
-import { LogOut, User } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { LogOut, Menu, User, X } from "lucide-react";
 import { useAuth } from "@/services/auth/useAuth";
 import { ImpersonationBanner } from "@/components/layout/ImpersonationBanner";
 import { NotificationBell } from "@/components/layout/NotificationBell";
@@ -34,6 +34,7 @@ const GODDESS_NAV: NavItem[] = [
   { to: "/goddess/validations", label: "Validations" },
   { to: "/goddess/payments/record", label: "Record" },
   { to: "/goddess/payment-methods", label: "Methods" },
+  { to: "/goddess/debts", label: "Contracts" },
   { to: "/goddess/weekly", label: "Weekly" },
   { to: "/goddess/late", label: "Late" },
 ];
@@ -42,6 +43,7 @@ const SUB_NAV: NavItem[] = [
   { to: "/", label: "Dashboard" },
   { to: "/sub/payments", label: "My payments" },
   { to: "/sub/payments/new", label: "Declare" },
+  { to: "/sub/debts", label: "Contracts" },
 ];
 
 const ADMIN_NAV: NavItem[] = [
@@ -67,6 +69,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user, logout } = useAuth();
   const { setPrefLocal } = useTheme();
   const hydratedForUserRef = useRef<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     if (!user) {
@@ -80,6 +84,23 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
   }, [user, setPrefLocal]);
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.classList.add("overflow-hidden");
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [mobileOpen]);
+
   const nav = (() => {
     if (user?.role === "goddess") return GODDESS_NAV;
     if (user?.role === "sub") return SUB_NAV;
@@ -92,6 +113,19 @@ export function AppLayout({ children }: AppLayoutProps) {
       <ImpersonationBanner />
       <header className="sticky top-0 z-40 border-b border-base-border/60 bg-base-bg/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center gap-3 sm:gap-8 px-3 sm:px-6 py-4">
+          {nav.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              className="md:hidden flex items-center justify-center h-9 w-9 rounded-md text-base-text-muted hover:text-base-text hover:bg-base-surface-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-ring"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-nav"
+            >
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          )}
+
           <NavLink to="/" className="flex items-center gap-2.5 group">
             <div className="h-8 w-8 rounded-full border border-pink-primary/40 bg-pink-primary/10 flex items-center justify-center transition-all duration-200 group-hover:bg-pink-primary/20">
               <span className="font-display text-base text-pink-primary">G</span>
@@ -126,7 +160,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex flex-1 md:flex-none items-center justify-end gap-2 sm:gap-3">
             <ThemeToggle />
             <NotificationBell enabled={user != null} />
             {user && (
@@ -169,26 +203,83 @@ export function AppLayout({ children }: AppLayoutProps) {
           </div>
         </div>
 
-        <nav className="md:hidden border-t border-base-border/40 px-4 py-2 flex items-center gap-1 overflow-x-auto">
-          {nav.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/"}
-              className={({ isActive }) =>
-                cn(
-                  "px-3 py-1.5 text-xs font-medium uppercase tracking-wider whitespace-nowrap rounded-full transition-colors",
-                  isActive
-                    ? "bg-pink-primary text-pink-foreground"
-                    : "text-base-text-muted hover:text-base-text",
-                )
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
       </header>
+
+      {nav.length > 0 && (
+        <div
+          className={cn(
+            "md:hidden fixed inset-0 z-50 transition-opacity duration-300",
+            mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+          )}
+          aria-hidden={!mobileOpen}
+        >
+          <button
+            type="button"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Close menu"
+            className="absolute inset-0 bg-base-bg/70 backdrop-blur-md"
+          />
+          <nav
+            id="mobile-nav"
+            aria-label="Primary"
+            className={cn(
+              "absolute inset-y-0 left-0 w-[82%] max-w-sm bg-base-bg border-r border-base-border/60 shadow-2xl flex flex-col transition-transform duration-300 ease-out",
+              mobileOpen ? "translate-x-0" : "-translate-x-full",
+            )}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-base-border/40">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-full border border-pink-primary/40 bg-pink-primary/10 flex items-center justify-center">
+                  <span className="font-display text-base text-pink-primary">G</span>
+                </div>
+                <span className="font-display text-sm tracking-[0.25em] text-base-text uppercase">
+                  Mean Mal
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close menu"
+                className="flex items-center justify-center h-9 w-9 rounded-md text-base-text-muted hover:text-base-text hover:bg-base-surface-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-ring"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="px-5 pt-5 pb-2 text-[10px] font-medium uppercase tracking-[0.3em] text-pink-primary/80">
+              Navigate
+            </p>
+            <div className="flex-1 overflow-y-auto px-3 pb-6 flex flex-col gap-0.5">
+              {nav.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === "/"}
+                  className={({ isActive }) =>
+                    cn(
+                      "group relative flex items-center px-4 py-3 font-display text-lg tracking-wide rounded-lg transition-colors",
+                      isActive
+                        ? "text-pink-primary bg-pink-primary/10"
+                        : "text-base-text-muted hover:text-base-text hover:bg-base-surface-raised",
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <span
+                        className={cn(
+                          "absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-r bg-pink-primary transition-opacity",
+                          isActive ? "opacity-100" : "opacity-0 group-hover:opacity-40",
+                        )}
+                      />
+                      {item.label}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
+          </nav>
+        </div>
+      )}
 
       <main className="flex-1">{children}</main>
       <Toaster />
