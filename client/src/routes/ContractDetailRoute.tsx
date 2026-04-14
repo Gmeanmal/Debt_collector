@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { ContractActions } from "@/components/contracts/ContractActions";
 import { ContractAuditLog } from "@/components/contracts/ContractAuditLog";
+import { ContractStats } from "@/components/contracts/ContractStats";
 import { SimulationChart } from "@/components/contracts/SimulationChart";
 import { SurprisePenaltyDialog } from "@/components/contracts/SurprisePenaltyDialog";
 import { AdjustmentDialog } from "@/components/contracts/AdjustmentDialog";
@@ -210,6 +211,8 @@ export function ContractDetailRoute() {
             <SimulationPanel contract={contract} />
           </div>
         </div>
+
+        <ContractStats contract={contract} />
 
         <div className="flex flex-wrap gap-3">
           {canSubSign && (

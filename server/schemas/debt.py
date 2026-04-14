@@ -263,6 +263,50 @@ class DebtContractOut(BaseModel):
     )
     created_at: datetime = Field(..., description="UTC datetime of contract creation")
     updated_at: datetime = Field(..., description="UTC datetime of last update")
+    total_paid: Decimal = Field(
+        ...,
+        description="Sum of all validated payment allocations targeting this contract (GBP)",
+        examples=["150.00"],
+    )
+    total_due: Decimal = Field(
+        ...,
+        description=(
+            "Agreed total amount due over the full term (minimum_payment × duration_periods, GBP)"
+        ),
+        examples=["600.00"],
+    )
+    remaining: Decimal = Field(
+        ...,
+        description="total_due minus total_paid, clamped to 0 (GBP)",
+        examples=["450.00"],
+    )
+    progress_pct: float = Field(
+        ...,
+        description="Repayment progress as a percentage 0–100, rounded to 1 decimal place",
+        examples=[25.0],
+    )
+    payment_count: int = Field(
+        ...,
+        description="Number of validated payments applied to this contract",
+        examples=[3],
+    )
+    last_payment_at: datetime | None = Field(
+        default=None,
+        description="UTC datetime of the most recent validated payment, or null if none",
+    )
+    first_payment_at: datetime | None = Field(
+        default=None,
+        description="UTC datetime of the earliest validated payment, or null if none",
+    )
+    on_track: bool = Field(
+        ...,
+        description=(
+            "True when total_paid meets or exceeds the expected cumulative instalment "
+            "total up to today (period_index × minimum_payment). "
+            "Always true for contracts that have not yet been signed."
+        ),
+        examples=[True],
+    )
 
     model_config = {"from_attributes": True}
 

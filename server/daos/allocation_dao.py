@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
@@ -11,6 +12,22 @@ from models.payment import (
     PaymentDeclaration,
     PaymentStatus,
 )
+
+
+class ContractPaymentStats:
+    """Aggregated payment statistics for a single contract."""
+
+    def __init__(
+        self,
+        total_paid: Decimal,
+        payment_count: int,
+        last_payment_at: datetime | None,
+        first_payment_at: datetime | None,
+    ) -> None:
+        self.total_paid = total_paid
+        self.payment_count = payment_count
+        self.last_payment_at = last_payment_at
+        self.first_payment_at = first_payment_at
 
 
 class PaymentAllocationDao:
@@ -52,6 +69,37 @@ class PaymentAllocationDao:
             )
         )
         return Decimal(str(result.scalar_one()))
+
+    async def stats_for_contract(self, contract_id: UUID) -> ContractPaymentStats:
+        """Return aggregated payment stats for a single contract.
+
+        Joins validated PaymentDeclaration rows through PaymentAllocation where
+        target_type is contract_debt and target_id matches the contract.
+        """
+        result = await self._session.execute(
+            select(
+                func.coalesce(func.sum(col(PaymentAllocation.amount)), 0).label("total_paid"),
+                func.count(col(PaymentAllocation.id)).label("payment_count"),
+                func.max(col(PaymentDeclaration.validated_at)).label("last_payment_at"),
+                func.min(col(PaymentDeclaration.validated_at)).label("first_payment_at"),
+            )
+            .join(
+                PaymentDeclaration,
+                col(PaymentAllocation.declaration_id) == col(PaymentDeclaration.id),
+            )
+            .where(
+                col(PaymentAllocation.target_type) == AllocationTargetType.contract_debt,
+                col(PaymentAllocation.target_id) == contract_id,
+                col(PaymentDeclaration.status) == PaymentStatus.validated,
+            )
+        )
+        row = result.one()
+        return ContractPaymentStats(
+            total_paid=Decimal(str(row.total_paid)),
+            payment_count=int(row.payment_count),
+            last_payment_at=row.last_payment_at,
+            first_payment_at=row.first_payment_at,
+        )
 
     async def sum_for_goddess(self, goddess_id: UUID) -> Decimal:
         result = await self._session.execute(

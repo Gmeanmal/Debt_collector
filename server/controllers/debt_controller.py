@@ -8,6 +8,7 @@ from sqlmodel import col, select
 from controllers._goddess import resolve_goddess_id, resolve_goddess_user_id
 from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.adjustment_dao import AdjustmentDao
+from daos.allocation_dao import ContractPaymentStats, PaymentAllocationDao
 from daos.debt_dao import DebtContractAuditDao, DebtContractDao, DebtContractVersionDao
 from daos.payment_method_dao import PaymentMethodDao
 from daos.user_dao import UserDao
@@ -82,10 +83,40 @@ def _version_out(version: DebtContractVersion) -> DebtContractVersionOut:
     )
 
 
+_ZERO = Decimal("0")
+_HUNDRED = Decimal("100")
+_TWO_DP = Decimal("0.01")
+
+
+def _compute_payment_stats(
+    contract: DebtContract,
+    stats: ContractPaymentStats,
+) -> tuple[Decimal, Decimal, Decimal, float, bool]:
+    """Return (total_paid, total_due, remaining, progress_pct, on_track)."""
+    total_paid = stats.total_paid
+    minimum_payment = Decimal(str(contract.minimum_payment))
+    total_due = (minimum_payment * Decimal(contract.duration_periods)).quantize(_TWO_DP)
+    remaining = max(_ZERO, total_due - total_paid).quantize(_TWO_DP)
+    if total_due > _ZERO:
+        raw_pct = float((total_paid / total_due * _HUNDRED).quantize(Decimal("0.1")))
+        progress_pct = min(100.0, max(0.0, raw_pct))
+    else:
+        progress_pct = 100.0
+    elapsed = current_period_index(contract, _now_utc())
+    expected = (minimum_payment * Decimal(elapsed)).quantize(_TWO_DP)
+    on_track = contract.signed_at is None or total_paid >= expected
+    return total_paid, total_due, remaining, progress_pct, on_track
+
+
 def _contract_out(
-    contract: DebtContract, current_version: DebtContractVersion | None
+    contract: DebtContract,
+    current_version: DebtContractVersion | None,
+    stats: ContractPaymentStats,
 ) -> DebtContractOut:
     version_out = _version_out(current_version) if current_version is not None else None
+    total_paid, total_due, remaining, progress_pct, on_track = _compute_payment_stats(
+        contract, stats
+    )
     return DebtContractOut(
         id=contract.id,
         sub_id=contract.sub_id,
@@ -110,6 +141,14 @@ def _contract_out(
         balance=Decimal(str(contract.balance)),
         created_at=contract.created_at,
         updated_at=contract.updated_at,
+        total_paid=total_paid,
+        total_due=total_due,
+        remaining=remaining,
+        progress_pct=progress_pct,
+        payment_count=stats.payment_count,
+        last_payment_at=stats.last_payment_at,
+        first_payment_at=stats.first_payment_at,
+        on_track=on_track,
     )
 
 
@@ -164,6 +203,7 @@ class DebtController:
         self._user_dao = UserDao(session)
         self._adjustment_dao = AdjustmentDao(session)
         self._method_dao = PaymentMethodDao(session)
+        self._allocation_dao = PaymentAllocationDao(session)
 
     async def propose_as_goddess(
         self, goddess_user: User, sub_id: UUID, payload: DebtContractCreate
@@ -235,7 +275,8 @@ class DebtController:
             payload={"contract_id": str(contract.id)},
         )
 
-        return _contract_out(contract, version)
+        stats = await self._stats_for(contract)
+        return _contract_out(contract, version, stats)
 
     async def propose_as_sub(self, sub_user: User, payload: DebtContractCreate) -> DebtContractOut:
         """Sub initiates a debt contract proposal directed at their goddess."""
@@ -308,7 +349,8 @@ class DebtController:
                 payload={"contract_id": str(contract.id)},
             )
 
-        return _contract_out(contract, version)
+        stats = await self._stats_for(contract)
+        return _contract_out(contract, version, stats)
 
     async def counter_propose(
         self, actor: User, contract_id: UUID, payload: DebtContractCounter
@@ -392,7 +434,8 @@ class DebtController:
                 payload={"contract_id": str(contract.id)},
             )
 
-        return _contract_out(contract, version)
+        stats = await self._stats_for(contract)
+        return _contract_out(contract, version, stats)
 
     async def accept_counter(self, goddess_user: User, contract_id: UUID) -> DebtContractOut:
         """Goddess accepts the sub's counter-proposal, moving to pending_sub_signature."""
@@ -431,7 +474,8 @@ class DebtController:
             payload={"contract_id": str(contract.id)},
         )
 
-        return _contract_out(contract, current_version)
+        stats = await self._stats_for(contract)
+        return _contract_out(contract, current_version, stats)
 
     async def reject_counter(self, goddess_user: User, contract_id: UUID) -> DebtContractOut:
         """Goddess rejects the sub's counter, reverting to the original terms for sub to sign."""
@@ -476,7 +520,8 @@ class DebtController:
             payload={"contract_id": str(contract.id)},
         )
 
-        return _contract_out(contract, original)
+        stats = await self._stats_for(contract)
+        return _contract_out(contract, original, stats)
 
     async def sign_as_sub(
         self, sub_user: User, contract_id: UUID, signature_png_b64: str
@@ -547,7 +592,8 @@ class DebtController:
                 payload={"contract_id": str(contract.id)},
             )
 
-        return _contract_out(contract, current_version)
+        stats = await self._stats_for(contract)
+        return _contract_out(contract, current_version, stats)
 
     async def download_pdf(self, viewer: User, contract_id: UUID) -> str:
         """Return a presigned download URL for the contract's signed PDF."""
@@ -587,14 +633,16 @@ class DebtController:
             )
         )
 
-        return _contract_out(contract, current_version)
+        stats = await self._stats_for(contract)
+        return _contract_out(contract, current_version, stats)
 
     async def get(self, viewer: User, contract_id: UUID) -> DebtContractOut:
         """Return a contract, enforcing visibility rules."""
         contract = await self._get_contract_or_404(contract_id)
         await self._assert_viewer_can_see(viewer, contract)
         current_version = await self._load_current_version(contract)
-        return _contract_out(contract, current_version)
+        stats = await self._stats_for(contract)
+        return _contract_out(contract, current_version, stats)
 
     async def list_for_viewer(self, viewer: User) -> list[DebtContractOut]:
         """Return all contracts visible to the viewer based on their role."""
@@ -607,7 +655,8 @@ class DebtController:
         result: list[DebtContractOut] = []
         for c in contracts:
             version = await self._load_current_version(c)
-            result.append(_contract_out(c, version))
+            stats = await self._stats_for(c)
+            result.append(_contract_out(c, version, stats))
         return result
 
     async def list_audit(self, viewer: User, contract_id: UUID) -> list[DebtContractAuditOut]:
@@ -633,6 +682,9 @@ class DebtController:
         if contract.current_version_id is None:
             return None
         return await self._version_dao.get_by_id(contract.current_version_id)
+
+    async def _stats_for(self, contract: DebtContract) -> ContractPaymentStats:
+        return await self._allocation_dao.stats_for_contract(contract.id)
 
     async def _get_contract_or_404(self, contract_id: UUID) -> DebtContract:
         contract = await self._dao.get_by_id(contract_id)
@@ -712,7 +764,8 @@ class DebtController:
             payload={"contract_id": str(contract.id), "amount": str(amount)},
         )
 
-        return _contract_out(contract, current_version)
+        stats = await self._stats_for(contract)
+        return _contract_out(contract, current_version, stats)
 
     async def create_adjustment(
         self,
