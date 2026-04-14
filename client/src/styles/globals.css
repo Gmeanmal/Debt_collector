@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @import "./tokens.css";
 
 @theme inline {
@@ -11,19 +12,47 @@
   --color-base-text-subtle: var(--color-base-text-subtle);
   --color-pink-primary: var(--color-pink-primary);
   --color-pink-primary-hover: var(--color-pink-primary-hover);
+  --color-pink-foreground: var(--color-pink-foreground);
+  --color-pink-muted: var(--color-pink-muted);
   --color-violet-primary: var(--color-violet-primary);
+  --color-violet-foreground: var(--color-violet-foreground);
   --color-gold-accent: var(--color-gold-accent);
+  --color-gold-foreground: var(--color-gold-foreground);
   --color-debt-primary: var(--color-debt-primary);
+  --color-debt-muted: var(--color-debt-muted);
   --color-status-success: var(--color-status-success);
   --color-status-warning: var(--color-status-warning);
   --color-status-danger: var(--color-status-danger);
   --color-status-info: var(--color-status-info);
+
+  /* shadcn aliases */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Orbitron", monospace;
-  --font-mono: "JetBrains Mono", monospace;
+
+  --font-sans: "Inter Tight", "Inter", system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", "Cormorant", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 html {
@@ -39,4 +68,44 @@ body {
 }
 body {
   font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  background-image: radial-gradient(ellipse at top left, rgba(201, 169, 97, 0.05), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(107, 31, 26, 0.04), transparent 50%);
+  background-attachment: fixed;
+}
+html[data-theme="light"] body {
+  background-image: radial-gradient(ellipse at top left, rgba(139, 105, 20, 0.04), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(154, 42, 42, 0.03), transparent 50%);
+}
+
+/* Display headings — serif by default at h1/h2 sizes */
+h1,
+h2,
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* Hairline divider helper */
+.luxe-hairline {
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-base-border) 20%,
+    var(--color-base-border) 80%,
+    transparent
+  );
+}
+
+/* Glass surface helper — subtle gradient + inset highlight */
+.luxe-surface {
+  background: linear-gradient(180deg, rgba(244, 237, 225, 0.02), transparent 40%),
+    var(--color-base-surface);
+  border: 1px solid var(--color-base-border);
+  box-shadow: var(--shadow-card);
+}
+html[data-theme="light"] .luxe-surface {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), transparent 60%),
+    var(--color-base-surface);
 }

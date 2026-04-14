@@ -1,9 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { ArrowUpRight } from "lucide-react";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { LatePaymentList } from "@/components/dashboard/LatePaymentList";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { getGoddessDashboardApi } from "@/services/dashboards/dashboardsApi";
 
 export function DashboardRoute() {
@@ -18,14 +22,37 @@ export function DashboardRoute() {
   });
 
   return (
-    <div className="p-4 md:p-8">
-      <div className="max-w-6xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Dashboard
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">Overview of your subs and tributes.</p>
-        </div>
+    <div className="px-4 py-10 sm:px-8 md:py-16">
+      <div className="mx-auto flex max-w-7xl flex-col gap-10">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.3em] text-pink-primary/80">
+              The ledger
+            </p>
+            <h1 className="mt-3 font-display text-5xl italic leading-none text-base-text">
+              Tonight's reckoning.
+            </h1>
+            <p className="mt-3 text-sm text-base-text-muted max-w-md">
+              Tributes, debts, and disobedience — at a glance.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/goddess/invite">
+                New invitation
+                <ArrowUpRight />
+              </Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link to="/goddess/payments/record">
+                Record payment
+                <ArrowUpRight />
+              </Link>
+            </Button>
+          </div>
+        </header>
+
+        <Separator />
 
         {isLoading && <ListSkeleton rows={2} />}
 
@@ -68,21 +95,21 @@ function DashboardContent({ dash }: ContentProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard
           label="Subs"
           value={dash.subs_total}
           sublabel={`${dash.subs_active} active · ${dash.subs_blacklisted} blacklisted`}
         />
-        <StatCard label="Rolling" value={dash.rolling_count} sublabel="Not paused" />
-        <StatCard label="Active contracts" value={dash.contracts_active} sublabel="In repayment" />
+        <StatCard label="Rolling" value={dash.rolling_count} sublabel="Active tributes" />
+        <StatCard label="Contracts" value={dash.contracts_active} sublabel="In repayment" />
         <StatCard
-          label="Pending validations"
+          label="To validate"
           value={dash.pending_validations}
           accent={dash.pending_validations > 0 ? "warning" : "default"}
         />
         <StatCard
-          label="Pending contracts"
+          label="Pending"
           value={dash.pending_contracts}
           accent={dash.pending_contracts > 0 ? "warning" : "default"}
         />
@@ -93,8 +120,18 @@ function DashboardContent({ dash }: ContentProps) {
         />
       </div>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="font-display text-lg text-pink-primary">Late payments</h2>
+      <section className="flex flex-col gap-4">
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="font-display text-3xl italic text-base-text">Late tonight</h2>
+            <p className="mt-1 text-sm text-base-text-muted">
+              Names overdue. Click to address them personally.
+            </p>
+          </div>
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-base-text-subtle">
+            {late.length} {late.length === 1 ? "entry" : "entries"}
+          </span>
+        </div>
         <LatePaymentList items={late} />
       </section>
     </>

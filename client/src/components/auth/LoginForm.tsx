@@ -3,8 +3,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { ArrowRight } from "lucide-react";
 import { getMeApi, loginApi } from "@/services/auth/authApi";
 import { setTokens } from "@/services/auth/tokenStorage";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const schema = z.object({
   email: z.string().min(1, "Email is required"),
@@ -32,57 +36,58 @@ export function LoginForm() {
       queryClient.setQueryData(["auth", "me"], me);
       navigate("/", { replace: true });
     } catch {
-      setError("root", { message: "Invalid email or password" });
+      setError("root", { message: "Invalid email or password." });
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1">
-        <label htmlFor="email" className="text-sm font-medium text-base-text-muted">
-          Email
-        </label>
-        <input
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="email">Identity</Label>
+        <Input
           id="email"
           type="email"
           autoComplete="email"
           autoFocus
-          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
+          placeholder="you@quarters.com"
           {...register("email")}
         />
-        {errors.email && <p className="text-sm text-status-danger">{errors.email.message}</p>}
+        {errors.email && <p className="text-xs text-status-danger">{errors.email.message}</p>}
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="password" className="text-sm font-medium text-base-text-muted">
-          Password
-        </label>
-        <input
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Passphrase</Label>
+          <Link
+            to="/forgot-password"
+            className="text-xs text-base-text-subtle hover:text-pink-primary transition-colors"
+          >
+            Forgotten?
+          </Link>
+        </div>
+        <Input
           id="password"
           type="password"
           autoComplete="current-password"
-          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
+          placeholder="••••••••"
           {...register("password")}
         />
-        {errors.password && <p className="text-sm text-status-danger">{errors.password.message}</p>}
+        {errors.password && <p className="text-xs text-status-danger">{errors.password.message}</p>}
       </div>
 
       {errors.root && (
-        <p className="text-sm text-status-danger text-center">{errors.root.message}</p>
+        <div className="rounded-md border border-status-danger/30 bg-status-danger/10 px-4 py-3 text-sm text-status-danger">
+          {errors.root.message}
+        </div>
       )}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full bg-pink-primary text-white font-semibold py-2 px-4 rounded-md hover:bg-pink-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-pink-primary focus:ring-offset-2 focus:ring-offset-base-surface disabled:opacity-50"
-      >
-        {isSubmitting ? "Signing in…" : "Sign in"}
-      </button>
+      <Button type="submit" size="lg" disabled={isSubmitting} className="mt-2 group">
+        {isSubmitting ? "Entering…" : "Enter"}
+        <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+      </Button>
 
-      <p className="text-center text-sm text-base-text-muted">
-        <Link to="/forgot-password" className="text-pink-primary hover:text-pink-primary-hover">
-          Forgot your password?
-        </Link>
+      <p className="text-center text-xs uppercase tracking-[0.2em] text-base-text-subtle">
+        By signing in you accept the rules of the house
       </p>
     </form>
   );

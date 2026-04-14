@@ -1,6 +1,7 @@
 import { Monitor, Moon, Sun } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import { useTheme, type ThemePref } from "@/hooks/useTheme";
+import { cn } from "@/lib/utils";
 
 interface Option {
   value: ThemePref;
@@ -21,7 +22,7 @@ export function ThemeToggle() {
     <div
       role="radiogroup"
       aria-label="Theme preference"
-      className="inline-flex items-center rounded-md border border-base-border bg-base-surface-raised p-0.5"
+      className="inline-flex items-center rounded-full border border-base-border bg-base-surface p-0.5"
     >
       {OPTIONS.map(({ value, label, Icon }) => {
         const active = pref === value;
@@ -33,13 +34,14 @@ export function ThemeToggle() {
             aria-checked={active}
             aria-label={label}
             onClick={() => void setPref(value)}
-            className={`flex h-7 w-7 items-center justify-center rounded-sm transition-colors ${
+            className={cn(
+              "flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200",
               active
-                ? "bg-pink-primary text-pink-foreground"
-                : "text-base-text-muted hover:text-base-text"
-            }`}
+                ? "bg-pink-primary text-pink-foreground shadow-[0_0_0_1px_rgba(201,169,97,0.4)_inset]"
+                : "text-base-text-subtle hover:text-base-text",
+            )}
           >
-            <Icon className="h-4 w-4" aria-hidden="true" />
+            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
           </button>
         );
       })}
