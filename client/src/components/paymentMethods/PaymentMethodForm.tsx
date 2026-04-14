@@ -6,11 +6,8 @@ import type {
   PaymentMethodCreate,
   PaymentMethodOut,
 } from "@/services/paymentMethods/paymentMethodsApi";
-import {
-  ALL_METHOD_TYPES,
-  METHOD_LABELS,
-  MethodIcon,
-} from "@/components/paymentMethods/MethodIcon";
+import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
+import { ALL_METHOD_TYPES, METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
 
 const PAYMENT_TYPES = ALL_METHOD_TYPES as readonly [
   (typeof ALL_METHOD_TYPES)[number],

@@ -144,9 +144,10 @@ async def test_second_counter_rejected(client: AsyncClient, db_session: AsyncSes
         headers={"Authorization": f"Bearer {s_token}"},
         json={**contract_payload(), "principal": "400.00", "minimum_payment": "40.00"},
     )
-    assert second.status_code in (409, 403), (
-        f"Expected 409 or 403 for second counter but got {second.status_code}: {second.text}"
-    )
+    assert second.status_code in (
+        409,
+        403,
+    ), f"Expected 409 or 403 for second counter but got {second.status_code}: {second.text}"
 
 
 @pytest.mark.asyncio

@@ -5,23 +5,23 @@ folder as-is, so they're reachable at `/payment-methods/<key>.svg`.
 
 ## Required filenames (exact keys — no spaces, no extension variations)
 
-| Key            | File                 | Brand         |
-| -------------- | -------------------- | ------------- |
-| paypal         | `paypal.svg`         | PayPal        |
-| throne         | `throne.svg`         | Throne        |
-| cashapp        | `cashapp.svg`        | Cash App      |
-| loyalfans      | `loyalfans.svg`      | LoyalFans     |
-| onlyfans       | `onlyfans.svg`       | OnlyFans      |
-| eth            | `eth.svg`            | Ethereum      |
-| btc            | `btc.svg`            | Bitcoin       |
-| tipfunder      | `tipfunder.svg`      | TipFunder     |
-| amazon         | `amazon.svg`         | Amazon        |
-| revolut        | `revolut.svg`        | Revolut       |
-| wishtender     | `wishtender.svg`     | WishTender    |
-| premium_chat   | `premium_chat.svg`   | Premium Chat  |
-| sentbio        | `sentbio.svg`        | Sent.bio      |
-| sumeria        | `sumeria.svg`        | Sumeria       |
-| venmo          | `venmo.svg`          | Venmo         |
+| Key          | File               | Brand        |
+| ------------ | ------------------ | ------------ |
+| paypal       | `paypal.svg`       | PayPal       |
+| throne       | `throne.svg`       | Throne       |
+| cashapp      | `cashapp.svg`      | Cash App     |
+| loyalfans    | `loyalfans.svg`    | LoyalFans    |
+| onlyfans     | `onlyfans.svg`     | OnlyFans     |
+| eth          | `eth.svg`          | Ethereum     |
+| btc          | `btc.svg`          | Bitcoin      |
+| tipfunder    | `tipfunder.svg`    | TipFunder    |
+| amazon       | `amazon.svg`       | Amazon       |
+| revolut      | `revolut.svg`      | Revolut      |
+| wishtender   | `wishtender.svg`   | WishTender   |
+| premium_chat | `premium_chat.svg` | Premium Chat |
+| sentbio      | `sentbio.svg`      | Sent.bio     |
+| sumeria      | `sumeria.svg`      | Sumeria      |
+| venmo        | `venmo.svg`        | Venmo        |
 
 ## Format guidelines
 

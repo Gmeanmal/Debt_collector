@@ -202,7 +202,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             )}
           </div>
         </div>
-
       </header>
 
       {nav.length > 0 && (

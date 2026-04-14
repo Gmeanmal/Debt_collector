@@ -14,7 +14,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
-import { MethodIcon, METHOD_LABELS } from "@/components/paymentMethods/MethodIcon";
+import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
+import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
 import { cn } from "@/lib/utils";
 
 const SOURCE_LABEL: Record<DeclarationSource, string> = {

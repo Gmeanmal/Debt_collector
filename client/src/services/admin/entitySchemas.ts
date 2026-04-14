@@ -233,9 +233,7 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
       { key: "admin_id", label: "Admin ID" },
       { key: "acting_as_user_id", label: "Acting as" },
     ],
-    fields: [
-      { key: "payload_json", label: "Payload", kind: "json" },
-    ],
+    fields: [{ key: "payload_json", label: "Payload", kind: "json" }],
   },
 ];
 

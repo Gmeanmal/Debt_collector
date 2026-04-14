@@ -16,7 +16,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { PaymentMethodForm } from "@/components/paymentMethods/PaymentMethodForm";
-import { MethodIcon, METHOD_LABELS } from "@/components/paymentMethods/MethodIcon";
+import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
+import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
 import {
   createPaymentMethodApi,
   deletePaymentMethodApi,

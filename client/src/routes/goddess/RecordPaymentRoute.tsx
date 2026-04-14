@@ -8,7 +8,8 @@ import {
 } from "@/services/payments/paymentsApi";
 import { listPaymentMethodsApi } from "@/services/paymentMethods/paymentMethodsApi";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
-import { MethodIcon, METHOD_LABELS } from "@/components/paymentMethods/MethodIcon";
+import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
+import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES: { value: PaymentCategory; label: string }[] = [

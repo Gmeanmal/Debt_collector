@@ -4,12135 +4,12202 @@
  */
 
 export interface paths {
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Health check
-         * @description Returns `{"status": "ok"}` when the server process is running. Does not verify database connectivity — use this as a liveness probe only.
-         */
-        get: operations["health_health_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Authenticate with email and password
-         * @description Validates credentials and returns a JWT access token. The refresh token is delivered as an HttpOnly cookie named `debt_refresh` (attributes: Secure, SameSite=Lax, path=/) and is **not** present in the JSON body (`refresh_token` is always an empty string in the response). The cookie is rotated automatically by `POST /auth/refresh`.
-         */
-        post: operations["login_auth_login_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Rotate refresh token and issue new access token
-         * @description Reads the refresh token from the HttpOnly cookie `debt_refresh`, validates it (not revoked, not expired), revokes it, and issues a new token pair. Rolling refresh — the old token is immediately invalidated and a new cookie is set. Legacy fallback: if the cookie is absent and `refresh_token` is supplied in the JSON body, that value is accepted instead. Returns 401 if neither cookie nor body token is present.
-         */
-        post: operations["refresh_auth_refresh_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Revoke refresh token and clear cookie
-         * @description Reads the refresh token from the HttpOnly cookie `debt_refresh` and marks it as revoked. The cookie is cleared regardless of whether the token was valid. Idempotent — calling with an already-revoked or unknown token still returns 204. Legacy fallback: if the cookie is absent and `refresh_token` is supplied in the JSON body, that value is accepted instead.
-         */
-        post: operations["logout_auth_logout_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/password-reset/request": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Request a password reset email
-         * @description Sends a password reset link to the supplied email if an account exists. Always returns 202 to prevent user enumeration.
-         */
-        post: operations["password_reset_request_auth_password_reset_request_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/password-reset/confirm": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Confirm password reset with token
-         * @description Validates the reset token (checks expiry and not-used), sets the new password, and revokes all active refresh tokens for the user.
-         */
-        post: operations["password_reset_confirm_auth_password_reset_confirm_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Return the authenticated user's profile
-         * @description Decodes the Bearer access token and returns the caller's profile.
-         */
-        get: operations["me_auth_me_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/invitations/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List all invitations created by the Goddess
-         * @description Returns all invitations created by this Goddess, ordered newest first. Includes pending, expired, and used invitations.
-         */
-        get: operations["list_invitations_goddess_invitations__get"];
-        put?: never;
-        /**
-         * Create an invitation link
-         * @description Creates a new invitation token that a sub can use to sign up. Sets an entry tribute amount the sub must declare after signup. The invitation expires after `expires_in_days` days (default 7) and is single-use.
-         */
-        post: operations["create_invitation_goddess_invitations__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/payment-methods/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List payment methods
-         * @description Returns all payment methods owned by the authenticated Goddess, ordered by sort_order ascending. Pass `?enabled=true` to return only enabled methods.
-         */
-        get: operations["list_payment_methods_goddess_payment_methods__get"];
-        put?: never;
-        /**
-         * Create a payment method
-         * @description Creates a new payment method for the authenticated Goddess. The new method receives sort_order = max(existing) + 1 (appended to the bottom).
-         */
-        post: operations["create_payment_method_goddess_payment_methods__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/payment-methods/{method_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Soft-delete a payment method
-         * @description Disables a payment method by setting `enabled=false`. The record is retained for historical references in payment declarations.
-         */
-        delete: operations["delete_payment_method_goddess_payment_methods__method_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a payment method
-         * @description Partially updates a payment method owned by the authenticated Goddess. Only fields present in the request body are changed (patch semantics).
-         */
-        patch: operations["update_payment_method_goddess_payment_methods__method_id__patch"];
-        trace?: never;
-    };
-    "/goddess/payment-methods/reorder": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reorder payment methods
-         * @description Accepts a list of all payment method IDs in the desired display order. The position in the list becomes the new sort_order (0 = top). Raises 400 if any ID does not belong to this Goddess.
-         */
-        post: operations["reorder_payment_methods_goddess_payment_methods_reorder_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invite/{token}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Fetch public invitation details
-         * @description Returns the public information for a valid, unused, non-expired invitation. Used by the invitation landing page before the sub signs up.
-         */
-        get: operations["get_invitation_invite__token__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invite/{token}/signup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sign up via invitation link
-         * @description Creates a new sub account linked to the Goddess who owns the invitation. The sub is created with `status=pending_entry_tribute`. The invitation token is consumed atomically with user creation. Returns a token pair so the sub is immediately logged in.
-         */
-        post: operations["signup_via_invite_invite__token__signup_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/sub/payments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List own payment history
-         * @description Returns the authenticated sub's payment declarations ordered by declared_at descending.
-         */
-        get: operations["list_my_payments_sub_payments_get"];
-        put?: never;
-        /**
-         * Declare a payment
-         * @description Sub declares a payment they have made. Creates a pending declaration. Category `entry` only allowed while sub status is `pending_entry_tribute`. Category `tribute` allowed for active subs. Categories `rolling`, `weekly_debt`, `debt_payment`, `buyout` are reserved for future phases.
-         */
-        post: operations["declare_payment_sub_payments_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/sub/payments/{declaration_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Cancel a pending declaration
-         * @description Marks a pending declaration as cancelled. Raises 409 if not pending. Cancelled declarations remain in history.
-         */
-        delete: operations["cancel_declaration_sub_payments__declaration_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Edit a pending declaration
-         * @description Partially updates a pending declaration owned by this sub. Only fields supplied are changed. Raises 409 if declaration is not pending.
-         */
-        patch: operations["edit_declaration_sub_payments__declaration_id__patch"];
-        trace?: never;
-    };
-    "/sub/payment-methods": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List enabled payment methods for sub's goddess
-         * @description Returns the enabled payment methods belonging to the authenticated sub's goddess. Used by subs when filing a payment declaration.
-         */
-        get: operations["list_sub_payment_methods_sub_payment_methods_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/payments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List pending payment declarations
-         * @description Returns declarations for this goddess filtered by status. Currently only `status=pending` is supported. Other values are ignored and return pending.
-         */
-        get: operations["list_pending_payments_goddess_payments_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/payments/{declaration_id}/validate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Validate a pending declaration
-         * @description Validates a pending declaration, optionally re-categorising it first. Emits a payment allocation. On `entry` category, promotes the sub to `active`. Raises 409 if declaration is not pending.
-         */
-        post: operations["validate_declaration_goddess_payments__declaration_id__validate_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/payments/{declaration_id}/reject": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reject a pending declaration
-         * @description Marks a pending declaration as rejected with an optional reason. Raises 409 if declaration is not pending.
-         */
-        post: operations["reject_declaration_goddess_payments__declaration_id__reject_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/payments/record": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Record a payment on behalf of a sub
-         * @description Goddess creates an already-validated declaration on behalf of a sub. Emits allocation immediately. On `entry` category, promotes sub to `active`.
-         */
-        post: operations["record_payment_goddess_payments_record_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/subs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List subs for this goddess
-         * @description Returns a minimal list of users linked to the authenticated goddess.
-         */
-        get: operations["list_goddess_subs_goddess_subs_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/subs/{sub_id}/rolling/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get rolling tribute for a sub
-         * @description Returns the rolling tribute configuration for the given sub. Includes computed fields: `current_cycle_deadline`, `amount_due`, and `days_late`. Returns `null` if no rolling tribute has been configured yet.
-         */
-        get: operations["get_rolling_tribute_goddess_subs__sub_id__rolling__get"];
-        /**
-         * Upsert rolling tribute for a sub
-         * @description Creates or replaces the rolling tribute configuration for the given sub. If a record already exists it is updated in place. Returns the full record with computed deadline and amount fields.
-         */
-        put: operations["upsert_rolling_tribute_goddess_subs__sub_id__rolling__put"];
-        post?: never;
-        /**
-         * Clear rolling tribute for a sub
-         * @description Disables the rolling tribute by setting `amount=0` and `paused=true`. The record is retained for audit purposes — it is not deleted. Raises 404 if no rolling tribute has been configured for this sub.
-         */
-        delete: operations["clear_rolling_tribute_goddess_subs__sub_id__rolling__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/debts/simulate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Simulate a debt contract projection
-         * @description Stateless simulation: given a full contract draft, returns a period-by-period projection assuming minimum payments and no late penalties, plus a severe-penalty warning flag. Callable on drafts from the contract form.
-         */
-        post: operations["simulate_draft_debts_simulate_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/subs/{sub_id}/debts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Propose a debt contract as goddess
-         * @description Goddess proposes a new debt contract for one of her subs. The contract is created in `pending_sub` status awaiting the sub's response. Sub must belong to this goddess or a 404 is returned.
-         */
-        post: operations["propose_as_goddess_goddess_subs__sub_id__debts_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/sub/debts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List own debt contracts as sub
-         * @description Returns all debt contracts belonging to the authenticated sub, newest first.
-         */
-        get: operations["list_sub_contracts_sub_debts_get"];
-        put?: never;
-        /**
-         * Propose a debt contract as sub
-         * @description Sub proposes a new debt contract directed at their goddess. The contract is created in `pending_dom` status awaiting the goddess's response. Sub must be linked to a goddess or a 400 is returned.
-         */
-        post: operations["propose_as_sub_sub_debts_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/debts/{contract_id}/counter-propose": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Counter-propose on a debt contract
-         * @description Sub or goddess submits a counter-proposal on an in-negotiation contract. Sub may counter when status is `pending_sub`; goddess may counter when status is `pending_dom`. Only one counter per side is allowed; a second counter raises 409. The actor is inferred from the bearer token.
-         */
-        post: operations["counter_propose_debts__contract_id__counter_propose_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/debts/{contract_id}/accept-counter": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Accept the sub's counter-proposal
-         * @description Goddess accepts the sub's counter-proposal. Contract moves to `pending_sub_signature`; sub must sign to activate. Only valid when status is `pending_dom_counter`.
-         */
-        post: operations["accept_counter_debts__contract_id__accept_counter_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/debts/{contract_id}/reject-counter": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reject the sub's counter-proposal
-         * @description Goddess rejects the sub's counter-proposal. Contract terms revert to the original round-0 version; contract moves to `pending_sub_signature` — sub must sign the original or leave it pending. Only valid when status is `pending_dom_counter`.
-         */
-        post: operations["reject_counter_debts__contract_id__reject_counter_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/debts/{contract_id}/sign": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sign a debt contract as sub
-         * @description Sub signs the finalised contract, transitioning it to `active`. Valid when status is `pending_sub` (direct sign on goddess proposal) or `pending_sub_signature` (post-negotiation). Renders the signed PDF from the supplied signature PNG, uploads it to object storage, and populates `signed_pdf_url` and `signed_pdf_sha256` on the contract.
-         */
-        post: operations["sign_as_sub_debts__contract_id__sign_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/debts/{contract_id}/pdf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Download the signed contract PDF
-         * @description Returns the signed contract PDF. In production the response is a 302 redirect to a short-lived presigned R2 URL; in dev (fake storage) the bytes are streamed inline. Accessible to the contract's sub and to the owning goddess. Returns 404 when the contract has not been signed yet.
-         */
-        get: operations["download_contract_pdf_debts__contract_id__pdf_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/debts/{contract_id}/close": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel a pending contract as goddess
-         * @description Goddess cancels a contract that is still in a `pending_*` state. Transitions the contract to `cancelled_by_dom`. Cannot be used on active, closed, breached, or completed contracts.
-         */
-        post: operations["close_as_goddess_goddess_debts__contract_id__close_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/debts/{contract_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a debt contract
-         * @description Returns a single debt contract. Sub may only see their own contracts; goddess may only see contracts belonging to her subs.
-         */
-        get: operations["get_contract_debts__contract_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/debts/{contract_id}/audit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get audit trail for a debt contract
-         * @description Returns the full ordered audit trail for a contract. Visibility rules match those of the `GET /debts/{contract_id}` endpoint.
-         */
-        get: operations["get_contract_audit_debts__contract_id__audit_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/debts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List all debt contracts for goddess
-         * @description Returns all debt contracts across all subs for the authenticated goddess, newest first.
-         */
-        get: operations["list_goddess_contracts_goddess_debts_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/subs/{sub_id}/breach": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Breach a sub and move them to the blacklist
-         * @description Transitions all active debt contracts for the sub to `breached`, sets the sub's status to `blacklisted`, revokes all refresh tokens, and records a blacklist entry snapshotting the sum of breached-contract balances.
-         */
-        post: operations["breach_sub_goddess_subs__sub_id__breach_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/blacklist": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List blacklist entries for this goddess
-         * @description Returns all blacklist entries (forgiven and active) for the authenticated goddess.
-         */
-        get: operations["list_entries_goddess_blacklist_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/blacklist/{entry_id}/forgive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Forgive a blacklist entry
-         * @description Marks the entry as forgiven with the reinstatement fee amount, and restores the sub's status to `active`. Breached contracts remain in their `breached` state.
-         */
-        post: operations["forgive_goddess_blacklist__entry_id__forgive_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/sub/debts/{contract_id}/buyout-intent": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Quote a buyout amount for a sub-owned contract
-         * @description Computes the prorated exit amount for the contract at the current moment and returns the goddess's enabled payment methods. No mutation — settlement happens when the sub declares a `buyout` payment and the goddess validates it.
-         */
-        post: operations["buyout_intent_sub_debts__contract_id__buyout_intent_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/debts/{contract_id}/surprise-penalty": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Apply a surprise penalty to an active contract
-         * @description Emits a `surprise_penalty` ledger event on the contract, adding the given amount to the balance. Only allowed when `dom_can_add_surprise_penalty` is true and the contract is `active`.
-         */
-        post: operations["surprise_penalty_goddess_debts__contract_id__surprise_penalty_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/debts/{contract_id}/adjustments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Propose or apply a mid-contract adjustment
-         * @description Behaviour depends on `mid_contract_addition_mode` on the contract:
-         *     - `disabled` → 403
-         *     - `dom_controlled` → status `applied`, balance updated immediately
-         *     - `sub_approval_required` → status `pending_sub_approval`, sub must accept
-         */
-        post: operations["create_adjustment_goddess_debts__contract_id__adjustments_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/sub/adjustments/{adjustment_id}/accept": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Accept a pending mid-contract adjustment
-         * @description Sub accepts a pending adjustment proposed by the goddess. Emits an `adjustment` ledger event and transitions status to `accepted`.
-         */
-        post: operations["accept_adjustment_sub_adjustments__adjustment_id__accept_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/sub/adjustments/{adjustment_id}/refuse": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Refuse a pending mid-contract adjustment
-         * @description Sub refuses a pending adjustment. Status transitions to `refused`; no ledger event is emitted.
-         */
-        post: operations["refuse_adjustment_sub_adjustments__adjustment_id__refuse_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/sub/adjustments/pending": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List pending adjustments for the authenticated sub
-         * @description Returns all adjustments in `pending_sub_approval` across the sub's contracts.
-         */
-        get: operations["list_pending_sub_adjustments_pending_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/cron/run-now": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Run the daily cron job immediately
-         * @description Manually triggers the daily cron job (rolling tributes + contract period ticks). Admin only. Useful in development and for operational intervention.
-         */
-        post: operations["run_cron_now_admin_cron_run_now_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/impersonate/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Impersonate a user as admin
-         * @description Issues a short-lived access token authenticating as the target user, carrying an `imp` claim referencing the admin. No refresh token is returned — when the token expires or the caller triggers `/auth/refresh`, the original admin session resumes.
-         */
-        post: operations["impersonate_admin_impersonate__user_id__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/admin_actions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List admin audit log entries
-         * @description Returns a paginated list of `admin_action` rows in reverse-chronological order. Supports free-text search across `action` and `entity`. This endpoint is intentionally read-only — POST, PATCH, and DELETE are not registered to prevent mutation of the append-only audit log.
-         */
-        get: operations["list_admin_actions_admin_admin_actions_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/admin_actions/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a single admin audit log entry
-         * @description Returns the full `admin_action` row including `payload_json`. No write operations are exposed on this resource.
-         */
-        get: operations["get_admin_action_admin_admin_actions__item_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List users rows
-         * @description Admin generic listing for `users`. Supports free-text search across ['username', 'email', 'first_name', 'last_name'] and pagination.
-         */
-        get: operations["users_list_admin_users_get"];
-        put?: never;
-        /**
-         * Create a users row
-         * @description Admin generic create for `users`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["users_create_admin_users_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/users/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a users row by id
-         * @description Admin generic fetch for a single `users` row.
-         */
-        get: operations["users_get_admin_users__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a users row
-         * @description Admin generic hard-delete for `users`.
-         */
-        delete: operations["users_delete_admin_users__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a users row
-         * @description Admin generic partial update for `users`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["users_update_admin_users__item_id__patch"];
-        trace?: never;
-    };
-    "/admin/goddesses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List goddesses rows
-         * @description Admin generic listing for `goddesses`. Supports free-text search across ['display_name', 'email'] and pagination.
-         */
-        get: operations["goddesses_list_admin_goddesses_get"];
-        put?: never;
-        /**
-         * Create a goddesses row
-         * @description Admin generic create for `goddesses`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["goddesses_create_admin_goddesses_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/goddesses/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a goddesses row by id
-         * @description Admin generic fetch for a single `goddesses` row.
-         */
-        get: operations["goddesses_get_admin_goddesses__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a goddesses row
-         * @description Admin generic hard-delete for `goddesses`.
-         */
-        delete: operations["goddesses_delete_admin_goddesses__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a goddesses row
-         * @description Admin generic partial update for `goddesses`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["goddesses_update_admin_goddesses__item_id__patch"];
-        trace?: never;
-    };
-    "/admin/invitations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List invitations rows
-         * @description Admin generic listing for `invitations`. Supports free-text search across ['token', 'note'] and pagination.
-         */
-        get: operations["invitations_list_admin_invitations_get"];
-        put?: never;
-        /**
-         * Create a invitations row
-         * @description Admin generic create for `invitations`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["invitations_create_admin_invitations_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/invitations/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a invitations row by id
-         * @description Admin generic fetch for a single `invitations` row.
-         */
-        get: operations["invitations_get_admin_invitations__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a invitations row
-         * @description Admin generic hard-delete for `invitations`.
-         */
-        delete: operations["invitations_delete_admin_invitations__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a invitations row
-         * @description Admin generic partial update for `invitations`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["invitations_update_admin_invitations__item_id__patch"];
-        trace?: never;
-    };
-    "/admin/payment_methods": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List payment_methods rows
-         * @description Admin generic listing for `payment_methods`. Supports free-text search across ['name', 'handle_or_link', 'note'] and pagination.
-         */
-        get: operations["payment_methods_list_admin_payment_methods_get"];
-        put?: never;
-        /**
-         * Create a payment_methods row
-         * @description Admin generic create for `payment_methods`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["payment_methods_create_admin_payment_methods_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/payment_methods/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a payment_methods row by id
-         * @description Admin generic fetch for a single `payment_methods` row.
-         */
-        get: operations["payment_methods_get_admin_payment_methods__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a payment_methods row
-         * @description Admin generic hard-delete for `payment_methods`.
-         */
-        delete: operations["payment_methods_delete_admin_payment_methods__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a payment_methods row
-         * @description Admin generic partial update for `payment_methods`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["payment_methods_update_admin_payment_methods__item_id__patch"];
-        trace?: never;
-    };
-    "/admin/payment_declarations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List payment_declarations rows
-         * @description Admin generic listing for `payment_declarations`. Supports free-text search across ['note', 'rejection_reason'] and pagination.
-         */
-        get: operations["payment_declarations_list_admin_payment_declarations_get"];
-        put?: never;
-        /**
-         * Create a payment_declarations row
-         * @description Admin generic create for `payment_declarations`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["payment_declarations_create_admin_payment_declarations_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/payment_declarations/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a payment_declarations row by id
-         * @description Admin generic fetch for a single `payment_declarations` row.
-         */
-        get: operations["payment_declarations_get_admin_payment_declarations__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a payment_declarations row
-         * @description Admin generic hard-delete for `payment_declarations`.
-         */
-        delete: operations["payment_declarations_delete_admin_payment_declarations__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a payment_declarations row
-         * @description Admin generic partial update for `payment_declarations`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["payment_declarations_update_admin_payment_declarations__item_id__patch"];
-        trace?: never;
-    };
-    "/admin/rolling_tributes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List rolling_tributes rows
-         * @description Admin generic listing for `rolling_tributes`. Supports free-text search across ['notes'] and pagination.
-         */
-        get: operations["rolling_tributes_list_admin_rolling_tributes_get"];
-        put?: never;
-        /**
-         * Create a rolling_tributes row
-         * @description Admin generic create for `rolling_tributes`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["rolling_tributes_create_admin_rolling_tributes_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/rolling_tributes/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a rolling_tributes row by id
-         * @description Admin generic fetch for a single `rolling_tributes` row.
-         */
-        get: operations["rolling_tributes_get_admin_rolling_tributes__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a rolling_tributes row
-         * @description Admin generic hard-delete for `rolling_tributes`.
-         */
-        delete: operations["rolling_tributes_delete_admin_rolling_tributes__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a rolling_tributes row
-         * @description Admin generic partial update for `rolling_tributes`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["rolling_tributes_update_admin_rolling_tributes__item_id__patch"];
-        trace?: never;
-    };
-    "/admin/debt_contracts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List debt_contracts rows
-         * @description Admin generic listing for `debt_contracts`. Supports free-text search across [] and pagination.
-         */
-        get: operations["debt_contracts_list_admin_debt_contracts_get"];
-        put?: never;
-        /**
-         * Create a debt_contracts row
-         * @description Admin generic create for `debt_contracts`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["debt_contracts_create_admin_debt_contracts_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/debt_contracts/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a debt_contracts row by id
-         * @description Admin generic fetch for a single `debt_contracts` row.
-         */
-        get: operations["debt_contracts_get_admin_debt_contracts__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a debt_contracts row
-         * @description Admin generic hard-delete for `debt_contracts`.
-         */
-        delete: operations["debt_contracts_delete_admin_debt_contracts__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a debt_contracts row
-         * @description Admin generic partial update for `debt_contracts`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["debt_contracts_update_admin_debt_contracts__item_id__patch"];
-        trace?: never;
-    };
-    "/admin/blacklist_entries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List blacklist_entries rows
-         * @description Admin generic listing for `blacklist_entries`. Supports free-text search across ['reason'] and pagination.
-         */
-        get: operations["blacklist_entries_list_admin_blacklist_entries_get"];
-        put?: never;
-        /**
-         * Create a blacklist_entries row
-         * @description Admin generic create for `blacklist_entries`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["blacklist_entries_create_admin_blacklist_entries_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/blacklist_entries/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a blacklist_entries row by id
-         * @description Admin generic fetch for a single `blacklist_entries` row.
-         */
-        get: operations["blacklist_entries_get_admin_blacklist_entries__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a blacklist_entries row
-         * @description Admin generic hard-delete for `blacklist_entries`.
-         */
-        delete: operations["blacklist_entries_delete_admin_blacklist_entries__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a blacklist_entries row
-         * @description Admin generic partial update for `blacklist_entries`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["blacklist_entries_update_admin_blacklist_entries__item_id__patch"];
-        trace?: never;
-    };
-    "/admin/notifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List notifications rows
-         * @description Admin generic listing for `notifications`. Supports free-text search across ['title', 'body'] and pagination.
-         */
-        get: operations["notifications_list_admin_notifications_get"];
-        put?: never;
-        /**
-         * Create a notifications row
-         * @description Admin generic create for `notifications`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["notifications_create_admin_notifications_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/notifications/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a notifications row by id
-         * @description Admin generic fetch for a single `notifications` row.
-         */
-        get: operations["notifications_get_admin_notifications__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a notifications row
-         * @description Admin generic hard-delete for `notifications`.
-         */
-        delete: operations["notifications_delete_admin_notifications__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a notifications row
-         * @description Admin generic partial update for `notifications`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["notifications_update_admin_notifications__item_id__patch"];
-        trace?: never;
-    };
-    "/admin/debt_events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List debt_events rows
-         * @description Admin generic listing for `debt_events`. Supports free-text search across ['note'] and pagination.
-         */
-        get: operations["debt_events_list_admin_debt_events_get"];
-        put?: never;
-        /**
-         * Create a debt_events row
-         * @description Admin generic create for `debt_events`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["debt_events_create_admin_debt_events_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/debt_events/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a debt_events row by id
-         * @description Admin generic fetch for a single `debt_events` row.
-         */
-        get: operations["debt_events_get_admin_debt_events__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a debt_events row
-         * @description Admin generic hard-delete for `debt_events`.
-         */
-        delete: operations["debt_events_delete_admin_debt_events__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a debt_events row
-         * @description Admin generic partial update for `debt_events`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["debt_events_update_admin_debt_events__item_id__patch"];
-        trace?: never;
-    };
-    "/admin/contract_adjustments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List contract_adjustments rows
-         * @description Admin generic listing for `contract_adjustments`. Supports free-text search across ['reason'] and pagination.
-         */
-        get: operations["contract_adjustments_list_admin_contract_adjustments_get"];
-        put?: never;
-        /**
-         * Create a contract_adjustments row
-         * @description Admin generic create for `contract_adjustments`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        post: operations["contract_adjustments_create_admin_contract_adjustments_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/contract_adjustments/{item_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a contract_adjustments row by id
-         * @description Admin generic fetch for a single `contract_adjustments` row.
-         */
-        get: operations["contract_adjustments_get_admin_contract_adjustments__item_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a contract_adjustments row
-         * @description Admin generic hard-delete for `contract_adjustments`.
-         */
-        delete: operations["contract_adjustments_delete_admin_contract_adjustments__item_id__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a contract_adjustments row
-         * @description Admin generic partial update for `contract_adjustments`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
-         */
-        patch: operations["contract_adjustments_update_admin_contract_adjustments__item_id__patch"];
-        trace?: never;
-    };
-    "/me/notifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List recent notifications for the authenticated user
-         * @description Returns the 50 most recent notifications for the authenticated user, newest first, together with the current unread count.
-         */
-        get: operations["list_my_notifications_me_notifications_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/me/notifications/{notification_id}/read": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Mark a notification as read
-         * @description Marks the given notification as read for the authenticated user. No-op if the notification is already read. Silently no-ops when the notification does not belong to the caller to avoid leaking existence.
-         */
-        post: operations["mark_notification_read_me_notifications__notification_id__read_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/me/preferences": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update the authenticated user's UI preferences
-         * @description Persists the user's UI theme preference. Accepts 'system', 'dark', or 'light'. Returns the stored value so the client can reconcile state.
-         */
-        patch: operations["update_preferences_me_preferences_patch"];
-        trace?: never;
-    };
-    "/me/profile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update the authenticated user's profile
-         * @description Updates first_name, last_name, bio, and avatar_url for the authenticated user. All fields are optional — only provided (non-null) values are written. Pass null explicitly to clear a field. bio is capped at 500 characters; avatar_url must be a valid HTTP/HTTPS URL if provided.
-         */
-        patch: operations["update_profile_me_profile_patch"];
-        trace?: never;
-    };
-    "/goddess/dashboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Goddess dashboard overview
-         * @description Returns aggregate metrics for the goddess home view: sub counts by status, active rolling and contract counts, pending validation queues, the list of late payments across all subs (capped at 50), and the total drained amount (sum of all validated payments for this goddess).
-         */
-        get: operations["goddess_dashboard_goddess_dashboard_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/sub/dashboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Sub dashboard overview
-         * @description Returns aggregate metrics for the sub home view: amount due this week (rolling amount_due plus weekly contract minimum payments), whether the sub is currently late on any obligation, the list of active contracts with progress, the last 10 payment declarations, and the total amount sent (sum of all validated payments).
-         */
-        get: operations["sub_dashboard_sub_dashboard_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/sub/planning": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Sub 30-day payment planning data
-         * @description Returns upcoming payment deadlines for the next 30 Europe/London calendar days (rolling tribute cycles and active contract instalments), the last 12 weeks of validated payment history (totals per week), and KPI figures: total paid all-time, total paid this calendar month, and the estimated rolling amount still owed before the end of the current month.
-         */
-        get: operations["sub_planning_sub_planning_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/payments/weekly": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Fetch weekly payment aggregates
-         * @description Returns 8 ISO week buckets (current week plus 7 previous) for the calling goddess. Each bucket contains the total validated payment amount and count of declarations validated in that Europe/London week (Monday–Sunday). Weeks are ordered newest first. Only `validated` declarations are counted.
-         */
-        get: operations["weekly_payments_goddess_payments_weekly_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goddess/subs/late": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List subs currently late on their rolling tribute
-         * @description Returns all active subs under this goddess whose rolling tribute is currently late — i.e. the last cycle deadline has passed without a validated payment. Includes days late, the overdue amount (with any late penalty applied), and the datetime of the last validated payment if one exists. Sorted by days_late descending.
-         */
-        get: operations["late_subs_goddess_subs_late_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  "/health": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Health check
+     * @description Returns `{"status": "ok"}` when the server process is running. Does not verify database connectivity — use this as a liveness probe only.
+     */
+    get: operations["health_health_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Authenticate with email and password
+     * @description Validates credentials and returns a JWT access token. The refresh token is delivered as an HttpOnly cookie named `debt_refresh` (attributes: Secure, SameSite=Lax, path=/) and is **not** present in the JSON body (`refresh_token` is always an empty string in the response). The cookie is rotated automatically by `POST /auth/refresh`.
+     */
+    post: operations["login_auth_login_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/refresh": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Rotate refresh token and issue new access token
+     * @description Reads the refresh token from the HttpOnly cookie `debt_refresh`, validates it (not revoked, not expired), revokes it, and issues a new token pair. Rolling refresh — the old token is immediately invalidated and a new cookie is set. Legacy fallback: if the cookie is absent and `refresh_token` is supplied in the JSON body, that value is accepted instead. Returns 401 if neither cookie nor body token is present.
+     */
+    post: operations["refresh_auth_refresh_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/logout": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Revoke refresh token and clear cookie
+     * @description Reads the refresh token from the HttpOnly cookie `debt_refresh` and marks it as revoked. The cookie is cleared regardless of whether the token was valid. Idempotent — calling with an already-revoked or unknown token still returns 204. Legacy fallback: if the cookie is absent and `refresh_token` is supplied in the JSON body, that value is accepted instead.
+     */
+    post: operations["logout_auth_logout_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/password-reset/request": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Request a password reset email
+     * @description Sends a password reset link to the supplied email if an account exists. Always returns 202 to prevent user enumeration.
+     */
+    post: operations["password_reset_request_auth_password_reset_request_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/password-reset/confirm": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Confirm password reset with token
+     * @description Validates the reset token (checks expiry and not-used), sets the new password, and revokes all active refresh tokens for the user.
+     */
+    post: operations["password_reset_confirm_auth_password_reset_confirm_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Return the authenticated user's profile
+     * @description Decodes the Bearer access token and returns the caller's profile.
+     */
+    get: operations["me_auth_me_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/invitations/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List all invitations created by the Goddess
+     * @description Returns all invitations created by this Goddess, ordered newest first. Includes pending, expired, and used invitations.
+     */
+    get: operations["list_invitations_goddess_invitations__get"];
+    put?: never;
+    /**
+     * Create an invitation link
+     * @description Creates a new invitation token that a sub can use to sign up. Sets an entry tribute amount the sub must declare after signup. The invitation expires after `expires_in_days` days (default 7) and is single-use.
+     */
+    post: operations["create_invitation_goddess_invitations__post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payment-methods/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List payment methods
+     * @description Returns all payment methods owned by the authenticated Goddess, ordered by sort_order ascending. Pass `?enabled=true` to return only enabled methods.
+     */
+    get: operations["list_payment_methods_goddess_payment_methods__get"];
+    put?: never;
+    /**
+     * Create a payment method
+     * @description Creates a new payment method for the authenticated Goddess. The new method receives sort_order = max(existing) + 1 (appended to the bottom).
+     */
+    post: operations["create_payment_method_goddess_payment_methods__post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payment-methods/{method_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Soft-delete a payment method
+     * @description Disables a payment method by setting `enabled=false`. The record is retained for historical references in payment declarations.
+     */
+    delete: operations["delete_payment_method_goddess_payment_methods__method_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a payment method
+     * @description Partially updates a payment method owned by the authenticated Goddess. Only fields present in the request body are changed (patch semantics).
+     */
+    patch: operations["update_payment_method_goddess_payment_methods__method_id__patch"];
+    trace?: never;
+  };
+  "/goddess/payment-methods/reorder": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Reorder payment methods
+     * @description Accepts a list of all payment method IDs in the desired display order. The position in the list becomes the new sort_order (0 = top). Raises 400 if any ID does not belong to this Goddess.
+     */
+    post: operations["reorder_payment_methods_goddess_payment_methods_reorder_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/invite/{token}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Fetch public invitation details
+     * @description Returns the public information for a valid, unused, non-expired invitation. Used by the invitation landing page before the sub signs up.
+     */
+    get: operations["get_invitation_invite__token__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/invite/{token}/signup": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Sign up via invitation link
+     * @description Creates a new sub account linked to the Goddess who owns the invitation. The sub is created with `status=pending_entry_tribute`. The invitation token is consumed atomically with user creation. Returns a token pair so the sub is immediately logged in.
+     */
+    post: operations["signup_via_invite_invite__token__signup_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/payments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List own payment history
+     * @description Returns the authenticated sub's payment declarations ordered by declared_at descending.
+     */
+    get: operations["list_my_payments_sub_payments_get"];
+    put?: never;
+    /**
+     * Declare a payment
+     * @description Sub declares a payment they have made. Creates a pending declaration. Category `entry` only allowed while sub status is `pending_entry_tribute`. Category `tribute` allowed for active subs. Categories `rolling`, `weekly_debt`, `debt_payment`, `buyout` are reserved for future phases.
+     */
+    post: operations["declare_payment_sub_payments_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/payments/{declaration_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Cancel a pending declaration
+     * @description Marks a pending declaration as cancelled. Raises 409 if not pending. Cancelled declarations remain in history.
+     */
+    delete: operations["cancel_declaration_sub_payments__declaration_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Edit a pending declaration
+     * @description Partially updates a pending declaration owned by this sub. Only fields supplied are changed. Raises 409 if declaration is not pending.
+     */
+    patch: operations["edit_declaration_sub_payments__declaration_id__patch"];
+    trace?: never;
+  };
+  "/sub/payment-methods": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List enabled payment methods for sub's goddess
+     * @description Returns the enabled payment methods belonging to the authenticated sub's goddess. Used by subs when filing a payment declaration.
+     */
+    get: operations["list_sub_payment_methods_sub_payment_methods_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List pending payment declarations
+     * @description Returns declarations for this goddess filtered by status. Currently only `status=pending` is supported. Other values are ignored and return pending.
+     */
+    get: operations["list_pending_payments_goddess_payments_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payments/{declaration_id}/validate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Validate a pending declaration
+     * @description Validates a pending declaration, optionally re-categorising it first. Emits a payment allocation. On `entry` category, promotes the sub to `active`. Raises 409 if declaration is not pending.
+     */
+    post: operations["validate_declaration_goddess_payments__declaration_id__validate_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payments/{declaration_id}/reject": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Reject a pending declaration
+     * @description Marks a pending declaration as rejected with an optional reason. Raises 409 if declaration is not pending.
+     */
+    post: operations["reject_declaration_goddess_payments__declaration_id__reject_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payments/record": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Record a payment on behalf of a sub
+     * @description Goddess creates an already-validated declaration on behalf of a sub. Emits allocation immediately. On `entry` category, promotes sub to `active`.
+     */
+    post: operations["record_payment_goddess_payments_record_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/subs": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List subs for this goddess
+     * @description Returns a minimal list of users linked to the authenticated goddess.
+     */
+    get: operations["list_goddess_subs_goddess_subs_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/subs/{sub_id}/rolling/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get rolling tribute for a sub
+     * @description Returns the rolling tribute configuration for the given sub. Includes computed fields: `current_cycle_deadline`, `amount_due`, and `days_late`. Returns `null` if no rolling tribute has been configured yet.
+     */
+    get: operations["get_rolling_tribute_goddess_subs__sub_id__rolling__get"];
+    /**
+     * Upsert rolling tribute for a sub
+     * @description Creates or replaces the rolling tribute configuration for the given sub. If a record already exists it is updated in place. Returns the full record with computed deadline and amount fields.
+     */
+    put: operations["upsert_rolling_tribute_goddess_subs__sub_id__rolling__put"];
+    post?: never;
+    /**
+     * Clear rolling tribute for a sub
+     * @description Disables the rolling tribute by setting `amount=0` and `paused=true`. The record is retained for audit purposes — it is not deleted. Raises 404 if no rolling tribute has been configured for this sub.
+     */
+    delete: operations["clear_rolling_tribute_goddess_subs__sub_id__rolling__delete"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/simulate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Simulate a debt contract projection
+     * @description Stateless simulation: given a full contract draft, returns a period-by-period projection assuming minimum payments and no late penalties, plus a severe-penalty warning flag. Callable on drafts from the contract form.
+     */
+    post: operations["simulate_draft_debts_simulate_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/subs/{sub_id}/debts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Propose a debt contract as goddess
+     * @description Goddess proposes a new debt contract for one of her subs. The contract is created in `pending_sub` status awaiting the sub's response. Sub must belong to this goddess or a 404 is returned.
+     */
+    post: operations["propose_as_goddess_goddess_subs__sub_id__debts_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/debts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List own debt contracts as sub
+     * @description Returns all debt contracts belonging to the authenticated sub, newest first.
+     */
+    get: operations["list_sub_contracts_sub_debts_get"];
+    put?: never;
+    /**
+     * Propose a debt contract as sub
+     * @description Sub proposes a new debt contract directed at their goddess. The contract is created in `pending_dom` status awaiting the goddess's response. Sub must be linked to a goddess or a 400 is returned.
+     */
+    post: operations["propose_as_sub_sub_debts_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/counter-propose": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Counter-propose on a debt contract
+     * @description Sub or goddess submits a counter-proposal on an in-negotiation contract. Sub may counter when status is `pending_sub`; goddess may counter when status is `pending_dom`. Only one counter per side is allowed; a second counter raises 409. The actor is inferred from the bearer token.
+     */
+    post: operations["counter_propose_debts__contract_id__counter_propose_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/accept-counter": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Accept the sub's counter-proposal
+     * @description Goddess accepts the sub's counter-proposal. Contract moves to `pending_sub_signature`; sub must sign to activate. Only valid when status is `pending_dom_counter`.
+     */
+    post: operations["accept_counter_debts__contract_id__accept_counter_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/reject-counter": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Reject the sub's counter-proposal
+     * @description Goddess rejects the sub's counter-proposal. Contract terms revert to the original round-0 version; contract moves to `pending_sub_signature` — sub must sign the original or leave it pending. Only valid when status is `pending_dom_counter`.
+     */
+    post: operations["reject_counter_debts__contract_id__reject_counter_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/sign": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Sign a debt contract as sub
+     * @description Sub signs the finalised contract, transitioning it to `active`. Valid when status is `pending_sub` (direct sign on goddess proposal) or `pending_sub_signature` (post-negotiation). Renders the signed PDF from the supplied signature PNG, uploads it to object storage, and populates `signed_pdf_url` and `signed_pdf_sha256` on the contract.
+     */
+    post: operations["sign_as_sub_debts__contract_id__sign_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/pdf": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Download the signed contract PDF
+     * @description Returns the signed contract PDF. In production the response is a 302 redirect to a short-lived presigned R2 URL; in dev (fake storage) the bytes are streamed inline. Accessible to the contract's sub and to the owning goddess. Returns 404 when the contract has not been signed yet.
+     */
+    get: operations["download_contract_pdf_debts__contract_id__pdf_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/debts/{contract_id}/close": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Cancel a pending contract as goddess
+     * @description Goddess cancels a contract that is still in a `pending_*` state. Transitions the contract to `cancelled_by_dom`. Cannot be used on active, closed, breached, or completed contracts.
+     */
+    post: operations["close_as_goddess_goddess_debts__contract_id__close_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a debt contract
+     * @description Returns a single debt contract. Sub may only see their own contracts; goddess may only see contracts belonging to her subs.
+     */
+    get: operations["get_contract_debts__contract_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/audit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get audit trail for a debt contract
+     * @description Returns the full ordered audit trail for a contract. Visibility rules match those of the `GET /debts/{contract_id}` endpoint.
+     */
+    get: operations["get_contract_audit_debts__contract_id__audit_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/debts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List all debt contracts for goddess
+     * @description Returns all debt contracts across all subs for the authenticated goddess, newest first.
+     */
+    get: operations["list_goddess_contracts_goddess_debts_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/subs/{sub_id}/breach": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Breach a sub and move them to the blacklist
+     * @description Transitions all active debt contracts for the sub to `breached`, sets the sub's status to `blacklisted`, revokes all refresh tokens, and records a blacklist entry snapshotting the sum of breached-contract balances.
+     */
+    post: operations["breach_sub_goddess_subs__sub_id__breach_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/blacklist": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List blacklist entries for this goddess
+     * @description Returns all blacklist entries (forgiven and active) for the authenticated goddess.
+     */
+    get: operations["list_entries_goddess_blacklist_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/blacklist/{entry_id}/forgive": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Forgive a blacklist entry
+     * @description Marks the entry as forgiven with the reinstatement fee amount, and restores the sub's status to `active`. Breached contracts remain in their `breached` state.
+     */
+    post: operations["forgive_goddess_blacklist__entry_id__forgive_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/debts/{contract_id}/buyout-intent": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Quote a buyout amount for a sub-owned contract
+     * @description Computes the prorated exit amount for the contract at the current moment and returns the goddess's enabled payment methods. No mutation — settlement happens when the sub declares a `buyout` payment and the goddess validates it.
+     */
+    post: operations["buyout_intent_sub_debts__contract_id__buyout_intent_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/debts/{contract_id}/surprise-penalty": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Apply a surprise penalty to an active contract
+     * @description Emits a `surprise_penalty` ledger event on the contract, adding the given amount to the balance. Only allowed when `dom_can_add_surprise_penalty` is true and the contract is `active`.
+     */
+    post: operations["surprise_penalty_goddess_debts__contract_id__surprise_penalty_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/debts/{contract_id}/adjustments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Propose or apply a mid-contract adjustment
+     * @description Behaviour depends on `mid_contract_addition_mode` on the contract:
+     *     - `disabled` → 403
+     *     - `dom_controlled` → status `applied`, balance updated immediately
+     *     - `sub_approval_required` → status `pending_sub_approval`, sub must accept
+     */
+    post: operations["create_adjustment_goddess_debts__contract_id__adjustments_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/adjustments/{adjustment_id}/accept": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Accept a pending mid-contract adjustment
+     * @description Sub accepts a pending adjustment proposed by the goddess. Emits an `adjustment` ledger event and transitions status to `accepted`.
+     */
+    post: operations["accept_adjustment_sub_adjustments__adjustment_id__accept_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/adjustments/{adjustment_id}/refuse": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Refuse a pending mid-contract adjustment
+     * @description Sub refuses a pending adjustment. Status transitions to `refused`; no ledger event is emitted.
+     */
+    post: operations["refuse_adjustment_sub_adjustments__adjustment_id__refuse_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/adjustments/pending": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List pending adjustments for the authenticated sub
+     * @description Returns all adjustments in `pending_sub_approval` across the sub's contracts.
+     */
+    get: operations["list_pending_sub_adjustments_pending_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/cron/run-now": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Run the daily cron job immediately
+     * @description Manually triggers the daily cron job (rolling tributes + contract period ticks). Admin only. Useful in development and for operational intervention.
+     */
+    post: operations["run_cron_now_admin_cron_run_now_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/impersonate/{user_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Impersonate a user as admin
+     * @description Issues a short-lived access token authenticating as the target user, carrying an `imp` claim referencing the admin. No refresh token is returned — when the token expires or the caller triggers `/auth/refresh`, the original admin session resumes.
+     */
+    post: operations["impersonate_admin_impersonate__user_id__post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/admin_actions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List admin audit log entries
+     * @description Returns a paginated list of `admin_action` rows in reverse-chronological order. Supports free-text search across `action` and `entity`. This endpoint is intentionally read-only — POST, PATCH, and DELETE are not registered to prevent mutation of the append-only audit log.
+     */
+    get: operations["list_admin_actions_admin_admin_actions_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/admin_actions/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a single admin audit log entry
+     * @description Returns the full `admin_action` row including `payload_json`. No write operations are exposed on this resource.
+     */
+    get: operations["get_admin_action_admin_admin_actions__item_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List users rows
+     * @description Admin generic listing for `users`. Supports free-text search across ['username', 'email', 'first_name', 'last_name'] and pagination.
+     */
+    get: operations["users_list_admin_users_get"];
+    put?: never;
+    /**
+     * Create a users row
+     * @description Admin generic create for `users`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["users_create_admin_users_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/users/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a users row by id
+     * @description Admin generic fetch for a single `users` row.
+     */
+    get: operations["users_get_admin_users__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a users row
+     * @description Admin generic hard-delete for `users`.
+     */
+    delete: operations["users_delete_admin_users__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a users row
+     * @description Admin generic partial update for `users`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["users_update_admin_users__item_id__patch"];
+    trace?: never;
+  };
+  "/admin/goddesses": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List goddesses rows
+     * @description Admin generic listing for `goddesses`. Supports free-text search across ['display_name', 'email'] and pagination.
+     */
+    get: operations["goddesses_list_admin_goddesses_get"];
+    put?: never;
+    /**
+     * Create a goddesses row
+     * @description Admin generic create for `goddesses`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["goddesses_create_admin_goddesses_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/goddesses/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a goddesses row by id
+     * @description Admin generic fetch for a single `goddesses` row.
+     */
+    get: operations["goddesses_get_admin_goddesses__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a goddesses row
+     * @description Admin generic hard-delete for `goddesses`.
+     */
+    delete: operations["goddesses_delete_admin_goddesses__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a goddesses row
+     * @description Admin generic partial update for `goddesses`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["goddesses_update_admin_goddesses__item_id__patch"];
+    trace?: never;
+  };
+  "/admin/invitations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List invitations rows
+     * @description Admin generic listing for `invitations`. Supports free-text search across ['token', 'note'] and pagination.
+     */
+    get: operations["invitations_list_admin_invitations_get"];
+    put?: never;
+    /**
+     * Create a invitations row
+     * @description Admin generic create for `invitations`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["invitations_create_admin_invitations_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/invitations/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a invitations row by id
+     * @description Admin generic fetch for a single `invitations` row.
+     */
+    get: operations["invitations_get_admin_invitations__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a invitations row
+     * @description Admin generic hard-delete for `invitations`.
+     */
+    delete: operations["invitations_delete_admin_invitations__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a invitations row
+     * @description Admin generic partial update for `invitations`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["invitations_update_admin_invitations__item_id__patch"];
+    trace?: never;
+  };
+  "/admin/payment_methods": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List payment_methods rows
+     * @description Admin generic listing for `payment_methods`. Supports free-text search across ['name', 'handle_or_link', 'note'] and pagination.
+     */
+    get: operations["payment_methods_list_admin_payment_methods_get"];
+    put?: never;
+    /**
+     * Create a payment_methods row
+     * @description Admin generic create for `payment_methods`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["payment_methods_create_admin_payment_methods_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/payment_methods/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a payment_methods row by id
+     * @description Admin generic fetch for a single `payment_methods` row.
+     */
+    get: operations["payment_methods_get_admin_payment_methods__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a payment_methods row
+     * @description Admin generic hard-delete for `payment_methods`.
+     */
+    delete: operations["payment_methods_delete_admin_payment_methods__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a payment_methods row
+     * @description Admin generic partial update for `payment_methods`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["payment_methods_update_admin_payment_methods__item_id__patch"];
+    trace?: never;
+  };
+  "/admin/payment_declarations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List payment_declarations rows
+     * @description Admin generic listing for `payment_declarations`. Supports free-text search across ['note', 'rejection_reason'] and pagination.
+     */
+    get: operations["payment_declarations_list_admin_payment_declarations_get"];
+    put?: never;
+    /**
+     * Create a payment_declarations row
+     * @description Admin generic create for `payment_declarations`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["payment_declarations_create_admin_payment_declarations_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/payment_declarations/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a payment_declarations row by id
+     * @description Admin generic fetch for a single `payment_declarations` row.
+     */
+    get: operations["payment_declarations_get_admin_payment_declarations__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a payment_declarations row
+     * @description Admin generic hard-delete for `payment_declarations`.
+     */
+    delete: operations["payment_declarations_delete_admin_payment_declarations__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a payment_declarations row
+     * @description Admin generic partial update for `payment_declarations`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["payment_declarations_update_admin_payment_declarations__item_id__patch"];
+    trace?: never;
+  };
+  "/admin/rolling_tributes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List rolling_tributes rows
+     * @description Admin generic listing for `rolling_tributes`. Supports free-text search across ['notes'] and pagination.
+     */
+    get: operations["rolling_tributes_list_admin_rolling_tributes_get"];
+    put?: never;
+    /**
+     * Create a rolling_tributes row
+     * @description Admin generic create for `rolling_tributes`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["rolling_tributes_create_admin_rolling_tributes_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/rolling_tributes/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a rolling_tributes row by id
+     * @description Admin generic fetch for a single `rolling_tributes` row.
+     */
+    get: operations["rolling_tributes_get_admin_rolling_tributes__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a rolling_tributes row
+     * @description Admin generic hard-delete for `rolling_tributes`.
+     */
+    delete: operations["rolling_tributes_delete_admin_rolling_tributes__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a rolling_tributes row
+     * @description Admin generic partial update for `rolling_tributes`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["rolling_tributes_update_admin_rolling_tributes__item_id__patch"];
+    trace?: never;
+  };
+  "/admin/debt_contracts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List debt_contracts rows
+     * @description Admin generic listing for `debt_contracts`. Supports free-text search across [] and pagination.
+     */
+    get: operations["debt_contracts_list_admin_debt_contracts_get"];
+    put?: never;
+    /**
+     * Create a debt_contracts row
+     * @description Admin generic create for `debt_contracts`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["debt_contracts_create_admin_debt_contracts_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/debt_contracts/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a debt_contracts row by id
+     * @description Admin generic fetch for a single `debt_contracts` row.
+     */
+    get: operations["debt_contracts_get_admin_debt_contracts__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a debt_contracts row
+     * @description Admin generic hard-delete for `debt_contracts`.
+     */
+    delete: operations["debt_contracts_delete_admin_debt_contracts__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a debt_contracts row
+     * @description Admin generic partial update for `debt_contracts`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["debt_contracts_update_admin_debt_contracts__item_id__patch"];
+    trace?: never;
+  };
+  "/admin/blacklist_entries": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List blacklist_entries rows
+     * @description Admin generic listing for `blacklist_entries`. Supports free-text search across ['reason'] and pagination.
+     */
+    get: operations["blacklist_entries_list_admin_blacklist_entries_get"];
+    put?: never;
+    /**
+     * Create a blacklist_entries row
+     * @description Admin generic create for `blacklist_entries`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["blacklist_entries_create_admin_blacklist_entries_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/blacklist_entries/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a blacklist_entries row by id
+     * @description Admin generic fetch for a single `blacklist_entries` row.
+     */
+    get: operations["blacklist_entries_get_admin_blacklist_entries__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a blacklist_entries row
+     * @description Admin generic hard-delete for `blacklist_entries`.
+     */
+    delete: operations["blacklist_entries_delete_admin_blacklist_entries__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a blacklist_entries row
+     * @description Admin generic partial update for `blacklist_entries`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["blacklist_entries_update_admin_blacklist_entries__item_id__patch"];
+    trace?: never;
+  };
+  "/admin/notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List notifications rows
+     * @description Admin generic listing for `notifications`. Supports free-text search across ['title', 'body'] and pagination.
+     */
+    get: operations["notifications_list_admin_notifications_get"];
+    put?: never;
+    /**
+     * Create a notifications row
+     * @description Admin generic create for `notifications`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["notifications_create_admin_notifications_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/notifications/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a notifications row by id
+     * @description Admin generic fetch for a single `notifications` row.
+     */
+    get: operations["notifications_get_admin_notifications__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a notifications row
+     * @description Admin generic hard-delete for `notifications`.
+     */
+    delete: operations["notifications_delete_admin_notifications__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a notifications row
+     * @description Admin generic partial update for `notifications`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["notifications_update_admin_notifications__item_id__patch"];
+    trace?: never;
+  };
+  "/admin/debt_events": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List debt_events rows
+     * @description Admin generic listing for `debt_events`. Supports free-text search across ['note'] and pagination.
+     */
+    get: operations["debt_events_list_admin_debt_events_get"];
+    put?: never;
+    /**
+     * Create a debt_events row
+     * @description Admin generic create for `debt_events`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["debt_events_create_admin_debt_events_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/debt_events/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a debt_events row by id
+     * @description Admin generic fetch for a single `debt_events` row.
+     */
+    get: operations["debt_events_get_admin_debt_events__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a debt_events row
+     * @description Admin generic hard-delete for `debt_events`.
+     */
+    delete: operations["debt_events_delete_admin_debt_events__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a debt_events row
+     * @description Admin generic partial update for `debt_events`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["debt_events_update_admin_debt_events__item_id__patch"];
+    trace?: never;
+  };
+  "/admin/contract_adjustments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List contract_adjustments rows
+     * @description Admin generic listing for `contract_adjustments`. Supports free-text search across ['reason'] and pagination.
+     */
+    get: operations["contract_adjustments_list_admin_contract_adjustments_get"];
+    put?: never;
+    /**
+     * Create a contract_adjustments row
+     * @description Admin generic create for `contract_adjustments`. Pydantic validates required fields. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    post: operations["contract_adjustments_create_admin_contract_adjustments_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/contract_adjustments/{item_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a contract_adjustments row by id
+     * @description Admin generic fetch for a single `contract_adjustments` row.
+     */
+    get: operations["contract_adjustments_get_admin_contract_adjustments__item_id__get"];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a contract_adjustments row
+     * @description Admin generic hard-delete for `contract_adjustments`.
+     */
+    delete: operations["contract_adjustments_delete_admin_contract_adjustments__item_id__delete"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a contract_adjustments row
+     * @description Admin generic partial update for `contract_adjustments`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
+     */
+    patch: operations["contract_adjustments_update_admin_contract_adjustments__item_id__patch"];
+    trace?: never;
+  };
+  "/me/notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List recent notifications for the authenticated user
+     * @description Returns the 50 most recent notifications for the authenticated user, newest first, together with the current unread count.
+     */
+    get: operations["list_my_notifications_me_notifications_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me/notifications/{notification_id}/read": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Mark a notification as read
+     * @description Marks the given notification as read for the authenticated user. No-op if the notification is already read. Silently no-ops when the notification does not belong to the caller to avoid leaking existence.
+     */
+    post: operations["mark_notification_read_me_notifications__notification_id__read_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me/preferences": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update the authenticated user's UI preferences
+     * @description Persists the user's UI theme preference. Accepts 'system', 'dark', or 'light'. Returns the stored value so the client can reconcile state.
+     */
+    patch: operations["update_preferences_me_preferences_patch"];
+    trace?: never;
+  };
+  "/me/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update the authenticated user's profile
+     * @description Updates first_name, last_name, bio, and avatar_url for the authenticated user. All fields are optional — only provided (non-null) values are written. Pass null explicitly to clear a field. bio is capped at 500 characters; avatar_url must be a valid HTTP/HTTPS URL if provided.
+     */
+    patch: operations["update_profile_me_profile_patch"];
+    trace?: never;
+  };
+  "/goddess/dashboard": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Goddess dashboard overview
+     * @description Returns aggregate metrics for the goddess home view: sub counts by status, active rolling and contract counts, pending validation queues, the list of late payments across all subs (capped at 50), and the total drained amount (sum of all validated payments for this goddess).
+     */
+    get: operations["goddess_dashboard_goddess_dashboard_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/dashboard": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Sub dashboard overview
+     * @description Returns aggregate metrics for the sub home view: amount due this week (rolling amount_due plus weekly contract minimum payments), whether the sub is currently late on any obligation, the list of active contracts with progress, the last 10 payment declarations, and the total amount sent (sum of all validated payments).
+     */
+    get: operations["sub_dashboard_sub_dashboard_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/planning": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Sub 30-day payment planning data
+     * @description Returns upcoming payment deadlines for the next 30 Europe/London calendar days (rolling tribute cycles and active contract instalments), the last 12 weeks of validated payment history (totals per week), and KPI figures: total paid all-time, total paid this calendar month, and the estimated rolling amount still owed before the end of the current month.
+     */
+    get: operations["sub_planning_sub_planning_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/payments/weekly": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Fetch weekly payment aggregates
+     * @description Returns 8 ISO week buckets (current week plus 7 previous) for the calling goddess. Each bucket contains the total validated payment amount and count of declarations validated in that Europe/London week (Monday–Sunday). Weeks are ordered newest first. Only `validated` declarations are counted.
+     */
+    get: operations["weekly_payments_goddess_payments_weekly_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/subs/late": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List subs currently late on their rolling tribute
+     * @description Returns all active subs under this goddess whose rolling tribute is currently late — i.e. the last cycle deadline has passed without a validated payment. Includes days late, the overdue amount (with any late penalty applied), and the datetime of the last validated payment if one exists. Sorted by days_late descending.
+     */
+    get: operations["late_subs_goddess_subs_late_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        /** ActiveContractSummary */
-        ActiveContractSummary: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Contract UUID
-             * @example 00000000-0000-0000-0000-000000000010
-             */
-            id: string;
-            /**
-             * Principal
-             * @description Original principal in GBP
-             * @example 1000.00
-             */
-            principal: string;
-            /**
-             * Balance
-             * @description Current outstanding balance in GBP
-             * @example 750.00
-             */
-            balance: string;
-            /**
-             * Progress Percent
-             * @description Paid-down percentage: (principal - balance) / principal * 100
-             * @example 25.00
-             */
-            progress_percent: string;
-            /**
-             * @description Contract status
-             * @example active
-             */
-            status: components["schemas"]["DebtContractStatus"];
-            /**
-             * Next Period Due At
-             * @description UTC datetime when the next period payment is due (null if not computable)
-             * @example 2026-04-20T00:00:00
-             */
-            next_period_due_at?: string | null;
-        };
-        /** AdjustmentCreateIn */
-        AdjustmentCreateIn: {
-            /**
-             * Amount
-             * @description Balance delta to add to the contract (GBP)
-             * @example 50.00
-             */
-            amount: number | string;
-            /**
-             * Reason
-             * @description Optional reason note
-             * @example extra tribute bundled into debt
-             */
-            reason?: string | null;
-        };
-        /**
-         * AdjustmentStatus
-         * @enum {string}
-         */
-        AdjustmentStatus: "applied" | "pending_sub_approval" | "accepted" | "refused";
-        /** AdminListOut[AdminRowAdminAction] */
-        AdminListOut_AdminRowAdminAction_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowAdminAction"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowBlacklistEntry] */
-        AdminListOut_AdminRowBlacklistEntry_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowBlacklistEntry"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowContractAdjustment] */
-        AdminListOut_AdminRowContractAdjustment_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowContractAdjustment"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowDebtContract] */
-        AdminListOut_AdminRowDebtContract_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowDebtContract"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowDebtEvent] */
-        AdminListOut_AdminRowDebtEvent_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowDebtEvent"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowGoddess] */
-        AdminListOut_AdminRowGoddess_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowGoddess"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowInvitation] */
-        AdminListOut_AdminRowInvitation_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowInvitation"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowNotification] */
-        AdminListOut_AdminRowNotification_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowNotification"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowPaymentDeclaration] */
-        AdminListOut_AdminRowPaymentDeclaration_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowPaymentDeclaration"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowPaymentMethod] */
-        AdminListOut_AdminRowPaymentMethod_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowPaymentMethod"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowRollingTribute] */
-        AdminListOut_AdminRowRollingTribute_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowRollingTribute"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminListOut[AdminRowUser] */
-        AdminListOut_AdminRowUser_: {
-            /**
-             * Items
-             * @description Rows for the current page
-             * @example []
-             */
-            items: components["schemas"]["AdminRowUser"][];
-            /**
-             * Total
-             * @description Total row count matching the query
-             * @example 0
-             */
-            total: number;
-            /**
-             * Page
-             * @description 1-based page index
-             * @example 1
-             */
-            page: number;
-            /**
-             * Page Size
-             * @description Maximum rows per page
-             * @example 50
-             */
-            page_size: number;
-        };
-        /** AdminRowAdminAction */
-        AdminRowAdminAction: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-00000000000c
-             */
-            id: string;
-            /**
-             * Admin Id
-             * Format: uuid
-             * @description Admin who performed the action
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            admin_id: string;
-            /**
-             * Acting As User Id
-             * @description User being impersonated at the time, if any
-             * @example null
-             */
-            acting_as_user_id?: string | null;
-            /**
-             * Action
-             * @description Action identifier (e.g. 'admin_update', 'impersonate')
-             * @example admin_update
-             */
-            action: string;
-            /**
-             * Entity
-             * @description Entity type affected (e.g. 'users')
-             * @example users
-             */
-            entity?: string | null;
-            /**
-             * Entity Id
-             * @description Primary key of the affected row
-             * @example null
-             */
-            entity_id?: string | null;
-            /**
-             * Payload Json
-             * @description Redacted audit payload (JSONB)
-             * @example null
-             */
-            payload_json?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Timestamp when the action was recorded (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            created_at: string;
-        };
-        /** AdminRowBlacklistEntry */
-        AdminRowBlacklistEntry: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-000000000008
-             */
-            id: string;
-            /**
-             * Goddess Id
-             * Format: uuid
-             * @description Blacklisting goddess FK
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            goddess_id: string;
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description Blacklisted sub FK
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            sub_id: string;
-            /**
-             * Reason
-             * @description Reason for blacklisting
-             * @example Repeated non-payment
-             */
-            reason?: string | null;
-            /**
-             * Balance Snapshot
-             * @description Outstanding balance at breach time in GBP
-             * @example 120.00
-             */
-            balance_snapshot: string;
-            /**
-             * Reinstatement Fee Paid
-             * @description Fee paid to reinstate (GBP)
-             * @example null
-             */
-            reinstatement_fee_paid?: string | null;
-            /**
-             * Breached At
-             * Format: date-time
-             * @description Breach timestamp (UTC)
-             * @example 2026-01-15T00:00:00
-             */
-            breached_at: string;
-            /**
-             * Forgiven At
-             * @description Forgiveness timestamp if reinstated (UTC)
-             * @example null
-             */
-            forgiven_at?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Row creation timestamp (UTC)
-             * @example 2026-01-15T00:00:00
-             */
-            created_at: string;
-        };
-        /** AdminRowContractAdjustment */
-        AdminRowContractAdjustment: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-00000000000b
-             */
-            id: string;
-            /**
-             * Contract Id
-             * Format: uuid
-             * @description Parent contract FK
-             * @example 00000000-0000-0000-0000-000000000007
-             */
-            contract_id: string;
-            /**
-             * Proposed By
-             * Format: uuid
-             * @description User who proposed the adjustment
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            proposed_by: string;
-            /**
-             * Amount
-             * @description Adjustment amount in GBP (negative = forgiveness)
-             * @example 50.00
-             */
-            amount: string;
-            /**
-             * Reason
-             * @description Reason for the adjustment
-             * @example Goodwill discount
-             */
-            reason?: string | null;
-            /**
-             * @description Adjustment lifecycle status
-             * @example applied
-             */
-            status: components["schemas"]["AdjustmentStatus"];
-            /**
-             * Created At
-             * Format: date-time
-             * @description Row creation timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             * @description Last modification timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            updated_at: string;
-            /**
-             * Resolved At
-             * @description Resolution timestamp (UTC)
-             * @example null
-             */
-            resolved_at?: string | null;
-        };
-        /** AdminRowDebtContract */
-        AdminRowDebtContract: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-000000000007
-             */
-            id: string;
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description Debtor sub FK
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            sub_id: string;
-            /**
-             * Goddess Id
-             * Format: uuid
-             * @description Creditor goddess FK
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            goddess_id: string;
-            /**
-             * Sub Initiated
-             * @description Whether the sub proposed the contract
-             * @example false
-             */
-            sub_initiated: boolean;
-            /**
-             * Principal
-             * @description Original loan amount in GBP
-             * @example 500.00
-             */
-            principal: string;
-            /**
-             * Interest Rate
-             * @description Interest rate (e.g. 0.05 = 5%)
-             * @example 0.050000
-             */
-            interest_rate: string;
-            /**
-             * @description Compounding period
-             * @example monthly
-             */
-            interest_period: components["schemas"]["InterestPeriod"];
-            /**
-             * Duration Periods
-             * @description Number of payment periods
-             * @example 12
-             */
-            duration_periods: number;
-            /**
-             * @description How often payments are due
-             * @example weekly
-             */
-            payment_frequency: components["schemas"]["PaymentFrequency"];
-            /**
-             * Minimum Payment
-             * @description Minimum payment amount in GBP
-             * @example 50.00
-             */
-            minimum_payment: string;
-            /**
-             * @description Severity tier of late penalties
-             * @example medium
-             */
-            late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
-            /**
-             * Late Penalty Percent
-             * @description Late penalty rate (e.g. 0.02 = 2%)
-             * @example 0.0200
-             */
-            late_penalty_percent: string;
-            /**
-             * Dom Can Add Surprise Penalty
-             * @description Whether goddess may add surprise penalties
-             * @example false
-             */
-            dom_can_add_surprise_penalty: boolean;
-            /**
-             * @description Policy for mid-contract debt additions
-             * @example disabled
-             */
-            mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
-            /**
-             * Exit Amount
-             * @description Buyout amount in GBP
-             * @example 450.00
-             */
-            exit_amount: string;
-            /**
-             * @description Contract lifecycle status
-             * @example active
-             */
-            status: components["schemas"]["DebtContractStatus"];
-            /**
-             * Current Version Id
-             * @description FK to latest negotiation version
-             * @example null
-             */
-            current_version_id?: string | null;
-            /**
-             * Signed Pdf Url
-             * @description URL to signed contract PDF
-             * @example null
-             */
-            signed_pdf_url?: string | null;
-            /**
-             * Signed Pdf Sha256
-             * @description SHA-256 of the signed PDF
-             * @example null
-             */
-            signed_pdf_sha256?: string | null;
-            /**
-             * Signed At
-             * @description Signature timestamp (UTC)
-             * @example null
-             */
-            signed_at?: string | null;
-            /**
-             * Balance
-             * @description Current outstanding balance in GBP
-             * @example 380.00
-             */
-            balance: string;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Row creation timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             * @description Last modification timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            updated_at: string;
-        };
-        /** AdminRowDebtEvent */
-        AdminRowDebtEvent: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-00000000000a
-             */
-            id: string;
-            /**
-             * Contract Id
-             * Format: uuid
-             * @description Parent contract FK
-             * @example 00000000-0000-0000-0000-000000000007
-             */
-            contract_id: string;
-            /**
-             * @description Event type enum
-             * @example period_interest
-             */
-            event_type: components["schemas"]["EventType"];
-            /**
-             * Amount
-             * @description Amount applied in GBP
-             * @example 12.5000
-             */
-            amount: string;
-            /**
-             * Period Index
-             * @description Payment period index if applicable
-             * @example 1
-             */
-            period_index?: number | null;
-            /**
-             * Note
-             * @description Optional admin note
-             * @example null
-             */
-            note?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Row creation timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            created_at: string;
-        };
-        /** AdminRowGoddess */
-        AdminRowGoddess: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            id: string;
-            /**
-             * Display Name
-             * @description Public display name
-             * @example Lady X
-             */
-            display_name: string;
-            /**
-             * Email
-             * @description Login email
-             * @example goddess@example.com
-             */
-            email: string;
-            /**
-             * Password Hash
-             * @description Bcrypt hash
-             * @example $2b$12$...
-             */
-            password_hash: string;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Row creation timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            created_at: string;
-        };
-        /** AdminRowInvitation */
-        AdminRowInvitation: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-000000000003
-             */
-            id: string;
-            /**
-             * Token
-             * @description Unique invite token
-             * @example abc123
-             */
-            token: string;
-            /**
-             * Goddess Id
-             * Format: uuid
-             * @description Issuing goddess FK
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            goddess_id: string;
-            /**
-             * Entry Tribute Amount
-             * @description Required entry tribute in GBP
-             * @example 50.00
-             */
-            entry_tribute_amount: string;
-            /**
-             * Note
-             * @description Optional note for the invitee
-             * @example Welcome!
-             */
-            note?: string | null;
-            /**
-             * Expires At
-             * Format: date-time
-             * @description Expiry timestamp (UTC)
-             * @example 2026-06-01T00:00:00
-             */
-            expires_at: string;
-            /**
-             * Used At
-             * @description When the token was claimed (UTC)
-             * @example null
-             */
-            used_at?: string | null;
-            /**
-             * Used By User Id
-             * @description User who claimed the invitation
-             * @example null
-             */
-            used_by_user_id?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Row creation timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            created_at: string;
-        };
-        /** AdminRowNotification */
-        AdminRowNotification: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-000000000009
-             */
-            id: string;
-            /**
-             * User Id
-             * Format: uuid
-             * @description Recipient user FK
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            user_id: string;
-            /**
-             * @description Notification type enum
-             * @example payment_pending
-             */
-            type: components["schemas"]["NotificationType"];
-            /**
-             * Title
-             * @description Short notification title
-             * @example Payment pending validation
-             */
-            title: string;
-            /**
-             * Body
-             * @description Notification body text
-             * @example Your £25 tribute is awaiting goddess review.
-             */
-            body?: string | null;
-            /**
-             * Link
-             * @description Optional deep-link path
-             * @example /payments/abc123
-             */
-            link?: string | null;
-            /**
-             * Payload
-             * @description Structured event payload (JSONB)
-             * @example null
-             */
-            payload?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * Read At
-             * @description When the notification was read (UTC)
-             * @example null
-             */
-            read_at?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Row creation timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            created_at: string;
-        };
-        /** AdminRowPaymentDeclaration */
-        AdminRowPaymentDeclaration: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-000000000005
-             */
-            id: string;
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description Declaring sub FK
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            sub_id: string;
-            /**
-             * Goddess Id
-             * Format: uuid
-             * @description Receiving goddess FK
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            goddess_id: string;
-            /**
-             * Method Id
-             * Format: uuid
-             * @description Payment method FK
-             * @example 00000000-0000-0000-0000-000000000004
-             */
-            method_id: string;
-            /**
-             * Amount
-             * @description Declared amount in GBP
-             * @example 25
-             */
-            amount: number;
-            /**
-             * External Timestamp
-             * @description When the transfer was made (UTC)
-             * @example null
-             */
-            external_timestamp?: string | null;
-            /**
-             * Note
-             * @description Sub's note for the goddess
-             * @example Weekly tribute
-             */
-            note?: string | null;
-            /**
-             * @description Payment category enum
-             * @example rolling
-             */
-            category: components["schemas"]["PaymentCategory"];
-            /**
-             * @description Declaration status enum
-             * @example pending
-             */
-            status: components["schemas"]["PaymentStatus"];
-            /**
-             * Target Id
-             * @description Optional allocation target FK
-             * @example null
-             */
-            target_id?: string | null;
-            /**
-             * Created By
-             * Format: uuid
-             * @description User who created the record
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            created_by: string;
-            /**
-             * Declared At
-             * Format: date-time
-             * @description Declaration timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            declared_at: string;
-            /**
-             * Validated At
-             * @description Validation timestamp (UTC)
-             * @example null
-             */
-            validated_at?: string | null;
-            /**
-             * Validated By
-             * @description Goddess who validated
-             * @example null
-             */
-            validated_by?: string | null;
-            /**
-             * Rejection Reason
-             * @description Reason if rejected
-             * @example null
-             */
-            rejection_reason?: string | null;
-            /**
-             * @description Who originated the declaration
-             * @example sub_declared
-             */
-            source: components["schemas"]["DeclarationSource"];
-        };
-        /** AdminRowPaymentMethod */
-        AdminRowPaymentMethod: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-000000000004
-             */
-            id: string;
-            /**
-             * Goddess Id
-             * Format: uuid
-             * @description Owning goddess FK
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            goddess_id: string;
-            /**
-             * Name
-             * @description Display label
-             * @example PayPal
-             */
-            name: string;
-            /**
-             * @description Method type enum
-             * @example paypal
-             */
-            type: components["schemas"]["PaymentMethodType"];
-            /**
-             * Handle Or Link
-             * @description Payment handle or URL
-             * @example goddess@paypal.com
-             */
-            handle_or_link: string;
-            /**
-             * Note
-             * @description Optional instructions
-             * @example Friends & Family only
-             */
-            note?: string | null;
-            /**
-             * Enabled
-             * @description Whether the method is active
-             * @example true
-             */
-            enabled: boolean;
-            /**
-             * Sort Order
-             * @description Display ordering index
-             * @example 0
-             */
-            sort_order: number;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Row creation timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             * @description Last modification timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            updated_at: string;
-        };
-        /** AdminRowRollingTribute */
-        AdminRowRollingTribute: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-000000000006
-             */
-            id: string;
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description Subject sub FK
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            sub_id: string;
-            /**
-             * Goddess Id
-             * Format: uuid
-             * @description Receiving goddess FK
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            goddess_id: string;
-            /**
-             * Amount
-             * @description Weekly tribute amount in GBP
-             * @example 10
-             */
-            amount: number;
-            /**
-             * @description Day of week the payment is due
-             * @example fri
-             */
-            deadline_day: components["schemas"]["DeadlineDay"];
-            /**
-             * Deadline Time
-             * Format: time
-             * @description Time of day the payment is due (UTC)
-             * @example 23:59:00
-             */
-            deadline_time: string;
-            /**
-             * Late Multiplier Per Day
-             * @description Extra amount multiplier per day late
-             * @example 1
-             */
-            late_multiplier_per_day: number;
-            /**
-             * Paused
-             * @description Whether the schedule is paused
-             * @example false
-             */
-            paused: boolean;
-            /**
-             * Notes
-             * @description Admin/goddess notes
-             * @example null
-             */
-            notes?: string | null;
-            /**
-             * Last Paid At
-             * @description Last successful payment timestamp (UTC)
-             * @example null
-             */
-            last_paid_at?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Row creation timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             * @description Last modification timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            updated_at: string;
-        };
-        /** AdminRowUser */
-        AdminRowUser: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Primary key
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            id: string;
-            /**
-             * Goddess Id
-             * @description Owning goddess FK
-             * @example null
-             */
-            goddess_id?: string | null;
-            /**
-             * Username
-             * @description Unique login handle
-             * @example alice
-             */
-            username: string;
-            /**
-             * Email
-             * @description Email address
-             * @example alice@example.com
-             */
-            email: string;
-            /**
-             * Password Hash
-             * @description Bcrypt hash — never display to users
-             * @example $2b$12$...
-             */
-            password_hash: string;
-            /**
-             * @description User role
-             * @example sub
-             */
-            role: components["schemas"]["UserRole"];
-            /**
-             * @description Account status
-             * @example active
-             */
-            status: components["schemas"]["UserStatus"];
-            /**
-             * First Name
-             * @description Given name
-             * @example Alice
-             */
-            first_name?: string | null;
-            /**
-             * Last Name
-             * @description Family name
-             * @example Smith
-             */
-            last_name?: string | null;
-            /**
-             * Twitter Handle
-             * @description Twitter/X handle
-             * @example @alice
-             */
-            twitter_handle?: string | null;
-            /**
-             * Source Note
-             * @description Acquisition note
-             * @example referred by Bob
-             */
-            source_note?: string | null;
-            /**
-             * Avatar Url
-             * @description Avatar image URL
-             * @example https://cdn.example.com/alice.jpg
-             */
-            avatar_url?: string | null;
-            /**
-             * Bio
-             * @description User bio
-             * @example Hello world
-             */
-            bio?: string | null;
-            /**
-             * Theme Preference
-             * @description UI theme key
-             * @example system
-             */
-            theme_preference: string;
-            /**
-             * Last Login At
-             * @description Last successful login (UTC)
-             * @example null
-             */
-            last_login_at?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Row creation timestamp (UTC)
-             * @example 2026-01-01T00:00:00
-             */
-            created_at: string;
-        };
-        /** AllocationOut */
-        AllocationOut: {
-            /**
-             * @description What ledger bucket received this allocation
-             * @example entry
-             */
-            target_type: components["schemas"]["AllocationTargetType"];
-            /**
-             * Target Id
-             * @description Polymorphic target ID (None for entry/tribute)
-             * @example null
-             */
-            target_id?: string | null;
-            /**
-             * Amount
-             * @description Allocated amount in GBP
-             * @example 30.00
-             */
-            amount: string;
-            /**
-             * Allocated At
-             * Format: date-time
-             * @description UTC datetime when the allocation was emitted
-             */
-            allocated_at: string;
-        };
-        /**
-         * AllocationTargetType
-         * @enum {string}
-         */
-        AllocationTargetType: "entry" | "rolling_cycle" | "contract_debt" | "contract_buyout" | "tribute";
-        /** BlacklistEntryOut */
-        BlacklistEntryOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Blacklist entry UUID
-             */
-            id: string;
-            /**
-             * Goddess Id
-             * Format: uuid
-             * @description Goddess UUID
-             */
-            goddess_id: string;
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description Blacklisted sub UUID
-             */
-            sub_id: string;
-            /**
-             * Reason
-             * @description Reason for the breach
-             */
-            reason?: string | null;
-            /**
-             * Balance Snapshot
-             * @description Sum of active-contract balances at the time of breach (GBP)
-             * @example 1500.00
-             */
-            balance_snapshot: string;
-            /**
-             * Reinstatement Fee Paid
-             * @description Fee paid by the sub to be forgiven (GBP); null if not yet forgiven
-             * @example 100.00
-             */
-            reinstatement_fee_paid?: string | null;
-            /**
-             * Breached At
-             * Format: date-time
-             * @description UTC datetime of breach
-             */
-            breached_at: string;
-            /**
-             * Forgiven At
-             * @description UTC datetime of forgiveness, if any
-             */
-            forgiven_at?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description UTC datetime of record creation
-             */
-            created_at: string;
-        };
-        /** BreachIn */
-        BreachIn: {
-            /**
-             * Reason
-             * @description Optional free-text reason for the breach
-             * @example missed three consecutive payments
-             */
-            reason?: string | null;
-        };
-        /** BuyoutIntentOut */
-        BuyoutIntentOut: {
-            /**
-             * Exit Amount
-             * @description Amount owed to buy out the contract (GBP)
-             * @example 250.00
-             */
-            exit_amount: string;
-            /**
-             * Payment Methods
-             * @description Goddess's enabled payment methods for completing the buyout
-             */
-            payment_methods: components["schemas"]["PaymentMethodOut"][];
-        };
-        /** ContractAdjustmentOut */
-        ContractAdjustmentOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Adjustment UUID
-             */
-            id: string;
-            /**
-             * Contract Id
-             * Format: uuid
-             * @description Parent contract UUID
-             */
-            contract_id: string;
-            /**
-             * Proposed By
-             * Format: uuid
-             * @description UUID of the user who proposed the adjustment
-             */
-            proposed_by: string;
-            /**
-             * Amount
-             * @description Adjustment amount (GBP)
-             * @example 50.00
-             */
-            amount: string;
-            /**
-             * Reason
-             * @description Optional reason note
-             */
-            reason?: string | null;
-            /** @description Adjustment lifecycle status */
-            status: components["schemas"]["AdjustmentStatus"];
-            /**
-             * Created At
-             * Format: date-time
-             * @description UTC datetime of creation
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             * @description UTC datetime of last update
-             */
-            updated_at: string;
-            /**
-             * Resolved At
-             * @description UTC datetime when accepted/refused/applied
-             */
-            resolved_at?: string | null;
-        };
-        /** CronRunOut */
-        CronRunOut: {
-            /**
-             * Ok
-             * @description Always true on success
-             * @example true
-             */
-            ok: boolean;
-            /**
-             * Ran At
-             * Format: date-time
-             * @description UTC datetime when the job was invoked
-             */
-            ran_at: string;
-            /**
-             * Subs
-             * @description Number of active subs processed
-             * @example 3
-             */
-            subs: number;
-            /**
-             * Rolling
-             * @description Number of rolling tributes touched
-             * @example 2
-             */
-            rolling: number;
-            /**
-             * Contracts
-             * @description Number of contract period ticks applied
-             * @example 1
-             */
-            contracts: number;
-        };
-        /**
-         * DeadlineDay
-         * @enum {string}
-         */
-        DeadlineDay: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
-        /** DebtContractAuditOut */
-        DebtContractAuditOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Audit record UUID
-             */
-            id: string;
-            /**
-             * Contract Id
-             * Format: uuid
-             * @description Parent contract UUID
-             */
-            contract_id: string;
-            /** @description State-transition event type */
-            event_type: components["schemas"]["DebtContractEventType"];
-            /**
-             * Actor Id
-             * Format: uuid
-             * @description UUID of the user who triggered the transition
-             */
-            actor_id: string;
-            /** @description Status before the transition */
-            from_status?: components["schemas"]["DebtContractStatus"] | null;
-            /** @description Status after the transition */
-            to_status?: components["schemas"]["DebtContractStatus"] | null;
-            /**
-             * Note
-             * @description Optional free-text note on the transition
-             */
-            note?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description UTC datetime of the audit event
-             */
-            created_at: string;
-        };
-        /** DebtContractCounter */
-        DebtContractCounter: {
-            /**
-             * Principal
-             * @description Proposed principal in GBP
-             * @example 450.00
-             */
-            principal: number | string;
-            /**
-             * Interest Rate
-             * @description Proposed interest rate as a fraction
-             * @example 0.150000
-             */
-            interest_rate: number | string;
-            /**
-             * @description Proposed interest period
-             * @example monthly
-             */
-            interest_period: components["schemas"]["InterestPeriod"];
-            /**
-             * Duration Periods
-             * @description Proposed number of payment periods
-             * @example 10
-             */
-            duration_periods: number;
-            /**
-             * @description Proposed payment frequency
-             * @example monthly
-             */
-            payment_frequency: components["schemas"]["PaymentFrequency"];
-            /**
-             * Minimum Payment
-             * @description Proposed minimum payment per period (GBP)
-             * @example 40.00
-             */
-            minimum_payment: number | string;
-            /**
-             * @description Proposed late penalty severity preset
-             * @example light
-             */
-            late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
-            /**
-             * Late Penalty Percent
-             * @description Proposed late penalty fraction
-             * @example 0.0500
-             */
-            late_penalty_percent: number | string;
-            /**
-             * Dom Can Add Surprise Penalty
-             * @description Proposed setting for surprise-penalty capability
-             * @example false
-             */
-            dom_can_add_surprise_penalty: boolean;
-            /**
-             * @description Proposed mid-contract addition mode
-             * @example sub_approval_required
-             */
-            mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
-            /**
-             * Exit Amount
-             * @description Proposed exit/buyout reference amount (GBP)
-             * @example 500.00
-             */
-            exit_amount: number | string;
-        };
-        /** DebtContractCreate */
-        DebtContractCreate: {
-            /**
-             * Principal
-             * @description Starting balance of the debt in GBP
-             * @example 500.00
-             */
-            principal: number | string;
-            /**
-             * Interest Rate
-             * @description Interest rate as a fraction (e.g. 0.200000 = 20%)
-             * @example 0.200000
-             */
-            interest_rate: number | string;
-            /**
-             * @description Whether the rate is monthly or yearly (yearly converted via AER)
-             * @example monthly
-             */
-            interest_period: components["schemas"]["InterestPeriod"];
-            /**
-             * Duration Periods
-             * @description Number of payment periods for the full term
-             * @example 12
-             */
-            duration_periods: number;
-            /**
-             * @description How often payments are due
-             * @example monthly
-             */
-            payment_frequency: components["schemas"]["PaymentFrequency"];
-            /**
-             * Minimum Payment
-             * @description Minimum payment per period to avoid a late penalty (GBP)
-             * @example 50.00
-             */
-            minimum_payment: number | string;
-            /**
-             * @description UI preset describing severity of the late penalty
-             * @example medium
-             */
-            late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
-            /**
-             * Late Penalty Percent
-             * @description Fraction added to balance when a period is missed (e.g. 0.1000 = 10%)
-             * @example 0.1000
-             */
-            late_penalty_percent: number | string;
-            /**
-             * Dom Can Add Surprise Penalty
-             * @description Goddess may apply an ad-hoc penalty outside the late-penalty mechanism
-             * @example false
-             */
-            dom_can_add_surprise_penalty: boolean;
-            /**
-             * @description Controls whether the goddess can add balance mid-contract and whether sub approval is required
-             * @example disabled
-             */
-            mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
-            /**
-             * Exit Amount
-             * @description Reference amount for buyout formula and breach calculations (GBP)
-             * @example 600.00
-             */
-            exit_amount: number | string;
-        };
-        /**
-         * DebtContractEventType
-         * @enum {string}
-         */
-        DebtContractEventType: "proposed" | "countered" | "accepted_counter" | "rejected_counter" | "signed" | "cancelled" | "closed" | "breached" | "completed";
-        /** DebtContractOut */
-        DebtContractOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Contract UUID
-             */
-            id: string;
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description Sub user UUID
-             */
-            sub_id: string;
-            /**
-             * Goddess Id
-             * Format: uuid
-             * @description Goddess UUID
-             */
-            goddess_id: string;
-            /**
-             * Sub Initiated
-             * @description True when the sub proposed the contract
-             */
-            sub_initiated: boolean;
-            /**
-             * Principal
-             * @description Starting balance (GBP)
-             * @example 500.00
-             */
-            principal: string;
-            /**
-             * Interest Rate
-             * @description Interest rate fraction
-             * @example 0.200000
-             */
-            interest_rate: string;
-            /** @description Interest period enum */
-            interest_period: components["schemas"]["InterestPeriod"];
-            /**
-             * Duration Periods
-             * @description Number of payment periods
-             */
-            duration_periods: number;
-            /** @description Payment frequency enum */
-            payment_frequency: components["schemas"]["PaymentFrequency"];
-            /**
-             * Minimum Payment
-             * @description Minimum payment per period (GBP)
-             * @example 50.00
-             */
-            minimum_payment: string;
-            /** @description Late penalty severity preset */
-            late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
-            /**
-             * Late Penalty Percent
-             * @description Late penalty fraction
-             * @example 0.1000
-             */
-            late_penalty_percent: string;
-            /**
-             * Dom Can Add Surprise Penalty
-             * @description Goddess surprise-penalty capability
-             */
-            dom_can_add_surprise_penalty: boolean;
-            /** @description Mid-contract addition mode */
-            mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
-            /**
-             * Exit Amount
-             * @description Exit/buyout reference amount (GBP)
-             * @example 600.00
-             */
-            exit_amount: string;
-            /** @description Current contract status */
-            status: components["schemas"]["DebtContractStatus"];
-            /** @description Expanded current negotiation version snapshot */
-            current_version?: components["schemas"]["DebtContractVersionOut"] | null;
-            /**
-             * Signed Pdf Url
-             * @description Presigned R2 URL of the signed PDF
-             */
-            signed_pdf_url?: string | null;
-            /**
-             * Signed Pdf Sha256
-             * @description SHA-256 hash of the signed PDF for integrity
-             */
-            signed_pdf_sha256?: string | null;
-            /**
-             * Signed At
-             * @description UTC datetime when the contract was signed
-             */
-            signed_at?: string | null;
-            /**
-             * Balance
-             * @description Cached current balance (GBP); event log is authoritative
-             * @example 500.00
-             */
-            balance: string;
-            /**
-             * Created At
-             * Format: date-time
-             * @description UTC datetime of contract creation
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             * @description UTC datetime of last update
-             */
-            updated_at: string;
-            /**
-             * Total Paid
-             * @description Sum of all validated payment allocations targeting this contract (GBP)
-             * @example 150.00
-             */
-            total_paid: string;
-            /**
-             * Total Due
-             * @description Agreed total amount due over the full term (minimum_payment × duration_periods, GBP)
-             * @example 600.00
-             */
-            total_due: string;
-            /**
-             * Remaining
-             * @description total_due minus total_paid, clamped to 0 (GBP)
-             * @example 450.00
-             */
-            remaining: string;
-            /**
-             * Progress Pct
-             * @description Repayment progress as a percentage 0–100, rounded to 1 decimal place
-             * @example 25
-             */
-            progress_pct: number;
-            /**
-             * Payment Count
-             * @description Number of validated payments applied to this contract
-             * @example 3
-             */
-            payment_count: number;
-            /**
-             * Last Payment At
-             * @description UTC datetime of the most recent validated payment, or null if none
-             */
-            last_payment_at?: string | null;
-            /**
-             * First Payment At
-             * @description UTC datetime of the earliest validated payment, or null if none
-             */
-            first_payment_at?: string | null;
-            /**
-             * On Track
-             * @description True when total_paid meets or exceeds the expected cumulative instalment total up to today (period_index × minimum_payment). Always true for contracts that have not yet been signed.
-             * @example true
-             */
-            on_track: boolean;
-        };
-        /** DebtContractSignIn */
-        DebtContractSignIn: {
-            /**
-             * Signature Png B64
-             * @description Base64-encoded PNG of the sub's signature
-             * @example iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==
-             */
-            signature_png_b64: string;
-        };
-        /**
-         * DebtContractStatus
-         * @enum {string}
-         */
-        DebtContractStatus: "pending_sub" | "pending_dom" | "pending_dom_counter" | "pending_sub_signature" | "active" | "closed" | "breached" | "completed" | "cancelled_by_dom";
-        /** DebtContractVersionOut */
-        DebtContractVersionOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Version record UUID
-             */
-            id: string;
-            /**
-             * Contract Id
-             * Format: uuid
-             * @description Parent contract UUID
-             */
-            contract_id: string;
-            /**
-             * Round No
-             * @description 0 = original proposal, 1 = counter-proposal
-             */
-            round_no: number;
-            /**
-             * Proposed By
-             * Format: uuid
-             * @description UUID of the user who proposed this version
-             */
-            proposed_by: string;
-            /**
-             * Proposed At
-             * Format: date-time
-             * @description UTC datetime when this version was proposed
-             */
-            proposed_at: string;
-            /**
-             * Principal
-             * @description Principal in GBP
-             * @example 500.00
-             */
-            principal: string;
-            /**
-             * Interest Rate
-             * @description Interest rate fraction
-             * @example 0.200000
-             */
-            interest_rate: string;
-            /** @description Interest period enum */
-            interest_period: components["schemas"]["InterestPeriod"];
-            /**
-             * Duration Periods
-             * @description Number of payment periods
-             */
-            duration_periods: number;
-            /** @description Payment frequency enum */
-            payment_frequency: components["schemas"]["PaymentFrequency"];
-            /**
-             * Minimum Payment
-             * @description Minimum payment per period (GBP)
-             * @example 50.00
-             */
-            minimum_payment: string;
-            /** @description Late penalty severity preset */
-            late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
-            /**
-             * Late Penalty Percent
-             * @description Late penalty fraction
-             * @example 0.1000
-             */
-            late_penalty_percent: string;
-            /**
-             * Dom Can Add Surprise Penalty
-             * @description Goddess surprise-penalty capability
-             */
-            dom_can_add_surprise_penalty: boolean;
-            /** @description Mid-contract addition mode */
-            mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
-            /**
-             * Exit Amount
-             * @description Exit/buyout reference amount (GBP)
-             * @example 600.00
-             */
-            exit_amount: string;
-        };
-        /** DebtSimulationOut */
-        DebtSimulationOut: {
-            /**
-             * Periods
-             * @description Period-by-period projection
-             */
-            periods: components["schemas"]["DebtSimulationPeriod"][];
-            /**
-             * Severe Warning
-             * @description True if minimum payment cannot keep up with interest growth
-             */
-            severe_warning: boolean;
-            /**
-             * Period Rate
-             * @description Per-period interest rate (fraction)
-             */
-            period_rate: string;
-            /**
-             * Monthly Rate
-             * @description Derived monthly interest rate (fraction)
-             */
-            monthly_rate: string;
-        };
-        /** DebtSimulationPeriod */
-        DebtSimulationPeriod: {
-            /**
-             * Period
-             * @description Period index (1-based)
-             */
-            period: number;
-            /**
-             * Balance Before Payment
-             * @description Balance after interest, before payment
-             */
-            balance_before_payment: string;
-            /**
-             * Payment
-             * @description Payment applied this period
-             */
-            payment: string;
-            /**
-             * Balance End
-             * @description Balance after payment
-             */
-            balance_end: string;
-        };
-        /**
-         * DeclarationSource
-         * @enum {string}
-         */
-        DeclarationSource: "sub_declared" | "goddess_recorded";
-        /** DeclarePaymentIn */
-        DeclarePaymentIn: {
-            /**
-             * Amount
-             * @description Payment amount in GBP
-             * @example 30.00
-             */
-            amount: number | string;
-            /**
-             * Method Id
-             * Format: uuid
-             * @description UUID of the payment method used
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            method_id: string;
-            /**
-             * @description Payment category — determines ledger routing
-             * @example entry
-             */
-            category: components["schemas"]["PaymentCategory"];
-            /**
-             * External Timestamp
-             * @description UTC datetime when the payment was actually made (sub-reported)
-             * @example 2026-04-13T12:00:00
-             */
-            external_timestamp?: string | null;
-            /**
-             * Note
-             * @description Optional note from the sub
-             * @example Sent via Throne
-             */
-            note?: string | null;
-            /**
-             * Target Id
-             * @description Polymorphic target — contract or rolling cycle ID (required for some categories)
-             * @example null
-             */
-            target_id?: string | null;
-        };
-        /** EditDeclarationIn */
-        EditDeclarationIn: {
-            /**
-             * Amount
-             * @description Updated payment amount in GBP
-             * @example 30.00
-             */
-            amount?: number | string | null;
-            /**
-             * Method Id
-             * @description Updated payment method UUID
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            method_id?: string | null;
-            /**
-             * @description Updated payment category
-             * @example tribute
-             */
-            category?: components["schemas"]["PaymentCategory"] | null;
-            /**
-             * External Timestamp
-             * @description Updated external payment timestamp
-             * @example 2026-04-13T12:00:00
-             */
-            external_timestamp?: string | null;
-            /**
-             * Note
-             * @description Updated note
-             * @example Corrected note
-             */
-            note?: string | null;
-            /**
-             * Target Id
-             * @description Updated polymorphic target ID
-             * @example null
-             */
-            target_id?: string | null;
-        };
-        /**
-         * EventType
-         * @enum {string}
-         */
-        EventType: "period_interest" | "late_penalty" | "payment_applied" | "adjustment" | "surprise_penalty" | "buyout_paid";
-        /** ForgiveIn */
-        ForgiveIn: {
-            /**
-             * Reinstatement Fee Paid
-             * @description Reinstatement fee paid by the sub to be removed from blacklist (GBP)
-             * @example 100.00
-             */
-            reinstatement_fee_paid: number | string;
-        };
-        /** GoddessDashboardOut */
-        GoddessDashboardOut: {
-            /**
-             * Subs Total
-             * @description Total subs linked to this goddess (active + blacklisted)
-             * @example 5
-             */
-            subs_total: number;
-            /**
-             * Subs Active
-             * @description Number of active subs
-             * @example 4
-             */
-            subs_active: number;
-            /**
-             * Subs Blacklisted
-             * @description Number of blacklisted subs
-             * @example 1
-             */
-            subs_blacklisted: number;
-            /**
-             * Rolling Count
-             * @description Number of rolling tributes currently not paused
-             * @example 3
-             */
-            rolling_count: number;
-            /**
-             * Contracts Active
-             * @description Number of active debt contracts
-             * @example 2
-             */
-            contracts_active: number;
-            /**
-             * Pending Validations
-             * @description Number of payment declarations pending validation
-             * @example 4
-             */
-            pending_validations: number;
-            /**
-             * Pending Contracts
-             * @description Number of contracts in any pending_* status
-             * @example 1
-             */
-            pending_contracts: number;
-            /**
-             * Late Payments
-             * @description Up to 50 most urgent late payments (rolling + contract), sorted by days_late descending
-             */
-            late_payments?: components["schemas"]["LatePaymentItem"][];
-            /**
-             * Total Drained
-             * @description Sum of all validated payment amounts across this goddess (GBP)
-             * @example 1250.00
-             */
-            total_drained: string;
-        };
-        /** HTTPValidationError */
-        HTTPValidationError: {
-            /** Detail */
-            detail?: components["schemas"]["ValidationError"][];
-        };
-        /** ImpersonationAccess */
-        ImpersonationAccess: {
-            /**
-             * Access Token
-             * @description Short-lived access token impersonating the target user
-             * @example eyJ...
-             */
-            access_token: string;
-            /**
-             * Expires In
-             * @description Impersonation access token lifetime in seconds
-             * @example 1800
-             */
-            expires_in: number;
-        };
-        /**
-         * InterestPeriod
-         * @enum {string}
-         */
-        InterestPeriod: "monthly" | "yearly";
-        /** InvitationCreate */
-        InvitationCreate: {
-            /**
-             * Entry Tribute Amount
-             * @description Entry tribute amount in GBP that the sub must declare on signup
-             * @example 50.00
-             */
-            entry_tribute_amount: number | string;
-            /**
-             * Note
-             * @description Optional private note visible to the sub on the invitation landing page
-             * @example Welcome, slave.
-             */
-            note?: string | null;
-            /**
-             * Expires In Days
-             * @description How many days from now until the invitation link expires
-             * @default 7
-             * @example 7
-             */
-            expires_in_days: number;
-        };
-        /** InvitationOut */
-        InvitationOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Invitation UUID
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            id: string;
-            /**
-             * Token
-             * @description URL-safe token embedded in the invite link
-             * @example abc123xyz
-             */
-            token: string;
-            /**
-             * Url
-             * @description Full invite URL to share with the sub
-             * @example http://localhost:5173/invite/abc123xyz
-             */
-            url: string;
-            /**
-             * Entry Tribute Amount
-             * @description Entry tribute amount in GBP
-             * @example 50.00
-             */
-            entry_tribute_amount: string;
-            /**
-             * Note
-             * @description Optional note
-             * @example Welcome.
-             */
-            note?: string | null;
-            /**
-             * Expires At
-             * Format: date-time
-             * @description UTC expiry datetime of the invitation
-             */
-            expires_at: string;
-            /**
-             * Used At
-             * @description UTC datetime when the invitation was consumed
-             */
-            used_at?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description UTC datetime when the invitation was created
-             */
-            created_at: string;
-        };
-        /** LatePaymentItem */
-        LatePaymentItem: {
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description UUID of the sub who is late
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            sub_id: string;
-            /**
-             * Sub Display Name
-             * @description Display name of the sub (first + last, or username)
-             * @example Jane Doe
-             */
-            sub_display_name?: string | null;
-            /**
-             * Kind
-             * @description Source of the late payment — rolling tribute or debt contract
-             * @example rolling
-             * @enum {string}
-             */
-            kind: "rolling" | "contract";
-            /**
-             * Amount Due
-             * @description Amount currently owed in GBP (includes any late penalty for rolling)
-             * @example 50.00
-             */
-            amount_due: string;
-            /**
-             * Days Late
-             * @description Number of calendar days past the deadline
-             * @example 3
-             */
-            days_late: number;
-            /**
-             * Context Id
-             * Format: uuid
-             * @description UUID of the rolling tribute or contract this item refers to
-             * @example 00000000-0000-0000-0000-000000000003
-             */
-            context_id: string;
-        };
-        /**
-         * LatePenaltySeverity
-         * @enum {string}
-         */
-        LatePenaltySeverity: "light" | "medium" | "severe";
-        /** LateSubItem */
-        LateSubItem: {
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description UUID of the sub who is late
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            sub_id: string;
-            /**
-             * Display Name
-             * @description Display name of the sub (first + last, or username fallback)
-             * @example Jane Doe
-             */
-            display_name?: string | null;
-            /**
-             * Days Late
-             * @description Number of calendar days past the rolling tribute deadline
-             * @example 3
-             */
-            days_late: number;
-            /**
-             * Overdue Amount
-             * @description Amount overdue in GBP (rolling amount_due including any late penalty)
-             * @example 55.00
-             */
-            overdue_amount: string;
-            /**
-             * Last Payment At
-             * @description UTC datetime of the most recent validated payment, or null if none
-             * @example 2026-04-01T12:00:00
-             */
-            last_payment_at?: string | null;
-        };
-        /** LoginRequest */
-        LoginRequest: {
-            /**
-             * Email
-             * @description User email address
-             * @example sub@example.com
-             */
-            email: string;
-            /**
-             * Password
-             * @description User password
-             * @example s3cr3t!
-             */
-            password: string;
-        };
-        /**
-         * MidContractAdditionMode
-         * @enum {string}
-         */
-        MidContractAdditionMode: "disabled" | "dom_controlled" | "sub_approval_required";
-        /** NotificationListOut */
-        NotificationListOut: {
-            /**
-             * Items
-             * @description Recent notifications for the authenticated user, newest first
-             */
-            items: components["schemas"]["NotificationOut"][];
-            /**
-             * Unread
-             * @description Count of unread notifications for this user
-             */
-            unread: number;
-        };
-        /** NotificationOut */
-        NotificationOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Notification UUID
-             */
-            id: string;
-            /**
-             * User Id
-             * Format: uuid
-             * @description Recipient user UUID
-             */
-            user_id: string;
-            /** @description Notification type discriminator */
-            type: components["schemas"]["NotificationType"];
-            /**
-             * Title
-             * @description Short headline displayed in the bell/drawer
-             */
-            title: string;
-            /**
-             * Body
-             * @description Optional longer body text
-             */
-            body?: string | null;
-            /**
-             * Link
-             * @description Optional frontend route to deep-link to on click
-             * @example /debts/00000000-0000-0000-0000-000000000001
-             */
-            link?: string | null;
-            /**
-             * Payload
-             * @description Optional machine-readable context payload
-             */
-            payload?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * Read At
-             * @description UTC timestamp when the user marked this as read
-             */
-            read_at?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             * @description UTC datetime when emitted
-             */
-            created_at: string;
-        };
-        /**
-         * NotificationType
-         * @enum {string}
-         */
-        NotificationType: "invitation_claimed" | "payment_pending" | "payment_validated" | "payment_rejected" | "rolling_reminder" | "rolling_late" | "contract_proposed" | "contract_countered" | "contract_counter_accepted" | "contract_counter_rejected" | "contract_signed" | "contract_period_interest" | "contract_late_penalty" | "contract_surprise_penalty" | "contract_adjustment_proposed" | "contract_adjustment_accepted" | "contract_adjustment_refused" | "contract_buyout_requested" | "contract_buyout_paid" | "contract_breached" | "contract_forgiven";
-        /** PasswordResetConfirm */
-        PasswordResetConfirm: {
-            /**
-             * Token
-             * @description Reset token from the email link
-             * @example abc123
-             */
-            token: string;
-            /**
-             * New Password
-             * @description New password to set (min 8 chars)
-             * @example n3wP@ssw0rd
-             */
-            new_password: string;
-        };
-        /** PasswordResetRequest */
-        PasswordResetRequest: {
-            /**
-             * Email
-             * @description Email address of the account to reset
-             * @example sub@example.com
-             */
-            email: string;
-        };
-        /**
-         * PaymentCategory
-         * @enum {string}
-         */
-        PaymentCategory: "entry" | "rolling" | "weekly_debt" | "debt_payment" | "buyout" | "tribute";
-        /**
-         * PaymentFrequency
-         * @enum {string}
-         */
-        PaymentFrequency: "weekly" | "biweekly" | "monthly";
-        /** PaymentMethodCreate */
-        PaymentMethodCreate: {
-            /**
-             * Name
-             * @description Display label for this payment method
-             * @example Throne — jane-mm
-             */
-            name: string;
-            /**
-             * @description Category of payment method
-             * @example throne
-             */
-            type: components["schemas"]["PaymentMethodType"];
-            /**
-             * Handle Or Link
-             * @description The @handle, URL, or account reference for this method
-             * @example @jane-mm
-             */
-            handle_or_link: string;
-            /**
-             * Note
-             * @description Optional free-text note visible to Goddess only
-             * @example Primary tribute method
-             */
-            note?: string | null;
-            /**
-             * Enabled
-             * @description Whether this method is active and shown to subs
-             * @default true
-             * @example true
-             */
-            enabled: boolean;
-        };
-        /** PaymentMethodOut */
-        PaymentMethodOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Payment method UUID
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            id: string;
-            /**
-             * Name
-             * @description Display label for this payment method
-             * @example Throne — jane-mm
-             */
-            name: string;
-            /**
-             * @description Category of payment method
-             * @example throne
-             */
-            type: components["schemas"]["PaymentMethodType"];
-            /**
-             * Handle Or Link
-             * @description The @handle, URL, or account reference
-             * @example @jane-mm
-             */
-            handle_or_link: string;
-            /**
-             * Note
-             * @description Optional free-text note
-             * @example Primary tribute method
-             */
-            note?: string | null;
-            /**
-             * Enabled
-             * @description Whether this method is active
-             * @example true
-             */
-            enabled: boolean;
-            /**
-             * Sort Order
-             * @description Display order (ascending = top)
-             * @example 0
-             */
-            sort_order: number;
-            /**
-             * Created At
-             * Format: date-time
-             * @description UTC datetime when the method was created
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             * @description UTC datetime when the method was last updated
-             */
-            updated_at: string;
-        };
-        /**
-         * PaymentMethodType
-         * @enum {string}
-         */
-        PaymentMethodType: "throne" | "paypal" | "cashapp" | "venmo" | "revolut" | "amazon" | "wishtender" | "tipfunder" | "onlyfans" | "loyalfans" | "premium_chat" | "sentbio" | "sumeria" | "btc" | "eth" | "bank" | "other";
-        /** PaymentMethodUpdate */
-        PaymentMethodUpdate: {
-            /**
-             * Name
-             * @description Updated display label
-             * @example Throne — jane-mm
-             */
-            name?: string | null;
-            /**
-             * @description Updated payment method category
-             * @example paypal
-             */
-            type?: components["schemas"]["PaymentMethodType"] | null;
-            /**
-             * Handle Or Link
-             * @description Updated @handle, URL, or account reference
-             * @example paypal.me/jane-mm
-             */
-            handle_or_link?: string | null;
-            /**
-             * Note
-             * @description Updated free-text note
-             * @example Secondary method
-             */
-            note?: string | null;
-            /**
-             * Enabled
-             * @description Enable or disable this method
-             * @example false
-             */
-            enabled?: boolean | null;
-        };
-        /** PaymentOut */
-        PaymentOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Declaration UUID
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            id: string;
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description Sub user UUID
-             */
-            sub_id: string;
-            /**
-             * Sub Display Name
-             * @description Sub display name (first + last)
-             */
-            sub_display_name?: string | null;
-            /**
-             * Goddess Id
-             * Format: uuid
-             * @description Goddess UUID
-             */
-            goddess_id: string;
-            /**
-             * Method Id
-             * Format: uuid
-             * @description Payment method UUID
-             */
-            method_id: string;
-            /**
-             * Method Name
-             * @description Payment method display name
-             */
-            method_name?: string | null;
-            /**
-             * @description Payment method type (brand key)
-             * @example paypal
-             */
-            method_type?: components["schemas"]["PaymentMethodType"] | null;
-            /**
-             * Amount
-             * @description Payment amount in GBP
-             * @example 30.00
-             */
-            amount: string;
-            /**
-             * External Timestamp
-             * @description Sub-reported payment datetime
-             */
-            external_timestamp?: string | null;
-            /**
-             * Note
-             * @description Note from the declarer
-             */
-            note?: string | null;
-            /**
-             * @description Payment category
-             * @example entry
-             */
-            category: components["schemas"]["PaymentCategory"];
-            /**
-             * @description Declaration status
-             * @example pending
-             */
-            status: components["schemas"]["PaymentStatus"];
-            /**
-             * Target Id
-             * @description Polymorphic target ID
-             */
-            target_id?: string | null;
-            /**
-             * Created By
-             * Format: uuid
-             * @description UUID of user who created this declaration
-             */
-            created_by: string;
-            /**
-             * Declared At
-             * Format: date-time
-             * @description UTC datetime of declaration
-             */
-            declared_at: string;
-            /**
-             * Validated At
-             * @description UTC datetime of validation/rejection
-             */
-            validated_at?: string | null;
-            /**
-             * Validated By
-             * @description UUID of goddess who validated/rejected
-             */
-            validated_by?: string | null;
-            /**
-             * Rejection Reason
-             * @description Reason for rejection if rejected
-             */
-            rejection_reason?: string | null;
-            /**
-             * @description Who declared this payment.
-             * @example sub_declared
-             */
-            source: components["schemas"]["DeclarationSource"];
-            /** @description Allocation record if validated */
-            allocation?: components["schemas"]["AllocationOut"] | null;
-        };
-        /**
-         * PaymentStatus
-         * @enum {string}
-         */
-        PaymentStatus: "pending" | "validated" | "rejected" | "cancelled";
-        /** PreferencesOut */
-        PreferencesOut: {
-            /**
-             * Theme Preference
-             * @description Persisted UI theme preference for the authenticated user.
-             * @example dark
-             * @enum {string}
-             */
-            theme_preference: "system" | "dark" | "light";
-        };
-        /** ProfileUpdate */
-        ProfileUpdate: {
-            /**
-             * First Name
-             * @description First name
-             * @example Jane
-             */
-            first_name?: string | null;
-            /**
-             * Last Name
-             * @description Last name
-             * @example Doe
-             */
-            last_name?: string | null;
-            /**
-             * Bio
-             * @description Free-text bio (max 500 chars)
-             * @example A sub living in London.
-             */
-            bio?: string | null;
-            /**
-             * Avatar Url
-             * @description Avatar image URL
-             * @example https://example.com/avatar.png
-             */
-            avatar_url?: string | null;
-        };
-        /** PublicInvitationOut */
-        PublicInvitationOut: {
-            /**
-             * Token
-             * @description Invitation token
-             * @example abc123xyz
-             */
-            token: string;
-            /**
-             * Goddess Display Name
-             * @description Display name of the Goddess who created the invitation
-             * @example Goddess Mean Mal
-             */
-            goddess_display_name: string;
-            /**
-             * Note
-             * @description Optional note from the Goddess
-             * @example Welcome.
-             */
-            note?: string | null;
-            /**
-             * Entry Tribute Amount
-             * @description Amount the sub must tribute on signup (GBP)
-             * @example 50.00
-             */
-            entry_tribute_amount: string;
-            /**
-             * Expires At
-             * Format: date-time
-             * @description UTC expiry datetime of the invitation
-             */
-            expires_at: string;
-        };
-        /** RecordPaymentIn */
-        RecordPaymentIn: {
-            /**
-             * Amount
-             * @description Payment amount in GBP
-             * @example 30.00
-             */
-            amount: number | string;
-            /**
-             * Method Id
-             * Format: uuid
-             * @description UUID of the payment method used
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            method_id: string;
-            /**
-             * @description Payment category — determines ledger routing
-             * @example entry
-             */
-            category: components["schemas"]["PaymentCategory"];
-            /**
-             * External Timestamp
-             * @description UTC datetime when the payment was actually made (sub-reported)
-             * @example 2026-04-13T12:00:00
-             */
-            external_timestamp?: string | null;
-            /**
-             * Note
-             * @description Optional note from the sub
-             * @example Sent via Throne
-             */
-            note?: string | null;
-            /**
-             * Target Id
-             * @description Polymorphic target — contract or rolling cycle ID (required for some categories)
-             * @example null
-             */
-            target_id?: string | null;
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description UUID of the sub on whose behalf the goddess is recording
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            sub_id: string;
-        };
-        /** RefreshRequest */
-        RefreshRequest: {
-            /**
-             * Refresh Token
-             * @description Opaque refresh token previously issued by /auth/login or /auth/refresh. Deprecated: the server now reads the refresh token from the HttpOnly cookie `debt_refresh`. Supply this field only for legacy clients that cannot use cookies.
-             * @default
-             * @example
-             */
-            refresh_token: string;
-        };
-        /** RejectIn */
-        RejectIn: {
-            /**
-             * Reason
-             * @description Optional rejection reason shown to the sub
-             * @example Wrong amount — expected £30.00
-             */
-            reason?: string | null;
-        };
-        /** ReorderRequest */
-        ReorderRequest: {
-            /**
-             * Method Ids
-             * @description Payment method IDs in the desired display order (index 0 = top)
-             * @example [
-             *       "00000000-0000-0000-0000-000000000001",
-             *       "00000000-0000-0000-0000-000000000002"
-             *     ]
-             */
-            method_ids: string[];
-        };
-        /** RollingTributeIn */
-        RollingTributeIn: {
-            /**
-             * Amount
-             * @description Weekly tribute amount in GBP
-             * @example 50.00
-             */
-            amount: number | string;
-            /**
-             * @description Day of the week the tribute is due
-             * @example fri
-             */
-            deadline_day: components["schemas"]["DeadlineDay"];
-            /**
-             * Deadline Time
-             * Format: time
-             * @description Time of day the tribute is due (London local time, HH:MM)
-             * @example 18:00:00
-             */
-            deadline_time: string;
-            /**
-             * Late Multiplier Per Day
-             * @description Amount multiplier added per day late (0 = no late penalty)
-             * @default 1
-             * @example 1
-             */
-            late_multiplier_per_day: number;
-            /**
-             * Paused
-             * @description When true the tribute cycle is suspended
-             * @default false
-             * @example false
-             */
-            paused: boolean;
-            /**
-             * Notes
-             * @description Optional private notes visible to the Goddess only
-             * @example Paused for holiday week
-             */
-            notes?: string | null;
-        };
-        /** RollingTributeOut */
-        RollingTributeOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description Rolling tribute record UUID
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            id: string;
-            /**
-             * Sub Id
-             * Format: uuid
-             * @description UUID of the sub this tribute belongs to
-             * @example 00000000-0000-0000-0000-000000000002
-             */
-            sub_id: string;
-            /**
-             * Amount
-             * @description Configured weekly tribute amount in GBP
-             * @example 50.00
-             */
-            amount: string;
-            /**
-             * @description Day of the week the tribute is due
-             * @example fri
-             */
-            deadline_day: components["schemas"]["DeadlineDay"];
-            /**
-             * Deadline Time
-             * Format: time
-             * @description Time of day the tribute is due (London local time)
-             * @example 18:00:00
-             */
-            deadline_time: string;
-            /**
-             * Late Multiplier Per Day
-             * @description Amount multiplier added per day late
-             * @example 1
-             */
-            late_multiplier_per_day: number;
-            /**
-             * Paused
-             * @description Whether the tribute cycle is currently paused
-             * @example false
-             */
-            paused: boolean;
-            /**
-             * Notes
-             * @description Optional private notes
-             * @example Paused for holiday week
-             */
-            notes?: string | null;
-            /**
-             * Last Paid At
-             * @description UTC datetime of the most recent validated rolling payment
-             * @example null
-             */
-            last_paid_at?: string | null;
-            /**
-             * Current Cycle Deadline
-             * Format: date-time
-             * @description UTC datetime of the next (or current) cycle deadline
-             * @example 2026-04-18T18:00:00
-             */
-            current_cycle_deadline: string;
-            /**
-             * Amount Due
-             * @description Amount currently owed including any late penalty (GBP)
-             * @example 50.00
-             */
-            amount_due: string;
-            /**
-             * Days Late
-             * @description Number of calendar days past the last deadline (0 if on time or paused)
-             * @example 0
-             */
-            days_late: number;
-            /**
-             * Created At
-             * Format: date-time
-             * @description UTC datetime when this record was created
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             * @description UTC datetime when this record was last updated
-             */
-            updated_at: string;
-        };
-        /** SignupRequest */
-        SignupRequest: {
-            /**
-             * Email
-             * @description Sub's email address
-             * @example slave@example.com
-             */
-            email: string;
-            /**
-             * Password
-             * @description Sub's password (min 8 characters)
-             * @example s3cr3tP@ss
-             */
-            password: string;
-            /**
-             * Username
-             * @description Unique username for the sub
-             * @example slave42
-             */
-            username: string;
-            /**
-             * First Name
-             * @description Sub's first name
-             * @example John
-             */
-            first_name?: string | null;
-            /**
-             * Last Name
-             * @description Sub's last name
-             * @example Doe
-             */
-            last_name?: string | null;
-        };
-        /** SubDashboardOut */
-        SubDashboardOut: {
-            /**
-             * Amount Due This Week
-             * @description Sum of rolling amount_due (if not paused) plus minimum_payment of all active contracts with weekly payment frequency (GBP)
-             * @example 80.00
-             */
-            amount_due_this_week: string;
-            /**
-             * Is Late
-             * @description True if the rolling tribute is late or any active contract is late
-             * @example false
-             */
-            is_late: boolean;
-            /**
-             * Active Contracts
-             * @description Summary of all active contracts belonging to this sub
-             */
-            active_contracts?: components["schemas"]["ActiveContractSummary"][];
-            /**
-             * Recent Payments
-             * @description Last 10 payment declarations for this sub
-             */
-            recent_payments?: components["schemas"]["PaymentOut"][];
-            /**
-             * Total Sent
-             * @description Sum of all validated payments by this sub (GBP)
-             * @example 450.00
-             */
-            total_sent: string;
-        };
-        /** SubPlanningOut */
-        SubPlanningOut: {
-            /**
-             * Upcoming
-             * @description Payment deadlines in the next 30 Europe/London calendar days, sorted by date
-             */
-            upcoming?: components["schemas"]["UpcomingPaymentItem"][];
-            /**
-             * Weekly History
-             * @description Validated payment totals for the last 12 weeks (oldest first), each keyed by the Monday of that week
-             */
-            weekly_history?: components["schemas"]["WeeklyPaymentTotal"][];
-            /**
-             * Total Paid All Time
-             * @description Lifetime sum of all validated payments by this sub (GBP)
-             * @example 450.00
-             */
-            total_paid_all_time: string;
-            /**
-             * Total Paid This Month
-             * @description Sum of validated payments in the current Europe/London calendar month (GBP)
-             * @example 120.00
-             */
-            total_paid_this_month: string;
-            /**
-             * Rolling Remaining This Month
-             * @description Estimated rolling amount still owed before end of current month (0 if no active rolling tribute)
-             * @example 50.00
-             */
-            rolling_remaining_this_month: string;
-        };
-        /** SurprisePenaltyIn */
-        SurprisePenaltyIn: {
-            /**
-             * Amount
-             * @description Flat penalty amount to add to the contract balance (GBP)
-             * @example 100.00
-             */
-            amount: number | string;
-            /**
-             * Reason
-             * @description Optional reason note recorded on the ledger event
-             * @example late to session
-             */
-            reason?: string | null;
-        };
-        /** TokenPair */
-        TokenPair: {
-            /**
-             * Access Token
-             * @description Short-lived JWT access token
-             * @example eyJ...
-             */
-            access_token: string;
-            /**
-             * Refresh Token
-             * @description Opaque refresh token (rotate on each use)
-             * @example abc123
-             */
-            refresh_token: string;
-            /**
-             * Token Type
-             * @description OAuth2 token type
-             * @default bearer
-             * @constant
-             */
-            token_type: "bearer";
-            /**
-             * Expires In
-             * @description Access token lifetime in seconds
-             * @example 900
-             */
-            expires_in: number;
-        };
-        /** UpcomingPaymentItem */
-        UpcomingPaymentItem: {
-            /**
-             * Date
-             * Format: date
-             * @description Europe/London calendar date the payment is due
-             * @example 2026-04-21
-             */
-            date: string;
-            /**
-             * Amount
-             * @description Amount due in GBP
-             * @example 50.00
-             */
-            amount: string;
-            /**
-             * Kind
-             * @description Origin of the obligation: rolling tribute or contract instalment
-             * @example rolling
-             * @enum {string}
-             */
-            kind: "rolling" | "contract_instalment";
-            /**
-             * Label
-             * @description Human-readable description for the tooltip (e.g. 'Weekly tribute', 'Contract instalment £50/wk')
-             * @example Weekly tribute
-             */
-            label: string;
-        };
-        /** UpdatePreferencesIn */
-        UpdatePreferencesIn: {
-            /**
-             * Theme Preference
-             * @description UI theme preference: 'system' follows OS, 'dark' / 'light' force mode.
-             * @example system
-             * @enum {string}
-             */
-            theme_preference: "system" | "dark" | "light";
-        };
-        /** UserOut */
-        UserOut: {
-            /**
-             * Id
-             * Format: uuid
-             * @description User UUID
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            id: string;
-            /**
-             * Email
-             * @description User email
-             * @example sub@example.com
-             */
-            email: string;
-            /**
-             * @description User role
-             * @example sub
-             */
-            role: components["schemas"]["UserRole"];
-            /**
-             * @description Account status
-             * @example active
-             */
-            status: components["schemas"]["UserStatus"];
-            /**
-             * Display Name
-             * @description User display name
-             * @example Jane
-             */
-            display_name: string;
-            /**
-             * First Name
-             * @description First name
-             * @example Jane
-             */
-            first_name?: string | null;
-            /**
-             * Last Name
-             * @description Last name
-             * @example Doe
-             */
-            last_name?: string | null;
-            /**
-             * Bio
-             * @description Free-text bio (max 500 chars)
-             * @example A sub living in London.
-             */
-            bio?: string | null;
-            /**
-             * Avatar Url
-             * @description Avatar URL
-             * @example null
-             */
-            avatar_url?: string | null;
-            /**
-             * Theme Preference
-             * @description UI theme preference
-             * @example system
-             */
-            theme_preference: string;
-            /**
-             * Created At
-             * Format: date-time
-             * @description Account creation timestamp (UTC)
-             */
-            created_at: string;
-            /**
-             * Impersonator Id
-             * @description Set when this session is an admin impersonation. UUID of the admin.
-             * @example null
-             */
-            impersonator_id?: string | null;
-            /**
-             * Impersonator Display Name
-             * @description Display name of the impersonating admin, when applicable.
-             * @example null
-             */
-            impersonator_display_name?: string | null;
-        };
-        /**
-         * UserRole
-         * @enum {string}
-         */
-        UserRole: "admin" | "goddess" | "sub";
-        /**
-         * UserStatus
-         * @enum {string}
-         */
-        UserStatus: "pending_entry_tribute" | "active" | "blacklisted" | "deleted";
-        /** ValidateIn */
-        ValidateIn: {
-            /**
-             * @description Optional new category to assign before validating
-             * @example null
-             */
-            recategorize_to?: components["schemas"]["PaymentCategory"] | null;
-        };
-        /** ValidationError */
-        ValidationError: {
-            /** Location */
-            loc: (string | number)[];
-            /** Message */
-            msg: string;
-            /** Error Type */
-            type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
-        };
-        /** WeeklyPaymentBucket */
-        WeeklyPaymentBucket: {
-            /**
-             * Week Start
-             * Format: date
-             * @description Monday of the ISO week (Europe/London)
-             * @example 2026-04-07
-             */
-            week_start: string;
-            /**
-             * Week End
-             * Format: date
-             * @description Sunday of the ISO week (Europe/London)
-             * @example 2026-04-13
-             */
-            week_end: string;
-            /**
-             * Total
-             * @description Sum of validated payments received in this week (GBP)
-             * @example 125.00
-             */
-            total: string;
-            /**
-             * Count
-             * @description Number of validated payment declarations in this week
-             * @example 3
-             */
-            count: number;
-        };
-        /** WeeklyPaymentTotal */
-        WeeklyPaymentTotal: {
-            /**
-             * Week Start
-             * Format: date
-             * @description ISO date of the Monday starting this week
-             * @example 2026-04-07
-             */
-            week_start: string;
-            /**
-             * Total
-             * @description Sum of all validated payment amounts for this week (GBP)
-             * @example 75.00
-             */
-            total: string;
-        };
+  schemas: {
+    /** ActiveContractSummary */
+    ActiveContractSummary: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Contract UUID
+       * @example 00000000-0000-0000-0000-000000000010
+       */
+      id: string;
+      /**
+       * Principal
+       * @description Original principal in GBP
+       * @example 1000.00
+       */
+      principal: string;
+      /**
+       * Balance
+       * @description Current outstanding balance in GBP
+       * @example 750.00
+       */
+      balance: string;
+      /**
+       * Progress Percent
+       * @description Paid-down percentage: (principal - balance) / principal * 100
+       * @example 25.00
+       */
+      progress_percent: string;
+      /**
+       * @description Contract status
+       * @example active
+       */
+      status: components["schemas"]["DebtContractStatus"];
+      /**
+       * Next Period Due At
+       * @description UTC datetime when the next period payment is due (null if not computable)
+       * @example 2026-04-20T00:00:00
+       */
+      next_period_due_at?: string | null;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    /** AdjustmentCreateIn */
+    AdjustmentCreateIn: {
+      /**
+       * Amount
+       * @description Balance delta to add to the contract (GBP)
+       * @example 50.00
+       */
+      amount: number | string;
+      /**
+       * Reason
+       * @description Optional reason note
+       * @example extra tribute bundled into debt
+       */
+      reason?: string | null;
+    };
+    /**
+     * AdjustmentStatus
+     * @enum {string}
+     */
+    AdjustmentStatus: "applied" | "pending_sub_approval" | "accepted" | "refused";
+    /** AdminListOut[AdminRowAdminAction] */
+    AdminListOut_AdminRowAdminAction_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowAdminAction"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowBlacklistEntry] */
+    AdminListOut_AdminRowBlacklistEntry_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowBlacklistEntry"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowContractAdjustment] */
+    AdminListOut_AdminRowContractAdjustment_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowContractAdjustment"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowDebtContract] */
+    AdminListOut_AdminRowDebtContract_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowDebtContract"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowDebtEvent] */
+    AdminListOut_AdminRowDebtEvent_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowDebtEvent"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowGoddess] */
+    AdminListOut_AdminRowGoddess_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowGoddess"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowInvitation] */
+    AdminListOut_AdminRowInvitation_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowInvitation"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowNotification] */
+    AdminListOut_AdminRowNotification_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowNotification"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowPaymentDeclaration] */
+    AdminListOut_AdminRowPaymentDeclaration_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowPaymentDeclaration"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowPaymentMethod] */
+    AdminListOut_AdminRowPaymentMethod_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowPaymentMethod"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowRollingTribute] */
+    AdminListOut_AdminRowRollingTribute_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowRollingTribute"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminListOut[AdminRowUser] */
+    AdminListOut_AdminRowUser_: {
+      /**
+       * Items
+       * @description Rows for the current page
+       * @example []
+       */
+      items: components["schemas"]["AdminRowUser"][];
+      /**
+       * Total
+       * @description Total row count matching the query
+       * @example 0
+       */
+      total: number;
+      /**
+       * Page
+       * @description 1-based page index
+       * @example 1
+       */
+      page: number;
+      /**
+       * Page Size
+       * @description Maximum rows per page
+       * @example 50
+       */
+      page_size: number;
+    };
+    /** AdminRowAdminAction */
+    AdminRowAdminAction: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-00000000000c
+       */
+      id: string;
+      /**
+       * Admin Id
+       * Format: uuid
+       * @description Admin who performed the action
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      admin_id: string;
+      /**
+       * Acting As User Id
+       * @description User being impersonated at the time, if any
+       * @example null
+       */
+      acting_as_user_id?: string | null;
+      /**
+       * Action
+       * @description Action identifier (e.g. 'admin_update', 'impersonate')
+       * @example admin_update
+       */
+      action: string;
+      /**
+       * Entity
+       * @description Entity type affected (e.g. 'users')
+       * @example users
+       */
+      entity?: string | null;
+      /**
+       * Entity Id
+       * @description Primary key of the affected row
+       * @example null
+       */
+      entity_id?: string | null;
+      /**
+       * Payload Json
+       * @description Redacted audit payload (JSONB)
+       * @example null
+       */
+      payload_json?: {
+        [key: string]: unknown;
+      } | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Timestamp when the action was recorded (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      created_at: string;
+    };
+    /** AdminRowBlacklistEntry */
+    AdminRowBlacklistEntry: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-000000000008
+       */
+      id: string;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Blacklisting goddess FK
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      goddess_id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description Blacklisted sub FK
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      sub_id: string;
+      /**
+       * Reason
+       * @description Reason for blacklisting
+       * @example Repeated non-payment
+       */
+      reason?: string | null;
+      /**
+       * Balance Snapshot
+       * @description Outstanding balance at breach time in GBP
+       * @example 120.00
+       */
+      balance_snapshot: string;
+      /**
+       * Reinstatement Fee Paid
+       * @description Fee paid to reinstate (GBP)
+       * @example null
+       */
+      reinstatement_fee_paid?: string | null;
+      /**
+       * Breached At
+       * Format: date-time
+       * @description Breach timestamp (UTC)
+       * @example 2026-01-15T00:00:00
+       */
+      breached_at: string;
+      /**
+       * Forgiven At
+       * @description Forgiveness timestamp if reinstated (UTC)
+       * @example null
+       */
+      forgiven_at?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Row creation timestamp (UTC)
+       * @example 2026-01-15T00:00:00
+       */
+      created_at: string;
+    };
+    /** AdminRowContractAdjustment */
+    AdminRowContractAdjustment: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-00000000000b
+       */
+      id: string;
+      /**
+       * Contract Id
+       * Format: uuid
+       * @description Parent contract FK
+       * @example 00000000-0000-0000-0000-000000000007
+       */
+      contract_id: string;
+      /**
+       * Proposed By
+       * Format: uuid
+       * @description User who proposed the adjustment
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      proposed_by: string;
+      /**
+       * Amount
+       * @description Adjustment amount in GBP (negative = forgiveness)
+       * @example 50.00
+       */
+      amount: string;
+      /**
+       * Reason
+       * @description Reason for the adjustment
+       * @example Goodwill discount
+       */
+      reason?: string | null;
+      /**
+       * @description Adjustment lifecycle status
+       * @example applied
+       */
+      status: components["schemas"]["AdjustmentStatus"];
+      /**
+       * Created At
+       * Format: date-time
+       * @description Row creation timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description Last modification timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      updated_at: string;
+      /**
+       * Resolved At
+       * @description Resolution timestamp (UTC)
+       * @example null
+       */
+      resolved_at?: string | null;
+    };
+    /** AdminRowDebtContract */
+    AdminRowDebtContract: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-000000000007
+       */
+      id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description Debtor sub FK
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      sub_id: string;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Creditor goddess FK
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      goddess_id: string;
+      /**
+       * Sub Initiated
+       * @description Whether the sub proposed the contract
+       * @example false
+       */
+      sub_initiated: boolean;
+      /**
+       * Principal
+       * @description Original loan amount in GBP
+       * @example 500.00
+       */
+      principal: string;
+      /**
+       * Interest Rate
+       * @description Interest rate (e.g. 0.05 = 5%)
+       * @example 0.050000
+       */
+      interest_rate: string;
+      /**
+       * @description Compounding period
+       * @example monthly
+       */
+      interest_period: components["schemas"]["InterestPeriod"];
+      /**
+       * Duration Periods
+       * @description Number of payment periods
+       * @example 12
+       */
+      duration_periods: number;
+      /**
+       * @description How often payments are due
+       * @example weekly
+       */
+      payment_frequency: components["schemas"]["PaymentFrequency"];
+      /**
+       * Minimum Payment
+       * @description Minimum payment amount in GBP
+       * @example 50.00
+       */
+      minimum_payment: string;
+      /**
+       * @description Severity tier of late penalties
+       * @example medium
+       */
+      late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
+      /**
+       * Late Penalty Percent
+       * @description Late penalty rate (e.g. 0.02 = 2%)
+       * @example 0.0200
+       */
+      late_penalty_percent: string;
+      /**
+       * Dom Can Add Surprise Penalty
+       * @description Whether goddess may add surprise penalties
+       * @example false
+       */
+      dom_can_add_surprise_penalty: boolean;
+      /**
+       * @description Policy for mid-contract debt additions
+       * @example disabled
+       */
+      mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
+      /**
+       * Exit Amount
+       * @description Buyout amount in GBP
+       * @example 450.00
+       */
+      exit_amount: string;
+      /**
+       * @description Contract lifecycle status
+       * @example active
+       */
+      status: components["schemas"]["DebtContractStatus"];
+      /**
+       * Current Version Id
+       * @description FK to latest negotiation version
+       * @example null
+       */
+      current_version_id?: string | null;
+      /**
+       * Signed Pdf Url
+       * @description URL to signed contract PDF
+       * @example null
+       */
+      signed_pdf_url?: string | null;
+      /**
+       * Signed Pdf Sha256
+       * @description SHA-256 of the signed PDF
+       * @example null
+       */
+      signed_pdf_sha256?: string | null;
+      /**
+       * Signed At
+       * @description Signature timestamp (UTC)
+       * @example null
+       */
+      signed_at?: string | null;
+      /**
+       * Balance
+       * @description Current outstanding balance in GBP
+       * @example 380.00
+       */
+      balance: string;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Row creation timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description Last modification timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      updated_at: string;
+    };
+    /** AdminRowDebtEvent */
+    AdminRowDebtEvent: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-00000000000a
+       */
+      id: string;
+      /**
+       * Contract Id
+       * Format: uuid
+       * @description Parent contract FK
+       * @example 00000000-0000-0000-0000-000000000007
+       */
+      contract_id: string;
+      /**
+       * @description Event type enum
+       * @example period_interest
+       */
+      event_type: components["schemas"]["EventType"];
+      /**
+       * Amount
+       * @description Amount applied in GBP
+       * @example 12.5000
+       */
+      amount: string;
+      /**
+       * Period Index
+       * @description Payment period index if applicable
+       * @example 1
+       */
+      period_index?: number | null;
+      /**
+       * Note
+       * @description Optional admin note
+       * @example null
+       */
+      note?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Row creation timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      created_at: string;
+    };
+    /** AdminRowGoddess */
+    AdminRowGoddess: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      id: string;
+      /**
+       * Display Name
+       * @description Public display name
+       * @example Lady X
+       */
+      display_name: string;
+      /**
+       * Email
+       * @description Login email
+       * @example goddess@example.com
+       */
+      email: string;
+      /**
+       * Password Hash
+       * @description Bcrypt hash
+       * @example $2b$12$...
+       */
+      password_hash: string;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Row creation timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      created_at: string;
+    };
+    /** AdminRowInvitation */
+    AdminRowInvitation: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-000000000003
+       */
+      id: string;
+      /**
+       * Token
+       * @description Unique invite token
+       * @example abc123
+       */
+      token: string;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Issuing goddess FK
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      goddess_id: string;
+      /**
+       * Entry Tribute Amount
+       * @description Required entry tribute in GBP
+       * @example 50.00
+       */
+      entry_tribute_amount: string;
+      /**
+       * Note
+       * @description Optional note for the invitee
+       * @example Welcome!
+       */
+      note?: string | null;
+      /**
+       * Expires At
+       * Format: date-time
+       * @description Expiry timestamp (UTC)
+       * @example 2026-06-01T00:00:00
+       */
+      expires_at: string;
+      /**
+       * Used At
+       * @description When the token was claimed (UTC)
+       * @example null
+       */
+      used_at?: string | null;
+      /**
+       * Used By User Id
+       * @description User who claimed the invitation
+       * @example null
+       */
+      used_by_user_id?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Row creation timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      created_at: string;
+    };
+    /** AdminRowNotification */
+    AdminRowNotification: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-000000000009
+       */
+      id: string;
+      /**
+       * User Id
+       * Format: uuid
+       * @description Recipient user FK
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      user_id: string;
+      /**
+       * @description Notification type enum
+       * @example payment_pending
+       */
+      type: components["schemas"]["NotificationType"];
+      /**
+       * Title
+       * @description Short notification title
+       * @example Payment pending validation
+       */
+      title: string;
+      /**
+       * Body
+       * @description Notification body text
+       * @example Your £25 tribute is awaiting goddess review.
+       */
+      body?: string | null;
+      /**
+       * Link
+       * @description Optional deep-link path
+       * @example /payments/abc123
+       */
+      link?: string | null;
+      /**
+       * Payload
+       * @description Structured event payload (JSONB)
+       * @example null
+       */
+      payload?: {
+        [key: string]: unknown;
+      } | null;
+      /**
+       * Read At
+       * @description When the notification was read (UTC)
+       * @example null
+       */
+      read_at?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Row creation timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      created_at: string;
+    };
+    /** AdminRowPaymentDeclaration */
+    AdminRowPaymentDeclaration: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-000000000005
+       */
+      id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description Declaring sub FK
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      sub_id: string;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Receiving goddess FK
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      goddess_id: string;
+      /**
+       * Method Id
+       * Format: uuid
+       * @description Payment method FK
+       * @example 00000000-0000-0000-0000-000000000004
+       */
+      method_id: string;
+      /**
+       * Amount
+       * @description Declared amount in GBP
+       * @example 25
+       */
+      amount: number;
+      /**
+       * External Timestamp
+       * @description When the transfer was made (UTC)
+       * @example null
+       */
+      external_timestamp?: string | null;
+      /**
+       * Note
+       * @description Sub's note for the goddess
+       * @example Weekly tribute
+       */
+      note?: string | null;
+      /**
+       * @description Payment category enum
+       * @example rolling
+       */
+      category: components["schemas"]["PaymentCategory"];
+      /**
+       * @description Declaration status enum
+       * @example pending
+       */
+      status: components["schemas"]["PaymentStatus"];
+      /**
+       * Target Id
+       * @description Optional allocation target FK
+       * @example null
+       */
+      target_id?: string | null;
+      /**
+       * Created By
+       * Format: uuid
+       * @description User who created the record
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      created_by: string;
+      /**
+       * Declared At
+       * Format: date-time
+       * @description Declaration timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      declared_at: string;
+      /**
+       * Validated At
+       * @description Validation timestamp (UTC)
+       * @example null
+       */
+      validated_at?: string | null;
+      /**
+       * Validated By
+       * @description Goddess who validated
+       * @example null
+       */
+      validated_by?: string | null;
+      /**
+       * Rejection Reason
+       * @description Reason if rejected
+       * @example null
+       */
+      rejection_reason?: string | null;
+      /**
+       * @description Who originated the declaration
+       * @example sub_declared
+       */
+      source: components["schemas"]["DeclarationSource"];
+    };
+    /** AdminRowPaymentMethod */
+    AdminRowPaymentMethod: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-000000000004
+       */
+      id: string;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Owning goddess FK
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      goddess_id: string;
+      /**
+       * Name
+       * @description Display label
+       * @example PayPal
+       */
+      name: string;
+      /**
+       * @description Method type enum
+       * @example paypal
+       */
+      type: components["schemas"]["PaymentMethodType"];
+      /**
+       * Handle Or Link
+       * @description Payment handle or URL
+       * @example goddess@paypal.com
+       */
+      handle_or_link: string;
+      /**
+       * Note
+       * @description Optional instructions
+       * @example Friends & Family only
+       */
+      note?: string | null;
+      /**
+       * Enabled
+       * @description Whether the method is active
+       * @example true
+       */
+      enabled: boolean;
+      /**
+       * Sort Order
+       * @description Display ordering index
+       * @example 0
+       */
+      sort_order: number;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Row creation timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description Last modification timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      updated_at: string;
+    };
+    /** AdminRowRollingTribute */
+    AdminRowRollingTribute: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-000000000006
+       */
+      id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description Subject sub FK
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      sub_id: string;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Receiving goddess FK
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      goddess_id: string;
+      /**
+       * Amount
+       * @description Weekly tribute amount in GBP
+       * @example 10
+       */
+      amount: number;
+      /**
+       * @description Day of week the payment is due
+       * @example fri
+       */
+      deadline_day: components["schemas"]["DeadlineDay"];
+      /**
+       * Deadline Time
+       * Format: time
+       * @description Time of day the payment is due (UTC)
+       * @example 23:59:00
+       */
+      deadline_time: string;
+      /**
+       * Late Multiplier Per Day
+       * @description Extra amount multiplier per day late
+       * @example 1
+       */
+      late_multiplier_per_day: number;
+      /**
+       * Paused
+       * @description Whether the schedule is paused
+       * @example false
+       */
+      paused: boolean;
+      /**
+       * Notes
+       * @description Admin/goddess notes
+       * @example null
+       */
+      notes?: string | null;
+      /**
+       * Last Paid At
+       * @description Last successful payment timestamp (UTC)
+       * @example null
+       */
+      last_paid_at?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Row creation timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description Last modification timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      updated_at: string;
+    };
+    /** AdminRowUser */
+    AdminRowUser: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Primary key
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      id: string;
+      /**
+       * Goddess Id
+       * @description Owning goddess FK
+       * @example null
+       */
+      goddess_id?: string | null;
+      /**
+       * Username
+       * @description Unique login handle
+       * @example alice
+       */
+      username: string;
+      /**
+       * Email
+       * @description Email address
+       * @example alice@example.com
+       */
+      email: string;
+      /**
+       * Password Hash
+       * @description Bcrypt hash — never display to users
+       * @example $2b$12$...
+       */
+      password_hash: string;
+      /**
+       * @description User role
+       * @example sub
+       */
+      role: components["schemas"]["UserRole"];
+      /**
+       * @description Account status
+       * @example active
+       */
+      status: components["schemas"]["UserStatus"];
+      /**
+       * First Name
+       * @description Given name
+       * @example Alice
+       */
+      first_name?: string | null;
+      /**
+       * Last Name
+       * @description Family name
+       * @example Smith
+       */
+      last_name?: string | null;
+      /**
+       * Twitter Handle
+       * @description Twitter/X handle
+       * @example @alice
+       */
+      twitter_handle?: string | null;
+      /**
+       * Source Note
+       * @description Acquisition note
+       * @example referred by Bob
+       */
+      source_note?: string | null;
+      /**
+       * Avatar Url
+       * @description Avatar image URL
+       * @example https://cdn.example.com/alice.jpg
+       */
+      avatar_url?: string | null;
+      /**
+       * Bio
+       * @description User bio
+       * @example Hello world
+       */
+      bio?: string | null;
+      /**
+       * Theme Preference
+       * @description UI theme key
+       * @example system
+       */
+      theme_preference: string;
+      /**
+       * Last Login At
+       * @description Last successful login (UTC)
+       * @example null
+       */
+      last_login_at?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Row creation timestamp (UTC)
+       * @example 2026-01-01T00:00:00
+       */
+      created_at: string;
+    };
+    /** AllocationOut */
+    AllocationOut: {
+      /**
+       * @description What ledger bucket received this allocation
+       * @example entry
+       */
+      target_type: components["schemas"]["AllocationTargetType"];
+      /**
+       * Target Id
+       * @description Polymorphic target ID (None for entry/tribute)
+       * @example null
+       */
+      target_id?: string | null;
+      /**
+       * Amount
+       * @description Allocated amount in GBP
+       * @example 30.00
+       */
+      amount: string;
+      /**
+       * Allocated At
+       * Format: date-time
+       * @description UTC datetime when the allocation was emitted
+       */
+      allocated_at: string;
+    };
+    /**
+     * AllocationTargetType
+     * @enum {string}
+     */
+    AllocationTargetType:
+      | "entry"
+      | "rolling_cycle"
+      | "contract_debt"
+      | "contract_buyout"
+      | "tribute";
+    /** BlacklistEntryOut */
+    BlacklistEntryOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Blacklist entry UUID
+       */
+      id: string;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Goddess UUID
+       */
+      goddess_id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description Blacklisted sub UUID
+       */
+      sub_id: string;
+      /**
+       * Reason
+       * @description Reason for the breach
+       */
+      reason?: string | null;
+      /**
+       * Balance Snapshot
+       * @description Sum of active-contract balances at the time of breach (GBP)
+       * @example 1500.00
+       */
+      balance_snapshot: string;
+      /**
+       * Reinstatement Fee Paid
+       * @description Fee paid by the sub to be forgiven (GBP); null if not yet forgiven
+       * @example 100.00
+       */
+      reinstatement_fee_paid?: string | null;
+      /**
+       * Breached At
+       * Format: date-time
+       * @description UTC datetime of breach
+       */
+      breached_at: string;
+      /**
+       * Forgiven At
+       * @description UTC datetime of forgiveness, if any
+       */
+      forgiven_at?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime of record creation
+       */
+      created_at: string;
+    };
+    /** BreachIn */
+    BreachIn: {
+      /**
+       * Reason
+       * @description Optional free-text reason for the breach
+       * @example missed three consecutive payments
+       */
+      reason?: string | null;
+    };
+    /** BuyoutIntentOut */
+    BuyoutIntentOut: {
+      /**
+       * Exit Amount
+       * @description Amount owed to buy out the contract (GBP)
+       * @example 250.00
+       */
+      exit_amount: string;
+      /**
+       * Payment Methods
+       * @description Goddess's enabled payment methods for completing the buyout
+       */
+      payment_methods: components["schemas"]["PaymentMethodOut"][];
+    };
+    /** ContractAdjustmentOut */
+    ContractAdjustmentOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Adjustment UUID
+       */
+      id: string;
+      /**
+       * Contract Id
+       * Format: uuid
+       * @description Parent contract UUID
+       */
+      contract_id: string;
+      /**
+       * Proposed By
+       * Format: uuid
+       * @description UUID of the user who proposed the adjustment
+       */
+      proposed_by: string;
+      /**
+       * Amount
+       * @description Adjustment amount (GBP)
+       * @example 50.00
+       */
+      amount: string;
+      /**
+       * Reason
+       * @description Optional reason note
+       */
+      reason?: string | null;
+      /** @description Adjustment lifecycle status */
+      status: components["schemas"]["AdjustmentStatus"];
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime of creation
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description UTC datetime of last update
+       */
+      updated_at: string;
+      /**
+       * Resolved At
+       * @description UTC datetime when accepted/refused/applied
+       */
+      resolved_at?: string | null;
+    };
+    /** CronRunOut */
+    CronRunOut: {
+      /**
+       * Ok
+       * @description Always true on success
+       * @example true
+       */
+      ok: boolean;
+      /**
+       * Ran At
+       * Format: date-time
+       * @description UTC datetime when the job was invoked
+       */
+      ran_at: string;
+      /**
+       * Subs
+       * @description Number of active subs processed
+       * @example 3
+       */
+      subs: number;
+      /**
+       * Rolling
+       * @description Number of rolling tributes touched
+       * @example 2
+       */
+      rolling: number;
+      /**
+       * Contracts
+       * @description Number of contract period ticks applied
+       * @example 1
+       */
+      contracts: number;
+    };
+    /**
+     * DeadlineDay
+     * @enum {string}
+     */
+    DeadlineDay: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+    /** DebtContractAuditOut */
+    DebtContractAuditOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Audit record UUID
+       */
+      id: string;
+      /**
+       * Contract Id
+       * Format: uuid
+       * @description Parent contract UUID
+       */
+      contract_id: string;
+      /** @description State-transition event type */
+      event_type: components["schemas"]["DebtContractEventType"];
+      /**
+       * Actor Id
+       * Format: uuid
+       * @description UUID of the user who triggered the transition
+       */
+      actor_id: string;
+      /** @description Status before the transition */
+      from_status?: components["schemas"]["DebtContractStatus"] | null;
+      /** @description Status after the transition */
+      to_status?: components["schemas"]["DebtContractStatus"] | null;
+      /**
+       * Note
+       * @description Optional free-text note on the transition
+       */
+      note?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime of the audit event
+       */
+      created_at: string;
+    };
+    /** DebtContractCounter */
+    DebtContractCounter: {
+      /**
+       * Principal
+       * @description Proposed principal in GBP
+       * @example 450.00
+       */
+      principal: number | string;
+      /**
+       * Interest Rate
+       * @description Proposed interest rate as a fraction
+       * @example 0.150000
+       */
+      interest_rate: number | string;
+      /**
+       * @description Proposed interest period
+       * @example monthly
+       */
+      interest_period: components["schemas"]["InterestPeriod"];
+      /**
+       * Duration Periods
+       * @description Proposed number of payment periods
+       * @example 10
+       */
+      duration_periods: number;
+      /**
+       * @description Proposed payment frequency
+       * @example monthly
+       */
+      payment_frequency: components["schemas"]["PaymentFrequency"];
+      /**
+       * Minimum Payment
+       * @description Proposed minimum payment per period (GBP)
+       * @example 40.00
+       */
+      minimum_payment: number | string;
+      /**
+       * @description Proposed late penalty severity preset
+       * @example light
+       */
+      late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
+      /**
+       * Late Penalty Percent
+       * @description Proposed late penalty fraction
+       * @example 0.0500
+       */
+      late_penalty_percent: number | string;
+      /**
+       * Dom Can Add Surprise Penalty
+       * @description Proposed setting for surprise-penalty capability
+       * @example false
+       */
+      dom_can_add_surprise_penalty: boolean;
+      /**
+       * @description Proposed mid-contract addition mode
+       * @example sub_approval_required
+       */
+      mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
+      /**
+       * Exit Amount
+       * @description Proposed exit/buyout reference amount (GBP)
+       * @example 500.00
+       */
+      exit_amount: number | string;
+    };
+    /** DebtContractCreate */
+    DebtContractCreate: {
+      /**
+       * Principal
+       * @description Starting balance of the debt in GBP
+       * @example 500.00
+       */
+      principal: number | string;
+      /**
+       * Interest Rate
+       * @description Interest rate as a fraction (e.g. 0.200000 = 20%)
+       * @example 0.200000
+       */
+      interest_rate: number | string;
+      /**
+       * @description Whether the rate is monthly or yearly (yearly converted via AER)
+       * @example monthly
+       */
+      interest_period: components["schemas"]["InterestPeriod"];
+      /**
+       * Duration Periods
+       * @description Number of payment periods for the full term
+       * @example 12
+       */
+      duration_periods: number;
+      /**
+       * @description How often payments are due
+       * @example monthly
+       */
+      payment_frequency: components["schemas"]["PaymentFrequency"];
+      /**
+       * Minimum Payment
+       * @description Minimum payment per period to avoid a late penalty (GBP)
+       * @example 50.00
+       */
+      minimum_payment: number | string;
+      /**
+       * @description UI preset describing severity of the late penalty
+       * @example medium
+       */
+      late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
+      /**
+       * Late Penalty Percent
+       * @description Fraction added to balance when a period is missed (e.g. 0.1000 = 10%)
+       * @example 0.1000
+       */
+      late_penalty_percent: number | string;
+      /**
+       * Dom Can Add Surprise Penalty
+       * @description Goddess may apply an ad-hoc penalty outside the late-penalty mechanism
+       * @example false
+       */
+      dom_can_add_surprise_penalty: boolean;
+      /**
+       * @description Controls whether the goddess can add balance mid-contract and whether sub approval is required
+       * @example disabled
+       */
+      mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
+      /**
+       * Exit Amount
+       * @description Reference amount for buyout formula and breach calculations (GBP)
+       * @example 600.00
+       */
+      exit_amount: number | string;
+    };
+    /**
+     * DebtContractEventType
+     * @enum {string}
+     */
+    DebtContractEventType:
+      | "proposed"
+      | "countered"
+      | "accepted_counter"
+      | "rejected_counter"
+      | "signed"
+      | "cancelled"
+      | "closed"
+      | "breached"
+      | "completed";
+    /** DebtContractOut */
+    DebtContractOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Contract UUID
+       */
+      id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description Sub user UUID
+       */
+      sub_id: string;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Goddess UUID
+       */
+      goddess_id: string;
+      /**
+       * Sub Initiated
+       * @description True when the sub proposed the contract
+       */
+      sub_initiated: boolean;
+      /**
+       * Principal
+       * @description Starting balance (GBP)
+       * @example 500.00
+       */
+      principal: string;
+      /**
+       * Interest Rate
+       * @description Interest rate fraction
+       * @example 0.200000
+       */
+      interest_rate: string;
+      /** @description Interest period enum */
+      interest_period: components["schemas"]["InterestPeriod"];
+      /**
+       * Duration Periods
+       * @description Number of payment periods
+       */
+      duration_periods: number;
+      /** @description Payment frequency enum */
+      payment_frequency: components["schemas"]["PaymentFrequency"];
+      /**
+       * Minimum Payment
+       * @description Minimum payment per period (GBP)
+       * @example 50.00
+       */
+      minimum_payment: string;
+      /** @description Late penalty severity preset */
+      late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
+      /**
+       * Late Penalty Percent
+       * @description Late penalty fraction
+       * @example 0.1000
+       */
+      late_penalty_percent: string;
+      /**
+       * Dom Can Add Surprise Penalty
+       * @description Goddess surprise-penalty capability
+       */
+      dom_can_add_surprise_penalty: boolean;
+      /** @description Mid-contract addition mode */
+      mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
+      /**
+       * Exit Amount
+       * @description Exit/buyout reference amount (GBP)
+       * @example 600.00
+       */
+      exit_amount: string;
+      /** @description Current contract status */
+      status: components["schemas"]["DebtContractStatus"];
+      /** @description Expanded current negotiation version snapshot */
+      current_version?: components["schemas"]["DebtContractVersionOut"] | null;
+      /**
+       * Signed Pdf Url
+       * @description Presigned R2 URL of the signed PDF
+       */
+      signed_pdf_url?: string | null;
+      /**
+       * Signed Pdf Sha256
+       * @description SHA-256 hash of the signed PDF for integrity
+       */
+      signed_pdf_sha256?: string | null;
+      /**
+       * Signed At
+       * @description UTC datetime when the contract was signed
+       */
+      signed_at?: string | null;
+      /**
+       * Balance
+       * @description Cached current balance (GBP); event log is authoritative
+       * @example 500.00
+       */
+      balance: string;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime of contract creation
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description UTC datetime of last update
+       */
+      updated_at: string;
+      /**
+       * Total Paid
+       * @description Sum of all validated payment allocations targeting this contract (GBP)
+       * @example 150.00
+       */
+      total_paid: string;
+      /**
+       * Total Due
+       * @description Agreed total amount due over the full term (minimum_payment × duration_periods, GBP)
+       * @example 600.00
+       */
+      total_due: string;
+      /**
+       * Remaining
+       * @description total_due minus total_paid, clamped to 0 (GBP)
+       * @example 450.00
+       */
+      remaining: string;
+      /**
+       * Progress Pct
+       * @description Repayment progress as a percentage 0–100, rounded to 1 decimal place
+       * @example 25
+       */
+      progress_pct: number;
+      /**
+       * Payment Count
+       * @description Number of validated payments applied to this contract
+       * @example 3
+       */
+      payment_count: number;
+      /**
+       * Last Payment At
+       * @description UTC datetime of the most recent validated payment, or null if none
+       */
+      last_payment_at?: string | null;
+      /**
+       * First Payment At
+       * @description UTC datetime of the earliest validated payment, or null if none
+       */
+      first_payment_at?: string | null;
+      /**
+       * On Track
+       * @description True when total_paid meets or exceeds the expected cumulative instalment total up to today (period_index × minimum_payment). Always true for contracts that have not yet been signed.
+       * @example true
+       */
+      on_track: boolean;
+    };
+    /** DebtContractSignIn */
+    DebtContractSignIn: {
+      /**
+       * Signature Png B64
+       * @description Base64-encoded PNG of the sub's signature
+       * @example iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==
+       */
+      signature_png_b64: string;
+    };
+    /**
+     * DebtContractStatus
+     * @enum {string}
+     */
+    DebtContractStatus:
+      | "pending_sub"
+      | "pending_dom"
+      | "pending_dom_counter"
+      | "pending_sub_signature"
+      | "active"
+      | "closed"
+      | "breached"
+      | "completed"
+      | "cancelled_by_dom";
+    /** DebtContractVersionOut */
+    DebtContractVersionOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Version record UUID
+       */
+      id: string;
+      /**
+       * Contract Id
+       * Format: uuid
+       * @description Parent contract UUID
+       */
+      contract_id: string;
+      /**
+       * Round No
+       * @description 0 = original proposal, 1 = counter-proposal
+       */
+      round_no: number;
+      /**
+       * Proposed By
+       * Format: uuid
+       * @description UUID of the user who proposed this version
+       */
+      proposed_by: string;
+      /**
+       * Proposed At
+       * Format: date-time
+       * @description UTC datetime when this version was proposed
+       */
+      proposed_at: string;
+      /**
+       * Principal
+       * @description Principal in GBP
+       * @example 500.00
+       */
+      principal: string;
+      /**
+       * Interest Rate
+       * @description Interest rate fraction
+       * @example 0.200000
+       */
+      interest_rate: string;
+      /** @description Interest period enum */
+      interest_period: components["schemas"]["InterestPeriod"];
+      /**
+       * Duration Periods
+       * @description Number of payment periods
+       */
+      duration_periods: number;
+      /** @description Payment frequency enum */
+      payment_frequency: components["schemas"]["PaymentFrequency"];
+      /**
+       * Minimum Payment
+       * @description Minimum payment per period (GBP)
+       * @example 50.00
+       */
+      minimum_payment: string;
+      /** @description Late penalty severity preset */
+      late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
+      /**
+       * Late Penalty Percent
+       * @description Late penalty fraction
+       * @example 0.1000
+       */
+      late_penalty_percent: string;
+      /**
+       * Dom Can Add Surprise Penalty
+       * @description Goddess surprise-penalty capability
+       */
+      dom_can_add_surprise_penalty: boolean;
+      /** @description Mid-contract addition mode */
+      mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
+      /**
+       * Exit Amount
+       * @description Exit/buyout reference amount (GBP)
+       * @example 600.00
+       */
+      exit_amount: string;
+    };
+    /** DebtSimulationOut */
+    DebtSimulationOut: {
+      /**
+       * Periods
+       * @description Period-by-period projection
+       */
+      periods: components["schemas"]["DebtSimulationPeriod"][];
+      /**
+       * Severe Warning
+       * @description True if minimum payment cannot keep up with interest growth
+       */
+      severe_warning: boolean;
+      /**
+       * Period Rate
+       * @description Per-period interest rate (fraction)
+       */
+      period_rate: string;
+      /**
+       * Monthly Rate
+       * @description Derived monthly interest rate (fraction)
+       */
+      monthly_rate: string;
+    };
+    /** DebtSimulationPeriod */
+    DebtSimulationPeriod: {
+      /**
+       * Period
+       * @description Period index (1-based)
+       */
+      period: number;
+      /**
+       * Balance Before Payment
+       * @description Balance after interest, before payment
+       */
+      balance_before_payment: string;
+      /**
+       * Payment
+       * @description Payment applied this period
+       */
+      payment: string;
+      /**
+       * Balance End
+       * @description Balance after payment
+       */
+      balance_end: string;
+    };
+    /**
+     * DeclarationSource
+     * @enum {string}
+     */
+    DeclarationSource: "sub_declared" | "goddess_recorded";
+    /** DeclarePaymentIn */
+    DeclarePaymentIn: {
+      /**
+       * Amount
+       * @description Payment amount in GBP
+       * @example 30.00
+       */
+      amount: number | string;
+      /**
+       * Method Id
+       * Format: uuid
+       * @description UUID of the payment method used
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      method_id: string;
+      /**
+       * @description Payment category — determines ledger routing
+       * @example entry
+       */
+      category: components["schemas"]["PaymentCategory"];
+      /**
+       * External Timestamp
+       * @description UTC datetime when the payment was actually made (sub-reported)
+       * @example 2026-04-13T12:00:00
+       */
+      external_timestamp?: string | null;
+      /**
+       * Note
+       * @description Optional note from the sub
+       * @example Sent via Throne
+       */
+      note?: string | null;
+      /**
+       * Target Id
+       * @description Polymorphic target — contract or rolling cycle ID (required for some categories)
+       * @example null
+       */
+      target_id?: string | null;
+    };
+    /** EditDeclarationIn */
+    EditDeclarationIn: {
+      /**
+       * Amount
+       * @description Updated payment amount in GBP
+       * @example 30.00
+       */
+      amount?: number | string | null;
+      /**
+       * Method Id
+       * @description Updated payment method UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      method_id?: string | null;
+      /**
+       * @description Updated payment category
+       * @example tribute
+       */
+      category?: components["schemas"]["PaymentCategory"] | null;
+      /**
+       * External Timestamp
+       * @description Updated external payment timestamp
+       * @example 2026-04-13T12:00:00
+       */
+      external_timestamp?: string | null;
+      /**
+       * Note
+       * @description Updated note
+       * @example Corrected note
+       */
+      note?: string | null;
+      /**
+       * Target Id
+       * @description Updated polymorphic target ID
+       * @example null
+       */
+      target_id?: string | null;
+    };
+    /**
+     * EventType
+     * @enum {string}
+     */
+    EventType:
+      | "period_interest"
+      | "late_penalty"
+      | "payment_applied"
+      | "adjustment"
+      | "surprise_penalty"
+      | "buyout_paid";
+    /** ForgiveIn */
+    ForgiveIn: {
+      /**
+       * Reinstatement Fee Paid
+       * @description Reinstatement fee paid by the sub to be removed from blacklist (GBP)
+       * @example 100.00
+       */
+      reinstatement_fee_paid: number | string;
+    };
+    /** GoddessDashboardOut */
+    GoddessDashboardOut: {
+      /**
+       * Subs Total
+       * @description Total subs linked to this goddess (active + blacklisted)
+       * @example 5
+       */
+      subs_total: number;
+      /**
+       * Subs Active
+       * @description Number of active subs
+       * @example 4
+       */
+      subs_active: number;
+      /**
+       * Subs Blacklisted
+       * @description Number of blacklisted subs
+       * @example 1
+       */
+      subs_blacklisted: number;
+      /**
+       * Rolling Count
+       * @description Number of rolling tributes currently not paused
+       * @example 3
+       */
+      rolling_count: number;
+      /**
+       * Contracts Active
+       * @description Number of active debt contracts
+       * @example 2
+       */
+      contracts_active: number;
+      /**
+       * Pending Validations
+       * @description Number of payment declarations pending validation
+       * @example 4
+       */
+      pending_validations: number;
+      /**
+       * Pending Contracts
+       * @description Number of contracts in any pending_* status
+       * @example 1
+       */
+      pending_contracts: number;
+      /**
+       * Late Payments
+       * @description Up to 50 most urgent late payments (rolling + contract), sorted by days_late descending
+       */
+      late_payments?: components["schemas"]["LatePaymentItem"][];
+      /**
+       * Total Drained
+       * @description Sum of all validated payment amounts across this goddess (GBP)
+       * @example 1250.00
+       */
+      total_drained: string;
+    };
+    /** HTTPValidationError */
+    HTTPValidationError: {
+      /** Detail */
+      detail?: components["schemas"]["ValidationError"][];
+    };
+    /** ImpersonationAccess */
+    ImpersonationAccess: {
+      /**
+       * Access Token
+       * @description Short-lived access token impersonating the target user
+       * @example eyJ...
+       */
+      access_token: string;
+      /**
+       * Expires In
+       * @description Impersonation access token lifetime in seconds
+       * @example 1800
+       */
+      expires_in: number;
+    };
+    /**
+     * InterestPeriod
+     * @enum {string}
+     */
+    InterestPeriod: "monthly" | "yearly";
+    /** InvitationCreate */
+    InvitationCreate: {
+      /**
+       * Entry Tribute Amount
+       * @description Entry tribute amount in GBP that the sub must declare on signup
+       * @example 50.00
+       */
+      entry_tribute_amount: number | string;
+      /**
+       * Note
+       * @description Optional private note visible to the sub on the invitation landing page
+       * @example Welcome, slave.
+       */
+      note?: string | null;
+      /**
+       * Expires In Days
+       * @description How many days from now until the invitation link expires
+       * @default 7
+       * @example 7
+       */
+      expires_in_days: number;
+    };
+    /** InvitationOut */
+    InvitationOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Invitation UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      id: string;
+      /**
+       * Token
+       * @description URL-safe token embedded in the invite link
+       * @example abc123xyz
+       */
+      token: string;
+      /**
+       * Url
+       * @description Full invite URL to share with the sub
+       * @example http://localhost:5173/invite/abc123xyz
+       */
+      url: string;
+      /**
+       * Entry Tribute Amount
+       * @description Entry tribute amount in GBP
+       * @example 50.00
+       */
+      entry_tribute_amount: string;
+      /**
+       * Note
+       * @description Optional note
+       * @example Welcome.
+       */
+      note?: string | null;
+      /**
+       * Expires At
+       * Format: date-time
+       * @description UTC expiry datetime of the invitation
+       */
+      expires_at: string;
+      /**
+       * Used At
+       * @description UTC datetime when the invitation was consumed
+       */
+      used_at?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime when the invitation was created
+       */
+      created_at: string;
+    };
+    /** LatePaymentItem */
+    LatePaymentItem: {
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description UUID of the sub who is late
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      sub_id: string;
+      /**
+       * Sub Display Name
+       * @description Display name of the sub (first + last, or username)
+       * @example Jane Doe
+       */
+      sub_display_name?: string | null;
+      /**
+       * Kind
+       * @description Source of the late payment — rolling tribute or debt contract
+       * @example rolling
+       * @enum {string}
+       */
+      kind: "rolling" | "contract";
+      /**
+       * Amount Due
+       * @description Amount currently owed in GBP (includes any late penalty for rolling)
+       * @example 50.00
+       */
+      amount_due: string;
+      /**
+       * Days Late
+       * @description Number of calendar days past the deadline
+       * @example 3
+       */
+      days_late: number;
+      /**
+       * Context Id
+       * Format: uuid
+       * @description UUID of the rolling tribute or contract this item refers to
+       * @example 00000000-0000-0000-0000-000000000003
+       */
+      context_id: string;
+    };
+    /**
+     * LatePenaltySeverity
+     * @enum {string}
+     */
+    LatePenaltySeverity: "light" | "medium" | "severe";
+    /** LateSubItem */
+    LateSubItem: {
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description UUID of the sub who is late
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      sub_id: string;
+      /**
+       * Display Name
+       * @description Display name of the sub (first + last, or username fallback)
+       * @example Jane Doe
+       */
+      display_name?: string | null;
+      /**
+       * Days Late
+       * @description Number of calendar days past the rolling tribute deadline
+       * @example 3
+       */
+      days_late: number;
+      /**
+       * Overdue Amount
+       * @description Amount overdue in GBP (rolling amount_due including any late penalty)
+       * @example 55.00
+       */
+      overdue_amount: string;
+      /**
+       * Last Payment At
+       * @description UTC datetime of the most recent validated payment, or null if none
+       * @example 2026-04-01T12:00:00
+       */
+      last_payment_at?: string | null;
+    };
+    /** LoginRequest */
+    LoginRequest: {
+      /**
+       * Email
+       * @description User email address
+       * @example sub@example.com
+       */
+      email: string;
+      /**
+       * Password
+       * @description User password
+       * @example s3cr3t!
+       */
+      password: string;
+    };
+    /**
+     * MidContractAdditionMode
+     * @enum {string}
+     */
+    MidContractAdditionMode: "disabled" | "dom_controlled" | "sub_approval_required";
+    /** NotificationListOut */
+    NotificationListOut: {
+      /**
+       * Items
+       * @description Recent notifications for the authenticated user, newest first
+       */
+      items: components["schemas"]["NotificationOut"][];
+      /**
+       * Unread
+       * @description Count of unread notifications for this user
+       */
+      unread: number;
+    };
+    /** NotificationOut */
+    NotificationOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Notification UUID
+       */
+      id: string;
+      /**
+       * User Id
+       * Format: uuid
+       * @description Recipient user UUID
+       */
+      user_id: string;
+      /** @description Notification type discriminator */
+      type: components["schemas"]["NotificationType"];
+      /**
+       * Title
+       * @description Short headline displayed in the bell/drawer
+       */
+      title: string;
+      /**
+       * Body
+       * @description Optional longer body text
+       */
+      body?: string | null;
+      /**
+       * Link
+       * @description Optional frontend route to deep-link to on click
+       * @example /debts/00000000-0000-0000-0000-000000000001
+       */
+      link?: string | null;
+      /**
+       * Payload
+       * @description Optional machine-readable context payload
+       */
+      payload?: {
+        [key: string]: unknown;
+      } | null;
+      /**
+       * Read At
+       * @description UTC timestamp when the user marked this as read
+       */
+      read_at?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime when emitted
+       */
+      created_at: string;
+    };
+    /**
+     * NotificationType
+     * @enum {string}
+     */
+    NotificationType:
+      | "invitation_claimed"
+      | "payment_pending"
+      | "payment_validated"
+      | "payment_rejected"
+      | "rolling_reminder"
+      | "rolling_late"
+      | "contract_proposed"
+      | "contract_countered"
+      | "contract_counter_accepted"
+      | "contract_counter_rejected"
+      | "contract_signed"
+      | "contract_period_interest"
+      | "contract_late_penalty"
+      | "contract_surprise_penalty"
+      | "contract_adjustment_proposed"
+      | "contract_adjustment_accepted"
+      | "contract_adjustment_refused"
+      | "contract_buyout_requested"
+      | "contract_buyout_paid"
+      | "contract_breached"
+      | "contract_forgiven";
+    /** PasswordResetConfirm */
+    PasswordResetConfirm: {
+      /**
+       * Token
+       * @description Reset token from the email link
+       * @example abc123
+       */
+      token: string;
+      /**
+       * New Password
+       * @description New password to set (min 8 chars)
+       * @example n3wP@ssw0rd
+       */
+      new_password: string;
+    };
+    /** PasswordResetRequest */
+    PasswordResetRequest: {
+      /**
+       * Email
+       * @description Email address of the account to reset
+       * @example sub@example.com
+       */
+      email: string;
+    };
+    /**
+     * PaymentCategory
+     * @enum {string}
+     */
+    PaymentCategory: "entry" | "rolling" | "weekly_debt" | "debt_payment" | "buyout" | "tribute";
+    /**
+     * PaymentFrequency
+     * @enum {string}
+     */
+    PaymentFrequency: "weekly" | "biweekly" | "monthly";
+    /** PaymentMethodCreate */
+    PaymentMethodCreate: {
+      /**
+       * Name
+       * @description Display label for this payment method
+       * @example Throne — jane-mm
+       */
+      name: string;
+      /**
+       * @description Category of payment method
+       * @example throne
+       */
+      type: components["schemas"]["PaymentMethodType"];
+      /**
+       * Handle Or Link
+       * @description The @handle, URL, or account reference for this method
+       * @example @jane-mm
+       */
+      handle_or_link: string;
+      /**
+       * Note
+       * @description Optional free-text note visible to Goddess only
+       * @example Primary tribute method
+       */
+      note?: string | null;
+      /**
+       * Enabled
+       * @description Whether this method is active and shown to subs
+       * @default true
+       * @example true
+       */
+      enabled: boolean;
+    };
+    /** PaymentMethodOut */
+    PaymentMethodOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Payment method UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      id: string;
+      /**
+       * Name
+       * @description Display label for this payment method
+       * @example Throne — jane-mm
+       */
+      name: string;
+      /**
+       * @description Category of payment method
+       * @example throne
+       */
+      type: components["schemas"]["PaymentMethodType"];
+      /**
+       * Handle Or Link
+       * @description The @handle, URL, or account reference
+       * @example @jane-mm
+       */
+      handle_or_link: string;
+      /**
+       * Note
+       * @description Optional free-text note
+       * @example Primary tribute method
+       */
+      note?: string | null;
+      /**
+       * Enabled
+       * @description Whether this method is active
+       * @example true
+       */
+      enabled: boolean;
+      /**
+       * Sort Order
+       * @description Display order (ascending = top)
+       * @example 0
+       */
+      sort_order: number;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime when the method was created
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description UTC datetime when the method was last updated
+       */
+      updated_at: string;
+    };
+    /**
+     * PaymentMethodType
+     * @enum {string}
+     */
+    PaymentMethodType:
+      | "throne"
+      | "paypal"
+      | "cashapp"
+      | "venmo"
+      | "revolut"
+      | "amazon"
+      | "wishtender"
+      | "tipfunder"
+      | "onlyfans"
+      | "loyalfans"
+      | "premium_chat"
+      | "sentbio"
+      | "sumeria"
+      | "btc"
+      | "eth"
+      | "bank"
+      | "other";
+    /** PaymentMethodUpdate */
+    PaymentMethodUpdate: {
+      /**
+       * Name
+       * @description Updated display label
+       * @example Throne — jane-mm
+       */
+      name?: string | null;
+      /**
+       * @description Updated payment method category
+       * @example paypal
+       */
+      type?: components["schemas"]["PaymentMethodType"] | null;
+      /**
+       * Handle Or Link
+       * @description Updated @handle, URL, or account reference
+       * @example paypal.me/jane-mm
+       */
+      handle_or_link?: string | null;
+      /**
+       * Note
+       * @description Updated free-text note
+       * @example Secondary method
+       */
+      note?: string | null;
+      /**
+       * Enabled
+       * @description Enable or disable this method
+       * @example false
+       */
+      enabled?: boolean | null;
+    };
+    /** PaymentOut */
+    PaymentOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Declaration UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description Sub user UUID
+       */
+      sub_id: string;
+      /**
+       * Sub Display Name
+       * @description Sub display name (first + last)
+       */
+      sub_display_name?: string | null;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Goddess UUID
+       */
+      goddess_id: string;
+      /**
+       * Method Id
+       * Format: uuid
+       * @description Payment method UUID
+       */
+      method_id: string;
+      /**
+       * Method Name
+       * @description Payment method display name
+       */
+      method_name?: string | null;
+      /**
+       * @description Payment method type (brand key)
+       * @example paypal
+       */
+      method_type?: components["schemas"]["PaymentMethodType"] | null;
+      /**
+       * Amount
+       * @description Payment amount in GBP
+       * @example 30.00
+       */
+      amount: string;
+      /**
+       * External Timestamp
+       * @description Sub-reported payment datetime
+       */
+      external_timestamp?: string | null;
+      /**
+       * Note
+       * @description Note from the declarer
+       */
+      note?: string | null;
+      /**
+       * @description Payment category
+       * @example entry
+       */
+      category: components["schemas"]["PaymentCategory"];
+      /**
+       * @description Declaration status
+       * @example pending
+       */
+      status: components["schemas"]["PaymentStatus"];
+      /**
+       * Target Id
+       * @description Polymorphic target ID
+       */
+      target_id?: string | null;
+      /**
+       * Created By
+       * Format: uuid
+       * @description UUID of user who created this declaration
+       */
+      created_by: string;
+      /**
+       * Declared At
+       * Format: date-time
+       * @description UTC datetime of declaration
+       */
+      declared_at: string;
+      /**
+       * Validated At
+       * @description UTC datetime of validation/rejection
+       */
+      validated_at?: string | null;
+      /**
+       * Validated By
+       * @description UUID of goddess who validated/rejected
+       */
+      validated_by?: string | null;
+      /**
+       * Rejection Reason
+       * @description Reason for rejection if rejected
+       */
+      rejection_reason?: string | null;
+      /**
+       * @description Who declared this payment.
+       * @example sub_declared
+       */
+      source: components["schemas"]["DeclarationSource"];
+      /** @description Allocation record if validated */
+      allocation?: components["schemas"]["AllocationOut"] | null;
+    };
+    /**
+     * PaymentStatus
+     * @enum {string}
+     */
+    PaymentStatus: "pending" | "validated" | "rejected" | "cancelled";
+    /** PreferencesOut */
+    PreferencesOut: {
+      /**
+       * Theme Preference
+       * @description Persisted UI theme preference for the authenticated user.
+       * @example dark
+       * @enum {string}
+       */
+      theme_preference: "system" | "dark" | "light";
+    };
+    /** ProfileUpdate */
+    ProfileUpdate: {
+      /**
+       * First Name
+       * @description First name
+       * @example Jane
+       */
+      first_name?: string | null;
+      /**
+       * Last Name
+       * @description Last name
+       * @example Doe
+       */
+      last_name?: string | null;
+      /**
+       * Bio
+       * @description Free-text bio (max 500 chars)
+       * @example A sub living in London.
+       */
+      bio?: string | null;
+      /**
+       * Avatar Url
+       * @description Avatar image URL
+       * @example https://example.com/avatar.png
+       */
+      avatar_url?: string | null;
+    };
+    /** PublicInvitationOut */
+    PublicInvitationOut: {
+      /**
+       * Token
+       * @description Invitation token
+       * @example abc123xyz
+       */
+      token: string;
+      /**
+       * Goddess Display Name
+       * @description Display name of the Goddess who created the invitation
+       * @example Goddess Mean Mal
+       */
+      goddess_display_name: string;
+      /**
+       * Note
+       * @description Optional note from the Goddess
+       * @example Welcome.
+       */
+      note?: string | null;
+      /**
+       * Entry Tribute Amount
+       * @description Amount the sub must tribute on signup (GBP)
+       * @example 50.00
+       */
+      entry_tribute_amount: string;
+      /**
+       * Expires At
+       * Format: date-time
+       * @description UTC expiry datetime of the invitation
+       */
+      expires_at: string;
+    };
+    /** RecordPaymentIn */
+    RecordPaymentIn: {
+      /**
+       * Amount
+       * @description Payment amount in GBP
+       * @example 30.00
+       */
+      amount: number | string;
+      /**
+       * Method Id
+       * Format: uuid
+       * @description UUID of the payment method used
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      method_id: string;
+      /**
+       * @description Payment category — determines ledger routing
+       * @example entry
+       */
+      category: components["schemas"]["PaymentCategory"];
+      /**
+       * External Timestamp
+       * @description UTC datetime when the payment was actually made (sub-reported)
+       * @example 2026-04-13T12:00:00
+       */
+      external_timestamp?: string | null;
+      /**
+       * Note
+       * @description Optional note from the sub
+       * @example Sent via Throne
+       */
+      note?: string | null;
+      /**
+       * Target Id
+       * @description Polymorphic target — contract or rolling cycle ID (required for some categories)
+       * @example null
+       */
+      target_id?: string | null;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description UUID of the sub on whose behalf the goddess is recording
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      sub_id: string;
+    };
+    /** RefreshRequest */
+    RefreshRequest: {
+      /**
+       * Refresh Token
+       * @description Opaque refresh token previously issued by /auth/login or /auth/refresh. Deprecated: the server now reads the refresh token from the HttpOnly cookie `debt_refresh`. Supply this field only for legacy clients that cannot use cookies.
+       * @default
+       * @example
+       */
+      refresh_token: string;
+    };
+    /** RejectIn */
+    RejectIn: {
+      /**
+       * Reason
+       * @description Optional rejection reason shown to the sub
+       * @example Wrong amount — expected £30.00
+       */
+      reason?: string | null;
+    };
+    /** ReorderRequest */
+    ReorderRequest: {
+      /**
+       * Method Ids
+       * @description Payment method IDs in the desired display order (index 0 = top)
+       * @example [
+       *       "00000000-0000-0000-0000-000000000001",
+       *       "00000000-0000-0000-0000-000000000002"
+       *     ]
+       */
+      method_ids: string[];
+    };
+    /** RollingTributeIn */
+    RollingTributeIn: {
+      /**
+       * Amount
+       * @description Weekly tribute amount in GBP
+       * @example 50.00
+       */
+      amount: number | string;
+      /**
+       * @description Day of the week the tribute is due
+       * @example fri
+       */
+      deadline_day: components["schemas"]["DeadlineDay"];
+      /**
+       * Deadline Time
+       * Format: time
+       * @description Time of day the tribute is due (London local time, HH:MM)
+       * @example 18:00:00
+       */
+      deadline_time: string;
+      /**
+       * Late Multiplier Per Day
+       * @description Amount multiplier added per day late (0 = no late penalty)
+       * @default 1
+       * @example 1
+       */
+      late_multiplier_per_day: number;
+      /**
+       * Paused
+       * @description When true the tribute cycle is suspended
+       * @default false
+       * @example false
+       */
+      paused: boolean;
+      /**
+       * Notes
+       * @description Optional private notes visible to the Goddess only
+       * @example Paused for holiday week
+       */
+      notes?: string | null;
+    };
+    /** RollingTributeOut */
+    RollingTributeOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Rolling tribute record UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description UUID of the sub this tribute belongs to
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      sub_id: string;
+      /**
+       * Amount
+       * @description Configured weekly tribute amount in GBP
+       * @example 50.00
+       */
+      amount: string;
+      /**
+       * @description Day of the week the tribute is due
+       * @example fri
+       */
+      deadline_day: components["schemas"]["DeadlineDay"];
+      /**
+       * Deadline Time
+       * Format: time
+       * @description Time of day the tribute is due (London local time)
+       * @example 18:00:00
+       */
+      deadline_time: string;
+      /**
+       * Late Multiplier Per Day
+       * @description Amount multiplier added per day late
+       * @example 1
+       */
+      late_multiplier_per_day: number;
+      /**
+       * Paused
+       * @description Whether the tribute cycle is currently paused
+       * @example false
+       */
+      paused: boolean;
+      /**
+       * Notes
+       * @description Optional private notes
+       * @example Paused for holiday week
+       */
+      notes?: string | null;
+      /**
+       * Last Paid At
+       * @description UTC datetime of the most recent validated rolling payment
+       * @example null
+       */
+      last_paid_at?: string | null;
+      /**
+       * Current Cycle Deadline
+       * Format: date-time
+       * @description UTC datetime of the next (or current) cycle deadline
+       * @example 2026-04-18T18:00:00
+       */
+      current_cycle_deadline: string;
+      /**
+       * Amount Due
+       * @description Amount currently owed including any late penalty (GBP)
+       * @example 50.00
+       */
+      amount_due: string;
+      /**
+       * Days Late
+       * @description Number of calendar days past the last deadline (0 if on time or paused)
+       * @example 0
+       */
+      days_late: number;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime when this record was created
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description UTC datetime when this record was last updated
+       */
+      updated_at: string;
+    };
+    /** SignupRequest */
+    SignupRequest: {
+      /**
+       * Email
+       * @description Sub's email address
+       * @example slave@example.com
+       */
+      email: string;
+      /**
+       * Password
+       * @description Sub's password (min 8 characters)
+       * @example s3cr3tP@ss
+       */
+      password: string;
+      /**
+       * Username
+       * @description Unique username for the sub
+       * @example slave42
+       */
+      username: string;
+      /**
+       * First Name
+       * @description Sub's first name
+       * @example John
+       */
+      first_name?: string | null;
+      /**
+       * Last Name
+       * @description Sub's last name
+       * @example Doe
+       */
+      last_name?: string | null;
+    };
+    /** SubDashboardOut */
+    SubDashboardOut: {
+      /**
+       * Amount Due This Week
+       * @description Sum of rolling amount_due (if not paused) plus minimum_payment of all active contracts with weekly payment frequency (GBP)
+       * @example 80.00
+       */
+      amount_due_this_week: string;
+      /**
+       * Is Late
+       * @description True if the rolling tribute is late or any active contract is late
+       * @example false
+       */
+      is_late: boolean;
+      /**
+       * Active Contracts
+       * @description Summary of all active contracts belonging to this sub
+       */
+      active_contracts?: components["schemas"]["ActiveContractSummary"][];
+      /**
+       * Recent Payments
+       * @description Last 10 payment declarations for this sub
+       */
+      recent_payments?: components["schemas"]["PaymentOut"][];
+      /**
+       * Total Sent
+       * @description Sum of all validated payments by this sub (GBP)
+       * @example 450.00
+       */
+      total_sent: string;
+    };
+    /** SubPlanningOut */
+    SubPlanningOut: {
+      /**
+       * Upcoming
+       * @description Payment deadlines in the next 30 Europe/London calendar days, sorted by date
+       */
+      upcoming?: components["schemas"]["UpcomingPaymentItem"][];
+      /**
+       * Weekly History
+       * @description Validated payment totals for the last 12 weeks (oldest first), each keyed by the Monday of that week
+       */
+      weekly_history?: components["schemas"]["WeeklyPaymentTotal"][];
+      /**
+       * Total Paid All Time
+       * @description Lifetime sum of all validated payments by this sub (GBP)
+       * @example 450.00
+       */
+      total_paid_all_time: string;
+      /**
+       * Total Paid This Month
+       * @description Sum of validated payments in the current Europe/London calendar month (GBP)
+       * @example 120.00
+       */
+      total_paid_this_month: string;
+      /**
+       * Rolling Remaining This Month
+       * @description Estimated rolling amount still owed before end of current month (0 if no active rolling tribute)
+       * @example 50.00
+       */
+      rolling_remaining_this_month: string;
+    };
+    /** SurprisePenaltyIn */
+    SurprisePenaltyIn: {
+      /**
+       * Amount
+       * @description Flat penalty amount to add to the contract balance (GBP)
+       * @example 100.00
+       */
+      amount: number | string;
+      /**
+       * Reason
+       * @description Optional reason note recorded on the ledger event
+       * @example late to session
+       */
+      reason?: string | null;
+    };
+    /** TokenPair */
+    TokenPair: {
+      /**
+       * Access Token
+       * @description Short-lived JWT access token
+       * @example eyJ...
+       */
+      access_token: string;
+      /**
+       * Refresh Token
+       * @description Opaque refresh token (rotate on each use)
+       * @example abc123
+       */
+      refresh_token: string;
+      /**
+       * Token Type
+       * @description OAuth2 token type
+       * @default bearer
+       * @constant
+       */
+      token_type: "bearer";
+      /**
+       * Expires In
+       * @description Access token lifetime in seconds
+       * @example 900
+       */
+      expires_in: number;
+    };
+    /** UpcomingPaymentItem */
+    UpcomingPaymentItem: {
+      /**
+       * Date
+       * Format: date
+       * @description Europe/London calendar date the payment is due
+       * @example 2026-04-21
+       */
+      date: string;
+      /**
+       * Amount
+       * @description Amount due in GBP
+       * @example 50.00
+       */
+      amount: string;
+      /**
+       * Kind
+       * @description Origin of the obligation: rolling tribute or contract instalment
+       * @example rolling
+       * @enum {string}
+       */
+      kind: "rolling" | "contract_instalment";
+      /**
+       * Label
+       * @description Human-readable description for the tooltip (e.g. 'Weekly tribute', 'Contract instalment £50/wk')
+       * @example Weekly tribute
+       */
+      label: string;
+    };
+    /** UpdatePreferencesIn */
+    UpdatePreferencesIn: {
+      /**
+       * Theme Preference
+       * @description UI theme preference: 'system' follows OS, 'dark' / 'light' force mode.
+       * @example system
+       * @enum {string}
+       */
+      theme_preference: "system" | "dark" | "light";
+    };
+    /** UserOut */
+    UserOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description User UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      id: string;
+      /**
+       * Email
+       * @description User email
+       * @example sub@example.com
+       */
+      email: string;
+      /**
+       * @description User role
+       * @example sub
+       */
+      role: components["schemas"]["UserRole"];
+      /**
+       * @description Account status
+       * @example active
+       */
+      status: components["schemas"]["UserStatus"];
+      /**
+       * Display Name
+       * @description User display name
+       * @example Jane
+       */
+      display_name: string;
+      /**
+       * First Name
+       * @description First name
+       * @example Jane
+       */
+      first_name?: string | null;
+      /**
+       * Last Name
+       * @description Last name
+       * @example Doe
+       */
+      last_name?: string | null;
+      /**
+       * Bio
+       * @description Free-text bio (max 500 chars)
+       * @example A sub living in London.
+       */
+      bio?: string | null;
+      /**
+       * Avatar Url
+       * @description Avatar URL
+       * @example null
+       */
+      avatar_url?: string | null;
+      /**
+       * Theme Preference
+       * @description UI theme preference
+       * @example system
+       */
+      theme_preference: string;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Account creation timestamp (UTC)
+       */
+      created_at: string;
+      /**
+       * Impersonator Id
+       * @description Set when this session is an admin impersonation. UUID of the admin.
+       * @example null
+       */
+      impersonator_id?: string | null;
+      /**
+       * Impersonator Display Name
+       * @description Display name of the impersonating admin, when applicable.
+       * @example null
+       */
+      impersonator_display_name?: string | null;
+    };
+    /**
+     * UserRole
+     * @enum {string}
+     */
+    UserRole: "admin" | "goddess" | "sub";
+    /**
+     * UserStatus
+     * @enum {string}
+     */
+    UserStatus: "pending_entry_tribute" | "active" | "blacklisted" | "deleted";
+    /** ValidateIn */
+    ValidateIn: {
+      /**
+       * @description Optional new category to assign before validating
+       * @example null
+       */
+      recategorize_to?: components["schemas"]["PaymentCategory"] | null;
+    };
+    /** ValidationError */
+    ValidationError: {
+      /** Location */
+      loc: (string | number)[];
+      /** Message */
+      msg: string;
+      /** Error Type */
+      type: string;
+      /** Input */
+      input?: unknown;
+      /** Context */
+      ctx?: Record<string, never>;
+    };
+    /** WeeklyPaymentBucket */
+    WeeklyPaymentBucket: {
+      /**
+       * Week Start
+       * Format: date
+       * @description Monday of the ISO week (Europe/London)
+       * @example 2026-04-07
+       */
+      week_start: string;
+      /**
+       * Week End
+       * Format: date
+       * @description Sunday of the ISO week (Europe/London)
+       * @example 2026-04-13
+       */
+      week_end: string;
+      /**
+       * Total
+       * @description Sum of validated payments received in this week (GBP)
+       * @example 125.00
+       */
+      total: string;
+      /**
+       * Count
+       * @description Number of validated payment declarations in this week
+       * @example 3
+       */
+      count: number;
+    };
+    /** WeeklyPaymentTotal */
+    WeeklyPaymentTotal: {
+      /**
+       * Week Start
+       * Format: date
+       * @description ISO date of the Monday starting this week
+       * @example 2026-04-07
+       */
+      week_start: string;
+      /**
+       * Total
+       * @description Sum of all validated payment amounts for this week (GBP)
+       * @example 75.00
+       */
+      total: string;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    health_health_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Server is alive */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": "ok"
-                     *     }
-                     */
-                    "application/json": {
-                        [key: string]: string;
-                    };
-                };
-            };
-        };
-    };
-    login_auth_login_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenPair"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials / token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — account inactive or role not permitted */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Too many requests — rate limit exceeded */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    refresh_auth_refresh_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: {
-                debt_refresh?: string | null;
-            };
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RefreshRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenPair"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials / token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    logout_auth_logout_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: {
-                debt_refresh?: string | null;
-            };
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RefreshRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    password_reset_request_auth_password_reset_request_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PasswordResetRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Too many requests — rate limit exceeded */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    password_reset_confirm_auth_password_reset_confirm_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PasswordResetConfirm"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request — invalid, used, or expired token */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Too many requests — rate limit exceeded */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    me_auth_me_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials / token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_invitations_goddess_invitations__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvitationOut"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess or has no goddess profile */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    create_invitation_goddess_invitations__post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InvitationCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvitationOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess or has no goddess profile */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_payment_methods_goddess_payment_methods__get: {
-        parameters: {
-            query?: {
-                /** @description When true, return only enabled methods */
-                enabled?: boolean;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentMethodOut"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess or has no goddess profile */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    create_payment_method_goddess_payment_methods__post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PaymentMethodCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentMethodOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess or has no goddess profile */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    delete_payment_method_goddess_payment_methods__method_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                method_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess or has no goddess profile */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — payment method does not exist or belongs to another goddess */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    update_payment_method_goddess_payment_methods__method_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                method_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PaymentMethodUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentMethodOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess or has no goddess profile */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — payment method does not exist or belongs to another goddess */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    reorder_payment_methods_goddess_payment_methods_reorder_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReorderRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentMethodOut"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess or has no goddess profile */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_invitation_invite__token__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PublicInvitationOut"];
-                };
-            };
-            /** @description Not found — token does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — invitation has expired or has already been used */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Too many requests — rate limit exceeded */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    signup_via_invite_invite__token__signup_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignupRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenPair"];
-                };
-            };
-            /** @description Bad request — duplicate email or username */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — token does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — invitation expired, already used, or email/username taken */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Too many requests — rate limit exceeded */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_my_payments_sub_payments_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    declare_payment_sub_payments_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DeclarePaymentIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"];
-                };
-            };
-            /** @description Bad request — invalid category or business rule violation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — declaration or resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    cancel_declaration_sub_payments__declaration_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                declaration_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — declaration or resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — declaration is not in the expected status */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    edit_declaration_sub_payments__declaration_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                declaration_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EditDeclarationIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"];
-                };
-            };
-            /** @description Bad request — invalid category or business rule violation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — declaration or resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — declaration is not in the expected status */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_sub_payment_methods_sub_payment_methods_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentMethodOut"][];
-                };
-            };
-            /** @description Bad request — invalid category or business rule violation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_pending_payments_goddess_payments_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    validate_declaration_goddess_payments__declaration_id__validate_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                declaration_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ValidateIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"];
-                };
-            };
-            /** @description Bad request — invalid category or business rule violation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — declaration or resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — declaration is not in the expected status */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    reject_declaration_goddess_payments__declaration_id__reject_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                declaration_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RejectIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — declaration or resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — declaration is not in the expected status */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    record_payment_goddess_payments_record_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RecordPaymentIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"];
-                };
-            };
-            /** @description Bad request — invalid category or business rule violation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — declaration or resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_goddess_subs_goddess_subs_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    }[];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_rolling_tribute_goddess_subs__sub_id__rolling__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                sub_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RollingTributeOut"] | null;
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess or has no goddess profile */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — sub does not exist or is not linked to this goddess */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    upsert_rolling_tribute_goddess_subs__sub_id__rolling__put: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                sub_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RollingTributeIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RollingTributeOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess or has no goddess profile */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — sub does not exist or is not linked to this goddess */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    clear_rolling_tribute_goddess_subs__sub_id__rolling__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                sub_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess or has no goddess profile */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — sub does not exist or is not linked to this goddess */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    simulate_draft_debts_simulate_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DebtContractCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtSimulationOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    propose_as_goddess_goddess_subs__sub_id__debts_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                sub_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DebtContractCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract does not exist or is not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_sub_contracts_sub_debts_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    propose_as_sub_sub_debts_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DebtContractCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    counter_propose_debts__contract_id__counter_propose_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DebtContractCounter"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract does not exist or is not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — transition not valid from the current contract status */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    accept_counter_debts__contract_id__accept_counter_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract does not exist or is not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — transition not valid from the current contract status */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    reject_counter_debts__contract_id__reject_counter_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract does not exist or is not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — transition not valid from the current contract status */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    sign_as_sub_debts__contract_id__sign_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DebtContractSignIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract does not exist or is not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — transition not valid from the current contract status */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    download_contract_pdf_debts__contract_id__pdf_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Signed contract PDF bytes (fake storage) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/pdf": unknown;
-                };
-            };
-            /** @description Redirect to the presigned PDF URL (R2) */
-            302: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract does not exist or is not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    close_as_goddess_goddess_debts__contract_id__close_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract does not exist or is not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — transition not valid from the current contract status */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_contract_debts__contract_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract does not exist or is not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_contract_audit_debts__contract_id__audit_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractAuditOut"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract does not exist or is not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_goddess_contracts_goddess_debts_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    breach_sub_goddess_subs__sub_id__breach_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                sub_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BreachIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BlacklistEntryOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — sub or entry not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — sub already blacklisted or entry already forgiven */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_entries_goddess_blacklist_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BlacklistEntryOut"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    forgive_goddess_blacklist__entry_id__forgive_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                entry_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ForgiveIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BlacklistEntryOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — sub or entry not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — sub already blacklisted or entry already forgiven */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    buyout_intent_sub_debts__contract_id__buyout_intent_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BuyoutIntentOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract or adjustment not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — invalid state for this action */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    surprise_penalty_goddess_debts__contract_id__surprise_penalty_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SurprisePenaltyIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DebtContractOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract or adjustment not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — invalid state for this action */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    create_adjustment_goddess_debts__contract_id__adjustments_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                contract_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AdjustmentCreateIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ContractAdjustmentOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract or adjustment not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — invalid state for this action */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    accept_adjustment_sub_adjustments__adjustment_id__accept_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                adjustment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ContractAdjustmentOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract or adjustment not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — invalid state for this action */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    refuse_adjustment_sub_adjustments__adjustment_id__refuse_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                adjustment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ContractAdjustmentOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — contract or adjustment not visible to caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Conflict — invalid state for this action */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_pending_sub_adjustments_pending_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ContractAdjustmentOut"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — role or ownership mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    run_cron_now_admin_cron_run_now_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CronRunOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    impersonate_admin_impersonate__user_id__post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                user_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ImpersonationAccess"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_admin_actions_admin_admin_actions_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter on action or entity */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowAdminAction_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_admin_action_admin_admin_actions__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowAdminAction"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    users_list_admin_users_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowUser_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    users_create_admin_users_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowUser"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    users_get_admin_users__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowUser"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    users_delete_admin_users__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    users_update_admin_users__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowUser"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    goddesses_list_admin_goddesses_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowGoddess_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    goddesses_create_admin_goddesses_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowGoddess"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    goddesses_get_admin_goddesses__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowGoddess"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    goddesses_delete_admin_goddesses__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    goddesses_update_admin_goddesses__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowGoddess"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    invitations_list_admin_invitations_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowInvitation_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    invitations_create_admin_invitations_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowInvitation"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    invitations_get_admin_invitations__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowInvitation"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    invitations_delete_admin_invitations__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    invitations_update_admin_invitations__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowInvitation"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    payment_methods_list_admin_payment_methods_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowPaymentMethod_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    payment_methods_create_admin_payment_methods_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowPaymentMethod"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    payment_methods_get_admin_payment_methods__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowPaymentMethod"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    payment_methods_delete_admin_payment_methods__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    payment_methods_update_admin_payment_methods__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowPaymentMethod"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    payment_declarations_list_admin_payment_declarations_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowPaymentDeclaration_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    payment_declarations_create_admin_payment_declarations_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowPaymentDeclaration"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    payment_declarations_get_admin_payment_declarations__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowPaymentDeclaration"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    payment_declarations_delete_admin_payment_declarations__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    payment_declarations_update_admin_payment_declarations__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowPaymentDeclaration"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    rolling_tributes_list_admin_rolling_tributes_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowRollingTribute_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    rolling_tributes_create_admin_rolling_tributes_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowRollingTribute"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    rolling_tributes_get_admin_rolling_tributes__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowRollingTribute"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    rolling_tributes_delete_admin_rolling_tributes__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    rolling_tributes_update_admin_rolling_tributes__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowRollingTribute"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    debt_contracts_list_admin_debt_contracts_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowDebtContract_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    debt_contracts_create_admin_debt_contracts_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowDebtContract"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    debt_contracts_get_admin_debt_contracts__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowDebtContract"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    debt_contracts_delete_admin_debt_contracts__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    debt_contracts_update_admin_debt_contracts__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowDebtContract"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    blacklist_entries_list_admin_blacklist_entries_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowBlacklistEntry_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    blacklist_entries_create_admin_blacklist_entries_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowBlacklistEntry"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    blacklist_entries_get_admin_blacklist_entries__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowBlacklistEntry"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    blacklist_entries_delete_admin_blacklist_entries__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    blacklist_entries_update_admin_blacklist_entries__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowBlacklistEntry"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    notifications_list_admin_notifications_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowNotification_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    notifications_create_admin_notifications_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowNotification"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    notifications_get_admin_notifications__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowNotification"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    notifications_delete_admin_notifications__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    notifications_update_admin_notifications__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowNotification"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    debt_events_list_admin_debt_events_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowDebtEvent_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    debt_events_create_admin_debt_events_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowDebtEvent"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    debt_events_get_admin_debt_events__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowDebtEvent"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    debt_events_delete_admin_debt_events__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    debt_events_update_admin_debt_events__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowDebtEvent"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    contract_adjustments_list_admin_contract_adjustments_get: {
-        parameters: {
-            query?: {
-                /** @description Case-insensitive substring filter */
-                q?: string | null;
-                /** @description 1-based page number */
-                page?: number;
-                /** @description Rows per page (max 200) */
-                page_size?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminListOut_AdminRowContractAdjustment_"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    contract_adjustments_create_admin_contract_adjustments_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowContractAdjustment"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    contract_adjustments_get_admin_contract_adjustments__item_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowContractAdjustment"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    contract_adjustments_delete_admin_contract_adjustments__item_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    contract_adjustments_update_admin_contract_adjustments__item_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                item_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminRowContractAdjustment"];
-                };
-            };
-            /** @description Bad request — invalid field in payload */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — admin role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_my_notifications_me_notifications_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationListOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    mark_notification_read_me_notifications__notification_id__read_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                notification_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found — notification does not exist or belongs to another user */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    update_preferences_me_preferences_patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdatePreferencesIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PreferencesOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    update_profile_me_profile_patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ProfileUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserOut"];
-                };
-            };
-            /** @description Bad request — validation failed (e.g. bio too long, invalid avatar URL) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable entity — request body validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    goddess_dashboard_goddess_dashboard_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GoddessDashboardOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller role is not permitted for this dashboard */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    sub_dashboard_sub_dashboard_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SubDashboardOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller role is not permitted for this dashboard */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    sub_planning_sub_planning_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SubPlanningOut"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller role is not permitted for this dashboard */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    weekly_payments_goddess_payments_weekly_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WeeklyPaymentBucket"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    late_subs_goddess_subs_late_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LateSubItem"][];
-                };
-            };
-            /** @description Unauthorized — missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — caller is not a goddess */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
+  health_health_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Server is alive */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "status": "ok"
+           *     }
+           */
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  login_auth_login_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LoginRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TokenPair"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid credentials / token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — account inactive or role not permitted */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Too many requests — rate limit exceeded */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  refresh_auth_refresh_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        debt_refresh?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RefreshRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TokenPair"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid credentials / token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  logout_auth_logout_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        debt_refresh?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RefreshRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  password_reset_request_auth_password_reset_request_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PasswordResetRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Too many requests — rate limit exceeded */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  password_reset_confirm_auth_password_reset_confirm_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PasswordResetConfirm"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Bad request — invalid, used, or expired token */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Too many requests — rate limit exceeded */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  me_auth_me_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid credentials / token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_invitations_goddess_invitations__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvitationOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  create_invitation_goddess_invitations__post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InvitationCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvitationOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_payment_methods_goddess_payment_methods__get: {
+    parameters: {
+      query?: {
+        /** @description When true, return only enabled methods */
+        enabled?: boolean;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentMethodOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  create_payment_method_goddess_payment_methods__post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PaymentMethodCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentMethodOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  delete_payment_method_goddess_payment_methods__method_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        method_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — payment method does not exist or belongs to another goddess */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_payment_method_goddess_payment_methods__method_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        method_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PaymentMethodUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentMethodOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — payment method does not exist or belongs to another goddess */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  reorder_payment_methods_goddess_payment_methods_reorder_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReorderRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentMethodOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  get_invitation_invite__token__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        token: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PublicInvitationOut"];
+        };
+      };
+      /** @description Not found — token does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invitation has expired or has already been used */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Too many requests — rate limit exceeded */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  signup_via_invite_invite__token__signup_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        token: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SignupRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TokenPair"];
+        };
+      };
+      /** @description Bad request — duplicate email or username */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — token does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invitation expired, already used, or email/username taken */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Too many requests — rate limit exceeded */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_my_payments_sub_payments_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  declare_payment_sub_payments_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DeclarePaymentIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"];
+        };
+      };
+      /** @description Bad request — invalid category or business rule violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  cancel_declaration_sub_payments__declaration_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        declaration_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — declaration is not in the expected status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  edit_declaration_sub_payments__declaration_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        declaration_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EditDeclarationIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"];
+        };
+      };
+      /** @description Bad request — invalid category or business rule violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — declaration is not in the expected status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_sub_payment_methods_sub_payment_methods_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentMethodOut"][];
+        };
+      };
+      /** @description Bad request — invalid category or business rule violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_pending_payments_goddess_payments_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  validate_declaration_goddess_payments__declaration_id__validate_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        declaration_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ValidateIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"];
+        };
+      };
+      /** @description Bad request — invalid category or business rule violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — declaration is not in the expected status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  reject_declaration_goddess_payments__declaration_id__reject_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        declaration_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RejectIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — declaration is not in the expected status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  record_payment_goddess_payments_record_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RecordPaymentIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentOut"];
+        };
+      };
+      /** @description Bad request — invalid category or business rule violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — declaration or resource does not exist */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_goddess_subs_goddess_subs_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          }[];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_rolling_tribute_goddess_subs__sub_id__rolling__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        sub_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RollingTributeOut"] | null;
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — sub does not exist or is not linked to this goddess */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  upsert_rolling_tribute_goddess_subs__sub_id__rolling__put: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        sub_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RollingTributeIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RollingTributeOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — sub does not exist or is not linked to this goddess */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  clear_rolling_tribute_goddess_subs__sub_id__rolling__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        sub_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — sub does not exist or is not linked to this goddess */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  simulate_draft_debts_simulate_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DebtContractCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtSimulationOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  propose_as_goddess_goddess_subs__sub_id__debts_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        sub_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DebtContractCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_sub_contracts_sub_debts_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  propose_as_sub_sub_debts_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DebtContractCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  counter_propose_debts__contract_id__counter_propose_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DebtContractCounter"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — transition not valid from the current contract status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  accept_counter_debts__contract_id__accept_counter_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — transition not valid from the current contract status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  reject_counter_debts__contract_id__reject_counter_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — transition not valid from the current contract status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  sign_as_sub_debts__contract_id__sign_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DebtContractSignIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — transition not valid from the current contract status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  download_contract_pdf_debts__contract_id__pdf_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Signed contract PDF bytes (fake storage) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/pdf": unknown;
+        };
+      };
+      /** @description Redirect to the presigned PDF URL (R2) */
+      302: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  close_as_goddess_goddess_debts__contract_id__close_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — transition not valid from the current contract status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  get_contract_debts__contract_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  get_contract_audit_debts__contract_id__audit_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractAuditOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_goddess_contracts_goddess_debts_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  breach_sub_goddess_subs__sub_id__breach_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        sub_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["BreachIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BlacklistEntryOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — sub or entry not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — sub already blacklisted or entry already forgiven */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_entries_goddess_blacklist_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BlacklistEntryOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  forgive_goddess_blacklist__entry_id__forgive_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        entry_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ForgiveIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BlacklistEntryOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — sub or entry not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — sub already blacklisted or entry already forgiven */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  buyout_intent_sub_debts__contract_id__buyout_intent_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BuyoutIntentOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract or adjustment not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invalid state for this action */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  surprise_penalty_goddess_debts__contract_id__surprise_penalty_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SurprisePenaltyIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract or adjustment not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invalid state for this action */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  create_adjustment_goddess_debts__contract_id__adjustments_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AdjustmentCreateIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ContractAdjustmentOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract or adjustment not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invalid state for this action */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  accept_adjustment_sub_adjustments__adjustment_id__accept_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        adjustment_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ContractAdjustmentOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract or adjustment not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invalid state for this action */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  refuse_adjustment_sub_adjustments__adjustment_id__refuse_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        adjustment_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ContractAdjustmentOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract or adjustment not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invalid state for this action */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_pending_sub_adjustments_pending_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ContractAdjustmentOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  run_cron_now_admin_cron_run_now_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CronRunOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  impersonate_admin_impersonate__user_id__post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        user_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ImpersonationAccess"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_admin_actions_admin_admin_actions_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter on action or entity */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowAdminAction_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  get_admin_action_admin_admin_actions__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowAdminAction"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  users_list_admin_users_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowUser_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  users_create_admin_users_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowUser"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  users_get_admin_users__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowUser"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  users_delete_admin_users__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  users_update_admin_users__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowUser"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  goddesses_list_admin_goddesses_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowGoddess_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  goddesses_create_admin_goddesses_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowGoddess"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  goddesses_get_admin_goddesses__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowGoddess"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  goddesses_delete_admin_goddesses__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  goddesses_update_admin_goddesses__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowGoddess"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  invitations_list_admin_invitations_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowInvitation_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  invitations_create_admin_invitations_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowInvitation"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  invitations_get_admin_invitations__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowInvitation"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  invitations_delete_admin_invitations__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  invitations_update_admin_invitations__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowInvitation"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  payment_methods_list_admin_payment_methods_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowPaymentMethod_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  payment_methods_create_admin_payment_methods_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowPaymentMethod"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  payment_methods_get_admin_payment_methods__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowPaymentMethod"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  payment_methods_delete_admin_payment_methods__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  payment_methods_update_admin_payment_methods__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowPaymentMethod"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  payment_declarations_list_admin_payment_declarations_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowPaymentDeclaration_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  payment_declarations_create_admin_payment_declarations_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowPaymentDeclaration"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  payment_declarations_get_admin_payment_declarations__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowPaymentDeclaration"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  payment_declarations_delete_admin_payment_declarations__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  payment_declarations_update_admin_payment_declarations__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowPaymentDeclaration"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  rolling_tributes_list_admin_rolling_tributes_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowRollingTribute_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  rolling_tributes_create_admin_rolling_tributes_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowRollingTribute"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  rolling_tributes_get_admin_rolling_tributes__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowRollingTribute"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  rolling_tributes_delete_admin_rolling_tributes__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  rolling_tributes_update_admin_rolling_tributes__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowRollingTribute"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  debt_contracts_list_admin_debt_contracts_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowDebtContract_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  debt_contracts_create_admin_debt_contracts_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowDebtContract"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  debt_contracts_get_admin_debt_contracts__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowDebtContract"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  debt_contracts_delete_admin_debt_contracts__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  debt_contracts_update_admin_debt_contracts__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowDebtContract"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  blacklist_entries_list_admin_blacklist_entries_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowBlacklistEntry_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  blacklist_entries_create_admin_blacklist_entries_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowBlacklistEntry"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  blacklist_entries_get_admin_blacklist_entries__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowBlacklistEntry"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  blacklist_entries_delete_admin_blacklist_entries__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  blacklist_entries_update_admin_blacklist_entries__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowBlacklistEntry"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  notifications_list_admin_notifications_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowNotification_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  notifications_create_admin_notifications_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowNotification"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  notifications_get_admin_notifications__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowNotification"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  notifications_delete_admin_notifications__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  notifications_update_admin_notifications__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowNotification"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  debt_events_list_admin_debt_events_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowDebtEvent_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  debt_events_create_admin_debt_events_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowDebtEvent"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  debt_events_get_admin_debt_events__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowDebtEvent"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  debt_events_delete_admin_debt_events__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  debt_events_update_admin_debt_events__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowDebtEvent"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  contract_adjustments_list_admin_contract_adjustments_get: {
+    parameters: {
+      query?: {
+        /** @description Case-insensitive substring filter */
+        q?: string | null;
+        /** @description 1-based page number */
+        page?: number;
+        /** @description Rows per page (max 200) */
+        page_size?: number;
+      };
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminListOut_AdminRowContractAdjustment_"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  contract_adjustments_create_admin_contract_adjustments_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowContractAdjustment"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  contract_adjustments_get_admin_contract_adjustments__item_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowContractAdjustment"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  contract_adjustments_delete_admin_contract_adjustments__item_id__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  contract_adjustments_update_admin_contract_adjustments__item_id__patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        item_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminRowContractAdjustment"];
+        };
+      };
+      /** @description Bad request — invalid field in payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_my_notifications_me_notifications_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationListOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  mark_notification_read_me_notifications__notification_id__read_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        notification_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — notification does not exist or belongs to another user */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_preferences_me_preferences_patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePreferencesIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PreferencesOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_profile_me_profile_patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ProfileUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserOut"];
+        };
+      };
+      /** @description Bad request — validation failed (e.g. bio too long, invalid avatar URL) */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  goddess_dashboard_goddess_dashboard_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GoddessDashboardOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller role is not permitted for this dashboard */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  sub_dashboard_sub_dashboard_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SubDashboardOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller role is not permitted for this dashboard */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  sub_planning_sub_planning_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SubPlanningOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller role is not permitted for this dashboard */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  weekly_payments_goddess_payments_weekly_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WeeklyPaymentBucket"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  late_subs_goddess_subs_late_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LateSubItem"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
 }

@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { buyoutIntentApi, type BuyoutIntentOut } from "@/services/debtContracts/debtContractsApi";
-import { MethodIcon, METHOD_LABELS } from "@/components/paymentMethods/MethodIcon";
+import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
+import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
 
 interface Props {
   contractId: string;
