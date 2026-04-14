@@ -1,0 +1,45 @@
+import { expect, test } from "@playwright/test";
+import { GODDESS, login } from "./fixtures/auth";
+
+test.describe("visual regression", () => {
+  test("login page", async ({ page }) => {
+    await page.goto("/login");
+    await expect(page.locator("form")).toBeVisible();
+    await expect(page).toHaveScreenshot("login.png", { fullPage: true });
+  });
+
+  test("goddess dashboard", async ({ page }) => {
+    await login(page, GODDESS.email, GODDESS.password);
+    await page.goto("/goddess/dashboard");
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveScreenshot("goddess-dashboard.png", { fullPage: true });
+  });
+
+  test("goddess contracts list", async ({ page }) => {
+    await login(page, GODDESS.email, GODDESS.password);
+    await page.goto("/goddess/debts");
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveScreenshot("goddess-contracts.png", { fullPage: true });
+  });
+
+  test("goddess blacklist", async ({ page }) => {
+    await login(page, GODDESS.email, GODDESS.password);
+    await page.goto("/goddess/blacklist");
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveScreenshot("goddess-blacklist.png", { fullPage: true });
+  });
+
+  test("admin users table", async ({ page }) => {
+    await login(page, GODDESS.email, GODDESS.password);
+    await page.goto("/admin/users");
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveScreenshot("admin-users.png", { fullPage: true });
+  });
+
+  test("contract form — new", async ({ page }) => {
+    await login(page, GODDESS.email, GODDESS.password);
+    await page.goto("/goddess/debts");
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveScreenshot("goddess-contracts-list.png", { fullPage: true });
+  });
+});
