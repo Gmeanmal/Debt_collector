@@ -2478,7 +2478,7 @@ export interface components {
      * DeclarationSource
      * @enum {string}
      */
-    DeclarationSource: "sub_declared" | "goddess_requested" | "goddess_recorded";
+    DeclarationSource: "sub_declared" | "goddess_recorded";
     /** DeclarePaymentIn */
     DeclarePaymentIn: {
       /**

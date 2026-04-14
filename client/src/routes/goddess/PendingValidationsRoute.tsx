@@ -18,7 +18,6 @@ const CATEGORIES: PaymentCategory[] = ["entry", "tribute"];
 
 const SOURCE_LABEL: Record<DeclarationSource, string> = {
   sub_declared: "Self-declared",
-  goddess_requested: "Goddess-requested",
   goddess_recorded: "Goddess-recorded",
 };
 
@@ -26,7 +25,6 @@ type BadgeVariant = "default" | "primary" | "debt";
 
 const SOURCE_VARIANT: Record<DeclarationSource, BadgeVariant> = {
   sub_declared: "default",
-  goddess_requested: "primary",
   goddess_recorded: "debt",
 };
 

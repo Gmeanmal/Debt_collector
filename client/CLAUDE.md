@@ -46,6 +46,10 @@ No circular imports. No importing from a higher layer.
 - One component per file unless the sub-component is trivially small and never reused.
 - Props typed with a local `interface`, not inline object types.
 
+## UUID visibility
+
+UUIDs are never rendered for `sub` or `goddess` users. Only `admin` may see raw IDs in tables or detail panes. For non-admin roles, display `display_name` + `username`, keep the UUID in the URL/query key only.
+
 ## Colour and styling rules
 
 - **No inline CSS.** Never `style={{ ... }}`, `style=""`, or `<style>` tags.

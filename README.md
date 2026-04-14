@@ -94,7 +94,21 @@ Open:
 | Admin    | `admin+dev@debt-collector.uk`   | `177@tTr$EbgA2CvMr@&4FM#DYaq6`   |
 | Goddess  | `meanmal@debt-collector.uk`     | `!Z#9by05NEnHsi*m%Q&8XKS$d2$%`   |
 
-`make init-dbs` also seeds 11 subs (`alex`, `ben`, `chris`, `dan`, `eli`, `fred`, `gary`, `henry`, `ian`, `jack`, `kev`) covering the full state matrix: pending entry tribute, active tributes, rolling, debt contracts, pending validations, pending adjustments, breach, blacklist, buyout. All sub passwords: `ChangeMe!Dev123`.
+`make init-dbs` also seeds 11 subs, each pre-set to a different state so every UI path has live data. All sub passwords: `ChangeMe!Dev123`.
+
+| Username | State                                                            |
+| -------- | ---------------------------------------------------------------- |
+| `alex`   | pending entry tribute (just signed up)                           |
+| `ben`    | active, rolling tribute only                                     |
+| `chris`  | active, rolling + active debt contract mid-way                   |
+| `dan`    | active, debt contract with a pending adjustment                  |
+| `eli`    | active, pending payment declaration awaiting validation          |
+| `fred`   | active, late on rolling (triggers late-subs view + notification) |
+| `gary`   | active, late on weekly debt instalment                           |
+| `henry`  | active, contract near payoff (tests buyout flow)                 |
+| `ian`    | active, proposed contract awaiting goddess review                |
+| `jack`   | breached → blacklisted, awaiting reinstatement                   |
+| `kev`    | blacklisted + forgiven (reinstated)                              |
 
 ---
 
@@ -109,6 +123,14 @@ Open:
 5. **Manage contracts** — create debt contracts per sub, propose adjustments, sign-off on amendments.
 6. **Blacklist** — kick subs that breach.
 7. **Payment methods** — configure accepted methods (bank, crypto, gift cards, …).
+
+### Admin flow
+
+1. Log in with the admin credentials above.
+2. Open **Users** (`/admin/users`) — filter by role + status, search by display name/username.
+3. Click **Impersonate** on any goddess or sub row. The app swaps to their view and shows a persistent banner *"Impersonating <name> — return to admin"*.
+4. Use the feature as that user, then click **Return to admin** in the banner to swap back. Mutations during impersonation are audited against the admin's id.
+5. **Run cron** (`/admin/cron`) — manually fires the daily 08:00 Europe/London job (late reminders, rolling recompute, debt instalments).
 
 ### Sub flow
 
@@ -128,7 +150,7 @@ Topbar toggle (System / Dark / Light) — pink barbie dom on deep violet-black o
 ```
 server/    FastAPI app — routers / controllers / daos / models
 client/    React app — components / hooks / services / api
-Docs/      spec, use cases, diagrams, phased plan
+Docs/      spec (specs.md), use cases, diagrams (open Docs/diagrams.html in a browser), phased plan
 Makefile   single entry point for every dev command
 ```
 
@@ -149,7 +171,7 @@ make down                  # stop docker infra
 
 After modifying SQLModel models always run `make migration m="…"`, inspect the generated revision in `server/alembic/versions/`, then `make migrate`.
 
-After adding/editing routes regenerate the client types: `cd client && pnpm sync-types` (server must be running).
+After adding/editing any FastAPI route or Pydantic schema, regenerate the client types before touching the frontend: `cd client && pnpm sync-types` (server must be running on :8000). Commit the updated `src/types/api.generated.ts` alongside the backend change — the file is checked in so `tsc` can run without the server up.
 
 ## Deploy
 

@@ -78,6 +78,10 @@ PENDING_ENTRY_TRIBUTE → ACTIVE → BLACKLISTED → ACTIVE (on forgive)
 
 Blacklisted users cannot log in (401 at login endpoint, clear error message).
 
+### 4.4. Admin impersonation
+
+Admins can issue a scoped access token that acts as another user without knowing their password. The issued JWT carries an `imp` claim = admin's own UUID; `sub` is the impersonated user. The client shows a persistent banner ("Impersonating <display_name> — return to admin") so the operator can swap back in one click; returning re-issues an unscoped admin token. All mutations performed during impersonation are recorded with the acting admin's id in audit logs. Impersonation tokens inherit the normal 15-minute access TTL (no refresh).
+
 ---
 
 ## 5. Rolling Tribute
@@ -224,7 +228,8 @@ Two tables:
 
 **`payment_declaration`** — what the sub says he paid (or what the Goddess recorded directly).
 
-- `sub_id`, `amount`, `method_id` (FK to Goddess payment method), `external_timestamp` (nullable), `note`, `category` (enum), `status` (`pending` / `validated` / `rejected` / `cancelled`), `created_by` (`sub` or `goddess`), `declared_at`, `validated_at`, `validated_by`, `rejection_reason`.
+- `sub_id`, `amount`, `method_id` (FK to Goddess payment method), `external_timestamp` (nullable), `note`, `category` (enum), `status` (`pending` / `validated` / `rejected` / `cancelled`), `source` (enum `sub_declared` / `goddess_recorded`), `created_by` (`sub` or `goddess`), `declared_at`, `validated_at`, `validated_by`, `rejection_reason`.
+  - `source` is rendered as a badge in both the sub history and the goddess validation queue so the origin of every tribute is visible at a glance.
 
 **`payment_allocation`** — the validated ledger entry, one per declaration (no split).
 
@@ -242,6 +247,18 @@ Goddess can skip the declaration step and create a `validated` declaration + all
 - `goddess.total_drained_global = Σ amounts across all subs`
 - `debt_contract.total_paid = Σ allocations of target_type ∈ (weekly_debt, debt_payment, buyout) for this contract`
 - `rolling.last_paid_at = max(created_at) of validated rolling allocations for this sub`
+
+All counters are **derived at read time** from the allocation ledger, not cached on parent rows. The DAO aggregates via `SUM()` each query; this keeps the ledger as single source of truth and avoids backfill after rejections/cancellations.
+
+### 7.4. Read-model endpoints
+
+Dashboards need pre-aggregated views. These are pure read endpoints (no write verbs):
+
+- `GET /goddess/payments/weekly` — tribute volume per ISO week for the calling Goddess.
+- `GET /goddess/subs/late` — active subs with overdue rolling or weekly debt instalments.
+- `GET /sub/planning` — 30-day forward calendar of expected rolling + contract payments for the calling sub.
+
+Aggregation lives in controllers; routers only shape HTTP. Responses are plain DTOs, not DB rows.
 
 ---
 
@@ -300,7 +317,8 @@ Invitations are **not** sent by the app — Goddess sends the URL herself extern
 goddess (id, display_name, email, password_hash, ...)
 
 user (id, username, email, password_hash, role, status,
-      goddess_id FK, first_name, last_name, twitter_handle, source_note, ...)
+      goddess_id FK, first_name, last_name, bio, avatar_url,
+      twitter_handle, source_note, ...)
 
 invitation (id, token, goddess_id, entry_tribute_amount, note, expires_at, used_at)
 
@@ -313,8 +331,9 @@ debt_contract (id, sub_id, goddess_id, principal, interest_rate, interest_period
                duration_periods, payment_frequency, minimum_payment,
                late_penalty_severity, late_penalty_percent,
                dom_can_add_surprise_penalty, mid_contract_addition_mode,
-               exit_amount, status, balance_cached, total_paid_cached,
+               exit_amount, status,
                signed_pdf_url, signed_pdf_sha256, signed_at, created_at, ...)
+               -- NB: total_paid / balance are derived from the ledger at read time (see §7.3), not cached columns.
 
 debt_event (id, contract_id, event_type, amount, reason, period_index,
             created_by, created_at)
@@ -323,7 +342,7 @@ debt_adjustment (id, contract_id, amount, reason, status, proposed_by,
                  resolved_by, resolved_at)
 
 payment_declaration (id, sub_id, goddess_id, amount, method_id,
-                     external_timestamp, note, category, status,
+                     external_timestamp, note, category, status, source,
                      created_by, declared_at, validated_at, validated_by,
                      rejection_reason)
 

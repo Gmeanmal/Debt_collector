@@ -8,7 +8,6 @@ from sqlmodel import Field, SQLModel
 
 class DeclarationSource(StrEnum):
     sub_declared = "sub_declared"
-    goddess_requested = "goddess_requested"
     goddess_recorded = "goddess_recorded"
 
 

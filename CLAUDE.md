@@ -1,7 +1,7 @@
 # Project rules for all subagents
 
 Active plan: `Docs/plans/2026-04-13-debt-app-implementation-plan.md`
-Spec: `Docs/2026-04-13-debt-app-design.md`
+Spec: `Docs/specs.md`
 Current status: `Docs/STATUS.md` (read first — phase cursor + what's next)
 
 ## Orchestration workflow (main session)
@@ -51,6 +51,11 @@ Rules:
 - 300-line maximum per React component.
 - Named exports only (no default exports).
 - One-way imports: `components → services/hooks → api`. Never import upward.
+- UUIDs are never shown to `sub` or `goddess` users. Only the `admin` role may see raw UUIDs in tables/detail pages. Display `display_name` + `username` instead.
+- Payment declarations carry a `source` enum (`sub_declared` | `goddess_recorded`). Always render via a `Badge` in history/validation lists so the origin of a tribute is visible.
+
+### Read-model endpoints
+Dashboard/aggregation views that don't map to a single CRUD resource (e.g. weekly payments, late subs, 30-day planning) live under role-prefixed read-only routes (`GET /goddess/payments/weekly`, `GET /goddess/subs/late`, `GET /sub/planning`). They return pre-aggregated DTOs; no write verbs. Keep aggregation in the controller layer, never in the router.
 
 ### Comments
 - Minimal comments. Well-named identifiers document themselves.
