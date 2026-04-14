@@ -6,6 +6,9 @@ export type GoddessDashboardOut = components["schemas"]["GoddessDashboardOut"];
 export type SubDashboardOut = components["schemas"]["SubDashboardOut"];
 export type LatePaymentItem = components["schemas"]["LatePaymentItem"];
 export type ActiveContractSummary = components["schemas"]["ActiveContractSummary"];
+export type SubPlanningOut = components["schemas"]["SubPlanningOut"];
+export type UpcomingPaymentItem = components["schemas"]["UpcomingPaymentItem"];
+export type WeeklyPaymentTotal = components["schemas"]["WeeklyPaymentTotal"];
 
 function authHeaders(): Record<string, string> {
   const token = getAccessToken();
@@ -31,5 +34,13 @@ export async function getSubDashboardApi(): Promise<SubDashboardOut> {
     headers: authHeaders(),
   });
   if (error || !data) throw new Error(extractMessage(error, "Failed to load sub dashboard"));
+  return data;
+}
+
+export async function getSubPlanningApi(): Promise<SubPlanningOut> {
+  const { data, error } = await apiClient.GET("/sub/planning", {
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to load planning data"));
   return data;
 }

@@ -109,3 +109,9 @@ html[data-theme="light"] .luxe-surface {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), transparent 60%),
     var(--color-base-surface);
 }
+
+/* Planning calendar tooltip — position driven by CSS vars set imperatively via setProperty */
+.planning-tooltip {
+  top: var(--tt-top);
+  left: var(--tt-left);
+}

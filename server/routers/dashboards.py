@@ -5,7 +5,7 @@ from controllers.dashboard_controller import DashboardController
 from core.db import get_session
 from dependencies.auth import require_role
 from models.user import User, UserRole
-from schemas.dashboard import GoddessDashboardOut, SubDashboardOut
+from schemas.dashboard import GoddessDashboardOut, SubDashboardOut, SubPlanningOut
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
 _E403 = {"description": "Forbidden — caller role is not permitted for this dashboard"}
@@ -60,3 +60,25 @@ async def sub_dashboard(
     ctrl: DashboardController = Depends(_ctrl),
 ) -> SubDashboardOut:
     return await ctrl.sub_overview(user)
+
+
+@sub_router.get(
+    "/planning",
+    summary="Sub 30-day payment planning data",
+    description=(
+        "Returns upcoming payment deadlines for the next 30 Europe/London calendar days "
+        "(rolling tribute cycles and active contract instalments), the last 12 weeks of "
+        "validated payment history (totals per week), and KPI figures: "
+        "total paid all-time, total paid this calendar month, and the estimated rolling "
+        "amount still owed before the end of the current month."
+    ),
+    response_model=SubPlanningOut,
+    status_code=200,
+    tags=["dashboards"],
+    responses={401: _E401, 403: _E403, 500: _E500},
+)
+async def sub_planning(
+    user: User = Depends(require_role(UserRole.sub)),
+    ctrl: DashboardController = Depends(_ctrl),
+) -> SubPlanningOut:
+    return await ctrl.sub_planning(user)

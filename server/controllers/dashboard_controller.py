@@ -1,6 +1,7 @@
 import datetime as dt
 from decimal import Decimal
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,11 +25,17 @@ from schemas.dashboard import (
     GoddessDashboardOut,
     LatePaymentItem,
     SubDashboardOut,
+    SubPlanningOut,
+    UpcomingPaymentItem,
+    WeeklyPaymentTotal,
 )
 from schemas.payment import AllocationOut, PaymentOut
 from utils.periods import current_period_index
 from utils.rolling import amount_due as rolling_amount_due
+from utils.rolling import current_cycle_deadline
 from utils.rolling import days_late as rolling_days_late
+
+_LONDON = ZoneInfo("Europe/London")
 
 _PENDING_CONTRACT_STATUSES = {
     DebtContractStatus.pending_sub,
@@ -165,6 +172,158 @@ class DashboardController:
             recent_payments=recent,
             total_sent=total_sent,
         )
+
+    async def sub_planning(self, sub_user: User) -> SubPlanningOut:
+        if sub_user.role != UserRole.sub:
+            raise BadRequest("user is not a sub")
+
+        now_utc = _now_utc()
+        now_london = dt.datetime.now(dt.UTC).astimezone(_LONDON)
+        today_london = now_london.date()
+
+        upcoming = await self._build_upcoming(sub_user.id, now_utc, today_london)
+        weekly_history = await self._build_weekly_history(sub_user.id, today_london)
+        total_all_time = await self._sum_validated_for_sub(sub_user.id)
+        total_this_month = await self._sum_validated_this_month(sub_user.id, today_london)
+        rolling_remaining = await self._rolling_remaining_this_month(
+            sub_user.id, now_utc, today_london
+        )
+
+        return SubPlanningOut(
+            upcoming=upcoming,
+            weekly_history=weekly_history,
+            total_paid_all_time=total_all_time,
+            total_paid_this_month=total_this_month,
+            rolling_remaining_this_month=rolling_remaining,
+        )
+
+    async def _build_upcoming(
+        self,
+        sub_id: UUID,
+        now_utc: dt.datetime,
+        today_london: dt.date,
+    ) -> list[UpcomingPaymentItem]:
+        horizon = today_london + dt.timedelta(days=30)
+        items: list[UpcomingPaymentItem] = []
+
+        rolling = await self._load_rolling_for_sub(sub_id)
+        if rolling is not None and not rolling.paused and Decimal(str(rolling.amount)) > 0:
+            cursor = current_cycle_deadline(rolling, now_utc)
+            cursor_london = cursor.replace(tzinfo=dt.UTC).astimezone(_LONDON).date()
+            while cursor_london <= horizon:
+                if cursor_london >= today_london:
+                    items.append(
+                        UpcomingPaymentItem(
+                            date=cursor_london,
+                            amount=Decimal(str(rolling.amount)),
+                            kind="rolling",
+                            label="Weekly tribute",
+                        )
+                    )
+                cursor += dt.timedelta(days=7)
+                cursor_london = cursor.replace(tzinfo=dt.UTC).astimezone(_LONDON).date()
+
+        contracts = await self._load_contracts_for_sub(sub_id)
+        active = [c for c in contracts if c.status == DebtContractStatus.active and c.signed_at]
+        for contract in active:
+            period_len = _period_length_days(contract.payment_frequency)
+            next_due = _next_period_due(contract, now_utc)
+            if next_due is None:
+                continue
+            next_due_london = next_due.replace(tzinfo=dt.UTC).astimezone(_LONDON).date()
+            while next_due_london <= horizon:
+                if next_due_london >= today_london:
+                    items.append(
+                        UpcomingPaymentItem(
+                            date=next_due_london,
+                            amount=Decimal(str(contract.minimum_payment)),
+                            kind="contract_instalment",
+                            label=(
+                                f"Contract instalment"
+                                f" £{contract.minimum_payment}"
+                                f"/{contract.payment_frequency.value[:2]}"
+                            ),
+                        )
+                    )
+                next_due += dt.timedelta(days=period_len)
+                next_due_london = next_due.replace(tzinfo=dt.UTC).astimezone(_LONDON).date()
+
+        items.sort(key=lambda it: it.date)
+        return items
+
+    async def _build_weekly_history(
+        self,
+        sub_id: UUID,
+        today_london: dt.date,
+    ) -> list[WeeklyPaymentTotal]:
+        weeks_back = 12
+        monday = today_london - dt.timedelta(days=today_london.weekday())
+        start_monday = monday - dt.timedelta(weeks=weeks_back - 1)
+
+        week_starts = [start_monday + dt.timedelta(weeks=i) for i in range(weeks_back)]
+
+        result = await self._session.execute(
+            select(
+                func.date_trunc("week", PaymentDeclaration.validated_at).label("week"),
+                func.sum(PaymentDeclaration.amount).label("total"),
+            )
+            .where(
+                col(PaymentDeclaration.sub_id) == sub_id,
+                col(PaymentDeclaration.status) == PaymentStatus.validated,
+                col(PaymentDeclaration.validated_at)
+                >= dt.datetime.combine(start_monday, dt.time.min),
+            )
+            .group_by(func.date_trunc("week", PaymentDeclaration.validated_at))
+        )
+        db_rows: dict[dt.date, Decimal] = {}
+        for row in result.all():
+            week_val = row[0]
+            if week_val is not None:
+                d = week_val.date() if hasattr(week_val, "date") else week_val
+                db_rows[d] = Decimal(str(row[1] or 0))
+
+        history: list[WeeklyPaymentTotal] = []
+        for ws in week_starts:
+            history.append(
+                WeeklyPaymentTotal(
+                    week_start=ws,
+                    total=db_rows.get(ws, Decimal("0.00")),
+                )
+            )
+        return history
+
+    async def _sum_validated_this_month(self, sub_id: UUID, today_london: dt.date) -> Decimal:
+        month_start = today_london.replace(day=1)
+        result = await self._session.execute(
+            select(func.coalesce(func.sum(PaymentDeclaration.amount), 0)).where(
+                col(PaymentDeclaration.sub_id) == sub_id,
+                col(PaymentDeclaration.status) == PaymentStatus.validated,
+                col(PaymentDeclaration.validated_at)
+                >= dt.datetime.combine(month_start, dt.time.min),
+            )
+        )
+        return Decimal(str(result.scalar_one() or 0))
+
+    async def _rolling_remaining_this_month(
+        self,
+        sub_id: UUID,
+        now_utc: dt.datetime,
+        today_london: dt.date,
+    ) -> Decimal:
+        rolling = await self._load_rolling_for_sub(sub_id)
+        if rolling is None or rolling.paused or Decimal(str(rolling.amount)) == 0:
+            return Decimal("0.00")
+
+        month_end = (today_london.replace(day=1) + dt.timedelta(days=32)).replace(day=1)
+        total = Decimal("0.00")
+        cursor = current_cycle_deadline(rolling, now_utc)
+        cursor_london = cursor.replace(tzinfo=dt.UTC).astimezone(_LONDON).date()
+        while cursor_london < month_end:
+            if cursor_london >= today_london:
+                total += Decimal(str(rolling.amount))
+            cursor += dt.timedelta(days=7)
+            cursor_london = cursor.replace(tzinfo=dt.UTC).astimezone(_LONDON).date()
+        return total
 
     async def _load_subs(self, goddess_id: UUID) -> list[User]:
         result = await self._session.execute(

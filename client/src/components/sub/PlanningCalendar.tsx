@@ -1,0 +1,223 @@
+import { useRef, useState } from "react";
+import type { UpcomingPaymentItem } from "@/services/dashboards/dashboardsApi";
+
+const GBP = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+
+const DAY_HEADERS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+function isoToday(): string {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+}
+
+function addDays(isoDate: string, n: number): string {
+  const d = new Date(isoDate + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function formatDisplayDate(isoDate: string): string {
+  const [, , dd] = isoDate.split("-");
+  return dd.replace(/^0/, "");
+}
+
+function formatMonthLabel(isoDate: string): string {
+  const d = new Date(isoDate + "T00:00:00Z");
+  return d.toLocaleDateString("en-GB", { timeZone: "UTC", month: "long", year: "numeric" });
+}
+
+function isoWeekday(isoDate: string): number {
+  const d = new Date(isoDate + "T00:00:00Z");
+  return (d.getUTCDay() + 6) % 7;
+}
+
+function buildCalendarDays(todayIso: string): string[] {
+  const monday = addDays(todayIso, -isoWeekday(todayIso));
+  const horizonIso = addDays(todayIso, 30);
+  const lastMonday = addDays(horizonIso, -isoWeekday(horizonIso));
+  const endIso = addDays(lastMonday, 6);
+
+  const days: string[] = [];
+  let cursor = monday;
+  while (cursor <= endIso) {
+    days.push(cursor);
+    cursor = addDays(cursor, 1);
+  }
+  return days;
+}
+
+interface TooltipData {
+  items: UpcomingPaymentItem[];
+  anchor: { top: number; left: number };
+}
+
+interface DayCell {
+  iso: string;
+  upcoming: UpcomingPaymentItem[];
+  isToday: boolean;
+  inRange: boolean;
+}
+
+interface TooltipPopoverProps {
+  items: UpcomingPaymentItem[];
+  top: number;
+  left: number;
+}
+
+function TooltipPopover({ items, top, left }: TooltipPopoverProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  if (ref.current) {
+    ref.current.style.setProperty("--tt-top", `${top}px`);
+    ref.current.style.setProperty("--tt-left", `${left}px`);
+  }
+
+  return (
+    <div
+      ref={(node) => {
+        (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        if (node) {
+          node.style.setProperty("--tt-top", `${top}px`);
+          node.style.setProperty("--tt-left", `${left}px`);
+        }
+      }}
+      role="tooltip"
+      className="planning-tooltip fixed z-50 bg-base-surface border border-base-border rounded px-3 py-2 text-xs shadow-lg pointer-events-none"
+    >
+      {items.map((item, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <span className="text-pink-primary font-semibold">{GBP.format(Number(item.amount))}</span>
+          <span className="text-base-text-muted">{item.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+interface PlanningCalendarProps {
+  upcoming: UpcomingPaymentItem[];
+}
+
+export function PlanningCalendar({ upcoming }: PlanningCalendarProps) {
+  const [tooltip, setTooltip] = useState<TooltipData | null>(null);
+  const todayIso = isoToday();
+  const horizonIso = addDays(todayIso, 30);
+
+  const upcomingByDate = new Map<string, UpcomingPaymentItem[]>();
+  for (const item of upcoming) {
+    const key = item.date;
+    const existing = upcomingByDate.get(key) ?? [];
+    existing.push(item);
+    upcomingByDate.set(key, existing);
+  }
+
+  const calendarDays = buildCalendarDays(todayIso);
+
+  const weekGroups: DayCell[][] = [];
+  for (let i = 0; i < calendarDays.length; i += 7) {
+    weekGroups.push(
+      calendarDays.slice(i, i + 7).map((iso) => ({
+        iso,
+        upcoming: upcomingByDate.get(iso) ?? [],
+        isToday: iso === todayIso,
+        inRange: iso >= todayIso && iso <= horizonIso,
+      })),
+    );
+  }
+
+  const monthLabel = formatMonthLabel(todayIso);
+
+  function handleDayPointerEnter(
+    e: React.PointerEvent<HTMLButtonElement>,
+    items: UpcomingPaymentItem[],
+  ) {
+    if (!items.length) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltip({
+      items,
+      anchor: { top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX },
+    });
+  }
+
+  function handleDayPointerLeave() {
+    setTooltip(null);
+  }
+
+  function handleDayFocus(e: React.FocusEvent<HTMLButtonElement>, items: UpcomingPaymentItem[]) {
+    if (!items.length) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltip({
+      items,
+      anchor: { top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX },
+    });
+  }
+
+  function handleDayBlur() {
+    setTooltip(null);
+  }
+
+  return (
+    <div className="bg-base-surface border border-base-border rounded-lg p-4">
+      <h3 className="text-sm font-semibold text-base-text-muted uppercase tracking-wide mb-3">
+        30-day payment calendar — {monthLabel}
+      </h3>
+
+      <div className="grid grid-cols-7 gap-px mb-1">
+        {DAY_HEADERS.map((d) => (
+          <div key={d} className="text-center text-xs text-base-text-muted py-1 font-medium">
+            {d}
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-px">
+        {weekGroups.map((week) => (
+          <div key={week[0].iso} className="grid grid-cols-7 gap-px">
+            {week.map((cell) => {
+              const hasDue = cell.upcoming.length > 0;
+              const baseClass =
+                "relative flex flex-col items-center justify-start pt-1 pb-1 rounded min-h-[40px] focus-visible:ring-2 focus-visible:ring-pink-primary outline-none";
+              const bgClass = cell.isToday
+                ? "bg-pink-primary/10 border border-pink-primary/40"
+                : cell.inRange
+                  ? "bg-base-surface-raised/60 hover:bg-base-surface-raised"
+                  : "opacity-30";
+
+              return (
+                <button
+                  key={cell.iso}
+                  type="button"
+                  aria-label={
+                    hasDue
+                      ? `${cell.iso}: ${cell.upcoming.length} payment(s) due — ${cell.upcoming.map((u) => `${u.label} ${GBP.format(Number(u.amount))}`).join(", ")}`
+                      : cell.iso
+                  }
+                  className={`${baseClass} ${bgClass} transition-colors`}
+                  onPointerEnter={(e) => handleDayPointerEnter(e, cell.upcoming)}
+                  onPointerLeave={handleDayPointerLeave}
+                  onFocus={(e) => handleDayFocus(e, cell.upcoming)}
+                  onBlur={handleDayBlur}
+                  tabIndex={cell.inRange ? 0 : -1}
+                >
+                  <span
+                    className={`text-xs font-medium ${cell.isToday ? "text-pink-primary" : cell.inRange ? "text-base-text" : "text-base-text-subtle"}`}
+                  >
+                    {formatDisplayDate(cell.iso)}
+                  </span>
+                  {hasDue && (
+                    <span
+                      aria-hidden="true"
+                      className="mt-0.5 w-1.5 h-1.5 rounded-full bg-pink-primary"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+
+      {tooltip && (
+        <TooltipPopover items={tooltip.items} top={tooltip.anchor.top} left={tooltip.anchor.left} />
+      )}
+    </div>
+  );
+}

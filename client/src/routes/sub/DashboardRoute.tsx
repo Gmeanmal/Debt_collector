@@ -5,11 +5,15 @@ import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { PaymentChart } from "@/components/sub/PaymentChart";
+import { PlanningCalendar } from "@/components/sub/PlanningCalendar";
 import {
   getSubDashboardApi,
+  getSubPlanningApi,
   type ActiveContractSummary,
 } from "@/services/dashboards/dashboardsApi";
-import type { PaymentOut } from "@/services/payments/paymentsApi";
+
+const GBP = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
 
 function formatDate(dt: string) {
   return new Date(dt).toLocaleString("en-GB", {
@@ -17,17 +21,6 @@ function formatDate(dt: string) {
     dateStyle: "short",
     timeStyle: "short",
   });
-}
-
-const PAYMENT_STATUS_CLASSES: Record<string, string> = {
-  pending: "bg-status-warning/20 text-status-warning",
-  validated: "bg-status-success/20 text-status-success",
-  rejected: "bg-debt-muted text-status-danger",
-  cancelled: "bg-base-surface-raised text-base-text-muted",
-};
-
-interface ContractCardProps {
-  contract: ActiveContractSummary;
 }
 
 const PROGRESS_WIDTH_CLASS: Record<number, string> = {
@@ -55,15 +48,16 @@ const PROGRESS_WIDTH_CLASS: Record<number, string> = {
 };
 
 function progressWidthClass(percent: number): string {
-  const clamped = Math.max(0, Math.min(100, percent));
-  const rounded = Math.round(clamped / 5) * 5;
+  const rounded = Math.round(Math.max(0, Math.min(100, percent)) / 5) * 5;
   return PROGRESS_WIDTH_CLASS[rounded] ?? "w-0";
+}
+
+interface ContractCardProps {
+  contract: ActiveContractSummary;
 }
 
 function ContractCard({ contract }: ContractCardProps) {
   const progressPercent = Math.max(0, Math.min(100, Number(contract.progress_percent)));
-  const barClass = progressWidthClass(progressPercent);
-
   return (
     <Link
       to={`/debts/${contract.id}`}
@@ -71,21 +65,18 @@ function ContractCard({ contract }: ContractCardProps) {
     >
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <span className="font-semibold text-base-text text-sm">
-          Principal £{Number(contract.principal).toFixed(2)}
+          Principal {GBP.format(Number(contract.principal))}
         </span>
         <ContractStatusChip status={contract.status} />
       </div>
-
       <div className="flex items-center justify-between text-xs text-base-text-muted">
         <span>Balance</span>
-        <span className="text-base-text font-semibold">£{Number(contract.balance).toFixed(2)}</span>
+        <span className="text-base-text font-semibold">{GBP.format(Number(contract.balance))}</span>
       </div>
-
       <div className="h-2 rounded-full bg-base-surface-raised overflow-hidden">
-        <div className={`h-full bg-pink-primary ${barClass}`} />
+        <div className={`h-full bg-pink-primary ${progressWidthClass(progressPercent)}`} />
       </div>
       <div className="text-xs text-base-text-muted">{progressPercent.toFixed(1)}% paid down</div>
-
       {contract.next_period_due_at && (
         <div className="text-xs text-base-text-muted">
           Next due <span className="text-base-text">{formatDate(contract.next_period_due_at)}</span>
@@ -95,45 +86,23 @@ function ContractCard({ contract }: ContractCardProps) {
   );
 }
 
-interface PaymentRowProps {
-  payment: PaymentOut;
-}
-
-function PaymentRow({ payment }: PaymentRowProps) {
-  return (
-    <tr className="border-t border-base-border">
-      <td className="py-2 pr-3 text-base-text text-sm font-semibold whitespace-nowrap">
-        £{Number(payment.amount).toFixed(2)}
-      </td>
-      <td className="py-2 pr-3 text-xs text-base-text-muted capitalize whitespace-nowrap">
-        {payment.category.replace(/_/g, " ")}
-      </td>
-      <td className="py-2 pr-3 whitespace-nowrap">
-        <span
-          className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold capitalize ${PAYMENT_STATUS_CLASSES[payment.status] ?? ""}`}
-        >
-          {payment.status}
-        </span>
-      </td>
-      <td className="py-2 text-xs text-base-text-muted whitespace-nowrap">
-        {formatDate(payment.declared_at)}
-      </td>
-    </tr>
-  );
-}
-
 export function SubDashboardRoute() {
   const {
     data: dash,
-    isLoading,
-    isError,
-    error,
+    isLoading: dashLoading,
+    isError: dashError,
+    error: dashErr,
   } = useQuery({
     queryKey: ["subDashboard"],
     queryFn: getSubDashboardApi,
   });
 
-  if (isLoading) {
+  const { data: planning, isLoading: planningLoading } = useQuery({
+    queryKey: ["subPlanning"],
+    queryFn: getSubPlanningApi,
+  });
+
+  if (dashLoading) {
     return (
       <div className="p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
@@ -142,13 +111,14 @@ export function SubDashboardRoute() {
       </div>
     );
   }
-  if (isError || !dash) {
+
+  if (dashError || !dash) {
     return (
       <div className="p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
           <ErrorState
             title="Failed to load dashboard"
-            message={(error as Error | undefined)?.message ?? "Try refreshing the page."}
+            message={(dashErr as Error | undefined)?.message ?? "Try refreshing the page."}
           />
         </div>
       </div>
@@ -156,8 +126,6 @@ export function SubDashboardRoute() {
   }
 
   const contracts = dash.active_contracts ?? [];
-  const payments = dash.recent_payments ?? [];
-  const amountDue = Number(dash.amount_due_this_week).toFixed(2);
 
   return (
     <div className="p-4 md:p-8">
@@ -171,10 +139,10 @@ export function SubDashboardRoute() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
             label="Due this week"
-            value={`£${amountDue}`}
+            value={GBP.format(Number(dash.amount_due_this_week))}
             accent={dash.is_late ? "danger" : "default"}
             trend={
               dash.is_late ? (
@@ -183,11 +151,37 @@ export function SubDashboardRoute() {
             }
           />
           <StatCard
-            label="Total sent"
-            value={`£${Number(dash.total_sent).toFixed(2)}`}
+            label="All-time sent"
+            value={GBP.format(Number(planning?.total_paid_all_time ?? dash.total_sent))}
             accent="success"
           />
+          {planning && (
+            <>
+              <StatCard
+                label="This month"
+                value={GBP.format(Number(planning.total_paid_this_month))}
+              />
+              <StatCard
+                label="Rolling remaining"
+                value={GBP.format(Number(planning.rolling_remaining_this_month))}
+                accent={Number(planning.rolling_remaining_this_month) > 0 ? "danger" : "default"}
+              />
+            </>
+          )}
         </div>
+
+        {planningLoading && (
+          <div className="bg-base-surface border border-base-border rounded-lg p-6">
+            <ListSkeleton rows={2} />
+          </div>
+        )}
+
+        {planning && (
+          <>
+            <PaymentChart history={planning.weekly_history ?? []} />
+            <PlanningCalendar upcoming={planning.upcoming ?? []} />
+          </>
+        )}
 
         <section className="flex flex-col gap-3">
           <h2 className="font-display text-lg text-pink-primary">Active contracts</h2>
@@ -207,40 +201,75 @@ export function SubDashboardRoute() {
 
         <section className="flex flex-col gap-3">
           <h2 className="font-display text-lg text-pink-primary">Recent payments</h2>
-          {payments.length === 0 ? (
+          {(dash.recent_payments ?? []).length === 0 ? (
             <EmptyState
               title="No payments yet"
               message="Declare your first tribute and it will show up here once submitted."
             />
           ) : (
-            <div className="bg-base-surface border border-base-border rounded-lg p-3 overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr>
-                    <th className="pb-2 pr-3 text-xs text-base-text-muted uppercase tracking-wide font-semibold">
-                      Amount
-                    </th>
-                    <th className="pb-2 pr-3 text-xs text-base-text-muted uppercase tracking-wide font-semibold">
-                      Category
-                    </th>
-                    <th className="pb-2 pr-3 text-xs text-base-text-muted uppercase tracking-wide font-semibold">
-                      Status
-                    </th>
-                    <th className="pb-2 text-xs text-base-text-muted uppercase tracking-wide font-semibold">
-                      Declared
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {payments.map((p) => (
-                    <PaymentRow key={p.id} payment={p} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <RecentPaymentsTable payments={dash.recent_payments ?? []} />
           )}
         </section>
       </div>
+    </div>
+  );
+}
+
+const PAYMENT_STATUS_CLASSES: Record<string, string> = {
+  pending: "bg-status-warning/20 text-status-warning",
+  validated: "bg-status-success/20 text-status-success",
+  rejected: "bg-debt-muted text-status-danger",
+  cancelled: "bg-base-surface-raised text-base-text-muted",
+};
+
+interface RecentPaymentsTableProps {
+  payments: NonNullable<
+    ReturnType<typeof getSubDashboardApi> extends Promise<infer T> ? T : never
+  >["recent_payments"];
+}
+
+function RecentPaymentsTable({ payments }: RecentPaymentsTableProps) {
+  return (
+    <div className="bg-base-surface border border-base-border rounded-lg p-3 overflow-x-auto">
+      <table className="w-full text-left">
+        <thead>
+          <tr>
+            {["Amount", "Category", "Status", "Declared"].map((h) => (
+              <th
+                key={h}
+                className="pb-2 pr-3 text-xs text-base-text-muted uppercase tracking-wide font-semibold"
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {(payments ?? []).map((p) => (
+            <tr key={p.id} className="border-t border-base-border">
+              <td
+                className="py-2 pr-3 text-base-text text-sm font-semibold whitespace-nowrap"
+                role="status"
+              >
+                {GBP.format(Number(p.amount))}
+              </td>
+              <td className="py-2 pr-3 text-xs text-base-text-muted capitalize whitespace-nowrap">
+                {p.category.replace(/_/g, " ")}
+              </td>
+              <td className="py-2 pr-3 whitespace-nowrap">
+                <span
+                  className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold capitalize ${PAYMENT_STATUS_CLASSES[p.status] ?? ""}`}
+                >
+                  {p.status}
+                </span>
+              </td>
+              <td className="py-2 text-xs text-base-text-muted whitespace-nowrap">
+                {formatDate(p.declared_at)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
