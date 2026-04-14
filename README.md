@@ -40,6 +40,8 @@ Currency: GBP (£). Timezone: Europe/London. Single goddess per deployment.
 
 ## Local install
 
+> **WINDOWS DEVELOPERS:** see [`windows_setup.md`](./windows_setup.md) for a step-by-step install guide (no `make` required).
+
 ### Prerequisites
 
 - **Docker** + Docker Compose (Postgres + Mailhog)
