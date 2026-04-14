@@ -3,7 +3,7 @@ from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, Query, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from sqlalchemy import func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, select
@@ -24,6 +24,20 @@ from models.payment import PaymentDeclaration
 from models.payment_method import PaymentMethod
 from models.rolling import RollingTribute
 from models.user import Goddess, User, UserRole
+from schemas.admin import (
+    AdminListOut,
+    AdminRowBlacklistEntry,
+    AdminRowContractAdjustment,
+    AdminRowDebtContract,
+    AdminRowDebtEvent,
+    AdminRowGoddess,
+    AdminRowInvitation,
+    AdminRowNotification,
+    AdminRowPaymentDeclaration,
+    AdminRowPaymentMethod,
+    AdminRowRollingTribute,
+    AdminRowUser,
+)
 from schemas.auth import ImpersonationAccess
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
@@ -39,15 +53,6 @@ _USER_FORBIDDEN: frozenset[str] = frozenset(
 )
 _GODDESS_FORBIDDEN: frozenset[str] = frozenset({"id", "password_hash", "created_at"})
 _DEFAULT_FORBIDDEN: frozenset[str] = frozenset({"id", "created_at"})
-
-
-class AdminListOut(BaseModel):
-    items: list[dict[str, Any]] = Field(
-        ..., description="Rows serialised as JSON-safe dicts", examples=[[]]
-    )
-    total: int = Field(..., description="Total row count matching the query", examples=[0])
-    page: int = Field(..., description="1-based page index", examples=[1])
-    page_size: int = Field(..., description="Maximum rows per page", examples=[50])
 
 
 router = APIRouter(
@@ -177,10 +182,12 @@ def _register_crud(
     model: type[SQLModel],
     entity_name: str,
     searchable_fields: list[str],
+    row_schema: type[BaseModel],
     forbidden_fields: frozenset[str] = _DEFAULT_FORBIDDEN,
 ) -> None:
     list_path = f"/{entity_name}"
     item_path = f"/{entity_name}/{{item_id}}"
+    list_schema = AdminListOut[row_schema]  # type: ignore[valid-type]
 
     @router.get(
         list_path,
@@ -189,7 +196,7 @@ def _register_crud(
             f"Admin generic listing for `{entity_name}`. Supports free-text search across "
             f"{searchable_fields} and pagination."
         ),
-        response_model=AdminListOut,
+        response_model=list_schema,
         status_code=200,
         name=f"{entity_name}_list",
         responses={401: _E401, 403: _E403, 500: _E500},
@@ -199,7 +206,7 @@ def _register_crud(
         page: int = Query(default=1, ge=1, description="1-based page number"),
         page_size: int = Query(default=50, ge=1, le=200, description="Rows per page (max 200)"),
         session: AsyncSession = Depends(get_session),
-    ) -> AdminListOut:
+    ) -> AdminListOut[BaseModel]:
         stmt = select(model)
         count_stmt = select(func.count()).select_from(model)
         if q and searchable_fields:
@@ -219,7 +226,7 @@ def _register_crud(
         total_result = await session.execute(count_stmt)
         total = int(total_result.scalar_one())
         return AdminListOut(
-            items=[_jsonable(r) for r in rows],
+            items=[row_schema.model_validate(_jsonable(r)) for r in rows],
             total=total,
             page=page,
             page_size=page_size,
@@ -229,7 +236,7 @@ def _register_crud(
         item_path,
         summary=f"Get a {entity_name} row by id",
         description=f"Admin generic fetch for a single `{entity_name}` row.",
-        response_model=dict[str, Any],
+        response_model=row_schema,
         status_code=200,
         name=f"{entity_name}_get",
         responses={401: _E401, 403: _E403, 404: _E404, 500: _E500},
@@ -237,11 +244,11 @@ def _register_crud(
     async def get_item(
         item_id: UUID,
         session: AsyncSession = Depends(get_session),
-    ) -> dict[str, Any]:
+    ) -> BaseModel:
         row = await session.get(model, item_id)
         if row is None:
             raise NotFound(f"{entity_name} not found")
-        return _jsonable(row)
+        return row_schema.model_validate(_jsonable(row))
 
     @router.patch(
         item_path,
@@ -251,7 +258,7 @@ def _register_crud(
             "Unknown keys are ignored. `updated_at` is set when the field exists. "
             "Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400."
         ),
-        response_model=dict[str, Any],
+        response_model=row_schema,
         status_code=200,
         name=f"{entity_name}_update",
         responses={401: _E401, 403: _E403, 404: _E404, 400: _E400, 500: _E500},
@@ -261,7 +268,7 @@ def _register_crud(
         patch: dict[str, Any] = Body(...),
         admin: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session),
-    ) -> dict[str, Any]:
+    ) -> BaseModel:
         _check_forbidden(patch, forbidden_fields)
         row = await session.get(model, item_id)
         if row is None:
@@ -279,7 +286,7 @@ def _register_crud(
         )
         await session.commit()
         await session.refresh(row)
-        return _jsonable(row)
+        return row_schema.model_validate(_jsonable(row))
 
     @router.post(
         list_path,
@@ -288,7 +295,7 @@ def _register_crud(
             f"Admin generic create for `{entity_name}`. Pydantic validates required fields. "
             "Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400."
         ),
-        response_model=dict[str, Any],
+        response_model=row_schema,
         status_code=201,
         name=f"{entity_name}_create",
         responses={401: _E401, 403: _E403, 400: _E400, 500: _E500},
@@ -297,7 +304,7 @@ def _register_crud(
         body: dict[str, Any] = Body(...),
         admin: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session),
-    ) -> dict[str, Any]:
+    ) -> BaseModel:
         _check_forbidden(body, forbidden_fields)
         effective = _handle_user_password(body) if model is User else body
         known = {k: v for k, v in effective.items() if k in model.model_fields}
@@ -320,7 +327,7 @@ def _register_crud(
         )
         await session.commit()
         await session.refresh(row)
-        return _jsonable(row)
+        return row_schema.model_validate(_jsonable(row))
 
     @router.delete(
         item_path,
@@ -350,14 +357,23 @@ def _register_crud(
         return Response(status_code=204)
 
 
-_register_crud(User, "users", ["username", "email", "first_name", "last_name"], _USER_FORBIDDEN)
-_register_crud(Goddess, "goddesses", ["display_name", "email"], _GODDESS_FORBIDDEN)
-_register_crud(Invitation, "invitations", ["token", "note"])
-_register_crud(PaymentMethod, "payment_methods", ["name", "handle_or_link", "note"])
-_register_crud(PaymentDeclaration, "payment_declarations", ["note", "rejection_reason"])
-_register_crud(RollingTribute, "rolling_tributes", ["notes"])
-_register_crud(DebtContract, "debt_contracts", [])
-_register_crud(BlacklistEntry, "blacklist_entries", ["reason"])
-_register_crud(Notification, "notifications", ["title", "body"])
-_register_crud(DebtEvent, "debt_events", ["note"])
-_register_crud(ContractAdjustment, "contract_adjustments", ["reason"])
+_register_crud(
+    User, "users", ["username", "email", "first_name", "last_name"], AdminRowUser, _USER_FORBIDDEN
+)
+_register_crud(Goddess, "goddesses", ["display_name", "email"], AdminRowGoddess, _GODDESS_FORBIDDEN)
+_register_crud(Invitation, "invitations", ["token", "note"], AdminRowInvitation)
+_register_crud(
+    PaymentMethod, "payment_methods", ["name", "handle_or_link", "note"], AdminRowPaymentMethod
+)
+_register_crud(
+    PaymentDeclaration,
+    "payment_declarations",
+    ["note", "rejection_reason"],
+    AdminRowPaymentDeclaration,
+)
+_register_crud(RollingTribute, "rolling_tributes", ["notes"], AdminRowRollingTribute)
+_register_crud(DebtContract, "debt_contracts", [], AdminRowDebtContract)
+_register_crud(BlacklistEntry, "blacklist_entries", ["reason"], AdminRowBlacklistEntry)
+_register_crud(Notification, "notifications", ["title", "body"], AdminRowNotification)
+_register_crud(DebtEvent, "debt_events", ["note"], AdminRowDebtEvent)
+_register_crud(ContractAdjustment, "contract_adjustments", ["reason"], AdminRowContractAdjustment)
