@@ -11,6 +11,9 @@ interface AdminTableProps {
 
 const PAGE_SIZE = 25;
 
+const USER_ROLES = ["all", "sub", "goddess", "admin"] as const;
+const USER_STATUSES = ["all", "active", "pending_entry_tribute", "blacklisted", "deleted"] as const;
+
 function formatCell(value: unknown): string {
   if (value == null) return "—";
   if (typeof value === "boolean") return value ? "true" : "false";
@@ -19,12 +22,17 @@ function formatCell(value: unknown): string {
   return str.length > 60 ? `${str.slice(0, 57)}…` : str;
 }
 
+const selectClass =
+  "px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text focus-visible:ring-2 focus-visible:ring-violet-primary";
+
 export function AdminTable({ schema }: AdminTableProps) {
   const [q, setQ] = useState("");
   const [qDraft, setQDraft] = useState("");
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
   const [creating, setCreating] = useState(false);
+  const [roleFilter, setRoleFilter] = useState<(typeof USER_ROLES)[number]>("all");
+  const [statusFilter, setStatusFilter] = useState<(typeof USER_STATUSES)[number]>("all");
 
   const queryClient = useQueryClient();
   const { impersonate } = useAuth();
@@ -34,6 +42,13 @@ export function AdminTable({ schema }: AdminTableProps) {
   const query = useQuery({
     queryKey,
     queryFn: () => adminList(schema.entity, { q: q || undefined, page, page_size: PAGE_SIZE }),
+  });
+
+  const filteredItems = (query.data?.items ?? []).filter((row) => {
+    if (!isUsers) return true;
+    const roleOk = roleFilter === "all" || row.role === roleFilter;
+    const statusOk = statusFilter === "all" || row.status === statusFilter;
+    return roleOk && statusOk;
   });
 
   const deleteMutation = useMutation({
@@ -86,6 +101,35 @@ export function AdminTable({ schema }: AdminTableProps) {
         </form>
       </div>
 
+      {isUsers && (
+        <div className="flex items-center gap-3 flex-wrap">
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value as (typeof USER_ROLES)[number])}
+            aria-label="Filter by role"
+            className={selectClass}
+          >
+            {USER_ROLES.map((r) => (
+              <option key={r} value={r}>
+                {r === "all" ? "All roles" : r}
+              </option>
+            ))}
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as (typeof USER_STATUSES)[number])}
+            aria-label="Filter by status"
+            className={selectClass}
+          >
+            {USER_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s === "all" ? "All statuses" : s.replace(/_/g, " ")}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {query.isError && (
         <p className="text-sm text-status-danger">{(query.error as Error).message}</p>
       )}
@@ -116,7 +160,7 @@ export function AdminTable({ schema }: AdminTableProps) {
                 </td>
               </tr>
             )}
-            {query.data?.items.map((row) => {
+            {filteredItems.map((row) => {
               const id = String(row.id ?? "");
               return (
                 <tr
@@ -158,7 +202,7 @@ export function AdminTable({ schema }: AdminTableProps) {
                 </tr>
               );
             })}
-            {query.data && query.data.items.length === 0 && (
+            {query.data && filteredItems.length === 0 && (
               <tr>
                 <td
                   colSpan={schema.columns.length + 1}

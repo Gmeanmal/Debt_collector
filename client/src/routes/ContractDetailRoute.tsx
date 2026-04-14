@@ -187,7 +187,9 @@ export function ContractDetailRoute() {
             <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
               Debt Contract
             </h1>
-            <p className="text-xs text-base-text-muted mt-1 font-mono">{contract.id}</p>
+            {role === "admin" && (
+              <p className="text-xs text-base-text-muted mt-1 font-mono">{contract.id}</p>
+            )}
           </div>
           <ContractStatusChip status={contract.status} />
         </div>

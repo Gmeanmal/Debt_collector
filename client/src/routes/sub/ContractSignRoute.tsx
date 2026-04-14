@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SignaturePad } from "@/components/signature/SignaturePad";
 import { getContractApi, signContractApi } from "@/services/debtContracts/debtContractsApi";
+import { useAuth } from "@/services/auth/useAuth";
 
 const SIGNABLE_STATUSES = ["pending_sub", "pending_sub_signature"] as const;
 
@@ -16,6 +17,8 @@ export function ContractSignRoute() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const safeId = contractId ?? "";
 
@@ -96,7 +99,7 @@ export function ContractSignRoute() {
           <p className="text-sm text-base-text-muted mt-1">
             Draw your signature below to finalise the contract. This action is binding.
           </p>
-          <p className="text-xs text-base-text-muted mt-1 font-mono">{contract.id}</p>
+          {isAdmin && <p className="text-xs text-base-text-muted mt-1 font-mono">{contract.id}</p>}
         </div>
 
         {error && (

@@ -5,6 +5,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
+import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
+import { useAuth } from "@/services/auth/useAuth";
 
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
@@ -15,6 +17,9 @@ function fmtGbp(v: string): string {
 }
 
 export function GoddessContractsRoute() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const {
     data: contracts = [],
     isLoading,
@@ -24,6 +29,17 @@ export function GoddessContractsRoute() {
     queryKey: ["goddessContracts"],
     queryFn: listGoddessDebtsApi,
   });
+
+  const { data: subs = [] } = useQuery({
+    queryKey: ["goddessSubs"],
+    queryFn: listGoddessSubsApi,
+  });
+
+  function subLabel(subId: string): string {
+    const sub = subs.find((s) => s.id === subId);
+    if (sub) return sub.display_name || sub.username;
+    return isAdmin ? subId : `${subId.slice(0, 6)}…`;
+  }
 
   return (
     <div className="p-4 md:p-8">
@@ -73,9 +89,7 @@ export function GoddessContractsRoute() {
               <tbody className="divide-y divide-base-border">
                 {contracts.map((c) => (
                   <tr key={c.id} className="hover:bg-base-surface-raised transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-base-text-muted">
-                      {c.sub_id.slice(0, 8)}…
-                    </td>
+                    <td className="px-4 py-3 text-sm text-base-text">{subLabel(c.sub_id)}</td>
                     <td className="px-4 py-3 text-base-text">{fmtGbp(c.principal)}</td>
                     <td className="px-4 py-3">
                       <ContractStatusChip status={c.status} />

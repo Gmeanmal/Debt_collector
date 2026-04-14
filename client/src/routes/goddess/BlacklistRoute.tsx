@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
+import { useAuth } from "@/services/auth/useAuth";
 
 function fmtGbp(v: string): string {
   return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -80,6 +81,8 @@ function ForgiveModal({ entry, onClose }: ForgiveModalProps) {
 
 export function BlacklistRoute() {
   const [target, setTarget] = useState<BlacklistEntryOut | null>(null);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const {
     data: entries = [],
     isLoading,
@@ -126,7 +129,9 @@ export function BlacklistRoute() {
               >
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div>
-                    <p className="font-semibold text-base-text text-sm font-mono">{e.sub_id}</p>
+                    <p className="font-semibold text-base-text text-sm font-mono">
+                      {isAdmin ? e.sub_id : `${e.sub_id.slice(0, 6)}…`}
+                    </p>
                     <p className="text-xs text-base-text-muted mt-0.5">
                       Breached {fmtDate(e.breached_at)} · balance {fmtGbp(e.balance_snapshot)}
                     </p>
