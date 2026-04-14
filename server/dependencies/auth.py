@@ -1,3 +1,6 @@
+# TODO(scope-C): mutations performed during an impersonation session are not yet attributed
+# to the original admin. To close this gap, propagate AuthContext.impersonator through every
+# controller call and record the admin's id alongside the mutated entity in the audit log.
 from dataclasses import dataclass
 from uuid import UUID
 

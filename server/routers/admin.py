@@ -12,6 +12,7 @@ from core.config import get_settings
 from core.db import get_session
 from core.exceptions import BadRequest, Forbidden, NotFound
 from core.security import create_access_token, hash_password
+from daos.admin_action_dao import AdminActionDao
 from dependencies.auth import get_current_user, require_role
 from models.adjustment import ContractAdjustment
 from models.blacklist import BlacklistEntry
@@ -30,6 +31,14 @@ _E403 = {"description": "Forbidden — admin role required"}
 _E404 = {"description": "Not found"}
 _E400 = {"description": "Bad request — invalid field in payload"}
 _E500 = {"description": "Internal server error"}
+
+# Fields blocked for User CRUD — role changes and auth fields are not mutable here.
+# Password changes are handled via the password→hash_password shim; role is hard-blocked.
+_USER_FORBIDDEN: frozenset[str] = frozenset(
+    {"id", "password_hash", "role", "goddess_id", "created_at"}
+)
+_GODDESS_FORBIDDEN: frozenset[str] = frozenset({"id", "password_hash", "created_at"})
+_DEFAULT_FORBIDDEN: frozenset[str] = frozenset({"id", "created_at"})
 
 
 class AdminListOut(BaseModel):
@@ -80,6 +89,15 @@ async def impersonate(
         extra={"imp": str(admin.id)},
         ttl_minutes=minutes,
     )
+    audit = AdminActionDao(session)
+    await audit.record(
+        admin_id=admin.id,
+        action="impersonate",
+        acting_as_user_id=target.id,
+        entity="user",
+        entity_id=target.id,
+    )
+    await session.commit()
     return ImpersonationAccess(access_token=token, expires_in=minutes * 60)
 
 
@@ -87,6 +105,22 @@ def _jsonable(row: SQLModel) -> dict[str, Any]:
     data = row.model_dump()
     out: dict[str, Any] = {}
     for k, v in data.items():
+        if isinstance(v, UUID):
+            out[k] = str(v)
+        elif isinstance(v, datetime):
+            out[k] = v.isoformat()
+        else:
+            out[k] = v
+    return out
+
+
+def _safe_payload(body: dict[str, Any]) -> dict[str, Any]:
+    """Strip sensitive fields and coerce non-JSON-safe types for audit storage."""
+    redacted = {"password", "password_hash"}
+    out: dict[str, Any] = {}
+    for k, v in body.items():
+        if k in redacted:
+            continue
         if isinstance(v, UUID):
             out[k] = str(v)
         elif isinstance(v, datetime):
@@ -133,10 +167,17 @@ def _handle_user_password(patch: dict[str, Any]) -> dict[str, Any]:
     return copy
 
 
+def _check_forbidden(body: dict[str, Any], forbidden: frozenset[str]) -> None:
+    for field in forbidden:
+        if field in body:
+            raise BadRequest(f"field '{field}' is not admin-mutable")
+
+
 def _register_crud(
     model: type[SQLModel],
     entity_name: str,
     searchable_fields: list[str],
+    forbidden_fields: frozenset[str] = _DEFAULT_FORBIDDEN,
 ) -> None:
     list_path = f"/{entity_name}"
     item_path = f"/{entity_name}/{{item_id}}"
@@ -207,24 +248,35 @@ def _register_crud(
         summary=f"Update a {entity_name} row",
         description=(
             f"Admin generic partial update for `{entity_name}`. "
-            "Unknown keys are ignored. `updated_at` is set when the field exists."
+            "Unknown keys are ignored. `updated_at` is set when the field exists. "
+            "Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400."
         ),
         response_model=dict[str, Any],
         status_code=200,
         name=f"{entity_name}_update",
-        responses={401: _E401, 403: _E403, 404: _E404, 500: _E500},
+        responses={401: _E401, 403: _E403, 404: _E404, 400: _E400, 500: _E500},
     )
     async def update_item(
         item_id: UUID,
         patch: dict[str, Any] = Body(...),
+        admin: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session),
     ) -> dict[str, Any]:
+        _check_forbidden(patch, forbidden_fields)
         row = await session.get(model, item_id)
         if row is None:
             raise NotFound(f"{entity_name} not found")
         effective = _handle_user_password(patch) if model is User else patch
         _apply_patch(model, row, effective)
         session.add(row)
+        audit = AdminActionDao(session)
+        await audit.record(
+            admin_id=admin.id,
+            action="admin_update",
+            entity=entity_name,
+            entity_id=item_id,
+            payload=_safe_payload(patch),
+        )
         await session.commit()
         await session.refresh(row)
         return _jsonable(row)
@@ -233,7 +285,8 @@ def _register_crud(
         list_path,
         summary=f"Create a {entity_name} row",
         description=(
-            f"Admin generic create for `{entity_name}`. Pydantic validates required fields."
+            f"Admin generic create for `{entity_name}`. Pydantic validates required fields. "
+            "Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400."
         ),
         response_model=dict[str, Any],
         status_code=201,
@@ -242,8 +295,10 @@ def _register_crud(
     )
     async def create_item(
         body: dict[str, Any] = Body(...),
+        admin: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session),
     ) -> dict[str, Any]:
+        _check_forbidden(body, forbidden_fields)
         effective = _handle_user_password(body) if model is User else body
         known = {k: v for k, v in effective.items() if k in model.model_fields}
         try:
@@ -251,6 +306,18 @@ def _register_crud(
         except Exception as exc:
             raise BadRequest(f"Invalid payload for {entity_name}: {exc}") from exc
         session.add(row)
+        await session.flush()
+        # row.id is a UUID on all registered models — getattr is the only way to access it
+        # through the SQLModel base type without pyright complaining.
+        row_id: UUID | None = getattr(row, "id", None)
+        audit = AdminActionDao(session)
+        await audit.record(
+            admin_id=admin.id,
+            action="admin_create",
+            entity=entity_name,
+            entity_id=row_id,
+            payload=_safe_payload(body),
+        )
         await session.commit()
         await session.refresh(row)
         return _jsonable(row)
@@ -265,18 +332,26 @@ def _register_crud(
     )
     async def delete_item(
         item_id: UUID,
+        admin: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session),
     ) -> Response:
         row = await session.get(model, item_id)
         if row is None:
             raise NotFound(f"{entity_name} not found")
+        audit = AdminActionDao(session)
+        await audit.record(
+            admin_id=admin.id,
+            action="admin_delete",
+            entity=entity_name,
+            entity_id=item_id,
+        )
         await session.delete(row)
         await session.commit()
         return Response(status_code=204)
 
 
-_register_crud(User, "users", ["username", "email", "first_name", "last_name"])
-_register_crud(Goddess, "goddesses", ["display_name", "email"])
+_register_crud(User, "users", ["username", "email", "first_name", "last_name"], _USER_FORBIDDEN)
+_register_crud(Goddess, "goddesses", ["display_name", "email"], _GODDESS_FORBIDDEN)
 _register_crud(Invitation, "invitations", ["token", "note"])
 _register_crud(PaymentMethod, "payment_methods", ["name", "handle_or_link", "note"])
 _register_crud(PaymentDeclaration, "payment_declarations", ["note", "rejection_reason"])

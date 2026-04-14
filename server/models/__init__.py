@@ -1,5 +1,6 @@
 from models.adjustment import AdjustmentStatus as AdjustmentStatus
 from models.adjustment import ContractAdjustment as ContractAdjustment
+from models.admin_action import AdminAction as AdminAction
 from models.blacklist import BlacklistEntry as BlacklistEntry
 from models.debt import DebtContract as DebtContract
 from models.debt import DebtContractAudit as DebtContractAudit
