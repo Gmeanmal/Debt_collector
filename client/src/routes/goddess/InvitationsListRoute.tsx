@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { listInvitationsApi } from "@/services/invitations/invitationsApi";
 import type { components } from "@/types/api.generated";
 
@@ -48,7 +49,15 @@ export function InvitationsListRoute() {
     <div className="p-4 md:p-8">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
         <div className="bg-base-surface border border-base-border rounded-lg p-6 shadow-[var(--shadow-card)]">
-          <h2 className="text-xl font-semibold text-base-text mb-4">Invitations</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h2 className="text-xl font-semibold text-base-text">Invitations</h2>
+            <Link
+              to="/goddess/invite"
+              className="inline-flex items-center justify-center px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary w-full sm:w-auto"
+            >
+              + New invitation
+            </Link>
+          </div>
 
           {isLoading && <p className="text-base-text-muted text-sm">Loading…</p>}
           {isError && <p className="text-status-danger text-sm">Failed to load invitations.</p>}
