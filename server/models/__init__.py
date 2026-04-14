@@ -7,6 +7,8 @@ from models.debt import InterestPeriod as InterestPeriod
 from models.debt import LatePenaltySeverity as LatePenaltySeverity
 from models.debt import MidContractAdditionMode as MidContractAdditionMode
 from models.debt import PaymentFrequency as PaymentFrequency
+from models.debt_event import DebtEvent as DebtEvent
+from models.debt_event import EventType as EventType
 from models.invitation import Invitation as Invitation
 from models.payment import AllocationTargetType as AllocationTargetType
 from models.payment import PaymentAllocation as PaymentAllocation
