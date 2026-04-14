@@ -2,6 +2,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.debt_controller import DebtController
@@ -14,6 +15,7 @@ from schemas.debt import (
     DebtContractCounter,
     DebtContractCreate,
     DebtContractOut,
+    DebtContractSignIn,
     DebtSimulationOut,
     DebtSimulationPeriod,
 )
@@ -213,22 +215,53 @@ async def reject_counter(
         "Sub signs the finalised contract, transitioning it to `active`. "
         "Valid when status is `pending_sub` (direct sign on goddess proposal) "
         "or `pending_sub_signature` (post-negotiation). "
-        "The `signed_pdf_url` and `signed_pdf_sha256` are populated in Phase 7."
+        "Renders the signed PDF from the supplied signature PNG, uploads it to object "
+        "storage, and populates `signed_pdf_url` and `signed_pdf_sha256` on the contract."
     ),
     response_model=DebtContractOut,
     status_code=200,
     tags=["debt-contracts"],
-    responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 500: _E500},
+    responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422, 500: _E500},
 )
 async def sign_as_sub(
     contract_id: UUID,
+    body: DebtContractSignIn,
     session: AsyncSession = Depends(get_session),
     user: User = Depends(require_role(UserRole.sub)),
     ctrl: DebtController = Depends(_build_controller),
 ) -> DebtContractOut:
-    result = await ctrl.sign_as_sub(user, contract_id)
+    result = await ctrl.sign_as_sub(user, contract_id, body.signature_png_b64)
     await session.commit()
     return result
+
+
+@router.get(
+    "/debts/{contract_id}/pdf",
+    summary="Download the signed contract PDF",
+    description=(
+        "Returns a 302 redirect to a short-lived presigned URL for the contract's signed PDF. "
+        "Accessible to the contract's sub and to the owning goddess. "
+        "Returns 404 when the contract has not been signed yet."
+    ),
+    response_class=RedirectResponse,
+    response_model=None,
+    status_code=302,
+    tags=["debt-contracts"],
+    responses={
+        302: {"description": "Redirect to the presigned PDF URL"},
+        401: _E401,
+        403: _E403,
+        404: _E404,
+        500: _E500,
+    },
+)
+async def download_contract_pdf(
+    contract_id: UUID,
+    user: User = Depends(get_current_user),
+    ctrl: DebtController = Depends(_build_controller),
+) -> RedirectResponse:
+    url = await ctrl.download_pdf(user, contract_id)
+    return RedirectResponse(url=url, status_code=302)
 
 
 @router.post(

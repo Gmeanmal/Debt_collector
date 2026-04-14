@@ -169,6 +169,17 @@ class DebtContractCounter(BaseModel):
     )
 
 
+class DebtContractSignIn(BaseModel):
+    signature_png_b64: str = Field(
+        ...,
+        description="Base64-encoded PNG of the sub's signature",
+        min_length=1,
+        examples=[
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="
+        ],
+    )
+
+
 class DebtContractVersionOut(BaseModel):
     id: UUID = Field(..., description="Version record UUID")
     contract_id: UUID = Field(..., description="Parent contract UUID")

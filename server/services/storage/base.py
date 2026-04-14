@@ -1,0 +1,6 @@
+from typing import Protocol
+
+
+class StorageService(Protocol):
+    async def upload_pdf(self, key: str, data: bytes) -> str: ...
+    async def presign_download(self, key: str, ttl: int = 900) -> str: ...

@@ -16,7 +16,7 @@ from models.debt import (
     DebtContractStatus,
     DebtContractVersion,
 )
-from models.user import User, UserRole
+from models.user import Goddess, User, UserRole
 from schemas.debt import (
     DebtContractAuditOut,
     DebtContractCounter,
@@ -24,6 +24,8 @@ from schemas.debt import (
     DebtContractOut,
     DebtContractVersionOut,
 )
+from services.pdf.generator import generate as generate_contract_pdf
+from services.storage.factory import get_storage_service
 
 _PENDING_STATUSES = {
     DebtContractStatus.pending_sub,
@@ -35,6 +37,17 @@ _PENDING_STATUSES = {
 
 def _now_utc() -> datetime:
     return datetime.now(UTC).replace(tzinfo=None)
+
+
+def _user_display_name(user: User) -> str:
+    first = (user.first_name or "").strip()
+    last = (user.last_name or "").strip()
+    full = f"{first} {last}".strip()
+    if full:
+        return full
+    if user.username:
+        return user.username
+    return user.email
 
 
 def _version_out(version: DebtContractVersion) -> DebtContractVersionOut:
@@ -380,8 +393,10 @@ class DebtController:
 
         return _contract_out(contract, original)
 
-    async def sign_as_sub(self, sub_user: User, contract_id: UUID) -> DebtContractOut:
-        """Sub signs the finalised contract, activating it."""
+    async def sign_as_sub(
+        self, sub_user: User, contract_id: UUID, signature_png_b64: str
+    ) -> DebtContractOut:
+        """Sub signs the finalised contract, activating it and generating the signed PDF."""
         contract = await self._get_contract_or_404(contract_id)
 
         if contract.sub_id != sub_user.id:
@@ -394,10 +409,33 @@ class DebtController:
         if contract.status not in valid_sign_statuses:
             raise Conflict("contract is not in a signable state")
 
+        goddess = await self._session.get(Goddess, contract.goddess_id)
+        if goddess is None:
+            raise NotFound("goddess profile not found for this contract")
+
+        goddess_name = goddess.display_name
+        sub_full_name = _user_display_name(sub_user)
+
         from_status = contract.status
+        signed_at = _now_utc()
         contract.status = DebtContractStatus.active
-        contract.signed_at = _now_utc()
-        contract.updated_at = _now_utc()
+        contract.signed_at = signed_at
+        contract.updated_at = signed_at
+
+        pdf_bytes, sha = generate_contract_pdf(
+            contract,
+            goddess_name,
+            sub_full_name,
+            signature_png_b64,
+            signed_at.isoformat(),
+        )
+
+        storage = get_storage_service()
+        key = f"contracts/{contract.goddess_id}/{contract.id}.pdf"
+        await storage.upload_pdf(key=key, data=pdf_bytes)
+
+        contract.signed_pdf_url = key
+        contract.signed_pdf_sha256 = sha
         await self._dao.save(contract)
 
         current_version = await self._load_current_version(contract)
@@ -413,6 +451,17 @@ class DebtController:
         )
 
         return _contract_out(contract, current_version)
+
+    async def download_pdf(self, viewer: User, contract_id: UUID) -> str:
+        """Return a presigned download URL for the contract's signed PDF."""
+        contract = await self._get_contract_or_404(contract_id)
+        await self._assert_viewer_can_see(viewer, contract)
+
+        if contract.signed_pdf_url is None:
+            raise NotFound("contract has no signed PDF")
+
+        storage = get_storage_service()
+        return await storage.presign_download(contract.signed_pdf_url)
 
     async def close_as_goddess(self, goddess_user: User, contract_id: UUID) -> DebtContractOut:
         """Goddess cancels a pending contract."""

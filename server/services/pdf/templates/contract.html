@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Debt Contract</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  @page { size: A4; margin: 24mm 20mm; }
+  body { font-family: 'Source Serif Pro', Georgia, serif; color: #1a1a1a; font-size: 11pt; line-height: 1.55; }
+  h1, h2, h3 { font-family: 'Playfair Display', 'Times New Roman', serif; color: #3a0a2a; font-weight: 700; letter-spacing: 0.2px; }
+  h1 { font-size: 26pt; margin: 0 0 6pt 0; text-align: center; }
+  h2 { font-size: 15pt; margin: 18pt 0 6pt 0; border-bottom: 1px solid #c9a6c1; padding-bottom: 3pt; }
+  .subtitle { text-align: center; font-style: italic; color: #6a4a60; margin-bottom: 24pt; }
+  table.terms { width: 100%; border-collapse: collapse; margin: 8pt 0 14pt 0; }
+  table.terms th, table.terms td { padding: 6pt 8pt; border-bottom: 1px solid #e4d4e0; text-align: left; vertical-align: top; }
+  table.terms th { width: 42%; font-weight: 600; color: #3a0a2a; font-family: 'Playfair Display', serif; }
+  .parties { display: flex; justify-content: space-between; margin: 10pt 0 14pt 0; }
+  .party { width: 48%; }
+  .party .label { font-family: 'Playfair Display', serif; color: #6a4a60; font-size: 10pt; text-transform: uppercase; letter-spacing: 1px; }
+  .party .name { font-size: 13pt; margin-top: 2pt; }
+  .sig-block { margin-top: 26pt; border-top: 1px solid #c9a6c1; padding-top: 14pt; }
+  .sig-block img { max-width: 300px; max-height: 120px; }
+  .sig-meta { font-size: 10pt; color: #6a4a60; margin-top: 6pt; }
+  .footer { margin-top: 30pt; font-size: 9pt; color: #8a6a80; text-align: center; font-style: italic; }
+</style>
+</head>
+<body>
+  <h1>Deed of Debt</h1>
+  <div class="subtitle">Executed between Goddess and Sub under the House of Mean Mal</div>
+
+  <div class="parties">
+    <div class="party">
+      <div class="label">Goddess (Creditor)</div>
+      <div class="name">{{ goddess_name }}</div>
+    </div>
+    <div class="party">
+      <div class="label">Sub (Debtor)</div>
+      <div class="name">{{ sub_full_name }}</div>
+    </div>
+  </div>
+
+  <h2>Financial Terms</h2>
+  <table class="terms">
+    <tr><th>Principal</th><td>£{{ "%.2f"|format(contract.principal) }}</td></tr>
+    <tr><th>Interest rate</th><td>{{ "%.4f"|format(contract.interest_rate * 100) }}% {{ contract.interest_period.value }}</td></tr>
+    <tr><th>Duration</th><td>{{ contract.duration_periods }} {{ contract.interest_period.value }} period(s)</td></tr>
+    <tr><th>Payment frequency</th><td>{{ contract.payment_frequency.value }}</td></tr>
+    <tr><th>Minimum payment</th><td>£{{ "%.2f"|format(contract.minimum_payment) }}</td></tr>
+    <tr><th>Late penalty</th><td>{{ contract.late_penalty_severity.value }} — {{ "%.2f"|format(contract.late_penalty_percent * 100) }}%</td></tr>
+    <tr><th>Mid-contract addition</th><td>{{ contract.mid_contract_addition_mode.value }}</td></tr>
+    <tr><th>Exit amount</th><td>£{{ "%.2f"|format(contract.exit_amount) }}</td></tr>
+  </table>
+
+  <h2>Acknowledgement</h2>
+  <p>The Sub named above acknowledges and accepts the terms recorded in this deed, binding themselves to the Goddess under the conditions specified. The Sub affirms this contract is entered into willingly and with full understanding.</p>
+
+  <div class="sig-block">
+    <div class="label" style="font-family: 'Playfair Display', serif; color: #6a4a60; font-size: 10pt; text-transform: uppercase; letter-spacing: 1px;">Signature of Sub</div>
+    <img src="data:image/png;base64,{{ signature_b64 }}" alt="Sub signature" />
+    <div class="sig-meta">Signed by {{ sub_full_name }} on {{ signed_at }}</div>
+  </div>
+
+  <div class="footer">House of Mean Mal — private instrument, not a regulated financial product.</div>
+</body>
+</html>
