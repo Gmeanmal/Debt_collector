@@ -1,10 +1,20 @@
+from enum import StrEnum
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class AppEnv(StrEnum):
+    dev = "dev"
+    test = "test"
+    staging = "staging"
+    prod = "prod"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
+
+    app_env: AppEnv = AppEnv.dev
 
     database_url: str
     jwt_secret_key: str
@@ -14,8 +24,6 @@ class Settings(BaseSettings):
     password_reset_ttl_minutes: int = 60
     impersonation_ttl_minutes: int = 30
     refresh_cookie_name: str = "debt_refresh"
-    refresh_cookie_secure: bool = False
-    refresh_cookie_samesite: str = "lax"
     refresh_cookie_domain: str = ""
     argon2_memory_cost: int = 65536
     argon2_time_cost: int = 3
@@ -40,14 +48,6 @@ class Settings(BaseSettings):
     app_timezone: str = "Europe/London"
     cron_enabled: bool = True
 
-    admin_username: str
-    admin_email: str
-    admin_password: str
-
-    goddess_email: str
-    goddess_password: str
-    goddess_display_name: str = "Mean Mal"
-
     rate_limit_enabled: bool = True
     rate_limit_login: str = "10/minute"
     rate_limit_signup: str = "5/minute"
@@ -55,8 +55,24 @@ class Settings(BaseSettings):
     rate_limit_public_invitation: str = "30/minute"
 
     @property
+    def is_prod(self) -> bool:
+        return self.app_env == AppEnv.prod
+
+    @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def refresh_cookie_secure(self) -> bool:
+        return self.is_prod
+
+    @property
+    def refresh_cookie_samesite(self) -> str:
+        return "strict" if self.is_prod else "lax"
+
+    @property
+    def security_hsts_enabled(self) -> bool:
+        return self.is_prod
 
 
 @lru_cache

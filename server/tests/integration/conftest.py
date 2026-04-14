@@ -146,13 +146,8 @@ async def client_with_ratelimit(pg_url: str) -> AsyncGenerator[AsyncClient, None
 
 def patch_env(pg_url: str, rate_limit_enabled: str = "false") -> None:
     os.environ["DATABASE_URL"] = pg_url
+    os.environ.setdefault("APP_ENV", "test")
     os.environ.setdefault("JWT_SECRET_KEY", "test-secret-not-for-prod-int")
-    os.environ.setdefault("ADMIN_USERNAME", "admin")
-    os.environ.setdefault("ADMIN_EMAIL", "admin@test.local")
-    os.environ.setdefault("ADMIN_PASSWORD", "adminpass123")
-    os.environ.setdefault("GODDESS_EMAIL", "goddess@test.local")
-    os.environ.setdefault("GODDESS_PASSWORD", "goddesspass123")
-    os.environ.setdefault("GODDESS_DISPLAY_NAME", "Test Goddess")
     os.environ["CRON_ENABLED"] = "false"
     os.environ["RATE_LIMIT_ENABLED"] = rate_limit_enabled
     os.environ.setdefault("EMAIL_DRIVER", "smtp")

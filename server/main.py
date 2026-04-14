@@ -70,7 +70,7 @@ if _settings.rate_limit_enabled:
 
 app.add_middleware(
     SecurityHeadersMiddleware,
-    enable_hsts=_settings.refresh_cookie_secure,
+    enable_hsts=_settings.security_hsts_enabled,
 )
 app.add_middleware(
     CORSMiddleware,
