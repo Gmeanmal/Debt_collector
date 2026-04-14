@@ -41,6 +41,7 @@ apiClient.use({
 
   async onResponse({ response, request }) {
     if (response.status !== 401) return response;
+    if (new URL(request.url).pathname.endsWith("/auth/refresh")) return response;
 
     const newToken = await tryRefresh();
     if (!newToken) return response;
