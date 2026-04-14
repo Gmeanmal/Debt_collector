@@ -23,9 +23,13 @@ class TokenPair(BaseModel):
 
 class RefreshRequest(BaseModel):
     refresh_token: str = Field(
-        ...,
-        description="Opaque refresh token previously issued by /auth/login or /auth/refresh",
-        examples=["abc123"],
+        default="",
+        description=(
+            "Opaque refresh token previously issued by /auth/login or /auth/refresh. "
+            "Deprecated: the server now reads the refresh token from the HttpOnly cookie "
+            "`debt_refresh`. Supply this field only for legacy clients that cannot use cookies."
+        ),
+        examples=[""],
     )
 
 

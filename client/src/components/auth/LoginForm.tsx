@@ -31,7 +31,7 @@ export function LoginForm() {
   async function onSubmit(values: FormValues) {
     try {
       const pair = await loginApi({ email: values.email, password: values.password });
-      setTokens({ access: pair.access_token, refresh: pair.refresh_token });
+      setTokens({ access: pair.access_token });
       const me = await getMeApi();
       queryClient.setQueryData(["auth", "me"], me);
       navigate("/", { replace: true });

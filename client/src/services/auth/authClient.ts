@@ -1,5 +1,5 @@
 import { apiClient } from "@/api/client";
-import { clearTokens, getAccessToken, getRefreshToken, setTokens } from "./tokenStorage";
+import { clearTokens, getAccessToken, setTokens } from "./tokenStorage";
 import { refreshApi } from "./authApi";
 
 export const AUTH_EXPIRED_EVENT = "auth:expired";
@@ -7,13 +7,10 @@ export const AUTH_EXPIRED_EVENT = "auth:expired";
 let refreshInFlight: Promise<string> | null = null;
 
 async function tryRefresh(): Promise<string | null> {
-  const raw = getRefreshToken();
-  if (!raw) return null;
-
   if (!refreshInFlight) {
-    refreshInFlight = refreshApi(raw)
+    refreshInFlight = refreshApi()
       .then((pair) => {
-        setTokens({ access: pair.access_token, refresh: pair.refresh_token });
+        setTokens({ access: pair.access_token });
         return pair.access_token;
       })
       .finally(() => {

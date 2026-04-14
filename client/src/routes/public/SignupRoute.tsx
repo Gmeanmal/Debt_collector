@@ -44,7 +44,7 @@ export function SignupRoute() {
         first_name: values.first_name || null,
         last_name: values.last_name || null,
       });
-      setTokens({ access: pair.access_token, refresh: pair.refresh_token });
+      setTokens({ access: pair.access_token });
       await queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
       navigate("/pending-entry-tribute", { replace: true });
     } catch (err) {

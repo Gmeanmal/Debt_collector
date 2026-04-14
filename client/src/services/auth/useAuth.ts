@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { getMeApi, impersonateApi, loginApi, logoutApi, refreshApi } from "./authApi";
-import { clearTokens, getRefreshToken, setTokens } from "./tokenStorage";
+import { clearTokens, setTokens } from "./tokenStorage";
 import type { components } from "@/types/api.generated";
 
 type UserOut = components["schemas"]["UserOut"];
@@ -29,18 +29,15 @@ export function useAuth() {
 
   async function login(email: string, password: string): Promise<void> {
     const pair = await loginApi({ email, password });
-    setTokens({ access: pair.access_token, refresh: pair.refresh_token });
+    setTokens({ access: pair.access_token });
     await queryClient.invalidateQueries({ queryKey: ME_KEY });
   }
 
   async function logout(): Promise<void> {
-    const raw = getRefreshToken();
-    if (raw) {
-      try {
-        await logoutApi(raw);
-      } catch {
-        // swallow — server-side revocation is best-effort
-      }
+    try {
+      await logoutApi();
+    } catch {
+      // swallow — server-side revocation is best-effort
     }
     clearTokens();
     queryClient.setQueryData(ME_KEY, null);
@@ -49,18 +46,14 @@ export function useAuth() {
 
   async function impersonate(userId: string): Promise<void> {
     const { access_token } = await impersonateApi(userId);
-    const refresh = getRefreshToken();
-    if (!refresh) throw new Error("Missing refresh token");
-    setTokens({ access: access_token, refresh });
+    setTokens({ access: access_token });
     await queryClient.invalidateQueries({ queryKey: ME_KEY });
     navigate("/", { replace: true });
   }
 
   async function stopImpersonating(): Promise<void> {
-    const refresh = getRefreshToken();
-    if (!refresh) throw new Error("Missing refresh token");
-    const pair = await refreshApi(refresh);
-    setTokens({ access: pair.access_token, refresh: pair.refresh_token });
+    const pair = await refreshApi();
+    setTokens({ access: pair.access_token });
     await queryClient.invalidateQueries({ queryKey: ME_KEY });
     navigate("/admin", { replace: true });
   }

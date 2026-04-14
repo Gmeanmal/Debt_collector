@@ -13,16 +13,16 @@ export async function loginApi(body: LoginRequest): Promise<TokenPair> {
   return data;
 }
 
-export async function refreshApi(refreshToken: string): Promise<TokenPair> {
+export async function refreshApi(): Promise<TokenPair> {
   const { data, error } = await apiClient.POST("/auth/refresh", {
-    body: { refresh_token: refreshToken },
+    body: { refresh_token: "" },
   });
   if (error || !data) throw new Error("Token refresh failed");
   return data;
 }
 
-export async function logoutApi(refreshToken: string): Promise<void> {
-  await apiClient.POST("/auth/logout", { body: { refresh_token: refreshToken } });
+export async function logoutApi(): Promise<void> {
+  await apiClient.POST("/auth/logout", { body: { refresh_token: "" } });
 }
 
 export async function requestPasswordResetApi(email: string): Promise<void> {
