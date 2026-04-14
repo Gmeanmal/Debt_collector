@@ -36,11 +36,11 @@ class Settings(BaseSettings):
     cron_enabled: bool = True
 
     admin_username: str = "admin"
-    admin_email: str = "admin@localhost"
-    admin_password: str = "ChangeMe!Dev123"
+    admin_email: str = "admin+dev@debt-collector.uk"
+    admin_password: str = "177@tTr$EbgA2CvMr@&4FM#DYaq6"
 
-    goddess_email: str = "goddess@localhost"
-    goddess_password: str = "ChangeMe!Dev123"
+    goddess_email: str = "meanmal@debt-collector.uk"
+    goddess_password: str = "!Z#9by05NEnHsi*m%Q&8XKS$d2$%"
     goddess_display_name: str = "Mean Mal"
 
     @property

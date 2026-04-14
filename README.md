@@ -91,8 +91,8 @@ Open:
 
 | Role     | Email                  | Password           |
 | -------- | ---------------------- | ------------------ |
-| Admin    | `admin@localhost`      | `ChangeMe!Dev123`  |
-| Goddess  | `goddess@localhost`    | `ChangeMe!Dev123`  |
+| Admin    | `admin+dev@debt-collector.uk`   | `177@tTr$EbgA2CvMr@&4FM#DYaq6`   |
+| Goddess  | `meanmal@debt-collector.uk`     | `!Z#9by05NEnHsi*m%Q&8XKS$d2$%`   |
 
 `make init-dbs` also seeds 11 subs (`alex`, `ben`, `chris`, `dan`, `eli`, `fred`, `gary`, `henry`, `ian`, `jack`, `kev`) covering the full state matrix: pending entry tribute, active tributes, rolling, debt contracts, pending validations, pending adjustments, breach, blacklist, buyout. All sub passwords: `ChangeMe!Dev123`.
 
@@ -100,7 +100,7 @@ Open:
 
 ## How to use
 
-### Goddess flow (default after login as `goddess@localhost`)
+### Goddess flow (default after login as `meanmal@debt-collector.uk`)
 
 1. **Dashboard** (`/goddess/dashboard`) — tonight's reckoning: subs total, rolling, contracts, pending validations, total drained, late payments.
 2. **Invite a sub** — header → *New invitation*. Sets entry tribute amount + expiry. Copy the generated link or wait for the email in Mailhog.
