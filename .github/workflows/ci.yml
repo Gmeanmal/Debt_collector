@@ -9,9 +9,91 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20"
+  PNPM_VERSION: "9"
+
 jobs:
-  server:
+  # ── server ───────────────────────────────────────────────────────────────
+  server-install:
+    name: server · install
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Cache .venv
+        id: venv-cache
+        uses: actions/cache@v4
+        with:
+          path: server/.venv
+          key: server-venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('server/uv.lock') }}
+      - if: steps.venv-cache.outputs.cache-hit != 'true'
+        run: uv sync --all-extras
+
+  server-lint:
+    name: server · ruff lint
+    runs-on: ubuntu-latest
+    needs: server-install
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: server/.venv
+          key: server-venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('server/uv.lock') }}
+      - run: uv run ruff check .
+
+  server-format:
+    name: server · ruff format
+    runs-on: ubuntu-latest
+    needs: server-install
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: server/.venv
+          key: server-venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('server/uv.lock') }}
+      - run: uv run ruff format --check .
+
+  server-typecheck:
+    name: server · pyright
+    runs-on: ubuntu-latest
+    needs: server-install
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: server/.venv
+          key: server-venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('server/uv.lock') }}
+      - run: uv run pyright
+
+  server-migrate:
+    name: server · alembic upgrade
+    runs-on: ubuntu-latest
+    needs: server-install
     services:
       postgres:
         image: postgres:16-alpine
@@ -34,15 +116,51 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
-      - run: uv sync --all-extras
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uv run pyright
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: server/.venv
+          key: server-venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('server/uv.lock') }}
       - run: uv run alembic upgrade head
-      # tests retrofit phase 10 — allowed to fail until then
-      - run: uv run pytest -q || [ "${{ github.event_name }}" = "pull_request" ]
 
-  client:
+  server-test:
+    name: server · pytest
+    runs-on: ubuntu-latest
+    needs: server-install
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: debt
+          POSTGRES_PASSWORD: debt
+          POSTGRES_DB: debt
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U debt"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: server
+    env:
+      DATABASE_URL: postgresql+asyncpg://debt:debt@localhost:5432/debt
+      JWT_SECRET_KEY: ci-placeholder-secret-do-not-use-in-prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: server/.venv
+          key: server-venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('server/uv.lock') }}
+      - run: uv run pytest -q
+
+  # ── client ───────────────────────────────────────────────────────────────
+  client-install:
+    name: client · install
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -51,23 +169,134 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: client/pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
+      - name: Cache node_modules
+        id: nm-cache
+        uses: actions/cache@v4
+        with:
+          path: client/node_modules
+          key: client-nm-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('client/pnpm-lock.yaml') }}
+      - if: steps.nm-cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+
+  client-lint:
+    name: client · eslint
+    runs-on: ubuntu-latest
+    needs: client-install
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: client/node_modules
+          key: client-nm-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('client/pnpm-lock.yaml') }}
       - run: pnpm lint
+
+  client-format:
+    name: client · prettier
+    runs-on: ubuntu-latest
+    needs: client-install
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: client/node_modules
+          key: client-nm-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('client/pnpm-lock.yaml') }}
+      - run: pnpm prettier --check .
+
+  client-typecheck:
+    name: client · tsc
+    runs-on: ubuntu-latest
+    needs: client-install
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: client/node_modules
+          key: client-nm-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('client/pnpm-lock.yaml') }}
       - run: pnpm tsc --noEmit
+
+  client-test:
+    name: client · vitest
+    runs-on: ubuntu-latest
+    needs: client-install
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: client/node_modules
+          key: client-nm-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('client/pnpm-lock.yaml') }}
+      - run: pnpm vitest run
+
+  client-build:
+    name: client · vite build
+    runs-on: ubuntu-latest
+    needs: client-install
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: client/node_modules
+          key: client-nm-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('client/pnpm-lock.yaml') }}
       - run: pnpm build
 
+  # ── repo-wide ────────────────────────────────────────────────────────────
   pre-commit:
+    name: repo · pre-commit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ env.PYTHON_VERSION }}
       - run: pip install pre-commit
       - run: pre-commit run --all-files
