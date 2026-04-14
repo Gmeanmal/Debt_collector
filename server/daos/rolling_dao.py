@@ -19,7 +19,9 @@ class RollingTributeDao:
         )
         return result.scalar_one_or_none()
 
-    async def upsert(self, sub_id: UUID, payload: RollingTributeIn) -> RollingTribute:
+    async def upsert(
+        self, sub_id: UUID, goddess_id: UUID, payload: RollingTributeIn
+    ) -> RollingTribute:
         """Create or update the rolling tribute record for the given sub."""
         existing = await self.get_for_sub(sub_id)
         now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
@@ -38,6 +40,7 @@ class RollingTributeDao:
 
         record = RollingTribute(
             sub_id=sub_id,
+            goddess_id=goddess_id,
             amount=float(payload.amount),
             deadline_day=payload.deadline_day,
             deadline_time=payload.deadline_time,

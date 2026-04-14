@@ -170,6 +170,7 @@ def _payment_methods(goddess_id: UUID) -> list[PaymentMethod]:
 
 def _rolling(
     sub_id: UUID,
+    goddess_id: UUID,
     *,
     amount: Decimal,
     day: DeadlineDay = DeadlineDay.fri,
@@ -181,6 +182,7 @@ def _rolling(
     return RollingTribute(
         id=uuid4(),
         sub_id=sub_id,
+        goddess_id=goddess_id,
         amount=float(amount),
         deadline_day=day,
         deadline_time=deadline,
@@ -398,7 +400,7 @@ async def _seed_alex(s: AsyncSession, goddess_id: UUID, throne_id: UUID) -> User
     )
     s.add(sub)
     await s.flush()
-    rolling = _rolling(sub.id, amount=Decimal("120.00"), last_paid_days_ago=2)
+    rolling = _rolling(sub.id, goddess_id, amount=Decimal("120.00"), last_paid_days_ago=2)
     s.add(rolling)
     for weeks in (10, 8, 6, 4, 2):
         await _add_validated(
@@ -434,6 +436,7 @@ async def _seed_ben(s: AsyncSession, goddess_id: UUID, paypal_id: UUID) -> User:
     await s.flush()
     rolling = _rolling(
         sub.id,
+        goddess_id,
         amount=Decimal("80.00"),
         last_paid_days_ago=14,
         notes="Reminded twice; expect payment this weekend.",
@@ -471,7 +474,7 @@ async def _seed_chris(
     sub = _make_sub(goddess_id, "sub_chris", "Chris", "Doyle")
     s.add(sub)
     await s.flush()
-    rolling = _rolling(sub.id, amount=Decimal("60.00"), last_paid_days_ago=3)
+    rolling = _rolling(sub.id, goddess_id, amount=Decimal("60.00"), last_paid_days_ago=3)
     s.add(rolling)
 
     contract = _contract(
@@ -864,7 +867,7 @@ async def _seed_ian(
     sub = _make_sub(goddess_id, "sub_ian", "Ian", "Jones", twitter="@ianjones")
     s.add(sub)
     await s.flush()
-    rolling = _rolling(sub.id, amount=Decimal("200.00"), last_paid_days_ago=4)
+    rolling = _rolling(sub.id, goddess_id, amount=Decimal("200.00"), last_paid_days_ago=4)
     s.add(rolling)
 
     contract = _contract(
@@ -1132,7 +1135,7 @@ async def _seed_kev(s: AsyncSession, goddess_id: UUID, throne_id: UUID) -> User:
     sub = _make_sub(goddess_id, "sub_kev", "Kev", "Lloyd", days_old=180)
     s.add(sub)
     await s.flush()
-    rolling = _rolling(sub.id, amount=Decimal("100.00"), last_paid_days_ago=4)
+    rolling = _rolling(sub.id, goddess_id, amount=Decimal("100.00"), last_paid_days_ago=4)
     s.add(rolling)
     s.add(
         BlacklistEntry(

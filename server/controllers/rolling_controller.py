@@ -71,7 +71,7 @@ class RollingController:
         """Create or update the rolling tribute for a sub."""
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
         await _assert_sub_belongs_to_goddess(self._session, goddess_id, sub_id)
-        record = await self._dao.upsert(sub_id, payload)
+        record = await self._dao.upsert(sub_id, goddess_id, payload)
         now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
         return _to_out(record, now)
 
@@ -90,4 +90,4 @@ class RollingController:
             paused=True,
             notes=record.notes,
         )
-        await self._dao.upsert(sub_id, clear_payload)
+        await self._dao.upsert(sub_id, goddess_id, clear_payload)

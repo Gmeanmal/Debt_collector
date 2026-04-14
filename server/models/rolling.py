@@ -27,6 +27,13 @@ class RollingTribute(SQLModel, table=True):
             nullable=False,
         )
     )
+    goddess_id: UUID = Field(
+        sa_column=Column(
+            ForeignKey("goddess.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+        )
+    )
     amount: float = Field(
         default=0,
         sa_column=Column(Numeric(12, 2), nullable=False),
