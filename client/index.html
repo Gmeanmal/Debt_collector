@@ -4,14 +4,11 @@
     <meta charset="UTF-8" />
     <script>
       (function () {
-        var stored = localStorage.getItem("theme");
-        var theme =
-          stored === "light" || stored === "dark"
-            ? stored
-            : window.matchMedia("(prefers-color-scheme: light)").matches
-              ? "light"
-              : "dark";
-        document.documentElement.setAttribute("data-theme", theme);
+        var saved = localStorage.getItem("theme") || "system";
+        var isLight =
+          saved === "light" ||
+          (saved === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
+        if (isLight) document.documentElement.setAttribute("data-theme", "light");
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

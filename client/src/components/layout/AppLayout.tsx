@@ -1,6 +1,9 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/services/auth/useAuth";
+import { NotificationBell } from "@/components/layout/NotificationBell";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { useTheme, type ThemePref } from "@/hooks/useTheme";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -28,8 +31,26 @@ const SUB_NAV: NavItem[] = [
 
 const ADMIN_NAV: NavItem[] = [{ to: "/", label: "Dashboard" }];
 
+function isThemePref(value: string | null | undefined): value is ThemePref {
+  return value === "system" || value === "dark" || value === "light";
+}
+
 export function AppLayout({ children }: AppLayoutProps) {
   const { user, logout } = useAuth();
+  const { setPrefLocal } = useTheme();
+  const hydratedForUserRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      hydratedForUserRef.current = null;
+      return;
+    }
+    if (hydratedForUserRef.current === user.id) return;
+    hydratedForUserRef.current = user.id;
+    if (isThemePref(user.theme_preference)) {
+      setPrefLocal(user.theme_preference);
+    }
+  }, [user, setPrefLocal]);
 
   const nav = (() => {
     if (user?.role === "goddess") return GODDESS_NAV;
@@ -64,6 +85,8 @@ export function AppLayout({ children }: AppLayoutProps) {
             ))}
           </nav>
           <div className="flex items-center gap-3 text-sm">
+            <ThemeToggle />
+            <NotificationBell enabled={user != null} />
             {user && (
               <span className="text-base-text-muted">
                 <span className="text-pink-primary font-semibold">{user.display_name}</span>

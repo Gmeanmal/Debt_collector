@@ -919,10 +919,149 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/me/notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List recent notifications for the authenticated user
+     * @description Returns the 50 most recent notifications for the authenticated user, newest first, together with the current unread count.
+     */
+    get: operations["list_my_notifications_me_notifications_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me/notifications/{notification_id}/read": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Mark a notification as read
+     * @description Marks the given notification as read for the authenticated user. No-op if the notification is already read. Silently no-ops when the notification does not belong to the caller to avoid leaking existence.
+     */
+    post: operations["mark_notification_read_me_notifications__notification_id__read_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me/preferences": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update the authenticated user's UI preferences
+     * @description Persists the user's UI theme preference. Accepts 'system', 'dark', or 'light'. Returns the stored value so the client can reconcile state.
+     */
+    patch: operations["update_preferences_me_preferences_patch"];
+    trace?: never;
+  };
+  "/goddess/dashboard": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Goddess dashboard overview
+     * @description Returns aggregate metrics for the goddess home view: sub counts by status, active rolling and contract counts, pending validation queues, the list of late payments across all subs (capped at 50), and the total drained amount (sum of all validated payments for this goddess).
+     */
+    get: operations["goddess_dashboard_goddess_dashboard_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/dashboard": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Sub dashboard overview
+     * @description Returns aggregate metrics for the sub home view: amount due this week (rolling amount_due plus weekly contract minimum payments), whether the sub is currently late on any obligation, the list of active contracts with progress, the last 10 payment declarations, and the total amount sent (sum of all validated payments).
+     */
+    get: operations["sub_dashboard_sub_dashboard_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** ActiveContractSummary */
+    ActiveContractSummary: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Contract UUID
+       * @example 00000000-0000-0000-0000-000000000010
+       */
+      id: string;
+      /**
+       * Principal
+       * @description Original principal in GBP
+       * @example 1000.00
+       */
+      principal: string;
+      /**
+       * Balance
+       * @description Current outstanding balance in GBP
+       * @example 750.00
+       */
+      balance: string;
+      /**
+       * Progress Percent
+       * @description Paid-down percentage: (principal - balance) / principal * 100
+       * @example 25.00
+       */
+      progress_percent: string;
+      /**
+       * @description Contract status
+       * @example active
+       */
+      status: components["schemas"]["DebtContractStatus"];
+      /**
+       * Next Period Due At
+       * @description UTC datetime when the next period payment is due (null if not computable)
+       * @example 2026-04-20T00:00:00
+       */
+      next_period_due_at?: string | null;
+    };
     /** AdjustmentCreateIn */
     AdjustmentCreateIn: {
       /**
@@ -1674,6 +1813,62 @@ export interface components {
        */
       reinstatement_fee_paid: number | string;
     };
+    /** GoddessDashboardOut */
+    GoddessDashboardOut: {
+      /**
+       * Subs Total
+       * @description Total subs linked to this goddess (active + blacklisted)
+       * @example 5
+       */
+      subs_total: number;
+      /**
+       * Subs Active
+       * @description Number of active subs
+       * @example 4
+       */
+      subs_active: number;
+      /**
+       * Subs Blacklisted
+       * @description Number of blacklisted subs
+       * @example 1
+       */
+      subs_blacklisted: number;
+      /**
+       * Rolling Count
+       * @description Number of rolling tributes currently not paused
+       * @example 3
+       */
+      rolling_count: number;
+      /**
+       * Contracts Active
+       * @description Number of active debt contracts
+       * @example 2
+       */
+      contracts_active: number;
+      /**
+       * Pending Validations
+       * @description Number of payment declarations pending validation
+       * @example 4
+       */
+      pending_validations: number;
+      /**
+       * Pending Contracts
+       * @description Number of contracts in any pending_* status
+       * @example 1
+       */
+      pending_contracts: number;
+      /**
+       * Late Payments
+       * @description Up to 50 most urgent late payments (rolling + contract), sorted by days_late descending
+       */
+      late_payments?: components["schemas"]["LatePaymentItem"][];
+      /**
+       * Total Drained
+       * @description Sum of all validated payment amounts across this goddess (GBP)
+       * @example 1250.00
+       */
+      total_drained: string;
+    };
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -1757,6 +1952,48 @@ export interface components {
        */
       created_at: string;
     };
+    /** LatePaymentItem */
+    LatePaymentItem: {
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description UUID of the sub who is late
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      sub_id: string;
+      /**
+       * Sub Display Name
+       * @description Display name of the sub (first + last, or username)
+       * @example Jane Doe
+       */
+      sub_display_name?: string | null;
+      /**
+       * Kind
+       * @description Source of the late payment — rolling tribute or debt contract
+       * @example rolling
+       * @enum {string}
+       */
+      kind: "rolling" | "contract";
+      /**
+       * Amount Due
+       * @description Amount currently owed in GBP (includes any late penalty for rolling)
+       * @example 50.00
+       */
+      amount_due: string;
+      /**
+       * Days Late
+       * @description Number of calendar days past the deadline
+       * @example 3
+       */
+      days_late: number;
+      /**
+       * Context Id
+       * Format: uuid
+       * @description UUID of the rolling tribute or contract this item refers to
+       * @example 00000000-0000-0000-0000-000000000003
+       */
+      context_id: string;
+    };
     /**
      * LatePenaltySeverity
      * @enum {string}
@@ -1782,6 +2019,96 @@ export interface components {
      * @enum {string}
      */
     MidContractAdditionMode: "disabled" | "dom_controlled" | "sub_approval_required";
+    /** NotificationListOut */
+    NotificationListOut: {
+      /**
+       * Items
+       * @description Recent notifications for the authenticated user, newest first
+       */
+      items: components["schemas"]["NotificationOut"][];
+      /**
+       * Unread
+       * @description Count of unread notifications for this user
+       */
+      unread: number;
+    };
+    /** NotificationOut */
+    NotificationOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Notification UUID
+       */
+      id: string;
+      /**
+       * User Id
+       * Format: uuid
+       * @description Recipient user UUID
+       */
+      user_id: string;
+      /** @description Notification type discriminator */
+      type: components["schemas"]["NotificationType"];
+      /**
+       * Title
+       * @description Short headline displayed in the bell/drawer
+       */
+      title: string;
+      /**
+       * Body
+       * @description Optional longer body text
+       */
+      body?: string | null;
+      /**
+       * Link
+       * @description Optional frontend route to deep-link to on click
+       * @example /debts/00000000-0000-0000-0000-000000000001
+       */
+      link?: string | null;
+      /**
+       * Payload
+       * @description Optional machine-readable context payload
+       */
+      payload?: {
+        [key: string]: unknown;
+      } | null;
+      /**
+       * Read At
+       * @description UTC timestamp when the user marked this as read
+       */
+      read_at?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime when emitted
+       */
+      created_at: string;
+    };
+    /**
+     * NotificationType
+     * @enum {string}
+     */
+    NotificationType:
+      | "invitation_claimed"
+      | "payment_pending"
+      | "payment_validated"
+      | "payment_rejected"
+      | "rolling_reminder"
+      | "rolling_late"
+      | "contract_proposed"
+      | "contract_countered"
+      | "contract_counter_accepted"
+      | "contract_counter_rejected"
+      | "contract_signed"
+      | "contract_period_interest"
+      | "contract_late_penalty"
+      | "contract_surprise_penalty"
+      | "contract_adjustment_proposed"
+      | "contract_adjustment_accepted"
+      | "contract_adjustment_refused"
+      | "contract_buyout_requested"
+      | "contract_buyout_paid"
+      | "contract_breached"
+      | "contract_forgiven";
     /** PasswordResetConfirm */
     PasswordResetConfirm: {
       /**
@@ -2046,6 +2373,16 @@ export interface components {
      * @enum {string}
      */
     PaymentStatus: "pending" | "validated" | "rejected" | "cancelled";
+    /** PreferencesOut */
+    PreferencesOut: {
+      /**
+       * Theme Preference
+       * @description Persisted UI theme preference for the authenticated user.
+       * @example dark
+       * @enum {string}
+       */
+      theme_preference: "system" | "dark" | "light";
+    };
     /** PublicInvitationOut */
     PublicInvitationOut: {
       /**
@@ -2319,6 +2656,37 @@ export interface components {
        */
       last_name?: string | null;
     };
+    /** SubDashboardOut */
+    SubDashboardOut: {
+      /**
+       * Amount Due This Week
+       * @description Sum of rolling amount_due (if not paused) plus minimum_payment of all active contracts with weekly payment frequency (GBP)
+       * @example 80.00
+       */
+      amount_due_this_week: string;
+      /**
+       * Is Late
+       * @description True if the rolling tribute is late or any active contract is late
+       * @example false
+       */
+      is_late: boolean;
+      /**
+       * Active Contracts
+       * @description Summary of all active contracts belonging to this sub
+       */
+      active_contracts?: components["schemas"]["ActiveContractSummary"][];
+      /**
+       * Recent Payments
+       * @description Last 10 payment declarations for this sub
+       */
+      recent_payments?: components["schemas"]["PaymentOut"][];
+      /**
+       * Total Sent
+       * @description Sum of all validated payments by this sub (GBP)
+       * @example 450.00
+       */
+      total_sent: string;
+    };
     /** SurprisePenaltyIn */
     SurprisePenaltyIn: {
       /**
@@ -2361,6 +2729,16 @@ export interface components {
        * @example 900
        */
       expires_in: number;
+    };
+    /** UpdatePreferencesIn */
+    UpdatePreferencesIn: {
+      /**
+       * Theme Preference
+       * @description UI theme preference: 'system' follows OS, 'dark' / 'light' force mode.
+       * @example system
+       * @enum {string}
+       */
+      theme_preference: "system" | "dark" | "light";
     };
     /** UserOut */
     UserOut: {
@@ -5407,6 +5785,254 @@ export interface operations {
         content?: never;
       };
       /** @description Forbidden — admin role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_my_notifications_me_notifications_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationListOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  mark_notification_read_me_notifications__notification_id__read_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        notification_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — notification does not exist or belongs to another user */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_preferences_me_preferences_patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePreferencesIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PreferencesOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  goddess_dashboard_goddess_dashboard_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GoddessDashboardOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller role is not permitted for this dashboard */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  sub_dashboard_sub_dashboard_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SubDashboardOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller role is not permitted for this dashboard */
       403: {
         headers: {
           [name: string]: unknown;

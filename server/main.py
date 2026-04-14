@@ -12,9 +12,11 @@ from routers import (
     admin_cron,
     auth,
     blacklist,
+    dashboards,
     debt_contracts,
     health,
     invitations,
+    me_preferences,
     notifications,
     payment_methods,
     public_invitation,
@@ -79,4 +81,7 @@ app.include_router(blacklist.router)
 app.include_router(adjustments.router)
 app.include_router(admin_cron.router)
 app.include_router(notifications.router)
+app.include_router(me_preferences.router)
+app.include_router(dashboards.goddess_router)
+app.include_router(dashboards.sub_router)
 app.include_router(ws.router)

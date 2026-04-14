@@ -28,3 +28,8 @@ class UserDao:
 
     async def save(self, user: User) -> None:
         self._session.add(user)
+
+    async def update_theme_preference(self, user: User, theme_preference: str) -> User:
+        user.theme_preference = theme_preference
+        self._session.add(user)
+        return user
