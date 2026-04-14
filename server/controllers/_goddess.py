@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
 from core.exceptions import Forbidden
-from models.user import Goddess, User
+from models.user import Goddess, User, UserRole
 
 
 async def resolve_goddess_id(session: AsyncSession, user_id: UUID) -> UUID:
@@ -18,3 +18,14 @@ async def resolve_goddess_id(session: AsyncSession, user_id: UUID) -> UUID:
     if goddess is None:
         raise Forbidden("goddess profile not found for this user")
     return goddess.id
+
+
+async def resolve_goddess_user_id(session: AsyncSession, goddess_id: UUID) -> UUID | None:
+    """Return the User.id for the goddess-role user linked to the given Goddess profile."""
+    result = await session.execute(
+        select(User.id).where(
+            col(User.goddess_id) == goddess_id,
+            col(User.role) == UserRole.goddess,
+        )
+    )
+    return result.scalar_one_or_none()

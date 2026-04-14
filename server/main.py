@@ -15,10 +15,12 @@ from routers import (
     debt_contracts,
     health,
     invitations,
+    notifications,
     payment_methods,
     public_invitation,
     rolling,
     signup,
+    ws,
 )
 from routers.payments import (
     goddess_router as payments_goddess_router,
@@ -76,3 +78,5 @@ app.include_router(debt_contracts.router)
 app.include_router(blacklist.router)
 app.include_router(adjustments.router)
 app.include_router(admin_cron.router)
+app.include_router(notifications.router)
+app.include_router(ws.router)

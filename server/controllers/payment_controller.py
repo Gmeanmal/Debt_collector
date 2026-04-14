@@ -6,6 +6,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
+from controllers._goddess import resolve_goddess_user_id
 from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.allocation_dao import PaymentAllocationDao
 from daos.debt_dao import DebtContractAuditDao, DebtContractDao
@@ -15,6 +16,7 @@ from daos.rolling_dao import RollingTributeDao
 from daos.user_dao import UserDao
 from models.debt import DebtContractAudit, DebtContractEventType, DebtContractStatus
 from models.debt_event import DebtEvent, EventType
+from models.notification import NotificationType
 from models.payment import (
     AllocationTargetType,
     PaymentAllocation,
@@ -31,6 +33,7 @@ from schemas.payment import (
     PaymentOut,
     RecordPaymentIn,
 )
+from services.notifications.notify import notify
 from utils.ledger import apply_event_and_recompute
 
 _UNSUPPORTED_CATEGORIES: set[PaymentCategory] = set()
@@ -192,6 +195,19 @@ class PaymentController:
                 "created_by": sub_user.id,
             }
         )
+
+        goddess_user_id = await resolve_goddess_user_id(self._session, goddess_id)
+        if goddess_user_id is not None:
+            await notify(
+                self._session,
+                goddess_user_id,
+                NotificationType.payment_pending,
+                title="New payment declaration",
+                body=f"A sub declared a payment of £{Decimal(str(decl.amount))}.",
+                link="/goddess/payments",
+                payload={"declaration_id": str(decl.id)},
+            )
+
         return await _to_out(self._session, decl)
 
     async def record_as_goddess(self, goddess_user: User, payload: RecordPaymentIn) -> PaymentOut:
@@ -307,6 +323,16 @@ class PaymentController:
         if category == PaymentCategory.buyout:
             await self._apply_buyout(decl, sub.id, goddess_user.id, now)
 
+        await notify(
+            self._session,
+            decl.sub_id,
+            NotificationType.payment_validated,
+            title="Payment validated",
+            body=f"Your payment of £{Decimal(str(decl.amount))} was validated.",
+            link="/sub/payments",
+            payload={"declaration_id": str(decl.id), "category": category.value},
+        )
+
         return await _to_out(self._session, decl)
 
     async def reject(
@@ -321,6 +347,17 @@ class PaymentController:
 
         decl.validated_by = goddess_user.id
         await self._decl_dao.mark_rejected(decl, reason, datetime.now(UTC).replace(tzinfo=None))
+
+        await notify(
+            self._session,
+            decl.sub_id,
+            NotificationType.payment_rejected,
+            title="Payment rejected",
+            body=reason or f"Your payment of £{Decimal(str(decl.amount))} was rejected.",
+            link="/sub/payments",
+            payload={"declaration_id": str(decl.id)},
+        )
+
         return await _to_out(self._session, decl)
 
     async def list_my_history(self, sub_user: User) -> list[PaymentOut]:
@@ -418,3 +455,15 @@ class PaymentController:
                 to_status=DebtContractStatus.closed,
             )
         )
+
+        goddess_user_id = await resolve_goddess_user_id(self._session, contract.goddess_id)
+        if goddess_user_id is not None:
+            await notify(
+                self._session,
+                goddess_user_id,
+                NotificationType.contract_buyout_paid,
+                title="Contract bought out",
+                body=f"Sub paid a buyout of £{Decimal(str(decl.amount))}; contract closed.",
+                link=f"/debts/{contract.id}",
+                payload={"contract_id": str(contract.id)},
+            )

@@ -5,7 +5,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
-from controllers._goddess import resolve_goddess_id
+from controllers._goddess import resolve_goddess_id, resolve_goddess_user_id
 from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.adjustment_dao import AdjustmentDao
 from daos.debt_dao import DebtContractAuditDao, DebtContractDao, DebtContractVersionDao
@@ -21,6 +21,7 @@ from models.debt import (
     MidContractAdditionMode,
 )
 from models.debt_event import DebtEvent, EventType
+from models.notification import NotificationType
 from models.user import Goddess, User, UserRole
 from schemas.adjustment import ContractAdjustmentOut
 from schemas.debt import (
@@ -30,6 +31,7 @@ from schemas.debt import (
     DebtContractOut,
     DebtContractVersionOut,
 )
+from services.notifications.notify import notify
 from services.pdf.generator import generate as generate_contract_pdf
 from services.storage.factory import get_storage_service
 from utils.finance import exit_due
@@ -223,6 +225,16 @@ class DebtController:
             )
         )
 
+        await notify(
+            self._session,
+            sub_id,
+            NotificationType.contract_proposed,
+            title="New contract proposed",
+            body="Your goddess proposed a new debt contract for you to review.",
+            link=f"/debts/{contract.id}",
+            payload={"contract_id": str(contract.id)},
+        )
+
         return _contract_out(contract, version)
 
     async def propose_as_sub(self, sub_user: User, payload: DebtContractCreate) -> DebtContractOut:
@@ -283,6 +295,18 @@ class DebtController:
                 to_status=DebtContractStatus.pending_dom,
             )
         )
+
+        goddess_user_id = await resolve_goddess_user_id(self._session, goddess_id)
+        if goddess_user_id is not None:
+            await notify(
+                self._session,
+                goddess_user_id,
+                NotificationType.contract_proposed,
+                title="Sub proposed a contract",
+                body="Your sub proposed a new debt contract.",
+                link=f"/debts/{contract.id}",
+                payload={"contract_id": str(contract.id)},
+            )
 
         return _contract_out(contract, version)
 
@@ -352,6 +376,22 @@ class DebtController:
             )
         )
 
+        counter_party_id: UUID | None
+        if actor.role == UserRole.sub:
+            counter_party_id = await resolve_goddess_user_id(self._session, contract.goddess_id)
+        else:
+            counter_party_id = contract.sub_id
+        if counter_party_id is not None:
+            await notify(
+                self._session,
+                counter_party_id,
+                NotificationType.contract_countered,
+                title="Contract counter-proposed",
+                body="The other party counter-proposed the contract terms.",
+                link=f"/debts/{contract.id}",
+                payload={"contract_id": str(contract.id)},
+            )
+
         return _contract_out(contract, version)
 
     async def accept_counter(self, goddess_user: User, contract_id: UUID) -> DebtContractOut:
@@ -379,6 +419,16 @@ class DebtController:
                 from_status=from_status,
                 to_status=DebtContractStatus.pending_sub_signature,
             )
+        )
+
+        await notify(
+            self._session,
+            contract.sub_id,
+            NotificationType.contract_counter_accepted,
+            title="Counter-proposal accepted",
+            body="Your goddess accepted your counter-proposal. Sign to activate the contract.",
+            link=f"/debts/{contract.id}",
+            payload={"contract_id": str(contract.id)},
         )
 
         return _contract_out(contract, current_version)
@@ -414,6 +464,16 @@ class DebtController:
                 from_status=from_status,
                 to_status=DebtContractStatus.pending_sub_signature,
             )
+        )
+
+        await notify(
+            self._session,
+            contract.sub_id,
+            NotificationType.contract_counter_rejected,
+            title="Counter-proposal rejected",
+            body="Your goddess rejected your counter. Original terms restored — sign to activate.",
+            link=f"/debts/{contract.id}",
+            payload={"contract_id": str(contract.id)},
         )
 
         return _contract_out(contract, original)
@@ -474,6 +534,18 @@ class DebtController:
                 to_status=DebtContractStatus.active,
             )
         )
+
+        goddess_user_id = await resolve_goddess_user_id(self._session, contract.goddess_id)
+        if goddess_user_id is not None:
+            await notify(
+                self._session,
+                goddess_user_id,
+                NotificationType.contract_signed,
+                title="Contract signed",
+                body=f"{sub_full_name} signed the contract; it is now active.",
+                link=f"/debts/{contract.id}",
+                payload={"contract_id": str(contract.id)},
+            )
 
         return _contract_out(contract, current_version)
 
@@ -629,6 +701,17 @@ class DebtController:
         contract.updated_at = _now_utc()
         await self._dao.save(contract)
         current_version = await self._load_current_version(contract)
+
+        await notify(
+            self._session,
+            contract.sub_id,
+            NotificationType.contract_surprise_penalty,
+            title="Surprise penalty applied",
+            body=reason or f"A surprise penalty of £{amount} was added to your contract.",
+            link=f"/debts/{contract.id}",
+            payload={"contract_id": str(contract.id), "amount": str(amount)},
+        )
+
         return _contract_out(contract, current_version)
 
     async def create_adjustment(
@@ -669,6 +752,16 @@ class DebtController:
 
         if status == AdjustmentStatus.applied:
             await self._emit_adjustment_event(contract.id, amount, reason)
+        else:
+            await notify(
+                self._session,
+                contract.sub_id,
+                NotificationType.contract_adjustment_proposed,
+                title="Adjustment proposed",
+                body=reason or f"Your goddess proposed an adjustment of £{amount}.",
+                link=f"/debts/{contract.id}",
+                payload={"contract_id": str(contract.id), "adjustment_id": str(adjustment.id)},
+            )
 
         return _adjustment_out(adjustment)
 
@@ -691,6 +784,19 @@ class DebtController:
         await self._emit_adjustment_event(
             contract.id, Decimal(str(adjustment.amount)), adjustment.reason
         )
+
+        goddess_user_id = await resolve_goddess_user_id(self._session, contract.goddess_id)
+        if goddess_user_id is not None:
+            await notify(
+                self._session,
+                goddess_user_id,
+                NotificationType.contract_adjustment_accepted,
+                title="Adjustment accepted",
+                body="Your sub accepted the adjustment.",
+                link=f"/debts/{contract.id}",
+                payload={"contract_id": str(contract.id), "adjustment_id": str(adjustment.id)},
+            )
+
         return _adjustment_out(adjustment)
 
     async def refuse_adjustment(self, sub_user: User, adjustment_id: UUID) -> ContractAdjustmentOut:
@@ -708,6 +814,19 @@ class DebtController:
         adjustment.updated_at = now
         adjustment.resolved_at = now
         await self._adjustment_dao.save(adjustment)
+
+        goddess_user_id = await resolve_goddess_user_id(self._session, contract.goddess_id)
+        if goddess_user_id is not None:
+            await notify(
+                self._session,
+                goddess_user_id,
+                NotificationType.contract_adjustment_refused,
+                title="Adjustment refused",
+                body="Your sub refused the proposed adjustment.",
+                link=f"/debts/{contract.id}",
+                payload={"contract_id": str(contract.id), "adjustment_id": str(adjustment.id)},
+            )
+
         return _adjustment_out(adjustment)
 
     async def list_pending_adjustments(self, sub_user: User) -> list[ContractAdjustmentOut]:

@@ -10,7 +10,9 @@ from daos.debt_event_dao import DebtEventDao
 from daos.rolling_dao import RollingTributeDao
 from models.debt import DebtContract, DebtContractStatus
 from models.debt_event import DebtEvent, EventType
+from models.notification import NotificationType
 from models.user import User, UserRole, UserStatus
+from services.notifications.notify import notify
 from utils.finance import period_rate
 from utils.ledger import apply_event_and_recompute
 from utils.periods import current_period_index
@@ -55,6 +57,15 @@ class CronController:
         late = days_late(rolling, now)
         if late > 0:
             log.info("rolling_late", sub_id=str(sub_id), days_late=late)
+            await notify(
+                self._session,
+                sub_id,
+                NotificationType.rolling_late,
+                title="Rolling tribute overdue",
+                body=f"Your rolling tribute is {late} day(s) late.",
+                link="/sub",
+                payload={"days_late": late},
+            )
         else:
             log.info("rolling_reminder", sub_id=str(sub_id))
         return 1
@@ -95,6 +106,15 @@ class CronController:
                     note="missed minimum payment",
                 ),
             )
+            await notify(
+                self._session,
+                contract.sub_id,
+                NotificationType.contract_late_penalty,
+                title="Late payment penalty",
+                body="You missed the minimum payment; a late penalty has been applied.",
+                link=f"/debts/{contract.id}",
+                payload={"contract_id": str(contract.id), "period_index": prev_idx},
+            )
 
         rate = period_rate(contract)
         await apply_event_and_recompute(
@@ -105,6 +125,15 @@ class CronController:
                 amount=rate,
                 period_index=period_idx,
             ),
+        )
+        await notify(
+            self._session,
+            contract.sub_id,
+            NotificationType.contract_period_interest,
+            title="Period interest accrued",
+            body=f"Interest for period {period_idx} has been added to your balance.",
+            link=f"/debts/{contract.id}",
+            payload={"contract_id": str(contract.id), "period_index": period_idx},
         )
         log.info(
             "contract_period_tick",

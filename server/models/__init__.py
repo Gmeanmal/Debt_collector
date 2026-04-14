@@ -13,6 +13,8 @@ from models.debt import PaymentFrequency as PaymentFrequency
 from models.debt_event import DebtEvent as DebtEvent
 from models.debt_event import EventType as EventType
 from models.invitation import Invitation as Invitation
+from models.notification import Notification as Notification
+from models.notification import NotificationType as NotificationType
 from models.payment import AllocationTargetType as AllocationTargetType
 from models.payment import PaymentAllocation as PaymentAllocation
 from models.payment import PaymentCategory as PaymentCategory

@@ -14,8 +14,10 @@ from daos.token_dao import TokenDao
 from daos.user_dao import UserDao
 from models.blacklist import BlacklistEntry
 from models.debt import DebtContract, DebtContractAudit, DebtContractEventType, DebtContractStatus
+from models.notification import NotificationType
 from models.user import User, UserStatus
 from schemas.blacklist import BlacklistEntryOut
+from services.notifications.notify import notify
 
 
 def _now_utc() -> datetime:
@@ -107,6 +109,17 @@ class BlacklistController:
                 breached_at=now,
             )
         )
+
+        await notify(
+            self._session,
+            sub_id,
+            NotificationType.contract_breached,
+            title="Contract breached",
+            body=reason or "Your contract has been breached and you are now blacklisted.",
+            link="/sub",
+            payload={"entry_id": str(entry.id)},
+        )
+
         return _entry_out(entry)
 
     async def list(self, goddess_user: User) -> list[BlacklistEntryOut]:
@@ -136,5 +149,15 @@ class BlacklistController:
             sub.status = UserStatus.active
             self._session.add(sub)
             await self._session.flush()
+
+        await notify(
+            self._session,
+            entry.sub_id,
+            NotificationType.contract_forgiven,
+            title="Breach forgiven",
+            body="Your goddess has forgiven the breach. Your account is reinstated.",
+            link="/sub",
+            payload={"entry_id": str(entry.id)},
+        )
 
         return _entry_out(entry)
