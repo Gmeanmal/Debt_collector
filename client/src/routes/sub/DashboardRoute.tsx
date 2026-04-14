@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ListSkeleton } from "@/components/ui/Skeleton";
 import {
   getSubDashboardApi,
   type ActiveContractSummary,
@@ -124,6 +127,7 @@ export function SubDashboardRoute() {
     data: dash,
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["subDashboard"],
     queryFn: getSubDashboardApi,
@@ -132,14 +136,21 @@ export function SubDashboardRoute() {
   if (isLoading) {
     return (
       <div className="p-4 md:p-8">
-        <p className="text-base-text-muted text-sm">Loading dashboard…</p>
+        <div className="max-w-4xl mx-auto">
+          <ListSkeleton rows={2} />
+        </div>
       </div>
     );
   }
   if (isError || !dash) {
     return (
       <div className="p-4 md:p-8">
-        <p className="text-status-danger text-sm">Failed to load dashboard.</p>
+        <div className="max-w-4xl mx-auto">
+          <ErrorState
+            title="Failed to load dashboard"
+            message={(error as Error | undefined)?.message ?? "Try refreshing the page."}
+          />
+        </div>
       </div>
     );
   }
@@ -181,7 +192,10 @@ export function SubDashboardRoute() {
         <section className="flex flex-col gap-3">
           <h2 className="font-display text-lg text-pink-primary">Active contracts</h2>
           {contracts.length === 0 ? (
-            <p className="text-base-text-muted text-sm italic">No active contracts.</p>
+            <EmptyState
+              title="No active contracts"
+              message="When your Goddess signs a contract with you, it will appear here."
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {contracts.map((c) => (
@@ -194,7 +208,10 @@ export function SubDashboardRoute() {
         <section className="flex flex-col gap-3">
           <h2 className="font-display text-lg text-pink-primary">Recent payments</h2>
           {payments.length === 0 ? (
-            <p className="text-base-text-muted text-sm italic">No payments yet.</p>
+            <EmptyState
+              title="No payments yet"
+              message="Declare your first tribute and it will show up here once submitted."
+            />
           ) : (
             <div className="bg-base-surface border border-base-border rounded-lg p-3 overflow-x-auto">
               <table className="w-full text-left">

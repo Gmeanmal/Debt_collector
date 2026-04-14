@@ -5,6 +5,10 @@ import {
   listBlacklistApi,
   type BlacklistEntryOut,
 } from "@/services/blacklist/blacklistApi";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ListSkeleton } from "@/components/ui/Skeleton";
+import { Modal } from "@/components/ui/Modal";
 
 function fmtGbp(v: string): string {
   return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -32,59 +36,45 @@ function ForgiveModal({ entry, onClose }: ForgiveModalProps) {
   });
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-base-bg/80 px-4"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div className="bg-base-surface border border-base-border rounded-lg w-full max-w-sm p-6 shadow-[var(--shadow-card)] flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-base font-semibold text-base-text">Forgive sub</h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="text-base-text-muted hover:text-base-text focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
-          >
-            ✕
-          </button>
-        </div>
-        <p className="text-xs text-base-text-muted">
-          Balance at breach: {fmtGbp(entry.balance_snapshot)}
-        </p>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-base-text" htmlFor="fee">
-            Reinstatement fee paid (GBP)
-          </label>
-          <input
-            id="fee"
-            type="number"
-            min="0"
-            step="0.01"
-            value={fee}
-            onChange={(e) => setFee(e.target.value)}
-            className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
-          />
-        </div>
-        {mutation.isError && (
-          <p className="text-xs text-status-danger">{(mutation.error as Error).message}</p>
-        )}
-        <div className="flex gap-2 justify-end">
-          <button
-            onClick={onClose}
-            className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending || !fee}
-            className="px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors disabled:opacity-50"
-          >
-            {mutation.isPending ? "Forgiving…" : "Forgive"}
-          </button>
-        </div>
+    <Modal title="Forgive sub" onClose={onClose}>
+      <p className="text-xs text-base-text-muted">
+        Balance at breach: {fmtGbp(entry.balance_snapshot)}
+      </p>
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-base-text" htmlFor="fee">
+          Reinstatement fee paid (GBP)
+        </label>
+        <input
+          id="fee"
+          type="number"
+          min="0"
+          step="0.01"
+          value={fee}
+          onChange={(e) => setFee(e.target.value)}
+          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+        />
       </div>
-    </div>
+      {mutation.isError && (
+        <p className="text-xs text-status-danger">{(mutation.error as Error).message}</p>
+      )}
+      <div className="flex gap-2 justify-end">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={() => mutation.mutate()}
+          disabled={mutation.isPending || !fee}
+          className="px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors disabled:opacity-50"
+        >
+          {mutation.isPending ? "Forgiving…" : "Forgive"}
+        </button>
+      </div>
+    </Modal>
   );
 }
 
@@ -94,6 +84,7 @@ export function BlacklistRoute() {
     data: entries = [],
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["blacklist"],
     queryFn: listBlacklistApi,
@@ -111,10 +102,18 @@ export function BlacklistRoute() {
           </p>
         </div>
 
-        {isLoading && <p className="text-base-text-muted text-sm">Loading…</p>}
-        {isError && <p className="text-status-danger text-sm">Failed to load.</p>}
-        {!isLoading && entries.length === 0 && (
-          <p className="text-base-text-muted text-sm">No blacklist entries.</p>
+        {isLoading && <ListSkeleton rows={3} />}
+        {isError && (
+          <ErrorState
+            title="Failed to load blacklist"
+            message={(error as Error | undefined)?.message}
+          />
+        )}
+        {!isLoading && !isError && entries.length === 0 && (
+          <EmptyState
+            title="Blacklist is empty"
+            message="No subs have been breached. They will appear here if you mark one as in breach."
+          />
         )}
 
         <div className="flex flex-col gap-3">

@@ -19,17 +19,8 @@ _OP: dict[EventType, str] = {
 }
 
 
-async def recompute_balance(session: AsyncSession, contract_id: UUID) -> Decimal:
-    contract = await session.get(DebtContract, contract_id)
-    if contract is None:
-        raise ValueError(f"contract {contract_id} not found")
-    result = await session.execute(
-        select(DebtEvent)
-        .where(col(DebtEvent.contract_id) == contract_id)
-        .order_by(col(DebtEvent.created_at).asc(), col(DebtEvent.id).asc())
-    )
-    events = result.scalars().all()
-    balance = Decimal(str(contract.principal))
+def replay_events(principal: Decimal, events: "list[DebtEvent] | tuple[DebtEvent, ...]") -> Decimal:
+    balance = Decimal(str(principal))
     for event in events:
         amount = Decimal(str(event.amount))
         op = _OP[event.event_type]
@@ -42,6 +33,19 @@ async def recompute_balance(session: AsyncSession, contract_id: UUID) -> Decimal
         elif op == "close":
             balance = Decimal("0.00")
     return balance
+
+
+async def recompute_balance(session: AsyncSession, contract_id: UUID) -> Decimal:
+    contract = await session.get(DebtContract, contract_id)
+    if contract is None:
+        raise ValueError(f"contract {contract_id} not found")
+    result = await session.execute(
+        select(DebtEvent)
+        .where(col(DebtEvent.contract_id) == contract_id)
+        .order_by(col(DebtEvent.created_at).asc(), col(DebtEvent.id).asc())
+    )
+    events = list(result.scalars().all())
+    return replay_events(contract.principal, events)
 
 
 async def apply_event_and_recompute(session: AsyncSession, event: DebtEvent) -> Decimal:

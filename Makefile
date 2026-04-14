@@ -61,4 +61,4 @@ typecheck:
 
 check: fmt lint typecheck
 	cd server && uv run pytest -q || true   # tests retrofit in phase 10
-	cd client && pnpm test -- --run || true
+	cd client && pnpm vitest run || true

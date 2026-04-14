@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { listPendingPaymentsApi } from "@/services/payments/paymentsApi";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ListSkeleton } from "@/components/ui/Skeleton";
 
 interface Props {
   subId: string;
@@ -25,6 +27,7 @@ export function SubPaymentsSection({ subId }: Props) {
     data: all = [],
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["goddessPendingPayments"],
     queryFn: listPendingPaymentsApi,
@@ -35,8 +38,13 @@ export function SubPaymentsSection({ subId }: Props) {
   return (
     <section className="flex flex-col gap-3">
       <h2 className="font-display text-lg text-pink-primary">Pending payments</h2>
-      {isLoading && <p className="text-base-text-muted text-sm">Loading…</p>}
-      {isError && <p className="text-status-danger text-sm">Failed to load payments.</p>}
+      {isLoading && <ListSkeleton rows={2} />}
+      {isError && (
+        <ErrorState
+          title="Failed to load payments"
+          message={(error as Error | undefined)?.message}
+        />
+      )}
       {!isLoading && !isError && items.length === 0 && (
         <p className="text-base-text-muted text-sm italic">No pending payments for this sub.</p>
       )}

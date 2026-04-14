@@ -6,6 +6,9 @@ import {
   refuseAdjustmentApi,
   type ContractAdjustmentOut,
 } from "@/services/debtContracts/debtContractsApi";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ListSkeleton } from "@/components/ui/Skeleton";
 
 function fmtGbp(v: string): string {
   return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -21,6 +24,7 @@ export function PendingAdjustmentsPanel() {
     data: items = [],
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["pendingAdjustments"],
     queryFn: listPendingAdjustmentsApi,
@@ -43,12 +47,20 @@ export function PendingAdjustmentsPanel() {
     },
   });
 
-  if (isLoading) return <p className="text-base-text-muted text-sm">Loading…</p>;
+  if (isLoading) return <ListSkeleton rows={2} />;
   if (isError)
-    return <p className="text-status-danger text-sm">Failed to load pending adjustments.</p>;
+    return (
+      <ErrorState
+        title="Failed to load pending adjustments"
+        message={(error as Error | undefined)?.message}
+      />
+    );
   if (items.length === 0)
     return (
-      <p className="text-base-text-muted text-sm">No adjustments waiting for your approval.</p>
+      <EmptyState
+        title="Nothing to approve"
+        message="Adjustments proposed by your Goddess will show up here."
+      />
     );
 
   return (

@@ -98,6 +98,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               </span>
             )}
             <button
+              type="button"
               onClick={logout}
               className="text-base-text-muted hover:text-pink-primary transition-colors"
             >

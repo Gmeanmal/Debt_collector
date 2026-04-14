@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ListSkeleton } from "@/components/ui/Skeleton";
 import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
 
 interface Props {
@@ -12,6 +14,7 @@ export function SubContractsSection({ subId }: Props) {
     data: all = [],
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["goddessContracts"],
     queryFn: listGoddessDebtsApi,
@@ -30,10 +33,15 @@ export function SubContractsSection({ subId }: Props) {
           New contract
         </Link>
       </div>
-      {isLoading && <p className="text-base-text-muted text-sm">Loading…</p>}
-      {isError && <p className="text-status-danger text-sm">Failed to load contracts.</p>}
+      {isLoading && <ListSkeleton rows={2} />}
+      {isError && (
+        <ErrorState
+          title="Failed to load contracts"
+          message={(error as Error | undefined)?.message}
+        />
+      )}
       {!isLoading && !isError && contracts.length === 0 && (
-        <p className="text-base-text-muted text-sm italic">No contracts for this sub.</p>
+        <p className="text-base-text-muted text-sm italic">No contracts for this sub yet.</p>
       )}
       <div className="flex flex-col gap-2">
         {contracts.map((c) => (

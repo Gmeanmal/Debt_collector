@@ -17,6 +17,8 @@ import {
   type DebtSimulationOut,
 } from "@/services/debtContracts/debtContractsApi";
 import { useAuth } from "@/services/auth/useAuth";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ListSkeleton } from "@/components/ui/Skeleton";
 
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
@@ -111,6 +113,7 @@ export function ContractDetailRoute() {
     data: contract,
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["contract", safeId],
     queryFn: () => getContractApi(safeId),
@@ -125,20 +128,29 @@ export function ContractDetailRoute() {
 
   if (!safeId)
     return (
-      <div className="p-4">
-        <p className="text-status-danger text-sm">No contract ID.</p>
+      <div className="p-4 md:p-8">
+        <div className="max-w-5xl mx-auto">
+          <ErrorState title="No contract ID in the URL" />
+        </div>
       </div>
     );
   if (isLoading)
     return (
       <div className="p-4 md:p-8">
-        <p className="text-base-text-muted text-sm">Loading…</p>
+        <div className="max-w-5xl mx-auto">
+          <ListSkeleton rows={3} />
+        </div>
       </div>
     );
   if (isError || !contract)
     return (
-      <div className="p-4">
-        <p className="text-status-danger text-sm">Failed to load contract.</p>
+      <div className="p-4 md:p-8">
+        <div className="max-w-5xl mx-auto">
+          <ErrorState
+            title="Failed to load contract"
+            message={(error as Error | undefined)?.message}
+          />
+        </div>
       </div>
     );
 

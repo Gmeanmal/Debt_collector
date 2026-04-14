@@ -8,6 +8,10 @@ import {
   listSubPaymentMethodsApi,
   type PaymentOut,
 } from "@/services/payments/paymentsApi";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ListSkeleton } from "@/components/ui/Skeleton";
+import { Modal } from "@/components/ui/Modal";
 
 const STATUS_CHIP: Record<string, string> = {
   pending: "bg-status-warning/20 text-status-warning",
@@ -54,75 +58,69 @@ function EditModal({ decl, onClose }: EditModalProps) {
   });
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-base-bg/80 px-4"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div className="bg-base-surface border border-base-border rounded-lg w-full max-w-sm p-6 shadow-[var(--shadow-card)] flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-base font-semibold text-base-text">Edit declaration</h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="text-base-text-muted hover:text-base-text focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-base-text">Amount (£)</label>
-          <input
-            type="text"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-base-text">Method</label>
-          <select
-            value={methodId}
-            onChange={(e) => setMethodId(e.target.value)}
-            className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
-          >
-            {methods.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-base-text">Note</label>
-          <input
-            type="text"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
-          />
-        </div>
-
-        <div className="flex gap-2 justify-end">
-          <button
-            onClick={onClose}
-            className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => editMutation.mutate()}
-            disabled={editMutation.isPending}
-            className="px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors disabled:opacity-50"
-          >
-            Save
-          </button>
-        </div>
+    <Modal title="Edit declaration" onClose={onClose}>
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-base-text" htmlFor="edit-amount">
+          Amount (£)
+        </label>
+        <input
+          id="edit-amount"
+          type="text"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+        />
       </div>
-    </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-base-text" htmlFor="edit-method">
+          Method
+        </label>
+        <select
+          id="edit-method"
+          value={methodId}
+          onChange={(e) => setMethodId(e.target.value)}
+          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+        >
+          {methods.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-base-text" htmlFor="edit-note">
+          Note
+        </label>
+        <input
+          id="edit-note"
+          type="text"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+        />
+      </div>
+
+      <div className="flex gap-2 justify-end">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={() => editMutation.mutate()}
+          disabled={editMutation.isPending}
+          className="px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors disabled:opacity-50"
+        >
+          Save
+        </button>
+      </div>
+    </Modal>
   );
 }
 
@@ -135,6 +133,7 @@ export function PaymentHistoryRoute() {
     data: payments = [],
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["myPayments"],
     queryFn: listMyPaymentsApi,
@@ -148,11 +147,12 @@ export function PaymentHistoryRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
             Payment History
           </h1>
           <button
+            type="button"
             onClick={() => navigate("/sub/payments/new")}
             className="px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
           >
@@ -160,11 +160,19 @@ export function PaymentHistoryRoute() {
           </button>
         </div>
 
-        {isLoading && <p className="text-base-text-muted text-sm">Loading…</p>}
-        {isError && <p className="text-status-danger text-sm">Failed to load payments.</p>}
+        {isLoading && <ListSkeleton rows={3} />}
+        {isError && (
+          <ErrorState
+            title="Failed to load payments"
+            message={(error as Error | undefined)?.message}
+          />
+        )}
 
         {!isLoading && !isError && payments.length === 0 && (
-          <p className="text-base-text-muted text-sm">No payments declared yet.</p>
+          <EmptyState
+            title="No payments declared yet"
+            message="Declare your first tribute and it will show up here."
+          />
         )}
 
         <div className="flex flex-col gap-3">
@@ -191,6 +199,7 @@ export function PaymentHistoryRoute() {
                 {p.status === "pending" && (
                   <div className="flex gap-2">
                     <button
+                      type="button"
                       onClick={() => setEditing(p)}
                       aria-label="Edit declaration"
                       className="text-xs text-base-text-muted hover:text-base-text px-2 py-1 rounded border border-base-border transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
@@ -198,6 +207,7 @@ export function PaymentHistoryRoute() {
                       Edit
                     </button>
                     <button
+                      type="button"
                       onClick={() => cancelMutation.mutate(p.id)}
                       aria-label="Cancel declaration"
                       className="text-xs text-status-danger hover:text-debt-primary-hover px-2 py-1 rounded border border-debt-muted transition-colors focus-visible:ring-2 focus-visible:ring-debt-primary"

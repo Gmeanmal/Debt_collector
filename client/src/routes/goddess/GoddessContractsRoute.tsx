@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ListSkeleton } from "@/components/ui/Skeleton";
 import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
 
 function fmtDate(iso: string): string {
@@ -16,6 +19,7 @@ export function GoddessContractsRoute() {
     data: contracts = [],
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["goddessContracts"],
     queryFn: listGoddessDebtsApi,
@@ -31,11 +35,19 @@ export function GoddessContractsRoute() {
           <p className="text-sm text-base-text-muted mt-1">All contracts across your subs.</p>
         </div>
 
-        {isLoading && <p className="text-base-text-muted text-sm">Loading…</p>}
-        {isError && <p className="text-status-danger text-sm">Failed to load contracts.</p>}
+        {isLoading && <ListSkeleton rows={3} />}
+        {isError && (
+          <ErrorState
+            title="Failed to load contracts"
+            message={(error as Error | undefined)?.message}
+          />
+        )}
 
         {!isLoading && !isError && contracts.length === 0 && (
-          <p className="text-base-text-muted text-sm">No contracts yet.</p>
+          <EmptyState
+            title="No contracts yet"
+            message="Propose a debt contract to one of your subs to get started."
+          />
         )}
 
         {contracts.length > 0 && (
