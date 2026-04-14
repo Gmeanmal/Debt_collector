@@ -50,7 +50,7 @@
   - Routers: all 12 endpoints incl. stateless `POST /debts/simulate`.
   - Client: `ContractFormRoute` with debounced live simulation (recharts LineChart + severe-warning banner), `ContractDetailRoute` (status chip, terms, projection, actions, audit log), `GoddessContractsRoute` / `SubContractsRoute`, Home picker cards.
   - Playwright smoke-tested goddess flow: new contract → propose → detail view renders projection + audit.
-- **Phase 1** — Foundation: docker infra (Postgres + Mailhog), `make` targets, pre-commit, CI green, `make init-dbs` bootstraps goddess + admin via `seeds/bootstrap.py` (richer `fake_data.py` left as a phase-1 stub).
+- **Phase 1** — Foundation: docker infra (Postgres + Mailhog), `make` targets, pre-commit, CI green, `make init-dbs` bootstraps goddess + admin via `seeds/bootstrap.py`, then runs `seeds/fake_data.py` (11 subs each in distinct state: rolling on-time/late, contracts pending/active/late/breached/completed-via-buyout, blacklisted + reinstated, pending entry tribute, adjustments, invitations).
 - **Phase 2** — Auth: login/logout, refresh, password reset via Resend, goddess + admin accounts seeded, `EmailStr` loosened for localhost dev.
 - **Phase 3** — Invitations: create/list/public landing/signup, entry tribute amount on invitation, pending-tribute CTA on sub dashboard.
 - **Phase 5** — Rolling tributes:

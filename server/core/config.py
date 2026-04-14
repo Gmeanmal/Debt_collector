@@ -41,7 +41,7 @@ class Settings(BaseSettings):
 
     goddess_email: str = "goddess@localhost"
     goddess_password: str = "ChangeMe!Dev123"
-    goddess_display_name: str = "Goddess Mean Mal"
+    goddess_display_name: str = "Mean Mal"
 
     @property
     def cors_origins_list(self) -> list[str]:
