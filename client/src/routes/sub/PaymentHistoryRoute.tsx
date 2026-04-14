@@ -161,14 +161,14 @@ export function PaymentHistoryRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
             Payment History
           </h1>
           <button
             type="button"
             onClick={() => navigate("/sub/payments/new")}
-            className="px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
+            className="w-full sm:w-auto px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
           >
             Declare payment
           </button>

@@ -52,10 +52,10 @@ export function BreachSubRoute() {
           {mutation.isError && (
             <p className="text-xs text-status-danger">{(mutation.error as Error).message}</p>
           )}
-          <div className="flex gap-2 justify-end">
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             <button
               onClick={() => navigate(-1)}
-              className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
+              className="w-full sm:w-auto px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
             >
               Cancel
             </button>
@@ -67,7 +67,7 @@ export function BreachSubRoute() {
                   mutation.mutate();
               }}
               disabled={mutation.isPending}
-              className="px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors disabled:opacity-50"
             >
               {mutation.isPending ? "Breaching…" : "Breach sub"}
             </button>

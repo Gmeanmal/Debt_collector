@@ -195,18 +195,18 @@ export function RecordPaymentRoute() {
             <p className="text-xs text-status-danger">Failed to record. Please try again.</p>
           )}
 
-          <div className="flex gap-3 justify-end">
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={() => navigate("/goddess/validations")}
-              className="px-4 py-2 text-sm text-base-text-muted border border-base-border rounded-md hover:text-base-text transition-colors"
+              className="w-full sm:w-auto px-4 py-2 text-sm text-base-text-muted border border-base-border rounded-md hover:text-base-text transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={recordMutation.isPending}
-              className="px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50"
             >
               {recordMutation.isPending ? "Recording…" : "Record payment"}
             </button>

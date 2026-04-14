@@ -73,18 +73,18 @@ export function AdminTable({ schema }: AdminTableProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
         <h2 className="font-display text-xl font-bold text-violet-primary tracking-wider">
           {schema.label}
         </h2>
         <span className="text-xs text-base-text-subtle">{total} total</span>
-        <form onSubmit={submitSearch} className="flex items-center gap-2 ml-auto">
+        <form onSubmit={submitSearch} className="flex items-center gap-2 sm:ml-auto flex-wrap">
           <input
             type="search"
             placeholder="Search…"
             value={qDraft}
             onChange={(e) => setQDraft(e.target.value)}
-            className="px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text focus-visible:ring-2 focus-visible:ring-violet-primary"
+            className="flex-1 min-w-0 px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text focus-visible:ring-2 focus-visible:ring-violet-primary"
           />
           <button
             type="submit"
@@ -138,7 +138,7 @@ export function AdminTable({ schema }: AdminTableProps) {
       )}
 
       <div className="overflow-x-auto border border-base-border rounded-md">
-        <table className="min-w-full text-sm">
+        <table className="min-w-[640px] w-full text-sm">
           <thead className="bg-base-surface-raised">
             <tr>
               {schema.columns.map((col) => (
@@ -169,7 +169,9 @@ export function AdminTable({ schema }: AdminTableProps) {
                 <tr
                   key={id}
                   className={`border-b border-base-border hover:bg-base-surface-raised ${isReadonly ? "" : "cursor-pointer"}`}
-                  onClick={() => { if (!isReadonly) setEditing(row); }}
+                  onClick={() => {
+                    if (!isReadonly) setEditing(row);
+                  }}
                 >
                   {schema.columns.map((col) => (
                     <td key={col.key} className="px-3 py-2 text-base-text align-top">

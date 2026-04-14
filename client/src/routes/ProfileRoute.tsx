@@ -200,7 +200,7 @@ export function ProfileRoute() {
                 type="url"
                 error={errors.avatar_url}
               />
-              <Button onClick={handleSave} disabled={mutation.isPending} className="self-end">
+              <Button onClick={handleSave} disabled={mutation.isPending} className="w-full sm:w-auto sm:self-end">
                 {mutation.isPending ? "Saving…" : "Save"}
               </Button>
             </div>

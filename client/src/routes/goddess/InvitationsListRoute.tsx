@@ -59,7 +59,7 @@ export function InvitationsListRoute() {
 
           {invitations && invitations.length > 0 && (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full min-w-[520px] text-sm">
                 <thead>
                   <tr className="border-b border-base-border text-base-text-muted text-left">
                     <th className="pb-2 pr-4 font-medium">Created</th>

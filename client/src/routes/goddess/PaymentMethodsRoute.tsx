@@ -62,7 +62,7 @@ function SortableCard({ method, onEdit, onDisable, onEnable }: SortableCardProps
   return (
     <div
       ref={applyDragVars}
-      className="bg-base-surface border border-base-border rounded-lg p-4 flex items-center gap-3 [transform:var(--dnd-transform)] [transition:var(--dnd-transition)]"
+      className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-wrap items-center gap-3 [transform:var(--dnd-transform)] [transition:var(--dnd-transition)]"
     >
       <button
         {...attributes}
@@ -235,13 +235,13 @@ export function PaymentMethodsRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
             Payment Methods
           </h1>
           <button
             onClick={() => setShowAdd(true)}
-            className="px-4 py-2 text-sm rounded bg-pink-primary text-pink-foreground font-semibold hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
+            className="w-full sm:w-auto px-4 py-2 text-sm rounded bg-pink-primary text-pink-foreground font-semibold hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
           >
             Add method
           </button>

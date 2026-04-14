@@ -63,12 +63,14 @@ export function SubManageRoute() {
         </div>
 
         <Tabs defaultValue="overview">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="rolling">Rolling</TabsTrigger>
-            <TabsTrigger value="contracts">Contracts</TabsTrigger>
-            <TabsTrigger value="late">Late</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="rolling">Rolling</TabsTrigger>
+              <TabsTrigger value="contracts">Contracts</TabsTrigger>
+              <TabsTrigger value="late">Late</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="overview">
             <SubOverviewTab subId={safeSubId} status={sub?.status ?? ""} />

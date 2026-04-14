@@ -91,7 +91,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen bg-base-bg flex flex-col">
       <ImpersonationBanner />
       <header className="sticky top-0 z-40 border-b border-base-border/60 bg-base-bg/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center gap-8 px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 sm:gap-8 px-3 sm:px-6 py-4">
           <NavLink to="/" className="flex items-center gap-2.5 group">
             <div className="h-8 w-8 rounded-full border border-pink-primary/40 bg-pink-primary/10 flex items-center justify-center transition-all duration-200 group-hover:bg-pink-primary/20">
               <span className="font-display text-base text-pink-primary">G</span>
@@ -126,7 +126,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             <NotificationBell enabled={user != null} />
             {user && (

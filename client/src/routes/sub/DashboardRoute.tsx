@@ -139,7 +139,7 @@ export function SubDashboardRoute() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
             label="Due this week"
             value={GBP.format(Number(dash.amount_due_this_week))}
@@ -231,7 +231,7 @@ interface RecentPaymentsTableProps {
 function RecentPaymentsTable({ payments }: RecentPaymentsTableProps) {
   return (
     <div className="bg-base-surface border border-base-border rounded-lg p-3 overflow-x-auto">
-      <table className="w-full text-left">
+      <table className="w-full min-w-[400px] text-left">
         <thead>
           <tr>
             {["Amount", "Category", "Status", "Declared"].map((h) => (

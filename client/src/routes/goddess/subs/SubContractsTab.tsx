@@ -57,8 +57,8 @@ export function SubContractsTab({ subId }: Props) {
       )}
 
       {contracts.length > 0 && (
-        <div className="bg-base-surface border border-base-border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-base-surface border border-base-border rounded-lg overflow-x-auto">
+          <table className="w-full min-w-[400px] text-sm">
             <thead>
               <tr className="border-b border-base-border bg-base-surface-raised text-left">
                 <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">

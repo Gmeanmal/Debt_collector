@@ -18,7 +18,7 @@ export function WeeklyPaymentsRoute() {
           <p className="text-xs font-medium uppercase tracking-[0.3em] text-pink-primary/80">
             The ledger
           </p>
-          <h1 className="mt-3 font-display text-5xl italic leading-none text-base-text">
+          <h1 className="mt-3 font-display text-4xl sm:text-5xl italic leading-none text-base-text">
             Weekly intake.
           </h1>
           <p className="mt-3 text-sm text-base-text-muted max-w-md">

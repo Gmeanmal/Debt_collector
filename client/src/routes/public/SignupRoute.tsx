@@ -68,7 +68,7 @@ export function SignupRoute() {
             Debt Collector
           </h1>
         </div>
-        <div className="bg-base-surface border border-base-border rounded-lg p-8 shadow-[var(--shadow-card)]">
+        <div className="bg-base-surface border border-base-border rounded-lg p-5 sm:p-8 shadow-[var(--shadow-card)]">
           <h2 className="text-xl font-semibold text-base-text mb-6">Create your account</h2>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
@@ -102,7 +102,7 @@ export function SignupRoute() {
               )}
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <div className="flex flex-col gap-1 flex-1">
                 <label htmlFor="first_name" className="text-sm font-medium text-base-text-muted">
                   First name

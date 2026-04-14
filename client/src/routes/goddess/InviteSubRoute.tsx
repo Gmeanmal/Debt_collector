@@ -59,7 +59,7 @@ export function InviteSubRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="w-full max-w-lg mx-auto flex flex-col gap-6">
-        <div className="bg-base-surface border border-base-border rounded-lg p-8 shadow-[var(--shadow-card)]">
+        <div className="bg-base-surface border border-base-border rounded-lg p-5 sm:p-8 shadow-[var(--shadow-card)]">
           <h2 className="text-xl font-semibold text-base-text mb-6">Create Invitation</h2>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
