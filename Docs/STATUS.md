@@ -3,7 +3,7 @@
 > Read on session start. Update on session end.
 
 **Last updated:** 2026-04-14
-**Active phase:** Phase 4 closed → **next is Phase 5 (Rolling Tributes)**
+**Active phase:** Phase 5 closed → **next is Phase 6 (Debt Contracts & Negotiation)**
 **Plan:** `Docs/plans/2026-04-13-debt-app-implementation-plan.md`
 
 ---
@@ -13,6 +13,13 @@
 - **Phase 1** — Foundation: docker infra (Postgres + Mailhog), `make` targets, pre-commit, CI green, `make init-dbs` seeds.
 - **Phase 2** — Auth: login/logout, refresh, password reset via Resend, goddess + admin accounts seeded, `EmailStr` loosened for localhost dev.
 - **Phase 3** — Invitations: create/list/public landing/signup, entry tribute amount on invitation, pending-tribute CTA on sub dashboard.
+- **Phase 5** — Rolling tributes:
+  - `rolling_tribute` table (unique per sub) + alembic migration.
+  - `RollingTributeDao`, `utils/rolling.py` (Europe/London aware deadline + amount_due + days_late).
+  - `RollingController` + router `/goddess/subs/{sub_id}/rolling` (GET/PUT/DELETE).
+  - `PaymentController.validate` wired to `mark_paid` on `rolling` category; rolling unblocked in `_UNSUPPORTED_CATEGORIES`.
+  - Client `RollingEditorRoute` + `RollingForm` + `RollingReadonlyPanel`; reachable via `Manage rolling` picker on home.
+  - Smoke-tested end-to-end via Playwright (save → computed next deadline + amount_due render correctly).
 - **Phase 4** — Payment methods + declarations:
   - Goddess `payment_method` CRUD with drag reorder (`@dnd-kit`), soft-delete via `enabled=false`.
   - `payment_declaration` + `payment_allocation` tables with enums + indices.
@@ -28,32 +35,31 @@
 
 ---
 
-## Next up — Phase 5: Rolling Tributes
+## Next up — Phase 6: Debt Contracts & Negotiation
 
-Plan reference: plan lines 2117–2165.
+Plan reference: plan lines 2169–2253. Spec: `Docs/specs.md` §6.
 
-Deliverables:
-1. `rolling_tribute` table (unique on `sub_id`): amount, deadline_day enum, deadline_time, late_multiplier_per_day, paused, notes, last_paid_at.
-2. Alembic migration with unique index on `sub_id`.
-3. `RollingTributeDAO`: `get_for_sub`, `upsert`, `mark_paid`.
-4. `utils/rolling.py`: `current_cycle_deadline`, `days_late`, `amount_due` (Europe/London aware, naive-UTC out).
-5. Controller + router `/goddess/subs/{sub_id}/rolling` (GET, PUT upsert, DELETE → amount=0).
-6. Wire `PaymentController.validate` to call `mark_paid` when allocation `target_type == rolling_cycle`.
-7. Unblock `PaymentCategory.rolling` in `_UNSUPPORTED_CATEGORIES` (`server/controllers/payment_controller.py:31`) once rolling records exist.
-8. Client: standalone `RollingEditorRoute.tsx` (full `SubDetailRoute` arrives in Phase 9).
+Subtasks (serial due to coupling — model must land first):
+1. **Task 6.1 — Model + migration** — `debt_contract`, `debt_contract_version` (snapshot per counter), `debt_contract_audit` (transition log), all enums, `current_version_id` FK, `sub_initiated` bool.
+2. **Task 6.3 — `utils/finance.py`** — `monthly_rate`, `period_rate`, `simulate`, `exit_due`, `severe_warning` (pure `Decimal` math).
+3. **Task 6.2 — DAO + state-machine controller** — every transition from spec §6.2 as a controller method. Enforce one-round negotiation via `round_no` on version.
+4. **Task 6.4 — Routers** — all endpoints listed in plan (`POST /goddess/subs/{id}/debts`, counter-propose, accept/reject, simulate, list, etc.).
+5. **Task 6.5 — Client** — `ContractFormRoute` (with `recharts` live simulation + severe-warning banner), `ContractReviewRoute` (diff), `ContractSignRoute` (signature placeholder — real canvas lands in Phase 7).
 
-### Suggested subagent split (parallelisable)
+### Suggested subagent split
 
-- Agent A (Sonnet) — model + migration + DAO + `utils/rolling.py`.
-- Agent B (Sonnet) — controller + router + OpenAPI docs.
-- Agent C (Sonnet) — client route + hook + service (after A+B merged so types sync).
-- Opus orchestrator — wires `PaymentController.validate` hook, removes rolling from `_UNSUPPORTED_CATEGORIES`, runs Playwright walkthrough + `make check` + commits.
+- Sonnet A — Task 6.1 (model + enums + migration + schemas + `models/__init__.py`).
+- Sonnet B (after A) — Task 6.3 (`utils/finance.py`) **parallel** with Sonnet C.
+- Sonnet C (after A) — Tasks 6.2 + 6.4 (DAO, controller state machine, router, register in main).
+- Sonnet D (after B+C) — Task 6.5 (client).
+- Opus — Playwright golden-path walk, `make check`, commits per task.
 
 ---
 
 ## Known gates / carry-over
 
-- `PaymentCategory.rolling|weekly_debt|debt_payment|buyout` currently blocked in controller (`payment_controller.py:_check_category_supported`). Unblock progressively: `rolling` in Phase 5, the rest in Phase 6.
+- `PaymentCategory.weekly_debt|debt_payment|buyout` still blocked in `payment_controller.py:_check_category_supported`. Unblock in Phase 6 once debt contracts exist.
+- `utils/rolling.py:current_cycle_deadline` returns naive UTC; the rolling-out schema now marks it tz-aware before emitting (`controllers/rolling_controller.py` `_to_out`). Other endpoints may need the same fix when they compute scheduled-time displays.
 - No tests until Phase 10. Do NOT add pytest/vitest/Playwright test files yet (Playwright *usage* via MCP for manual verification is fine).
 - Seed data: `server/seeds/bootstrap.py` bootstraps goddess + admin. Keep deterministic.
 
