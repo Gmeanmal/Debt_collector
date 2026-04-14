@@ -1,48 +1,48 @@
-/* Dark luxe — default. Warm near-black, cream ink, champagne gold accent. */
+/* Dark dom — default. Deep violet-black, hot barbie pink, gold prestige. */
 :root {
   /* Base surfaces */
-  --color-base-bg: #0a0807;
-  --color-base-surface: #14100d;
-  --color-base-surface-raised: #1d1813;
-  --color-base-border: #2a2118;
-  --color-base-text: #f4ede1;
-  --color-base-text-muted: #a8998a;
-  --color-base-text-subtle: #6b5f53;
+  --color-base-bg: #0a0410;
+  --color-base-surface: #14081e;
+  --color-base-surface-raised: #1f0e2d;
+  --color-base-border: #36204a;
+  --color-base-text: #f7ecff;
+  --color-base-text-muted: #c4afd9;
+  --color-base-text-subtle: #847098;
 
-  /* Champagne gold — primary accent (replaces former pink) */
-  --color-pink-primary: #c9a961;
-  --color-pink-primary-hover: #d6b873;
-  --color-pink-primary-active: #b89651;
-  --color-pink-ring: rgba(201, 169, 97, 0.4);
-  --color-pink-foreground: #14100d;
-  --color-pink-muted: #2a2118;
-  --color-pink-glow: 0 0 60px rgba(201, 169, 97, 0.18);
+  /* Hot pink — primary (barbie dom) */
+  --color-pink-primary: #ff4fa3;
+  --color-pink-primary-hover: #ff6fb5;
+  --color-pink-primary-active: #e6458f;
+  --color-pink-ring: rgba(255, 79, 163, 0.45);
+  --color-pink-foreground: #1a0510;
+  --color-pink-muted: #3a0f22;
+  --color-pink-glow: 0 0 60px rgba(255, 79, 163, 0.35);
 
-  /* Deep oxblood — admin / secondary accent (replaces former violet) */
-  --color-violet-primary: #6b1f1a;
-  --color-violet-primary-hover: #82231d;
-  --color-violet-primary-active: #5a1815;
-  --color-violet-ring: rgba(107, 31, 26, 0.4);
-  --color-violet-foreground: #f4ede1;
-  --color-violet-muted: #1a0e0c;
+  /* Violet — admin / secondary */
+  --color-violet-primary: #a855f7;
+  --color-violet-primary-hover: #b96bff;
+  --color-violet-primary-active: #9333ea;
+  --color-violet-ring: rgba(168, 85, 247, 0.45);
+  --color-violet-foreground: #f7ecff;
+  --color-violet-muted: #2a1140;
 
-  /* Burnished gold — drained, prestige */
-  --color-gold-accent: #d4af37;
-  --color-gold-accent-hover: #e6c14a;
-  --color-gold-foreground: #14100d;
-  --color-gold-ring: rgba(212, 175, 55, 0.4);
+  /* Gold — drained, prestige */
+  --color-gold-accent: #f5c242;
+  --color-gold-accent-hover: #f7cc5a;
+  --color-gold-foreground: #1a1200;
+  --color-gold-ring: rgba(245, 194, 66, 0.45);
 
-  /* Oxblood — debt, late, breach */
-  --color-debt-primary: #a83232;
-  --color-debt-primary-hover: #c53d3d;
-  --color-debt-muted: #2a0e0e;
-  --color-debt-ring: rgba(168, 50, 50, 0.4);
+  /* Crimson — debt, late, breach */
+  --color-debt-primary: #ff3b6c;
+  --color-debt-primary-hover: #ff5a85;
+  --color-debt-muted: #3f0a18;
+  --color-debt-ring: rgba(255, 59, 108, 0.45);
 
-  /* Status (semantic, tuned to luxe palette) */
-  --color-status-danger: #c53d3d;
-  --color-status-warning: #d4a03c;
-  --color-status-success: #6b9a5f;
-  --color-status-info: #5a8da8;
+  /* Status (semantic) */
+  --color-status-danger: #ef4466;
+  --color-status-warning: #f5b042;
+  --color-status-success: #4ade80;
+  --color-status-info: #60a5fa;
 
   /* Radii */
   --radius-xs: 3px;
@@ -53,11 +53,11 @@
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-card: 0 24px 60px -20px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(244, 237, 225, 0.04) inset;
-  --shadow-pink-glow: 0 0 60px rgba(201, 169, 97, 0.18);
-  --shadow-violet-glow: 0 0 60px rgba(107, 31, 26, 0.18);
-  --shadow-gold-glow: 0 0 60px rgba(212, 175, 55, 0.2);
-  --shadow-debt-glow: 0 0 60px rgba(168, 50, 50, 0.2);
+  --shadow-card: 0 24px 60px -20px rgba(20, 5, 30, 0.7), 0 1px 0 rgba(255, 79, 163, 0.06) inset;
+  --shadow-pink-glow: 0 0 60px rgba(255, 79, 163, 0.35);
+  --shadow-violet-glow: 0 0 60px rgba(168, 85, 247, 0.3);
+  --shadow-gold-glow: 0 0 60px rgba(245, 194, 66, 0.3);
+  --shadow-debt-glow: 0 0 60px rgba(255, 59, 108, 0.3);
 
   /* Motion */
   --motion-duration-fast: 140ms;
@@ -65,7 +65,7 @@
   --motion-duration-slow: 360ms;
   --motion-ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* shadcn token aliases (mapped onto luxe palette) */
+  /* shadcn aliases */
   --background: var(--color-base-bg);
   --foreground: var(--color-base-text);
   --card: var(--color-base-surface);
@@ -87,35 +87,36 @@
   --ring: var(--color-pink-ring);
 }
 
-/* Light luxe — paper + ink + deep gold */
+/* Light dom — soft rose paper, hot pink ink, violet accents */
 [data-theme="light"] {
-  --color-base-bg: #f8f4ec;
+  --color-base-bg: #fdf4f9;
   --color-base-surface: #ffffff;
-  --color-base-surface-raised: #f0e9dc;
-  --color-base-border: #e0d6c2;
-  --color-base-text: #1a1410;
-  --color-base-text-muted: #5a4f43;
-  --color-base-text-subtle: #8a7e6f;
+  --color-base-surface-raised: #fce7f1;
+  --color-base-border: #f5c8dd;
+  --color-base-text: #2a0820;
+  --color-base-text-muted: #6b3656;
+  --color-base-text-subtle: #9a6f88;
 
-  --color-pink-primary: #8b6914;
-  --color-pink-primary-hover: #a37b18;
-  --color-pink-primary-active: #6f540f;
+  --color-pink-primary: #e6458f;
+  --color-pink-primary-hover: #ff4fa3;
+  --color-pink-primary-active: #c93a78;
   --color-pink-foreground: #ffffff;
-  --color-pink-muted: #f0e9dc;
+  --color-pink-muted: #fce7f1;
 
-  --color-violet-primary: #6b1f1a;
+  --color-violet-primary: #9333ea;
   --color-violet-foreground: #ffffff;
+  --color-violet-muted: #f3e8ff;
 
-  --color-gold-accent: #8b6914;
+  --color-gold-accent: #c89020;
   --color-gold-foreground: #ffffff;
 
-  --color-debt-primary: #9a2a2a;
-  --color-debt-muted: #f5e0e0;
+  --color-debt-primary: #d4174f;
+  --color-debt-muted: #ffe0e8;
 
-  --color-status-danger: #9a2a2a;
-  --color-status-warning: #a8801f;
-  --color-status-success: #4a7a3f;
-  --color-status-info: #3a6e8a;
+  --color-status-danger: #d4174f;
+  --color-status-warning: #c8841a;
+  --color-status-success: #2f9c5e;
+  --color-status-info: #2563eb;
 
-  --shadow-card: 0 24px 60px -20px rgba(60, 40, 20, 0.18), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  --shadow-card: 0 24px 60px -20px rgba(230, 69, 143, 0.2), 0 1px 0 rgba(255, 255, 255, 0.8) inset;
 }

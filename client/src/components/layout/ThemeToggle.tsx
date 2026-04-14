@@ -37,7 +37,7 @@ export function ThemeToggle() {
             className={cn(
               "flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200",
               active
-                ? "bg-pink-primary text-pink-foreground shadow-[0_0_0_1px_rgba(201,169,97,0.4)_inset]"
+                ? "bg-pink-primary text-pink-foreground shadow-[0_0_0_1px_rgba(255,79,163,0.55)_inset]"
                 : "text-base-text-subtle hover:text-base-text",
             )}
           >

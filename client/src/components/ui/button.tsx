@@ -9,7 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover shadow-[0_0_0_1px_rgba(201,169,97,0.3)_inset,0_8px_24px_-12px_rgba(201,169,97,0.4)] hover:shadow-[0_0_0_1px_rgba(201,169,97,0.5)_inset,0_12px_32px_-12px_rgba(201,169,97,0.55)] active:translate-y-px",
+          "bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover shadow-[0_0_0_1px_rgba(255,79,163,0.4)_inset,0_8px_24px_-12px_rgba(255,79,163,0.5)] hover:shadow-[0_0_0_1px_rgba(255,79,163,0.6)_inset,0_12px_32px_-12px_rgba(255,79,163,0.65)] active:translate-y-px",
         secondary:
           "bg-base-surface-raised text-base-text border border-base-border hover:border-pink-primary/40 hover:text-pink-primary",
         ghost: "text-base-text-muted hover:text-base-text hover:bg-base-surface-raised/60",

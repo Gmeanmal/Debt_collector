@@ -29,7 +29,7 @@ export function StatCard({ label, value, sublabel, trend, accent = "default" }: 
       className={cn(
         "luxe-surface relative isolate overflow-hidden rounded-lg p-5 flex flex-col gap-2 min-w-0 transition-all duration-300",
         "before:absolute before:inset-x-0 before:-top-px before:h-px",
-        "after:absolute after:inset-0 after:bg-[radial-gradient(ellipse_at_top,rgba(201,169,97,0.04),transparent_60%)] after:opacity-0 after:transition-opacity after:duration-300",
+        "after:absolute after:inset-0 after:bg-[radial-gradient(ellipse_at_top,rgba(255,79,163,0.08),transparent_60%)] after:opacity-0 after:transition-opacity after:duration-300",
         "hover:after:opacity-100",
         ACCENT_GLOW[accent],
       )}

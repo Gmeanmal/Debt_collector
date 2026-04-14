@@ -70,13 +70,13 @@ body {
   font-family: var(--font-sans);
   font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
-  background-image: radial-gradient(ellipse at top left, rgba(201, 169, 97, 0.05), transparent 50%),
-    radial-gradient(ellipse at bottom right, rgba(107, 31, 26, 0.04), transparent 50%);
+  background-image: radial-gradient(ellipse at top left, rgba(255, 79, 163, 0.08), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.07), transparent 55%);
   background-attachment: fixed;
 }
 html[data-theme="light"] body {
-  background-image: radial-gradient(ellipse at top left, rgba(139, 105, 20, 0.04), transparent 50%),
-    radial-gradient(ellipse at bottom right, rgba(154, 42, 42, 0.03), transparent 50%);
+  background-image: radial-gradient(ellipse at top left, rgba(255, 79, 163, 0.08), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.05), transparent 55%);
 }
 
 /* Display headings — serif by default at h1/h2 sizes */
@@ -100,7 +100,7 @@ h2,
 
 /* Glass surface helper — subtle gradient + inset highlight */
 .luxe-surface {
-  background: linear-gradient(180deg, rgba(244, 237, 225, 0.02), transparent 40%),
+  background: linear-gradient(180deg, rgba(255, 79, 163, 0.04), transparent 40%),
     var(--color-base-surface);
   border: 1px solid var(--color-base-border);
   box-shadow: var(--shadow-card);
