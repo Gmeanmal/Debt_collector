@@ -10,6 +10,7 @@ from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.allocation_dao import PaymentAllocationDao
 from daos.payment_dao import PaymentDeclarationDao
 from daos.payment_method_dao import PaymentMethodDao
+from daos.rolling_dao import RollingTributeDao
 from daos.user_dao import UserDao
 from models.payment import (
     AllocationTargetType,
@@ -29,7 +30,6 @@ from schemas.payment import (
 )
 
 _UNSUPPORTED_CATEGORIES = {
-    PaymentCategory.rolling,
     PaymentCategory.weekly_debt,
     PaymentCategory.debt_payment,
     PaymentCategory.buyout,
@@ -38,14 +38,13 @@ _UNSUPPORTED_CATEGORIES = {
 _CATEGORY_TO_ALLOCATION_TARGET: dict[PaymentCategory, AllocationTargetType] = {
     PaymentCategory.entry: AllocationTargetType.entry,
     PaymentCategory.tribute: AllocationTargetType.tribute,
+    PaymentCategory.rolling: AllocationTargetType.rolling_cycle,
 }
 
 
 def _check_category_supported(category: PaymentCategory) -> None:
     if category in _UNSUPPORTED_CATEGORIES:
-        # TODO(phase5): rolling requires active rolling tribute record
-        # TODO(phase6): weekly_debt/debt_payment/buyout require active debt contract
-        raise BadRequest("category not yet supported — requires rollings/contracts module")
+        raise BadRequest("category not yet supported — requires contracts module")
 
 
 def _check_category_for_sub(sub: User, category: PaymentCategory) -> None:
@@ -151,9 +150,17 @@ class PaymentController:
         self._alloc_dao = PaymentAllocationDao(session)
         self._method_dao = PaymentMethodDao(session)
         self._user_dao = UserDao(session)
+        self._rolling_dao = RollingTributeDao(session)
+
+    async def _check_rolling_active(self, sub_id: UUID) -> None:
+        record = await self._rolling_dao.get_for_sub(sub_id)
+        if record is None or Decimal(str(record.amount)) == Decimal("0") or record.paused:
+            raise BadRequest("no active rolling tribute configured for this sub")
 
     async def declare_as_sub(self, sub_user: User, payload: DeclarePaymentIn) -> PaymentOut:
         _check_category_for_sub(sub_user, payload.category)
+        if payload.category == PaymentCategory.rolling:
+            await self._check_rolling_active(sub_user.id)
 
         if sub_user.goddess_id is None:
             raise BadRequest("sub is not linked to a goddess")
@@ -185,6 +192,8 @@ class PaymentController:
             raise NotFound("sub not found or not linked to this goddess")
 
         _check_category_for_sub(sub, payload.category)
+        if payload.category == PaymentCategory.rolling:
+            await self._check_rolling_active(sub.id)
         await _get_method_for_goddess(self._method_dao, goddess_id, payload.method_id)
 
         now = datetime.now(UTC).replace(tzinfo=None)
@@ -208,6 +217,8 @@ class PaymentController:
         await self._emit_allocation(decl)
         if payload.category == PaymentCategory.entry:
             await self._promote_sub(sub)
+        if payload.category == PaymentCategory.rolling:
+            await self._rolling_dao.mark_paid(sub.id, now)
 
         return await _to_out(self._session, decl)
 
@@ -224,6 +235,8 @@ class PaymentController:
 
         if "category" in patch_dict:
             _check_category_for_sub(sub_user, patch_dict["category"])
+            if patch_dict["category"] == PaymentCategory.rolling:
+                await self._check_rolling_active(sub_user.id)
 
         if "method_id" in patch_dict:
             if sub_user.goddess_id is None:
@@ -264,6 +277,8 @@ class PaymentController:
             raise NotFound("sub not found")
 
         _check_category_for_sub(sub, category)
+        if category == PaymentCategory.rolling:
+            await self._check_rolling_active(decl.sub_id)
 
         now = datetime.now(UTC).replace(tzinfo=None)
         await self._decl_dao.mark_validated(decl, goddess_user.id, now, category)
@@ -271,6 +286,8 @@ class PaymentController:
 
         if category == PaymentCategory.entry:
             await self._promote_sub(sub)
+        if category == PaymentCategory.rolling:
+            await self._rolling_dao.mark_paid(decl.sub_id, now)
 
         return await _to_out(self._session, decl)
 

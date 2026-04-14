@@ -444,6 +444,34 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/goddess/subs/{sub_id}/rolling/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get rolling tribute for a sub
+     * @description Returns the rolling tribute configuration for the given sub. Includes computed fields: `current_cycle_deadline`, `amount_due`, and `days_late`. Returns `null` if no rolling tribute has been configured yet.
+     */
+    get: operations["get_rolling_tribute_goddess_subs__sub_id__rolling__get"];
+    /**
+     * Upsert rolling tribute for a sub
+     * @description Creates or replaces the rolling tribute configuration for the given sub. If a record already exists it is updated in place. Returns the full record with computed deadline and amount fields.
+     */
+    put: operations["upsert_rolling_tribute_goddess_subs__sub_id__rolling__put"];
+    post?: never;
+    /**
+     * Clear rolling tribute for a sub
+     * @description Disables the rolling tribute by setting `amount=0` and `paused=true`. The record is retained for audit purposes — it is not deleted. Raises 404 if no rolling tribute has been configured for this sub.
+     */
+    delete: operations["clear_rolling_tribute_goddess_subs__sub_id__rolling__delete"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -484,6 +512,11 @@ export interface components {
       | "contract_debt"
       | "contract_buyout"
       | "tribute";
+    /**
+     * DeadlineDay
+     * @enum {string}
+     */
+    DeadlineDay: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
     /** DeclarePaymentIn */
     DeclarePaymentIn: {
       /**
@@ -673,7 +706,6 @@ export interface components {
     PasswordResetRequest: {
       /**
        * Email
-       * Format: email
        * @description Email address of the account to reset
        * @example sub@example.com
        */
@@ -1023,6 +1055,137 @@ export interface components {
        */
       method_ids: string[];
     };
+    /** RollingTributeIn */
+    RollingTributeIn: {
+      /**
+       * Amount
+       * @description Weekly tribute amount in GBP
+       * @example 50.00
+       */
+      amount: number | string;
+      /**
+       * @description Day of the week the tribute is due
+       * @example fri
+       */
+      deadline_day: components["schemas"]["DeadlineDay"];
+      /**
+       * Deadline Time
+       * Format: time
+       * @description Time of day the tribute is due (London local time, HH:MM)
+       * @example 18:00:00
+       */
+      deadline_time: string;
+      /**
+       * Late Multiplier Per Day
+       * @description Amount multiplier added per day late (0 = no late penalty)
+       * @default 1
+       * @example 1
+       */
+      late_multiplier_per_day: number;
+      /**
+       * Paused
+       * @description When true the tribute cycle is suspended
+       * @default false
+       * @example false
+       */
+      paused: boolean;
+      /**
+       * Notes
+       * @description Optional private notes visible to the Goddess only
+       * @example Paused for holiday week
+       */
+      notes?: string | null;
+    };
+    /** RollingTributeOut */
+    RollingTributeOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Rolling tribute record UUID
+       * @example 00000000-0000-0000-0000-000000000001
+       */
+      id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description UUID of the sub this tribute belongs to
+       * @example 00000000-0000-0000-0000-000000000002
+       */
+      sub_id: string;
+      /**
+       * Amount
+       * @description Configured weekly tribute amount in GBP
+       * @example 50.00
+       */
+      amount: string;
+      /**
+       * @description Day of the week the tribute is due
+       * @example fri
+       */
+      deadline_day: components["schemas"]["DeadlineDay"];
+      /**
+       * Deadline Time
+       * Format: time
+       * @description Time of day the tribute is due (London local time)
+       * @example 18:00:00
+       */
+      deadline_time: string;
+      /**
+       * Late Multiplier Per Day
+       * @description Amount multiplier added per day late
+       * @example 1
+       */
+      late_multiplier_per_day: number;
+      /**
+       * Paused
+       * @description Whether the tribute cycle is currently paused
+       * @example false
+       */
+      paused: boolean;
+      /**
+       * Notes
+       * @description Optional private notes
+       * @example Paused for holiday week
+       */
+      notes?: string | null;
+      /**
+       * Last Paid At
+       * @description UTC datetime of the most recent validated rolling payment
+       * @example null
+       */
+      last_paid_at?: string | null;
+      /**
+       * Current Cycle Deadline
+       * Format: date-time
+       * @description UTC datetime of the next (or current) cycle deadline
+       * @example 2026-04-18T18:00:00
+       */
+      current_cycle_deadline: string;
+      /**
+       * Amount Due
+       * @description Amount currently owed including any late penalty (GBP)
+       * @example 50.00
+       */
+      amount_due: string;
+      /**
+       * Days Late
+       * @description Number of calendar days past the last deadline (0 if on time or paused)
+       * @example 0
+       */
+      days_late: number;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime when this record was created
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description UTC datetime when this record was last updated
+       */
+      updated_at: string;
+    };
     /** SignupRequest */
     SignupRequest: {
       /**
@@ -1095,7 +1258,6 @@ export interface components {
       id: string;
       /**
        * Email
-       * Format: email
        * @description User email
        * @example sub@example.com
        */
@@ -2535,6 +2697,189 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["HTTPValidationError"];
         };
+      };
+    };
+  };
+  get_rolling_tribute_goddess_subs__sub_id__rolling__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        sub_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RollingTributeOut"] | null;
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — sub does not exist or is not linked to this goddess */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  upsert_rolling_tribute_goddess_subs__sub_id__rolling__put: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        sub_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RollingTributeIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RollingTributeOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — sub does not exist or is not linked to this goddess */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  clear_rolling_tribute_goddess_subs__sub_id__rolling__delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        sub_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — caller is not a goddess or has no goddess profile */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — sub does not exist or is not linked to this goddess */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

@@ -6,6 +6,8 @@ from models.payment import PaymentDeclaration as PaymentDeclaration
 from models.payment import PaymentStatus as PaymentStatus
 from models.payment_method import PaymentMethod as PaymentMethod
 from models.payment_method import PaymentMethodType as PaymentMethodType
+from models.rolling import DeadlineDay as DeadlineDay
+from models.rolling import RollingTribute as RollingTribute
 from models.user import Goddess as Goddess
 from models.user import PasswordResetToken as PasswordResetToken
 from models.user import RefreshToken as RefreshToken

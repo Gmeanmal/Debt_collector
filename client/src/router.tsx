@@ -11,6 +11,7 @@ import { InvitationsListRoute } from "./routes/goddess/InvitationsListRoute";
 import { PaymentMethodsRoute } from "./routes/goddess/PaymentMethodsRoute";
 import { PendingValidationsRoute } from "./routes/goddess/PendingValidationsRoute";
 import { RecordPaymentRoute } from "./routes/goddess/RecordPaymentRoute";
+import { RollingEditorRoute } from "./routes/goddess/RollingEditorRoute";
 import { InviteLandingRoute } from "./routes/public/InviteLandingRoute";
 import { SignupRoute } from "./routes/public/SignupRoute";
 import { PendingEntryTributeRoute } from "./routes/sub/PendingEntryTributeRoute";
@@ -99,6 +100,16 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
           <RecordPaymentRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/subs/:subId/rolling",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <RollingEditorRoute />
         </RoleProtectedRoute>
       </ProtectedRoute>
     ),

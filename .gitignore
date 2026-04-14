@@ -175,3 +175,4 @@ backend/generated_pdfs/
 # Plannotator output
 .plannotator/
 .playwright-mcp/
+.claude/scheduled_tasks.lock
