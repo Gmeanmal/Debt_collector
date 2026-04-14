@@ -12,13 +12,7 @@ import { DateTimePicker } from "@/components/ui/date-time-picker";
 const ACTIVE_CATEGORIES: { value: PaymentCategory; label: string }[] = [
   { value: "entry", label: "Entry tribute" },
   { value: "tribute", label: "Tribute" },
-];
-
-const FUTURE_CATEGORIES = [
   { value: "rolling", label: "Rolling tribute" },
-  { value: "weekly_debt", label: "Weekly debt" },
-  { value: "debt_payment", label: "Debt payment" },
-  { value: "buyout", label: "Buyout" },
 ];
 
 const AMOUNT_RE = /^\d+(\.\d{1,2})?$/;
@@ -108,23 +102,9 @@ export function PaymentFormRoute() {
                   </label>
                 );
               })}
-              {FUTURE_CATEGORIES.map(({ value, label }) => (
-                <label
-                  key={value}
-                  className="flex items-center gap-2 text-sm opacity-40 cursor-not-allowed"
-                >
-                  <input
-                    type="radio"
-                    name="category"
-                    value={value}
-                    disabled
-                    className="accent-pink-primary"
-                  />
-                  <span className="text-base-text-muted">
-                    {label} <span className="text-xs text-base-text-subtle">(Coming soon)</span>
-                  </span>
-                </label>
-              ))}
+              <p className="text-xs text-base-text-subtle mt-1">
+                Contract payments (weekly debt, buyout, …) are declared from the contract page.
+              </p>
             </div>
           </fieldset>
 

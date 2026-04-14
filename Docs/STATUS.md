@@ -87,9 +87,8 @@ All planned phases 1–10 shipped. Outstanding:
 
 ## Known gates / carry-over
 
-- `PaymentCategory.weekly_debt|debt_payment|buyout` still blocked in `payment_controller.py:_check_category_supported`. Wire through debt-contract-aware validation in Phase 8 (tribute events).
+- All `PaymentCategory` values are now wired through the controller (`_UNSUPPORTED_CATEGORIES = set()`); contract-bound categories (`weekly_debt` / `debt_payment` / `buyout`) are declared from contract detail pages, not the generic payment form.
 - `utils/rolling.py:current_cycle_deadline` returns naive UTC; the rolling-out schema now marks it tz-aware before emitting (`controllers/rolling_controller.py` `_to_out`). Other endpoints may need the same fix when they compute scheduled-time displays.
-- No tests until Phase 10. Do NOT add pytest/vitest/Playwright test files yet (Playwright *usage* via MCP for manual verification is fine).
 - Seed data: `server/seeds/bootstrap.py` bootstraps goddess + admin. Keep deterministic.
 
 ---
