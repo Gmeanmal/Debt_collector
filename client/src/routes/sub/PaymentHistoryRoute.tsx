@@ -6,12 +6,28 @@ import {
   editDeclarationApi,
   listMyPaymentsApi,
   listSubPaymentMethodsApi,
+  type DeclarationSource,
   type PaymentOut,
 } from "@/services/payments/paymentsApi";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
+
+const SOURCE_LABEL: Record<DeclarationSource, string> = {
+  sub_declared: "Self-declared",
+  goddess_requested: "Goddess-requested",
+  goddess_recorded: "Goddess-recorded",
+};
+
+type BadgeVariant = "default" | "primary" | "debt";
+
+const SOURCE_VARIANT: Record<DeclarationSource, BadgeVariant> = {
+  sub_declared: "default",
+  goddess_requested: "primary",
+  goddess_recorded: "debt",
+};
 
 const STATUS_CHIP: Record<string, string> = {
   pending: "bg-status-warning/20 text-status-warning",
@@ -194,6 +210,9 @@ export function PaymentHistoryRoute() {
                   <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-base-surface-raised text-base-text-muted capitalize">
                     {p.category.replace(/_/g, " ")}
                   </span>
+                  <Badge variant={SOURCE_VARIANT[p.source as DeclarationSource] ?? "default"}>
+                    {SOURCE_LABEL[p.source as DeclarationSource] ?? p.source}
+                  </Badge>
                 </div>
 
                 {p.status === "pending" && (

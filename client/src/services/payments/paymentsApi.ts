@@ -10,6 +10,7 @@ export type RejectIn = components["schemas"]["RejectIn"];
 export type PaymentOut = components["schemas"]["PaymentOut"];
 export type PaymentCategory = components["schemas"]["PaymentCategory"];
 export type PaymentStatus = components["schemas"]["PaymentStatus"];
+export type DeclarationSource = components["schemas"]["DeclarationSource"];
 export type PaymentMethodOut = components["schemas"]["PaymentMethodOut"];
 
 function authHeaders(): Record<string, string> {

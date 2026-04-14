@@ -19,6 +19,7 @@ from models.debt_event import DebtEvent, EventType
 from models.notification import NotificationType
 from models.payment import (
     AllocationTargetType,
+    DeclarationSource,
     PaymentAllocation,
     PaymentCategory,
     PaymentDeclaration,
@@ -150,6 +151,7 @@ async def _to_out(session: AsyncSession, decl: PaymentDeclaration) -> PaymentOut
         validated_at=decl.validated_at,
         validated_by=decl.validated_by,
         rejection_reason=decl.rejection_reason,
+        source=decl.source,
         allocation=alloc_out,
     )
 
@@ -193,6 +195,7 @@ class PaymentController:
                 "status": PaymentStatus.pending,
                 "target_id": payload.target_id,
                 "created_by": sub_user.id,
+                "source": DeclarationSource.sub_declared,
             }
         )
 
@@ -237,6 +240,7 @@ class PaymentController:
                 "created_by": goddess_user.id,
                 "validated_by": goddess_user.id,
                 "validated_at": now,
+                "source": DeclarationSource.goddess_recorded,
             }
         )
 

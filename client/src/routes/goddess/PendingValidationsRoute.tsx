@@ -4,15 +4,31 @@ import {
   listPendingPaymentsApi,
   rejectDeclarationApi,
   validateDeclarationApi,
+  type DeclarationSource,
   type PaymentCategory,
   type PaymentOut,
 } from "@/services/payments/paymentsApi";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
 
 const CATEGORIES: PaymentCategory[] = ["entry", "tribute"];
+
+const SOURCE_LABEL: Record<DeclarationSource, string> = {
+  sub_declared: "Self-declared",
+  goddess_requested: "Goddess-requested",
+  goddess_recorded: "Goddess-recorded",
+};
+
+type BadgeVariant = "default" | "primary" | "debt";
+
+const SOURCE_VARIANT: Record<DeclarationSource, BadgeVariant> = {
+  sub_declared: "default",
+  goddess_requested: "primary",
+  goddess_recorded: "debt",
+};
 
 function formatDate(dt: string) {
   return new Date(dt).toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" });
@@ -145,6 +161,12 @@ export function PendingValidationsRoute() {
                     {p.category.replace(/_/g, " ")} · {formatDate(p.declared_at)}
                     {p.method_name && ` · ${p.method_name}`}
                   </p>
+                  <Badge
+                    variant={SOURCE_VARIANT[p.source as DeclarationSource] ?? "default"}
+                    className="mt-1"
+                  >
+                    {SOURCE_LABEL[p.source as DeclarationSource] ?? p.source}
+                  </Badge>
                   {p.note && <p className="text-xs text-base-text-subtle italic mt-1">{p.note}</p>}
                 </div>
 

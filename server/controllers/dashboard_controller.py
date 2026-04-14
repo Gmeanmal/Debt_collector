@@ -268,6 +268,7 @@ class DashboardController:
             validated_at=decl.validated_at,
             validated_by=decl.validated_by,
             rejection_reason=decl.rejection_reason,
+            source=decl.source,
             allocation=alloc_out,
         )
 

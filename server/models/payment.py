@@ -6,6 +6,12 @@ from sqlalchemy import Column, ForeignKey, Index, Numeric, UniqueConstraint
 from sqlmodel import Field, SQLModel
 
 
+class DeclarationSource(StrEnum):
+    sub_declared = "sub_declared"
+    goddess_requested = "goddess_requested"
+    goddess_recorded = "goddess_recorded"
+
+
 class PaymentCategory(StrEnum):
     entry = "entry"
     rolling = "rolling"
@@ -83,6 +89,11 @@ class PaymentDeclaration(SQLModel, table=True):
         )
     )
     rejection_reason: str | None = Field(default=None, nullable=True)
+    source: DeclarationSource = Field(
+        default=DeclarationSource.sub_declared,
+        nullable=False,
+        index=True,
+    )
 
 
 class PaymentAllocation(SQLModel, table=True):

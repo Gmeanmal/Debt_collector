@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from models.payment import AllocationTargetType, PaymentCategory, PaymentStatus
+from models.payment import AllocationTargetType, DeclarationSource, PaymentCategory, PaymentStatus
 
 
 class DeclarePaymentIn(BaseModel):
@@ -163,6 +163,11 @@ class PaymentOut(BaseModel):
     )
     rejection_reason: str | None = Field(
         default=None, description="Reason for rejection if rejected"
+    )
+    source: DeclarationSource = Field(
+        ...,
+        description="Who declared this payment.",
+        examples=["sub_declared"],
     )
     allocation: AllocationOut | None = Field(
         default=None, description="Allocation record if validated"
