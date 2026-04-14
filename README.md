@@ -173,6 +173,25 @@ After modifying SQLModel models always run `make migration m="…"`, inspect the
 
 After adding/editing any FastAPI route or Pydantic schema, regenerate the client types before touching the frontend: `cd client && pnpm sync-types` (server must be running on :8000). Commit the updated `src/types/api.generated.ts` alongside the backend change — the file is checked in so `tsc` can run without the server up.
 
+## Environment variables
+
+Full list with inline comments lives in `server/.env.example` and `client/.env.example`. Quick reference for the non-obvious ones:
+
+| Var                          | Default                | Purpose                                                                 |
+| ---------------------------- | ---------------------- | ----------------------------------------------------------------------- |
+| `DATABASE_URL`               | local Postgres         | asyncpg connection string; must point at the Docker Postgres            |
+| `JWT_SECRET_KEY`             | `change-me-…`          | signs access + refresh tokens; **must be rotated in production**        |
+| `JWT_ACCESS_TTL_MINUTES`     | `15`                   | access-token lifetime                                                   |
+| `JWT_REFRESH_TTL_DAYS`       | `30`                   | refresh-cookie lifetime                                                 |
+| `PASSWORD_RESET_TTL_MINUTES` | `30`                   | password-reset JWT lifetime (spec §4.2 baseline is 60 — dev-tightened)  |
+| `EMAIL_DRIVER`               | `smtp`                 | `smtp` (dev → Mailhog) or `resend` (prod → Resend API)                  |
+| `RESEND_API_KEY`             | empty                  | required when `EMAIL_DRIVER=resend`                                     |
+| `CRON_ENABLED`               | `true` (implicit)      | APScheduler fires daily at 08:00 Europe/London; disable for tests       |
+| `APP_TIMEZONE`               | `Europe/London`        | business-rule timezone; all deadlines + cron times derive from it       |
+| `R2_*`                       | empty                  | Cloudflare R2 bucket for signed contract PDFs (prod only)               |
+| `ADMIN_*` / `GODDESS_*`      | see `.env.example`     | bootstrap credentials seeded on first `make init-dbs`                   |
+| `VITE_API_BASE_URL`          | `http://localhost:8000`| client-side base for openapi-fetch                                      |
+
 ## Deploy
 
 See [`DEPLOY.md`](./DEPLOY.md) for the Hetzner playbook.

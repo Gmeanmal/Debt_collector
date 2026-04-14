@@ -14,7 +14,7 @@ help:
 	@echo "  reset-dbs     alias for init-dbs"
 	@echo "  fmt           format server (ruff) + client (prettier)"
 	@echo "  lint          lint server (ruff) + client (eslint)"
-	@echo "  typecheck     mypy on server, tsc --noEmit on client"
+	@echo "  typecheck     pyright strict on server, tsc --noEmit on client"
 	@echo "  check         fmt + lint + typecheck + tests (ci-equivalent)"
 
 install:

@@ -54,6 +54,9 @@ Rules:
 - UUIDs are never shown to `sub` or `goddess` users. Only the `admin` role may see raw UUIDs in tables/detail pages. Display `display_name` + `username` instead.
 - Payment declarations carry a `source` enum (`sub_declared` | `goddess_recorded`). Always render via a `Badge` in history/validation lists so the origin of a tribute is visible.
 
+### Diagrams
+`Docs/diagrams.html` bundles every Mermaid flow (auth, invitation, payment declaration, cron, contract state machine). Refresh it whenever a major flow changes — it is the visual companion to `Docs/specs.md`.
+
 ### Read-model endpoints
 Dashboard/aggregation views that don't map to a single CRUD resource (e.g. weekly payments, late subs, 30-day planning) live under role-prefixed read-only routes (`GET /goddess/payments/weekly`, `GET /goddess/subs/late`, `GET /sub/planning`). They return pre-aggregated DTOs; no write verbs. Keep aggregation in the controller layer, never in the router.
 
