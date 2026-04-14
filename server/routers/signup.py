@@ -1,12 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.invitation_controller import InvitationController
+from core.config import get_settings
 from core.db import get_session
+from core.rate_limit import limiter
 from schemas.auth import TokenPair
 from schemas.invitation import SignupRequest
 
 router = APIRouter(prefix="/invite", tags=["invitations"])
+
+_settings = get_settings()
 
 _ERROR_400 = {"description": "Bad request — duplicate email or username"}
 _ERROR_404 = {"description": "Not found — token does not exist"}
@@ -35,10 +39,13 @@ def _build_controller(session: AsyncSession = Depends(get_session)) -> Invitatio
         404: _ERROR_404,
         409: _ERROR_409,
         422: _ERROR_422,
+        429: {"description": "Too many requests — rate limit exceeded"},
         500: _ERROR_500,
     },
 )
+@limiter.limit(lambda: _settings.rate_limit_signup)  # type: ignore[misc]
 async def signup_via_invite(
+    request: Request,
     token: str,
     body: SignupRequest,
     session: AsyncSession = Depends(get_session),

@@ -2,11 +2,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from core.config import get_settings
 from core.db import engine
 from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
+from core.rate_limit import limiter, rate_limit_exceeded_handler
 from middleware.security_headers import SecurityHeadersMiddleware
 from routers import (
     adjustments,
@@ -57,7 +60,14 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="Debt Collector API", version="0.1.0", lifespan=lifespan)
 
+app.state.limiter = limiter
+
 _settings = get_settings()
+
+if _settings.rate_limit_enabled:
+    app.add_middleware(SlowAPIMiddleware)
+    app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)  # type: ignore[arg-type]
+
 app.add_middleware(
     SecurityHeadersMiddleware,
     enable_hsts=_settings.refresh_cookie_secure,

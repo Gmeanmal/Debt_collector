@@ -25,6 +25,7 @@ dependencies = [
     "websockets>=13.1",
     "tzdata",
     "aiosmtplib>=5.1.0",
+    "slowapi>=0.1.9",
 ]
 
 [dependency-groups]
