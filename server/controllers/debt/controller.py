@@ -465,6 +465,20 @@ class DebtController:
         storage = get_storage_service()
         return await storage.presign_download(contract.signed_pdf_url)
 
+    async def read_pdf_bytes(self, viewer: User, contract_id: UUID) -> bytes:
+        """Return raw signed PDF bytes (fake storage path)."""
+        contract = await self._get_contract_or_404(contract_id)
+        await self._assert_viewer_can_see(viewer, contract)
+
+        if contract.signed_pdf_url is None:
+            raise NotFound("contract has no signed PDF")
+
+        storage = get_storage_service()
+        try:
+            return await storage.fetch_bytes(contract.signed_pdf_url)
+        except FileNotFoundError as exc:
+            raise NotFound("signed PDF file missing") from exc
+
     async def close_as_goddess(self, goddess_user: User, contract_id: UUID) -> DebtContractOut:
         """Goddess cancels a pending contract."""
         contract = await self._get_contract_or_404(contract_id)

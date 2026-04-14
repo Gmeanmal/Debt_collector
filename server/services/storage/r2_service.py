@@ -44,3 +44,12 @@ class R2StorageService:
                 ExpiresIn=ttl,
             )
         return cast(str, url)
+
+    async def fetch_bytes(self, key: str) -> bytes:
+        async with self._client_ctx() as client:
+            response = await client.get_object(Bucket=self._bucket, Key=key)
+            async with response["Body"] as stream:
+                return cast(bytes, await stream.read())
+
+    def supports_direct_fetch(self) -> bool:
+        return False

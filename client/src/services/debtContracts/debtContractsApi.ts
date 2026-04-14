@@ -109,6 +109,11 @@ export async function downloadContractPdfApi(contractId: string): Promise<string
   if (!response.ok) {
     throw new Error(`Failed to fetch contract PDF (${response.status})`);
   }
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/pdf")) {
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+  }
   return response.url;
 }
 

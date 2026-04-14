@@ -1,7 +1,7 @@
 from decimal import Decimal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +19,7 @@ from schemas.debt import (
     DebtSimulationOut,
     DebtSimulationPeriod,
 )
+from services.storage import get_storage_service
 from utils.finance import monthly_rate, period_rate, severe_warning, simulate
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
@@ -239,16 +240,21 @@ async def sign_as_sub(
     "/debts/{contract_id}/pdf",
     summary="Download the signed contract PDF",
     description=(
-        "Returns a 302 redirect to a short-lived presigned URL for the contract's signed PDF. "
-        "Accessible to the contract's sub and to the owning goddess. "
+        "Returns the signed contract PDF. In production the response is a 302 redirect "
+        "to a short-lived presigned R2 URL; in dev (fake storage) the bytes are streamed "
+        "inline. Accessible to the contract's sub and to the owning goddess. "
         "Returns 404 when the contract has not been signed yet."
     ),
-    response_class=RedirectResponse,
+    response_class=Response,
     response_model=None,
-    status_code=302,
+    status_code=200,
     tags=["debt-contracts"],
     responses={
-        302: {"description": "Redirect to the presigned PDF URL"},
+        200: {
+            "description": "Signed contract PDF bytes (fake storage)",
+            "content": {"application/pdf": {}},
+        },
+        302: {"description": "Redirect to the presigned PDF URL (R2)"},
         401: _E401,
         403: _E403,
         404: _E404,
@@ -259,7 +265,17 @@ async def download_contract_pdf(
     contract_id: UUID,
     user: User = Depends(get_current_user),
     ctrl: DebtController = Depends(_build_controller),
-) -> RedirectResponse:
+) -> Response:
+    storage = get_storage_service()
+    if storage.supports_direct_fetch():
+        data = await ctrl.read_pdf_bytes(user, contract_id)
+        return Response(
+            content=data,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'inline; filename="contract-{contract_id}.pdf"',
+            },
+        )
     url = await ctrl.download_pdf(user, contract_id)
     return RedirectResponse(url=url, status_code=302)
 
