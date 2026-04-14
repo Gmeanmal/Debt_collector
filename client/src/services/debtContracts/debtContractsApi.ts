@@ -15,6 +15,12 @@ export type InterestPeriod = components["schemas"]["InterestPeriod"];
 export type PaymentFrequency = components["schemas"]["PaymentFrequency"];
 export type LatePenaltySeverity = components["schemas"]["LatePenaltySeverity"];
 export type MidContractAdditionMode = components["schemas"]["MidContractAdditionMode"];
+export type BuyoutIntentOut = components["schemas"]["BuyoutIntentOut"];
+export type SurprisePenaltyIn = components["schemas"]["SurprisePenaltyIn"];
+export type AdjustmentCreateIn = components["schemas"]["AdjustmentCreateIn"];
+export type ContractAdjustmentOut = components["schemas"]["ContractAdjustmentOut"];
+export type AdjustmentStatus = components["schemas"]["AdjustmentStatus"];
+export type PaymentMethodOut = components["schemas"]["PaymentMethodOut"];
 
 function authHeaders(): Record<string, string> {
   const token = getAccessToken();
@@ -146,6 +152,67 @@ export async function listGoddessDebtsApi(): Promise<DebtContractOut[]> {
     headers: authHeaders(),
   });
   if (error || !data) throw new Error(extractMessage(error, "Failed to list contracts"));
+  return data;
+}
+
+export async function buyoutIntentApi(contractId: string): Promise<BuyoutIntentOut> {
+  const { data, error } = await apiClient.POST("/sub/debts/{contract_id}/buyout-intent", {
+    params: { path: { contract_id: contractId } },
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to quote buyout"));
+  return data;
+}
+
+export async function surprisePenaltyApi(
+  contractId: string,
+  body: SurprisePenaltyIn,
+): Promise<DebtContractOut> {
+  const { data, error } = await apiClient.POST("/goddess/debts/{contract_id}/surprise-penalty", {
+    params: { path: { contract_id: contractId } },
+    body,
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to apply surprise penalty"));
+  return data;
+}
+
+export async function createAdjustmentApi(
+  contractId: string,
+  body: AdjustmentCreateIn,
+): Promise<ContractAdjustmentOut> {
+  const { data, error } = await apiClient.POST("/goddess/debts/{contract_id}/adjustments", {
+    params: { path: { contract_id: contractId } },
+    body,
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to create adjustment"));
+  return data;
+}
+
+export async function acceptAdjustmentApi(adjustmentId: string): Promise<ContractAdjustmentOut> {
+  const { data, error } = await apiClient.POST("/sub/adjustments/{adjustment_id}/accept", {
+    params: { path: { adjustment_id: adjustmentId } },
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to accept adjustment"));
+  return data;
+}
+
+export async function refuseAdjustmentApi(adjustmentId: string): Promise<ContractAdjustmentOut> {
+  const { data, error } = await apiClient.POST("/sub/adjustments/{adjustment_id}/refuse", {
+    params: { path: { adjustment_id: adjustmentId } },
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to refuse adjustment"));
+  return data;
+}
+
+export async function listPendingAdjustmentsApi(): Promise<ContractAdjustmentOut[]> {
+  const { data, error } = await apiClient.GET("/sub/adjustments/pending", {
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to list pending adjustments"));
   return data;
 }
 

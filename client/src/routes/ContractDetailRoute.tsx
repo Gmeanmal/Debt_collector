@@ -5,6 +5,9 @@ import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { ContractActions } from "@/components/contracts/ContractActions";
 import { ContractAuditLog } from "@/components/contracts/ContractAuditLog";
 import { SimulationChart } from "@/components/contracts/SimulationChart";
+import { SurprisePenaltyDialog } from "@/components/contracts/SurprisePenaltyDialog";
+import { AdjustmentDialog } from "@/components/contracts/AdjustmentDialog";
+import { BuyoutIntentPanel } from "@/components/contracts/BuyoutIntentPanel";
 import {
   downloadContractPdfApi,
   getContractApi,
@@ -98,6 +101,9 @@ export function ContractDetailRoute() {
   const { contractId } = useParams<{ contractId: string }>();
   const { user } = useAuth();
   const [banner, setBanner] = useState<{ msg: string; kind: "success" | "error" } | null>(null);
+  const [showSurprise, setShowSurprise] = useState(false);
+  const [showAdjustment, setShowAdjustment] = useState(false);
+  const [showBuyout, setShowBuyout] = useState(false);
 
   const safeId = contractId ?? "";
 
@@ -141,6 +147,12 @@ export function ContractDetailRoute() {
     role === "sub" &&
     (contract.status === "pending_sub" || contract.status === "pending_sub_signature");
   const canDownloadPdf = contract.status === "active" && Boolean(contract.signed_pdf_url);
+  const isActive = contract.status === "active";
+  const canSurprisePenalty =
+    role === "goddess" && isActive && contract.dom_can_add_surprise_penalty;
+  const canAdjustment =
+    role === "goddess" && isActive && contract.mid_contract_addition_mode !== "disabled";
+  const canRequestBuyout = role === "sub" && isActive;
 
   async function handleDownloadPdf() {
     try {
@@ -203,7 +215,52 @@ export function ContractDetailRoute() {
               Download signed PDF
             </button>
           )}
+          {canSurprisePenalty && (
+            <button
+              type="button"
+              onClick={() => setShowSurprise(true)}
+              className={`${btnBase} bg-debt-muted text-status-danger border border-debt-ring hover:bg-debt-primary/20 focus-visible:ring-debt-primary`}
+            >
+              Surprise penalty
+            </button>
+          )}
+          {canAdjustment && (
+            <button
+              type="button"
+              onClick={() => setShowAdjustment(true)}
+              className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
+            >
+              Add adjustment
+            </button>
+          )}
+          {canRequestBuyout && (
+            <button
+              type="button"
+              onClick={() => setShowBuyout(true)}
+              className={`${btnBase} bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover focus-visible:ring-pink-primary`}
+            >
+              Request buyout
+            </button>
+          )}
         </div>
+
+        {showSurprise && (
+          <SurprisePenaltyDialog
+            contractId={contract.id}
+            onClose={() => setShowSurprise(false)}
+            onBanner={(msg, kind) => setBanner({ msg, kind })}
+          />
+        )}
+        {showAdjustment && (
+          <AdjustmentDialog
+            contractId={contract.id}
+            onClose={() => setShowAdjustment(false)}
+            onBanner={(msg, kind) => setBanner({ msg, kind })}
+          />
+        )}
+        {showBuyout && (
+          <BuyoutIntentPanel contractId={contract.id} onClose={() => setShowBuyout(false)} />
+        )}
 
         <ContractActions
           contract={contract}

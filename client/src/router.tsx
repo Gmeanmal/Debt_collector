@@ -23,6 +23,10 @@ import { SubContractsRoute } from "./routes/sub/SubContractsRoute";
 import { ProposeContractRoute } from "./routes/sub/ProposeContractRoute";
 import { ContractSignRoute } from "./routes/sub/ContractSignRoute";
 import { ContractDetailRoute } from "./routes/ContractDetailRoute";
+import { PendingAdjustmentsRoute } from "./routes/sub/PendingAdjustmentsRoute";
+import { BlacklistRoute } from "./routes/goddess/BlacklistRoute";
+import { BreachSubRoute } from "./routes/goddess/BreachSubRoute";
+import { AdminCronRoute } from "./routes/admin/AdminCronRoute";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginRoute /> },
@@ -175,6 +179,46 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ContractDetailRoute />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sub/adjustments",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <PendingAdjustmentsRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/blacklist",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <BlacklistRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/subs/:subId/breach",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <BreachSubRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/cron",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="admin">
+          <AdminCronRoute />
+        </RoleProtectedRoute>
       </ProtectedRoute>
     ),
   },

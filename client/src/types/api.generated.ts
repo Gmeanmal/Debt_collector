@@ -716,10 +716,233 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/goddess/subs/{sub_id}/breach": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Breach a sub and move them to the blacklist
+     * @description Transitions all active debt contracts for the sub to `breached`, sets the sub's status to `blacklisted`, revokes all refresh tokens, and records a blacklist entry snapshotting the sum of breached-contract balances.
+     */
+    post: operations["breach_sub_goddess_subs__sub_id__breach_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/blacklist": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List blacklist entries for this goddess
+     * @description Returns all blacklist entries (forgiven and active) for the authenticated goddess.
+     */
+    get: operations["list_entries_goddess_blacklist_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/blacklist/{entry_id}/forgive": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Forgive a blacklist entry
+     * @description Marks the entry as forgiven with the reinstatement fee amount, and restores the sub's status to `active`. Breached contracts remain in their `breached` state.
+     */
+    post: operations["forgive_goddess_blacklist__entry_id__forgive_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/debts/{contract_id}/buyout-intent": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Quote a buyout amount for a sub-owned contract
+     * @description Computes the prorated exit amount for the contract at the current moment and returns the goddess's enabled payment methods. No mutation — settlement happens when the sub declares a `buyout` payment and the goddess validates it.
+     */
+    post: operations["buyout_intent_sub_debts__contract_id__buyout_intent_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/debts/{contract_id}/surprise-penalty": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Apply a surprise penalty to an active contract
+     * @description Emits a `surprise_penalty` ledger event on the contract, adding the given amount to the balance. Only allowed when `dom_can_add_surprise_penalty` is true and the contract is `active`.
+     */
+    post: operations["surprise_penalty_goddess_debts__contract_id__surprise_penalty_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/debts/{contract_id}/adjustments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Propose or apply a mid-contract adjustment
+     * @description Behaviour depends on `mid_contract_addition_mode` on the contract:
+     *     - `disabled` → 403
+     *     - `dom_controlled` → status `applied`, balance updated immediately
+     *     - `sub_approval_required` → status `pending_sub_approval`, sub must accept
+     */
+    post: operations["create_adjustment_goddess_debts__contract_id__adjustments_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/adjustments/{adjustment_id}/accept": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Accept a pending mid-contract adjustment
+     * @description Sub accepts a pending adjustment proposed by the goddess. Emits an `adjustment` ledger event and transitions status to `accepted`.
+     */
+    post: operations["accept_adjustment_sub_adjustments__adjustment_id__accept_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/adjustments/{adjustment_id}/refuse": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Refuse a pending mid-contract adjustment
+     * @description Sub refuses a pending adjustment. Status transitions to `refused`; no ledger event is emitted.
+     */
+    post: operations["refuse_adjustment_sub_adjustments__adjustment_id__refuse_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/adjustments/pending": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List pending adjustments for the authenticated sub
+     * @description Returns all adjustments in `pending_sub_approval` across the sub's contracts.
+     */
+    get: operations["list_pending_sub_adjustments_pending_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/cron/run-now": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Run the daily cron job immediately
+     * @description Manually triggers the daily cron job (rolling tributes + contract period ticks). Admin only. Useful in development and for operational intervention.
+     */
+    post: operations["run_cron_now_admin_cron_run_now_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** AdjustmentCreateIn */
+    AdjustmentCreateIn: {
+      /**
+       * Amount
+       * @description Balance delta to add to the contract (GBP)
+       * @example 50.00
+       */
+      amount: number | string;
+      /**
+       * Reason
+       * @description Optional reason note
+       * @example extra tribute bundled into debt
+       */
+      reason?: string | null;
+    };
+    /**
+     * AdjustmentStatus
+     * @enum {string}
+     */
+    AdjustmentStatus: "applied" | "pending_sub_approval" | "accepted" | "refused";
     /** AllocationOut */
     AllocationOut: {
       /**
@@ -756,6 +979,168 @@ export interface components {
       | "contract_debt"
       | "contract_buyout"
       | "tribute";
+    /** BlacklistEntryOut */
+    BlacklistEntryOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Blacklist entry UUID
+       */
+      id: string;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Goddess UUID
+       */
+      goddess_id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description Blacklisted sub UUID
+       */
+      sub_id: string;
+      /**
+       * Reason
+       * @description Reason for the breach
+       */
+      reason?: string | null;
+      /**
+       * Balance Snapshot
+       * @description Sum of active-contract balances at the time of breach (GBP)
+       * @example 1500.00
+       */
+      balance_snapshot: string;
+      /**
+       * Reinstatement Fee Paid
+       * @description Fee paid by the sub to be forgiven (GBP); null if not yet forgiven
+       * @example 100.00
+       */
+      reinstatement_fee_paid?: string | null;
+      /**
+       * Breached At
+       * Format: date-time
+       * @description UTC datetime of breach
+       */
+      breached_at: string;
+      /**
+       * Forgiven At
+       * @description UTC datetime of forgiveness, if any
+       */
+      forgiven_at?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime of record creation
+       */
+      created_at: string;
+    };
+    /** BreachIn */
+    BreachIn: {
+      /**
+       * Reason
+       * @description Optional free-text reason for the breach
+       * @example missed three consecutive payments
+       */
+      reason?: string | null;
+    };
+    /** BuyoutIntentOut */
+    BuyoutIntentOut: {
+      /**
+       * Exit Amount
+       * @description Amount owed to buy out the contract (GBP)
+       * @example 250.00
+       */
+      exit_amount: string;
+      /**
+       * Payment Methods
+       * @description Goddess's enabled payment methods for completing the buyout
+       */
+      payment_methods: components["schemas"]["PaymentMethodOut"][];
+    };
+    /** ContractAdjustmentOut */
+    ContractAdjustmentOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Adjustment UUID
+       */
+      id: string;
+      /**
+       * Contract Id
+       * Format: uuid
+       * @description Parent contract UUID
+       */
+      contract_id: string;
+      /**
+       * Proposed By
+       * Format: uuid
+       * @description UUID of the user who proposed the adjustment
+       */
+      proposed_by: string;
+      /**
+       * Amount
+       * @description Adjustment amount (GBP)
+       * @example 50.00
+       */
+      amount: string;
+      /**
+       * Reason
+       * @description Optional reason note
+       */
+      reason?: string | null;
+      /** @description Adjustment lifecycle status */
+      status: components["schemas"]["AdjustmentStatus"];
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime of creation
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description UTC datetime of last update
+       */
+      updated_at: string;
+      /**
+       * Resolved At
+       * @description UTC datetime when accepted/refused/applied
+       */
+      resolved_at?: string | null;
+    };
+    /** CronRunOut */
+    CronRunOut: {
+      /**
+       * Ok
+       * @description Always true on success
+       * @example true
+       */
+      ok: boolean;
+      /**
+       * Ran At
+       * Format: date-time
+       * @description UTC datetime when the job was invoked
+       */
+      ran_at: string;
+      /**
+       * Subs
+       * @description Number of active subs processed
+       * @example 3
+       */
+      subs: number;
+      /**
+       * Rolling
+       * @description Number of rolling tributes touched
+       * @example 2
+       */
+      rolling: number;
+      /**
+       * Contracts
+       * @description Number of contract period ticks applied
+       * @example 1
+       */
+      contracts: number;
+    };
     /**
      * DeadlineDay
      * @enum {string}
@@ -1279,6 +1664,15 @@ export interface components {
        * @example null
        */
       target_id?: string | null;
+    };
+    /** ForgiveIn */
+    ForgiveIn: {
+      /**
+       * Reinstatement Fee Paid
+       * @description Reinstatement fee paid by the sub to be removed from blacklist (GBP)
+       * @example 100.00
+       */
+      reinstatement_fee_paid: number | string;
     };
     /** HTTPValidationError */
     HTTPValidationError: {
@@ -1924,6 +2318,21 @@ export interface components {
        * @example Doe
        */
       last_name?: string | null;
+    };
+    /** SurprisePenaltyIn */
+    SurprisePenaltyIn: {
+      /**
+       * Amount
+       * @description Flat penalty amount to add to the contract balance (GBP)
+       * @example 100.00
+       */
+      amount: number | string;
+      /**
+       * Reason
+       * @description Optional reason note recorded on the ledger event
+       * @example late to session
+       */
+      reason?: string | null;
     };
     /** TokenPair */
     TokenPair: {
@@ -4358,6 +4767,646 @@ export interface operations {
         content?: never;
       };
       /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  breach_sub_goddess_subs__sub_id__breach_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        sub_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["BreachIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BlacklistEntryOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — sub or entry not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — sub already blacklisted or entry already forgiven */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_entries_goddess_blacklist_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BlacklistEntryOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  forgive_goddess_blacklist__entry_id__forgive_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        entry_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ForgiveIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BlacklistEntryOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — sub or entry not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — sub already blacklisted or entry already forgiven */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  buyout_intent_sub_debts__contract_id__buyout_intent_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BuyoutIntentOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract or adjustment not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invalid state for this action */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  surprise_penalty_goddess_debts__contract_id__surprise_penalty_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SurprisePenaltyIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract or adjustment not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invalid state for this action */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  create_adjustment_goddess_debts__contract_id__adjustments_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AdjustmentCreateIn"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ContractAdjustmentOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract or adjustment not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invalid state for this action */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  accept_adjustment_sub_adjustments__adjustment_id__accept_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        adjustment_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ContractAdjustmentOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract or adjustment not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invalid state for this action */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  refuse_adjustment_sub_adjustments__adjustment_id__refuse_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        adjustment_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ContractAdjustmentOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract or adjustment not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — invalid state for this action */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_pending_sub_adjustments_pending_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ContractAdjustmentOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  run_cron_now_admin_cron_run_now_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CronRunOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — admin role required */
       403: {
         headers: {
           [name: string]: unknown;
