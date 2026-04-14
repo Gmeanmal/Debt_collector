@@ -31,7 +31,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [0.1.0] — 2026-04-14
 
-First tagged build. Implementation phases 1–10 per `Docs/plans/2026-04-13-debt-app-implementation-plan.md`.
+First tagged build. Implementation phases 1–10.
 
 ### Added
 - Phase 1 — Docker infra (Postgres + Mailhog), Make targets, pre-commit, CI green, `make init-dbs` bootstraps admin + goddess + 11 seeded subs in distinct states.

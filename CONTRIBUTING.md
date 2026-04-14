@@ -8,16 +8,15 @@ See `README.md` — Docker + Compose, Python 3.12 + `uv`, Node 20 + `pnpm`, GNU 
 
 ## Working on a change
 
-1. Read `Docs/STATUS.md` first — it holds the phase cursor and the "next up" slice.
-2. Read `Docs/specs.md` and `Docs/use_cases.md` when touching a new area.
-3. Branch off `main` with a descriptive name — e.g. `feat/admin-action-view`, `fix/rolling-tz-naive-bug`.
-4. Implement the slice end-to-end: model → migration → dao → controller → router → schema → frontend (when applicable).
-5. Run the full gate before committing:
+1. Read `Docs/specs.md` and `Docs/use_cases.md` when touching a new area.
+2. Branch off `main` with a descriptive name — e.g. `feat/admin-action-view`, `fix/rolling-tz-naive-bug`.
+3. Implement the slice end-to-end: model → migration → dao → controller → router → schema → frontend (when applicable).
+4. Run the full gate before committing:
    ```bash
    make check       # ruff + pyright strict + eslint + tsc + vite build
    make test        # backend unit + integration + frontend vitest
    ```
-6. Write a Conventional Commit (see below) and open a pull request.
+5. Write a Conventional Commit (see below) and open a pull request.
 
 ## Layered architecture
 
@@ -94,4 +93,4 @@ Before opening a PR:
 - `make test` green.
 - Playwright walk-through if the change touches the UI (document which paths you exercised in the PR description).
 - `/docs` spot-check if a route was added or modified.
-- `Docs/STATUS.md` updated if the change closes or opens a phase slice.
+- `CHANGELOG.md` `[Unreleased]` updated with notable changes.

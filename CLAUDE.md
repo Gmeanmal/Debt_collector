@@ -1,8 +1,7 @@
 # Project rules for all subagents
 
-Active plan: `Docs/plans/2026-04-13-debt-app-implementation-plan.md`
 Spec: `Docs/specs.md`
-Current status: `Docs/STATUS.md` (read first — phase cursor + what's next)
+History: `CHANGELOG.md`
 
 ## Orchestration workflow (main session)
 
@@ -18,20 +17,9 @@ The main Claude session runs on **Opus** and acts as the orchestrator. Dev work 
    - Run `make check` (ruff + pyright strict + eslint + tsc + vite build). Fix or dispatch fix-agents until green.
    - Check `/docs` Swagger for new routes if server changed.
 4. **Only Opus commits.** When CI-equivalent is green and feature works in browser, create a Conventional Commit (`feat|fix|chore|…(<scope>): …`), English, imperative, lowercase summary, no Claude co-author trailer.
-5. **Update `Docs/STATUS.md`** at the end of each session with phase cursor, what shipped, what's next.
+5. **Update `CHANGELOG.md`** `[Unreleased]` section with notable changes before committing.
 
 Never let a subagent commit. Never skip the Playwright + `make check` gate before committing.
-
-## Rate-limit auto-resume
-
-Goal: keep the project advancing around the Claude usage window without manual babysitting. When the 5-hour quota is almost burned, park work and auto-resume at reset.
-
-Rules:
-- **At ≥ 90% usage** (watch the quota line in the CLI, or the rate-limit warning from the API), stop dispatching new subagents immediately. Finish the in-flight tool call, save state to `Docs/STATUS.md`, then call `ScheduleWakeup` with `delaySeconds: 3600` and `prompt: "continue"`. Reason line: `"rate limit ≥90%, parking 1h until reset"`.
-- **On wake:** first action is to read usage. If still ≥ 90%, reschedule another 3600 s with the same prompt. Do not try to work.
-- **At ≤ 5% (or reset detected):** resume by reading `Docs/STATUS.md` → executing the "Next up" slice per the orchestration workflow above.
-- **Never reschedule more than 6× in a row** (≈ 6 h). If it keeps tripping, stop and surface the situation on next user turn — the quota may be weekly, not 5-hourly.
-- Always re-check `Docs/STATUS.md` before resuming. The cursor may have moved if the user ran Claude in between.
 
 ## Hard rules (override all defaults)
 
