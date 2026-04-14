@@ -33,3 +33,18 @@ class UserDao:
         user.theme_preference = theme_preference
         self._session.add(user)
         return user
+
+    async def update_profile(
+        self,
+        user: User,
+        first_name: str | None,
+        last_name: str | None,
+        bio: str | None,
+        avatar_url: str | None,
+    ) -> User:
+        user.first_name = first_name
+        user.last_name = last_name
+        user.bio = bio
+        user.avatar_url = avatar_url
+        self._session.add(user)
+        return user

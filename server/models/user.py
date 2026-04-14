@@ -43,6 +43,7 @@ class User(SQLModel, table=True):
     twitter_handle: str | None = None
     source_note: str | None = None
     avatar_url: str | None = None
+    bio: str | None = Field(default=None, sa_column_kwargs={"nullable": True})
     theme_preference: str = Field(default="system")
     last_login_at: datetime | None = None
     created_at: datetime = Field(

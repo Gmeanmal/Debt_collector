@@ -1571,6 +1571,26 @@ export interface paths {
     patch: operations["update_preferences_me_preferences_patch"];
     trace?: never;
   };
+  "/me/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update the authenticated user's profile
+     * @description Updates first_name, last_name, bio, and avatar_url for the authenticated user. All fields are optional — only provided (non-null) values are written. Pass null explicitly to clear a field. bio is capped at 500 characters; avatar_url must be a valid HTTP/HTTPS URL if provided.
+     */
+    patch: operations["update_profile_me_profile_patch"];
+    trace?: never;
+  };
   "/goddess/dashboard": {
     parameters: {
       query?: never;
@@ -2348,6 +2368,11 @@ export interface components {
        */
       balance_end: string;
     };
+    /**
+     * DeclarationSource
+     * @enum {string}
+     */
+    DeclarationSource: "sub_declared" | "goddess_requested" | "goddess_recorded";
     /** DeclarePaymentIn */
     DeclarePaymentIn: {
       /**
@@ -3001,6 +3026,11 @@ export interface components {
        * @description Reason for rejection if rejected
        */
       rejection_reason?: string | null;
+      /**
+       * @description Who declared this payment.
+       * @example sub_declared
+       */
+      source: components["schemas"]["DeclarationSource"];
       /** @description Allocation record if validated */
       allocation?: components["schemas"]["AllocationOut"] | null;
     };
@@ -3018,6 +3048,33 @@ export interface components {
        * @enum {string}
        */
       theme_preference: "system" | "dark" | "light";
+    };
+    /** ProfileUpdate */
+    ProfileUpdate: {
+      /**
+       * First Name
+       * @description First name
+       * @example Jane
+       */
+      first_name?: string | null;
+      /**
+       * Last Name
+       * @description Last name
+       * @example Doe
+       */
+      last_name?: string | null;
+      /**
+       * Bio
+       * @description Free-text bio (max 500 chars)
+       * @example A sub living in London.
+       */
+      bio?: string | null;
+      /**
+       * Avatar Url
+       * @description Avatar image URL
+       * @example https://example.com/avatar.png
+       */
+      avatar_url?: string | null;
     };
     /** PublicInvitationOut */
     PublicInvitationOut: {
@@ -3407,6 +3464,24 @@ export interface components {
        * @example Jane
        */
       display_name: string;
+      /**
+       * First Name
+       * @description First name
+       * @example Jane
+       */
+      first_name?: string | null;
+      /**
+       * Last Name
+       * @description Last name
+       * @example Doe
+       */
+      last_name?: string | null;
+      /**
+       * Bio
+       * @description Free-text bio (max 500 chars)
+       * @example A sub living in London.
+       */
+      bio?: string | null;
       /**
        * Avatar Url
        * @description Avatar URL
@@ -10125,6 +10200,60 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["PreferencesOut"];
         };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_profile_me_profile_patch: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ProfileUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserOut"];
+        };
+      };
+      /** @description Bad request — validation failed (e.g. bio too long, invalid avatar URL) */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Unauthorized — missing or invalid access token */
       401: {

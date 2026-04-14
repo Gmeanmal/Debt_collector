@@ -32,6 +32,7 @@ import { DashboardRoute as GoddessDashboardRoute } from "./routes/goddess/Dashbo
 import { SubDashboardRoute } from "./routes/sub/DashboardRoute";
 import { SubDetailRoute } from "./routes/goddess/SubDetailRoute";
 import { NotFoundRoute, RouterErrorBoundary } from "./routes/NotFoundRoute";
+import { ProfileRoute } from "./routes/ProfileRoute";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginRoute /> },
@@ -264,6 +265,14 @@ export const router = createBrowserRouter([
         <RoleProtectedRoute role="goddess">
           <SubDetailRoute />
         </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/profile",
+    element: (
+      <ProtectedRoute>
+        <ProfileRoute />
       </ProtectedRoute>
     ),
   },

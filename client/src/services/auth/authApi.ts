@@ -5,6 +5,7 @@ type LoginRequest = components["schemas"]["LoginRequest"];
 type TokenPair = components["schemas"]["TokenPair"];
 type UserOut = components["schemas"]["UserOut"];
 type ImpersonationAccess = components["schemas"]["ImpersonationAccess"];
+type ProfileUpdate = components["schemas"]["ProfileUpdate"];
 
 export async function loginApi(body: LoginRequest): Promise<TokenPair> {
   const { data, error } = await apiClient.POST("/auth/login", { body });
@@ -45,5 +46,11 @@ export async function impersonateApi(userId: string): Promise<ImpersonationAcces
     params: { path: { user_id: userId } },
   });
   if (error || !data) throw new Error("Impersonation failed");
+  return data;
+}
+
+export async function updateProfileApi(body: ProfileUpdate): Promise<UserOut> {
+  const { data, error } = await apiClient.PATCH("/me/profile", { body });
+  if (error || !data) throw new Error("Failed to update profile");
   return data;
 }

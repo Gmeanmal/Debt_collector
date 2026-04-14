@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from models.user import UserRole, UserStatus
 
@@ -53,6 +53,13 @@ class UserOut(BaseModel):
     role: UserRole = Field(..., description="User role", examples=["sub"])
     status: UserStatus = Field(..., description="Account status", examples=["active"])
     display_name: str = Field(..., description="User display name", examples=["Jane"])
+    first_name: str | None = Field(None, description="First name", examples=["Jane"])
+    last_name: str | None = Field(None, description="Last name", examples=["Doe"])
+    bio: str | None = Field(
+        None,
+        description="Free-text bio (max 500 chars)",
+        examples=["A sub living in London."],
+    )
     avatar_url: str | None = Field(None, description="Avatar URL", examples=[None])
     theme_preference: str = Field(..., description="UI theme preference", examples=["system"])
     created_at: datetime = Field(..., description="Account creation timestamp (UTC)")
@@ -66,6 +73,33 @@ class UserOut(BaseModel):
         description="Display name of the impersonating admin, when applicable.",
         examples=[None],
     )
+
+
+class ProfileUpdate(BaseModel):
+    first_name: str | None = Field(
+        None, description="First name", examples=["Jane"], max_length=100
+    )
+    last_name: str | None = Field(None, description="Last name", examples=["Doe"], max_length=100)
+    bio: str | None = Field(
+        None,
+        description="Free-text bio (max 500 chars)",
+        examples=["A sub living in London."],
+        max_length=500,
+    )
+    avatar_url: str | None = Field(
+        None, description="Avatar image URL", examples=["https://example.com/avatar.png"]
+    )
+
+    model_config = {"str_strip_whitespace": True}
+
+    @field_validator("avatar_url")
+    @classmethod
+    def avatar_url_must_be_http(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        if not (v.startswith("http://") or v.startswith("https://")):
+            raise ValueError("avatar_url must be a valid HTTP/HTTPS URL")
+        return v
 
 
 class ImpersonationAccess(BaseModel):

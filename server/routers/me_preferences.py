@@ -8,8 +8,35 @@ from core.db import get_session
 from daos.user_dao import UserDao
 from dependencies.auth import get_current_user
 from models.user import User
+from schemas.auth import ProfileUpdate, UserOut
 
 router = APIRouter(prefix="/me", tags=["me"])
+
+_E400 = {"description": "Bad request — validation failed (e.g. bio too long, invalid avatar URL)"}
+
+
+def _display_name(user: User) -> str:
+    parts = [p for p in [user.first_name, user.last_name] if p]
+    return " ".join(parts) if parts else user.username
+
+
+def _build_user_out(user: User) -> UserOut:
+    return UserOut(
+        id=user.id,
+        email=user.email,
+        role=user.role,
+        status=user.status,
+        display_name=_display_name(user),
+        first_name=user.first_name,
+        last_name=user.last_name,
+        bio=user.bio,
+        avatar_url=user.avatar_url,
+        theme_preference=user.theme_preference,
+        created_at=user.created_at,
+        impersonator_id=None,
+        impersonator_display_name=None,
+    )
+
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
 _E422 = {"description": "Unprocessable entity — request body validation failed"}
@@ -55,6 +82,37 @@ async def update_preferences(
     updated = await dao.update_theme_preference(user, body.theme_preference)
     await session.commit()
     return PreferencesOut(theme_preference=_coerce_theme(updated.theme_preference))
+
+
+@router.patch(
+    "/profile",
+    summary="Update the authenticated user's profile",
+    description=(
+        "Updates first_name, last_name, bio, and avatar_url for the authenticated user. "
+        "All fields are optional — only provided (non-null) values are written. "
+        "Pass null explicitly to clear a field. "
+        "bio is capped at 500 characters; avatar_url must be a valid HTTP/HTTPS URL if provided."
+    ),
+    response_model=UserOut,
+    status_code=200,
+    tags=["me"],
+    responses={400: _E400, 401: _E401, 422: _E422, 500: _E500},
+)
+async def update_profile(
+    body: ProfileUpdate,
+    session: AsyncSession = Depends(get_session),
+    user: User = Depends(get_current_user),
+) -> UserOut:
+    dao = UserDao(session)
+    updated = await dao.update_profile(
+        user,
+        first_name=body.first_name,
+        last_name=body.last_name,
+        bio=body.bio,
+        avatar_url=body.avatar_url,
+    )
+    await session.commit()
+    return _build_user_out(updated)
 
 
 def _coerce_theme(value: str) -> ThemePreference:

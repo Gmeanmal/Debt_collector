@@ -1,6 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { useAuth } from "@/services/auth/useAuth";
 import { ImpersonationBanner } from "@/components/layout/ImpersonationBanner";
 import { NotificationBell } from "@/components/layout/NotificationBell";
@@ -148,6 +148,13 @@ export function AppLayout({ children }: AppLayoutProps) {
                       <span className="text-xs text-base-text-subtle">{user.email}</span>
                     </div>
                   </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <NavLink to="/profile" className="flex items-center gap-2 w-full">
+                      <User className="h-4 w-4" />
+                      Profile
+                    </NavLink>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={() => void logout()}>
                     <LogOut className="h-4 w-4" />
