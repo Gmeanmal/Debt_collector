@@ -233,7 +233,20 @@ Two tables:
 
 **`payment_allocation`** — the validated ledger entry, one per declaration (no split).
 
-- `declaration_id` (FK), `target_type` (enum `entry` / `rolling` / `weekly_debt` / `debt_payment` / `buyout` / `tribute`), `target_id` (nullable FK — required for debt/buyout targets, null for `entry` / `rolling` / `tribute`), `amount`.
+- `declaration_id` (FK), `target_type` (enum — see mapping below), `target_id` (nullable FK — required for debt/buyout targets, null for entry / rolling / tribute), `amount`.
+
+The `target_type` enum is stored under shorter internal names to avoid duplicating allocation shapes. `PaymentCategory` (user-facing) → `AllocationTargetType` (ledger) mapping:
+
+| PaymentCategory  | AllocationTargetType |
+| ---------------- | -------------------- |
+| `entry`          | `entry`              |
+| `tribute`        | `tribute`            |
+| `rolling`        | `rolling_cycle`      |
+| `weekly_debt`    | `contract_debt`      |
+| `debt_payment`   | `contract_debt`      |
+| `buyout`         | `contract_buyout`    |
+
+Both `weekly_debt` and `debt_payment` intentionally collapse to `contract_debt` — they allocate against the same contract ledger, only the declaration label differs for reporting purposes.
 
 When the Goddess validates, she can re-categorize before validation (updates `category` on the declaration). No split (each tribute = one declaration).
 

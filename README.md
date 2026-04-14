@@ -183,7 +183,7 @@ Full list with inline comments lives in `server/.env.example` and `client/.env.e
 | `JWT_SECRET_KEY`             | `change-me-…`          | signs access + refresh tokens; **must be rotated in production**        |
 | `JWT_ACCESS_TTL_MINUTES`     | `15`                   | access-token lifetime                                                   |
 | `JWT_REFRESH_TTL_DAYS`       | `30`                   | refresh-cookie lifetime                                                 |
-| `PASSWORD_RESET_TTL_MINUTES` | `30`                   | password-reset JWT lifetime (spec §4.2 baseline is 60 — dev-tightened)  |
+| `PASSWORD_RESET_TTL_MINUTES` | `60`                   | password-reset JWT lifetime (matches spec §4.2)                         |
 | `EMAIL_DRIVER`               | `smtp`                 | `smtp` (dev → Mailhog) or `resend` (prod → Resend API)                  |
 | `RESEND_API_KEY`             | empty                  | required when `EMAIL_DRIVER=resend`                                     |
 | `CRON_ENABLED`               | `true` (implicit)      | APScheduler fires daily at 08:00 Europe/London; disable for tests       |
