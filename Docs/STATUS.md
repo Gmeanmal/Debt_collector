@@ -3,13 +3,15 @@
 > Read on session start. Update on session end.
 
 **Last updated:** 2026-04-14
-**Active phase:** Phase 10 closed → **v0.1.0 tagged**; 10.7 (visual regression) + 10.9 (hosting) deferred.
+**Active phase:** Phase 10 closed → **v0.1.0 tagged**. 10.7 scaffolded, 10.9 documented.
 **Plan:** `Docs/plans/2026-04-13-debt-app-implementation-plan.md`
 
 ---
 
 ## Done
 
+- **Phase 10.7** — Playwright visual regression scaffold (`client/e2e/visual.spec.ts`, `playwright.config.ts`, login fixture). Baselines captured on first run via `pnpm test:e2e:update` against a locally seeded stack.
+- **Phase 10.9** — Hosting playbook `DEPLOY.md`: Hetzner CX22 single-host docker compose + Caddy + R2 nightly backups, update + rollback flow.
 - **Phase 10** — Polish & Tests Retrofit:
   - `utils/ledger.replay_events` pure helper extracted; `recompute_balance` delegates.
   - Pytest retrofit: 21 unit tests (finance/rolling/periods/ledger); integration tests scaffolded but skipped (aiosqlite incompat with self-FK `use_alter=True` + Postgres enum types → needs real postgres fixture).
@@ -75,11 +77,11 @@
 
 ## Next up — post-v0.1.0
 
-All planned phases 1–10 shipped. Deferred:
+All planned phases 1–10 shipped. Outstanding:
 
-- **10.7** — Visual regression via Playwright snapshots (deferred; no baseline captured).
-- **10.9** — Hosting decision (deferred per plan).
-- Integration pytest suite needs real Postgres fixture before it can run; aiosqlite cannot host `debt_contract`'s self-FK with `use_alter=True` + Postgres enum types.
+- **10.7 baselines** — snapshot PNGs not yet captured; run `pnpm test:e2e:update` against a running stack + seed and commit.
+- **10.9 execution** — provision Hetzner CX22 and follow `DEPLOY.md` when ready to go live.
+- Integration pytest suite needs a real Postgres fixture before it can run; aiosqlite cannot host `debt_contract`'s self-FK with `use_alter=True` + Postgres enum types.
 
 ---
 
