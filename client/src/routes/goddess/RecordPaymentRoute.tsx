@@ -7,6 +7,7 @@ import {
   type PaymentCategory,
 } from "@/services/payments/paymentsApi";
 import { listPaymentMethodsApi } from "@/services/paymentMethods/paymentMethodsApi";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 
 const CATEGORIES: { value: PaymentCategory; label: string }[] = [
   { value: "entry", label: "Entry tribute" },
@@ -168,12 +169,11 @@ export function RecordPaymentRoute() {
             <label htmlFor="externalTs" className="text-sm font-semibold text-base-text">
               Payment date <span className="text-base-text-subtle font-normal">(optional)</span>
             </label>
-            <input
+            <DateTimePicker
               id="externalTs"
-              type="datetime-local"
-              value={externalTs}
-              onChange={(e) => setExternalTs(e.target.value)}
-              className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+              value={externalTs || null}
+              onChange={setExternalTs}
+              placeholder="Pick a date & time"
             />
           </div>
 
