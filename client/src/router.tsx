@@ -12,11 +12,16 @@ import { PaymentMethodsRoute } from "./routes/goddess/PaymentMethodsRoute";
 import { PendingValidationsRoute } from "./routes/goddess/PendingValidationsRoute";
 import { RecordPaymentRoute } from "./routes/goddess/RecordPaymentRoute";
 import { RollingEditorRoute } from "./routes/goddess/RollingEditorRoute";
+import { ContractFormRoute } from "./routes/goddess/ContractFormRoute";
+import { GoddessContractsRoute } from "./routes/goddess/GoddessContractsRoute";
 import { InviteLandingRoute } from "./routes/public/InviteLandingRoute";
 import { SignupRoute } from "./routes/public/SignupRoute";
 import { PendingEntryTributeRoute } from "./routes/sub/PendingEntryTributeRoute";
 import { PaymentFormRoute } from "./routes/sub/PaymentFormRoute";
 import { PaymentHistoryRoute } from "./routes/sub/PaymentHistoryRoute";
+import { SubContractsRoute } from "./routes/sub/SubContractsRoute";
+import { ProposeContractRoute } from "./routes/sub/ProposeContractRoute";
+import { ContractDetailRoute } from "./routes/ContractDetailRoute";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginRoute /> },
@@ -111,6 +116,54 @@ export const router = createBrowserRouter([
         <RoleProtectedRoute role="goddess">
           <RollingEditorRoute />
         </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/subs/:subId/debts/new",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <ContractFormRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/debts",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <GoddessContractsRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sub/debts",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <SubContractsRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sub/debts/new",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <ProposeContractRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/debts/:contractId",
+    element: (
+      <ProtectedRoute>
+        <ContractDetailRoute />
       </ProtectedRoute>
     ),
   },

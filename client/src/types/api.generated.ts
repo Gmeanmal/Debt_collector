@@ -472,6 +472,230 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/debts/simulate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Simulate a debt contract projection
+     * @description Stateless simulation: given a full contract draft, returns a period-by-period projection assuming minimum payments and no late penalties, plus a severe-penalty warning flag. Callable on drafts from the contract form.
+     */
+    post: operations["simulate_draft_debts_simulate_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/subs/{sub_id}/debts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Propose a debt contract as goddess
+     * @description Goddess proposes a new debt contract for one of her subs. The contract is created in `pending_sub` status awaiting the sub's response. Sub must belong to this goddess or a 404 is returned.
+     */
+    post: operations["propose_as_goddess_goddess_subs__sub_id__debts_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sub/debts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List own debt contracts as sub
+     * @description Returns all debt contracts belonging to the authenticated sub, newest first.
+     */
+    get: operations["list_sub_contracts_sub_debts_get"];
+    put?: never;
+    /**
+     * Propose a debt contract as sub
+     * @description Sub proposes a new debt contract directed at their goddess. The contract is created in `pending_dom` status awaiting the goddess's response. Sub must be linked to a goddess or a 400 is returned.
+     */
+    post: operations["propose_as_sub_sub_debts_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/counter-propose": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Counter-propose on a debt contract
+     * @description Sub or goddess submits a counter-proposal on an in-negotiation contract. Sub may counter when status is `pending_sub`; goddess may counter when status is `pending_dom`. Only one counter per side is allowed; a second counter raises 409. The actor is inferred from the bearer token.
+     */
+    post: operations["counter_propose_debts__contract_id__counter_propose_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/accept-counter": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Accept the sub's counter-proposal
+     * @description Goddess accepts the sub's counter-proposal. Contract moves to `pending_sub_signature`; sub must sign to activate. Only valid when status is `pending_dom_counter`.
+     */
+    post: operations["accept_counter_debts__contract_id__accept_counter_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/reject-counter": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Reject the sub's counter-proposal
+     * @description Goddess rejects the sub's counter-proposal. Contract terms revert to the original round-0 version; contract moves to `pending_sub_signature` — sub must sign the original or leave it pending. Only valid when status is `pending_dom_counter`.
+     */
+    post: operations["reject_counter_debts__contract_id__reject_counter_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/sign": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Sign a debt contract as sub
+     * @description Sub signs the finalised contract, transitioning it to `active`. Valid when status is `pending_sub` (direct sign on goddess proposal) or `pending_sub_signature` (post-negotiation). The `signed_pdf_url` and `signed_pdf_sha256` are populated in Phase 7.
+     */
+    post: operations["sign_as_sub_debts__contract_id__sign_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/debts/{contract_id}/close": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Cancel a pending contract as goddess
+     * @description Goddess cancels a contract that is still in a `pending_*` state. Transitions the contract to `cancelled_by_dom`. Cannot be used on active, closed, breached, or completed contracts.
+     */
+    post: operations["close_as_goddess_goddess_debts__contract_id__close_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a debt contract
+     * @description Returns a single debt contract. Sub may only see their own contracts; goddess may only see contracts belonging to her subs.
+     */
+    get: operations["get_contract_debts__contract_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/debts/{contract_id}/audit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get audit trail for a debt contract
+     * @description Returns the full ordered audit trail for a contract. Visibility rules match those of the `GET /debts/{contract_id}` endpoint.
+     */
+    get: operations["get_contract_audit_debts__contract_id__audit_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/goddess/debts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List all debt contracts for goddess
+     * @description Returns all debt contracts across all subs for the authenticated goddess, newest first.
+     */
+    get: operations["list_goddess_contracts_goddess_debts_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -517,6 +741,439 @@ export interface components {
      * @enum {string}
      */
     DeadlineDay: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+    /** DebtContractAuditOut */
+    DebtContractAuditOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Audit record UUID
+       */
+      id: string;
+      /**
+       * Contract Id
+       * Format: uuid
+       * @description Parent contract UUID
+       */
+      contract_id: string;
+      /** @description State-transition event type */
+      event_type: components["schemas"]["DebtContractEventType"];
+      /**
+       * Actor Id
+       * Format: uuid
+       * @description UUID of the user who triggered the transition
+       */
+      actor_id: string;
+      /** @description Status before the transition */
+      from_status?: components["schemas"]["DebtContractStatus"] | null;
+      /** @description Status after the transition */
+      to_status?: components["schemas"]["DebtContractStatus"] | null;
+      /**
+       * Note
+       * @description Optional free-text note on the transition
+       */
+      note?: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime of the audit event
+       */
+      created_at: string;
+    };
+    /** DebtContractCounter */
+    DebtContractCounter: {
+      /**
+       * Principal
+       * @description Proposed principal in GBP
+       * @example 450.00
+       */
+      principal: number | string;
+      /**
+       * Interest Rate
+       * @description Proposed interest rate as a fraction
+       * @example 0.150000
+       */
+      interest_rate: number | string;
+      /**
+       * @description Proposed interest period
+       * @example monthly
+       */
+      interest_period: components["schemas"]["InterestPeriod"];
+      /**
+       * Duration Periods
+       * @description Proposed number of payment periods
+       * @example 10
+       */
+      duration_periods: number;
+      /**
+       * @description Proposed payment frequency
+       * @example monthly
+       */
+      payment_frequency: components["schemas"]["PaymentFrequency"];
+      /**
+       * Minimum Payment
+       * @description Proposed minimum payment per period (GBP)
+       * @example 40.00
+       */
+      minimum_payment: number | string;
+      /**
+       * @description Proposed late penalty severity preset
+       * @example light
+       */
+      late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
+      /**
+       * Late Penalty Percent
+       * @description Proposed late penalty fraction
+       * @example 0.0500
+       */
+      late_penalty_percent: number | string;
+      /**
+       * Dom Can Add Surprise Penalty
+       * @description Proposed setting for surprise-penalty capability
+       * @example false
+       */
+      dom_can_add_surprise_penalty: boolean;
+      /**
+       * @description Proposed mid-contract addition mode
+       * @example sub_approval_required
+       */
+      mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
+      /**
+       * Exit Amount
+       * @description Proposed exit/buyout reference amount (GBP)
+       * @example 500.00
+       */
+      exit_amount: number | string;
+    };
+    /** DebtContractCreate */
+    DebtContractCreate: {
+      /**
+       * Principal
+       * @description Starting balance of the debt in GBP
+       * @example 500.00
+       */
+      principal: number | string;
+      /**
+       * Interest Rate
+       * @description Interest rate as a fraction (e.g. 0.200000 = 20%)
+       * @example 0.200000
+       */
+      interest_rate: number | string;
+      /**
+       * @description Whether the rate is monthly or yearly (yearly converted via AER)
+       * @example monthly
+       */
+      interest_period: components["schemas"]["InterestPeriod"];
+      /**
+       * Duration Periods
+       * @description Number of payment periods for the full term
+       * @example 12
+       */
+      duration_periods: number;
+      /**
+       * @description How often payments are due
+       * @example monthly
+       */
+      payment_frequency: components["schemas"]["PaymentFrequency"];
+      /**
+       * Minimum Payment
+       * @description Minimum payment per period to avoid a late penalty (GBP)
+       * @example 50.00
+       */
+      minimum_payment: number | string;
+      /**
+       * @description UI preset describing severity of the late penalty
+       * @example medium
+       */
+      late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
+      /**
+       * Late Penalty Percent
+       * @description Fraction added to balance when a period is missed (e.g. 0.1000 = 10%)
+       * @example 0.1000
+       */
+      late_penalty_percent: number | string;
+      /**
+       * Dom Can Add Surprise Penalty
+       * @description Goddess may apply an ad-hoc penalty outside the late-penalty mechanism
+       * @example false
+       */
+      dom_can_add_surprise_penalty: boolean;
+      /**
+       * @description Controls whether the goddess can add balance mid-contract and whether sub approval is required
+       * @example disabled
+       */
+      mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
+      /**
+       * Exit Amount
+       * @description Reference amount for buyout formula and breach calculations (GBP)
+       * @example 600.00
+       */
+      exit_amount: number | string;
+    };
+    /**
+     * DebtContractEventType
+     * @enum {string}
+     */
+    DebtContractEventType:
+      | "proposed"
+      | "countered"
+      | "accepted_counter"
+      | "rejected_counter"
+      | "signed"
+      | "cancelled"
+      | "closed"
+      | "breached"
+      | "completed";
+    /** DebtContractOut */
+    DebtContractOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Contract UUID
+       */
+      id: string;
+      /**
+       * Sub Id
+       * Format: uuid
+       * @description Sub user UUID
+       */
+      sub_id: string;
+      /**
+       * Goddess Id
+       * Format: uuid
+       * @description Goddess UUID
+       */
+      goddess_id: string;
+      /**
+       * Sub Initiated
+       * @description True when the sub proposed the contract
+       */
+      sub_initiated: boolean;
+      /**
+       * Principal
+       * @description Starting balance (GBP)
+       * @example 500.00
+       */
+      principal: string;
+      /**
+       * Interest Rate
+       * @description Interest rate fraction
+       * @example 0.200000
+       */
+      interest_rate: string;
+      /** @description Interest period enum */
+      interest_period: components["schemas"]["InterestPeriod"];
+      /**
+       * Duration Periods
+       * @description Number of payment periods
+       */
+      duration_periods: number;
+      /** @description Payment frequency enum */
+      payment_frequency: components["schemas"]["PaymentFrequency"];
+      /**
+       * Minimum Payment
+       * @description Minimum payment per period (GBP)
+       * @example 50.00
+       */
+      minimum_payment: string;
+      /** @description Late penalty severity preset */
+      late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
+      /**
+       * Late Penalty Percent
+       * @description Late penalty fraction
+       * @example 0.1000
+       */
+      late_penalty_percent: string;
+      /**
+       * Dom Can Add Surprise Penalty
+       * @description Goddess surprise-penalty capability
+       */
+      dom_can_add_surprise_penalty: boolean;
+      /** @description Mid-contract addition mode */
+      mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
+      /**
+       * Exit Amount
+       * @description Exit/buyout reference amount (GBP)
+       * @example 600.00
+       */
+      exit_amount: string;
+      /** @description Current contract status */
+      status: components["schemas"]["DebtContractStatus"];
+      /** @description Expanded current negotiation version snapshot */
+      current_version?: components["schemas"]["DebtContractVersionOut"] | null;
+      /**
+       * Signed Pdf Url
+       * @description Presigned R2 URL of the signed PDF
+       */
+      signed_pdf_url?: string | null;
+      /**
+       * Signed Pdf Sha256
+       * @description SHA-256 hash of the signed PDF for integrity
+       */
+      signed_pdf_sha256?: string | null;
+      /**
+       * Signed At
+       * @description UTC datetime when the contract was signed
+       */
+      signed_at?: string | null;
+      /**
+       * Balance
+       * @description Cached current balance (GBP); event log is authoritative
+       * @example 500.00
+       */
+      balance: string;
+      /**
+       * Created At
+       * Format: date-time
+       * @description UTC datetime of contract creation
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description UTC datetime of last update
+       */
+      updated_at: string;
+    };
+    /**
+     * DebtContractStatus
+     * @enum {string}
+     */
+    DebtContractStatus:
+      | "pending_sub"
+      | "pending_dom"
+      | "pending_dom_counter"
+      | "pending_sub_signature"
+      | "active"
+      | "closed"
+      | "breached"
+      | "completed"
+      | "cancelled_by_dom";
+    /** DebtContractVersionOut */
+    DebtContractVersionOut: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Version record UUID
+       */
+      id: string;
+      /**
+       * Contract Id
+       * Format: uuid
+       * @description Parent contract UUID
+       */
+      contract_id: string;
+      /**
+       * Round No
+       * @description 0 = original proposal, 1 = counter-proposal
+       */
+      round_no: number;
+      /**
+       * Proposed By
+       * Format: uuid
+       * @description UUID of the user who proposed this version
+       */
+      proposed_by: string;
+      /**
+       * Proposed At
+       * Format: date-time
+       * @description UTC datetime when this version was proposed
+       */
+      proposed_at: string;
+      /**
+       * Principal
+       * @description Principal in GBP
+       * @example 500.00
+       */
+      principal: string;
+      /**
+       * Interest Rate
+       * @description Interest rate fraction
+       * @example 0.200000
+       */
+      interest_rate: string;
+      /** @description Interest period enum */
+      interest_period: components["schemas"]["InterestPeriod"];
+      /**
+       * Duration Periods
+       * @description Number of payment periods
+       */
+      duration_periods: number;
+      /** @description Payment frequency enum */
+      payment_frequency: components["schemas"]["PaymentFrequency"];
+      /**
+       * Minimum Payment
+       * @description Minimum payment per period (GBP)
+       * @example 50.00
+       */
+      minimum_payment: string;
+      /** @description Late penalty severity preset */
+      late_penalty_severity: components["schemas"]["LatePenaltySeverity"];
+      /**
+       * Late Penalty Percent
+       * @description Late penalty fraction
+       * @example 0.1000
+       */
+      late_penalty_percent: string;
+      /**
+       * Dom Can Add Surprise Penalty
+       * @description Goddess surprise-penalty capability
+       */
+      dom_can_add_surprise_penalty: boolean;
+      /** @description Mid-contract addition mode */
+      mid_contract_addition_mode: components["schemas"]["MidContractAdditionMode"];
+      /**
+       * Exit Amount
+       * @description Exit/buyout reference amount (GBP)
+       * @example 600.00
+       */
+      exit_amount: string;
+    };
+    /** DebtSimulationOut */
+    DebtSimulationOut: {
+      /**
+       * Periods
+       * @description Period-by-period projection
+       */
+      periods: components["schemas"]["DebtSimulationPeriod"][];
+      /**
+       * Severe Warning
+       * @description True if minimum payment cannot keep up with interest growth
+       */
+      severe_warning: boolean;
+      /**
+       * Period Rate
+       * @description Per-period interest rate (fraction)
+       */
+      period_rate: string;
+      /**
+       * Monthly Rate
+       * @description Derived monthly interest rate (fraction)
+       */
+      monthly_rate: string;
+    };
+    /** DebtSimulationPeriod */
+    DebtSimulationPeriod: {
+      /**
+       * Period
+       * @description Period index (1-based)
+       */
+      period: number;
+      /**
+       * Balance Before Payment
+       * @description Balance after interest, before payment
+       */
+      balance_before_payment: string;
+      /**
+       * Payment
+       * @description Payment applied this period
+       */
+      payment: string;
+      /**
+       * Balance End
+       * @description Balance after payment
+       */
+      balance_end: string;
+    };
     /** DeclarePaymentIn */
     DeclarePaymentIn: {
       /**
@@ -599,6 +1256,11 @@ export interface components {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
     };
+    /**
+     * InterestPeriod
+     * @enum {string}
+     */
+    InterestPeriod: "monthly" | "yearly";
     /** InvitationCreate */
     InvitationCreate: {
       /**
@@ -672,6 +1334,11 @@ export interface components {
        */
       created_at: string;
     };
+    /**
+     * LatePenaltySeverity
+     * @enum {string}
+     */
+    LatePenaltySeverity: "light" | "medium" | "severe";
     /** LoginRequest */
     LoginRequest: {
       /**
@@ -687,6 +1354,11 @@ export interface components {
        */
       password: string;
     };
+    /**
+     * MidContractAdditionMode
+     * @enum {string}
+     */
+    MidContractAdditionMode: "disabled" | "dom_controlled" | "sub_approval_required";
     /** PasswordResetConfirm */
     PasswordResetConfirm: {
       /**
@@ -716,6 +1388,11 @@ export interface components {
      * @enum {string}
      */
     PaymentCategory: "entry" | "rolling" | "weekly_debt" | "debt_payment" | "buyout" | "tribute";
+    /**
+     * PaymentFrequency
+     * @enum {string}
+     */
+    PaymentFrequency: "weekly" | "biweekly" | "monthly";
     /** PaymentMethodCreate */
     PaymentMethodCreate: {
       /**
@@ -2860,6 +3537,738 @@ export interface operations {
       };
       /** @description Not found — sub does not exist or is not linked to this goddess */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  simulate_draft_debts_simulate_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DebtContractCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtSimulationOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  propose_as_goddess_goddess_subs__sub_id__debts_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        sub_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DebtContractCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_sub_contracts_sub_debts_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  propose_as_sub_sub_debts_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DebtContractCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  counter_propose_debts__contract_id__counter_propose_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DebtContractCounter"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — transition not valid from the current contract status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unprocessable entity — request body validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  accept_counter_debts__contract_id__accept_counter_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — transition not valid from the current contract status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  reject_counter_debts__contract_id__reject_counter_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — transition not valid from the current contract status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  sign_as_sub_debts__contract_id__sign_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — transition not valid from the current contract status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  close_as_goddess_goddess_debts__contract_id__close_post: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conflict — transition not valid from the current contract status */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  get_contract_debts__contract_id__get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  get_contract_audit_debts__contract_id__audit_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path: {
+        contract_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractAuditOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found — contract does not exist or is not visible to caller */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_goddess_contracts_goddess_debts_get: {
+    parameters: {
+      query?: never;
+      header?: {
+        authorization?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DebtContractOut"][];
+        };
+      };
+      /** @description Unauthorized — missing or invalid access token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — role or ownership mismatch */
+      403: {
         headers: {
           [name: string]: unknown;
         };
