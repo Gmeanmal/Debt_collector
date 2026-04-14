@@ -33,8 +33,15 @@ def current_cycle_deadline(rolling: RollingTribute, now: datetime.datetime) -> d
 
 
 def days_late(rolling: RollingTribute, now: datetime.datetime) -> int:
-    """Return the number of calendar days past the last deadline (0 if on time)."""
+    """Return the number of calendar days past the last deadline (0 if on time).
+
+    The baseline is the later of rolling creation and last paid timestamp — a
+    deadline that fell before the sub was even on the hook does not count as late.
+    """
+    baseline = rolling.last_paid_at or rolling.created_at
     last_deadline = current_cycle_deadline(rolling, now) - datetime.timedelta(days=7)
+    if last_deadline <= baseline:
+        return 0
     last_deadline_uk = last_deadline.replace(tzinfo=datetime.UTC).astimezone(LONDON)
     now_uk = now.replace(tzinfo=datetime.UTC).astimezone(LONDON)
     if now_uk <= last_deadline_uk:
