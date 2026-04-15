@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     rate_limit_password_reset: str = "3/minute"
     rate_limit_public_invitation: str = "30/minute"
 
+    # Defense-in-depth: HMAC key applied before argon2. Empty string disables pepper.
+    # Must differ from JWT_SECRET_KEY and be rotated independently.
+    password_pepper: str = ""
+
     @property
     def is_prod(self) -> bool:
         return self.app_env == AppEnv.prod

@@ -1,4 +1,6 @@
+import base64
 import hashlib
+import hmac
 import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -18,15 +20,55 @@ _hasher = PasswordHasher(
 )
 
 
+def _prepare_password(plain: str) -> str:
+    # base64 prevents null-byte truncation and the 72-char bcrypt/argon2 footgun.
+    # HMAC binds the digest to the pepper so a DB-only leak can't feed offline cracking.
+    if _settings.password_pepper:
+        digest = hmac.new(
+            _settings.password_pepper.encode(),
+            plain.encode(),
+            hashlib.sha256,
+        ).digest()
+        return base64.b64encode(digest).decode()
+    return base64.b64encode(plain.encode()).decode()
+
+
 def hash_password(plain: str) -> str:
-    return _hasher.hash(plain)
+    return _hasher.hash(_prepare_password(plain))
+
+
+def verify_password_with_rehash(plain: str, hashed: str) -> tuple[bool, str | None]:
+    """Verify a password and return (ok, new_hash_or_none).
+
+    new_hash_or_none is set when the stored hash was produced with the legacy
+    format (plain text, no pepper pre-processing) or when argon2 parameters
+    have drifted and a rehash is warranted.
+    """
+    prepared = _prepare_password(plain)
+
+    # Fast path: new format (peppered + base64).
+    try:
+        _hasher.verify(hashed, prepared)
+        if _hasher.check_needs_rehash(hashed):
+            return True, hash_password(plain)
+        return True, None
+    except VerifyMismatchError:
+        pass
+    except (InvalidHashError, ValueError):
+        return False, None
+
+    # Slow path: legacy format (plain text fed directly to argon2).
+    try:
+        _hasher.verify(hashed, plain)
+        # Always rehash legacy hashes to upgrade to the new format.
+        return True, hash_password(plain)
+    except (VerifyMismatchError, InvalidHashError, ValueError):
+        return False, None
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    try:
-        return _hasher.verify(hashed, plain)
-    except (VerifyMismatchError, InvalidHashError, ValueError):
-        return False
+    ok, _ = verify_password_with_rehash(plain, hashed)
+    return ok
 
 
 def create_access_token(

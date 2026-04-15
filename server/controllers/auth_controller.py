@@ -7,7 +7,7 @@ from core.security import (
     create_refresh_token,
     hash_password,
     hash_token,
-    verify_password,
+    verify_password_with_rehash,
 )
 from daos.token_dao import TokenDao
 from daos.user_dao import UserDao
@@ -27,10 +27,17 @@ class AuthController:
 
     async def login(self, email: str, password: str, ua: str | None, ip: str | None) -> TokenPair:
         user = await self._users.get_by_email(email)
-        if not user or not verify_password(password, user.password_hash):
+        ok, new_hash = (
+            verify_password_with_rehash(password, user.password_hash) if user else (False, None)
+        )
+        if not user or not ok:
             raise Unauthorized("invalid credentials")
         if user.status in (UserStatus.blacklisted, UserStatus.deleted):
             raise Forbidden("account not active")
+
+        if new_hash is not None:
+            user.password_hash = new_hash
+            await self._users.save(user)
 
         raw_refresh, _ = create_refresh_token()
         await self._tokens.create_refresh_token(user.id, raw_refresh, ua, ip)
