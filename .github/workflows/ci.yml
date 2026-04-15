@@ -298,6 +298,62 @@ jobs:
         run: pnpm install --frozen-lockfile
       - run: pnpm build
 
+  api-types-drift:
+    name: repo · api types drift
+    runs-on: ubuntu-latest
+    needs: [server-install, client-install]
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: debt
+          POSTGRES_PASSWORD: debt
+          POSTGRES_DB: debt
+        ports: ["4012:5432"]
+        options: >-
+          --health-cmd "pg_isready -U debt"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+asyncpg://debt:debt@localhost:4012/debt
+      JWT_SECRET_KEY: ci-placeholder-secret-do-not-use-in-prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: server/.venv
+          key: server-venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('server/uv.lock') }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: client/node_modules
+          key: client-nm-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('client/pnpm-lock.yaml') }}
+      - name: apply migrations
+        working-directory: server
+        run: uv run alembic upgrade head
+      - name: boot server
+        working-directory: server
+        run: |
+          uv run uvicorn main:app --host 0.0.0.0 --port 4011 &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:4011/healthz && break
+            sleep 1
+          done
+      - name: regenerate types
+        working-directory: client
+        run: pnpm sync-types
+      - name: check drift
+        run: git diff --exit-code client/src/types/api.generated.ts
+
   # ── repo-wide ────────────────────────────────────────────────────────────
   pre-commit:
     name: repo · pre-commit

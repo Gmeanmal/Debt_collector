@@ -1,4 +1,4 @@
-.PHONY: help up down server client install init-dbs flush-dbs reset-dbs feed-dbs migrate migration fmt lint typecheck quality check erd
+.PHONY: help up down server client install init-dbs flush-dbs reset-dbs feed-dbs migrate migration sync-types check-types-drift fmt lint typecheck quality check erd
 
 .DEFAULT_GOAL := help
 
@@ -62,6 +62,13 @@ check: ## fmt + lint + typecheck (ci-equivalent)
 	$(MAKE) fmt lint typecheck
 	cd server && uv run pytest -q || true   # tests retrofit in phase 10
 	cd client && pnpm vitest run || true
+
+sync-types: ## regenerate client api.generated.ts from running server openapi
+	cd client && pnpm sync-types
+
+check-types-drift: ## fail if api.generated.ts drifted from live openapi (ci gate)
+	cd client && pnpm sync-types
+	git diff --exit-code client/src/types/api.generated.ts
 
 erd: ## generate entity-relationship diagram
 	cd server && uv run python scripts/generate_erd.py
