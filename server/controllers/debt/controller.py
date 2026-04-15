@@ -402,9 +402,7 @@ class DebtController:
         if goddess is None:
             raise NotFound("goddess profile not found for this contract")
 
-        goddess_name = goddess.display_name
-        sub_full_name = user_display_name(sub_user)
-
+        sub_display = user_display_name(sub_user)
         from_status = contract.status
         signed_at = now_utc()
         contract.status = DebtContractStatus.active
@@ -412,11 +410,11 @@ class DebtController:
         contract.updated_at = signed_at
 
         pdf_bytes, sha = generate_contract_pdf(
-            contract,
-            goddess_name,
-            sub_full_name,
-            signature_png_b64,
-            signed_at.isoformat(),
+            contract=contract,
+            goddess=goddess,
+            sub_user=sub_user,
+            signature_b64=signature_png_b64,
+            signed_at=signed_at,
         )
 
         storage = get_storage_service()
@@ -446,7 +444,7 @@ class DebtController:
                 goddess_user_id,
                 NotificationType.contract_signed,
                 title="Contract signed",
-                body=f"{sub_full_name} signed the contract; it is now active.",
+                body=f"{sub_display} signed the contract; it is now active.",
                 link=f"/debts/{contract.id}",
                 payload={"contract_id": str(contract.id)},
             )

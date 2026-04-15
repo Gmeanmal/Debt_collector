@@ -2,64 +2,450 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Debt Contract</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet" />
+<title>Deed of Debt — {{ contract_short_id }}</title>
 <style>
-  @page { size: A4; margin: 24mm 20mm; }
-  body { font-family: 'Source Serif Pro', Georgia, serif; color: #1a1a1a; font-size: 11pt; line-height: 1.55; }
-  h1, h2, h3 { font-family: 'Playfair Display', 'Times New Roman', serif; color: #3a0a2a; font-weight: 700; letter-spacing: 0.2px; }
-  h1 { font-size: 26pt; margin: 0 0 6pt 0; text-align: center; }
-  h2 { font-size: 15pt; margin: 18pt 0 6pt 0; border-bottom: 1px solid #c9a6c1; padding-bottom: 3pt; }
-  .subtitle { text-align: center; font-style: italic; color: #6a4a60; margin-bottom: 24pt; }
-  table.terms { width: 100%; border-collapse: collapse; margin: 8pt 0 14pt 0; }
-  table.terms th, table.terms td { padding: 6pt 8pt; border-bottom: 1px solid #e4d4e0; text-align: left; vertical-align: top; }
-  table.terms th { width: 42%; font-weight: 600; color: #3a0a2a; font-family: 'Playfair Display', serif; }
-  .parties { display: flex; justify-content: space-between; margin: 10pt 0 14pt 0; }
-  .party { width: 48%; }
-  .party .label { font-family: 'Playfair Display', serif; color: #6a4a60; font-size: 10pt; text-transform: uppercase; letter-spacing: 1px; }
-  .party .name { font-size: 13pt; margin-top: 2pt; }
-  .sig-block { margin-top: 26pt; border-top: 1px solid #c9a6c1; padding-top: 14pt; }
-  .sig-block img { max-width: 300px; max-height: 120px; }
-  .sig-meta { font-size: 10pt; color: #6a4a60; margin-top: 6pt; }
-  .footer { margin-top: 30pt; font-size: 9pt; color: #8a6a80; text-align: center; font-style: italic; }
+/* ── Page layout ──────────────────────────────────────────────────── */
+@page {
+  size: A4;
+  margin: 22mm 20mm 28mm 20mm;
+  @bottom-center {
+    content: "Contract " string(contract-id) "   ·   Page " counter(page) " of " counter(pages) "   ·   Generated " string(generated-at);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 8pt;
+    color: #888;
+  }
+}
+
+/* ── String captures for footer ──────────────────────────────────── */
+#footer-id   { string-set: contract-id   content(); }
+#footer-date { string-set: generated-at  content(); }
+
+/* ── Base typography ──────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10.5pt;
+  line-height: 1.6;
+  color: #1a1a1a;
+  margin: 0;
+  padding: 0;
+}
+h1, h2, h3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  color: #2a0a1e;
+  margin: 0;
+}
+h1 { font-size: 22pt; text-align: center; letter-spacing: 0.5px; }
+h2 {
+  font-size: 12pt;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1.5px solid #b08090;
+  padding-bottom: 3pt;
+  margin-top: 18pt;
+  margin-bottom: 8pt;
+}
+p { margin: 0 0 8pt 0; }
+
+/* ── Draft watermark ──────────────────────────────────────────────── */
+{% if draft %}
+body::before {
+  content: "DRAFT";
+  position: fixed;
+  top: 38%;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 96pt;
+  font-weight: 900;
+  color: rgba(180, 0, 60, 0.09);
+  transform: rotate(-35deg);
+  pointer-events: none;
+  z-index: 0;
+}
+{% endif %}
+
+/* ── Header section ───────────────────────────────────────────────── */
+.header {
+  text-align: center;
+  margin-bottom: 18pt;
+  border-bottom: 2px solid #2a0a1e;
+  padding-bottom: 12pt;
+}
+.header .subtitle {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 4pt;
+}
+.header .meta {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  color: #555;
+  margin-top: 6pt;
+}
+
+/* ── Parties two-column block ─────────────────────────────────────── */
+.parties {
+  display: flex;
+  gap: 16pt;
+  margin-bottom: 4pt;
+}
+.party-box {
+  flex: 1;
+  border: 1px solid #c9a6b8;
+  border-radius: 3pt;
+  padding: 10pt 12pt;
+  background: #fdf8fb;
+}
+.party-box .role-label {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #8a4060;
+  margin-bottom: 4pt;
+}
+.party-box .party-name {
+  font-size: 13pt;
+  font-weight: 700;
+  color: #2a0a1e;
+  margin-bottom: 3pt;
+}
+.party-box .party-detail {
+  font-size: 9pt;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* ── Terms summary table ──────────────────────────────────────────── */
+table.terms {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 6pt 0 10pt 0;
+  font-size: 10pt;
+}
+table.terms th, table.terms td {
+  padding: 5pt 8pt;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid #e4d0dc;
+}
+table.terms th {
+  width: 40%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 600;
+  font-size: 9pt;
+  color: #5a2040;
+  background: #fdf0f5;
+}
+table.terms tr:last-child th,
+table.terms tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Repayment schedule ───────────────────────────────────────────── */
+table.schedule {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 6pt 0 10pt 0;
+  font-size: 9pt;
+}
+table.schedule thead tr {
+  background: #2a0a1e;
+  color: #fff;
+}
+table.schedule thead th {
+  padding: 5pt 6pt;
+  text-align: left;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 600;
+  font-size: 8.5pt;
+}
+table.schedule thead th:not(:first-child) {
+  text-align: right;
+}
+table.schedule tbody tr:nth-child(even) {
+  background: #fdf5f8;
+}
+table.schedule tbody td {
+  padding: 4pt 6pt;
+  border-bottom: 1px solid #ecdde5;
+  color: #1a1a1a;
+}
+table.schedule tbody td:not(:first-child):not(:nth-child(2)) {
+  text-align: right;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 8.5pt;
+}
+
+/* ── Clauses ──────────────────────────────────────────────────────── */
+.clause {
+  background: #fdf8fb;
+  border-left: 3px solid #b08090;
+  padding: 8pt 12pt;
+  margin-bottom: 8pt;
+  font-size: 9.5pt;
+}
+
+/* ── Signature section ────────────────────────────────────────────── */
+.signatures {
+  display: flex;
+  gap: 20pt;
+  margin-top: 20pt;
+  page-break-inside: avoid;
+}
+.sig-box {
+  flex: 1;
+  border: 1px solid #c9a6b8;
+  border-radius: 3pt;
+  padding: 12pt;
+  min-height: 120pt;
+  background: #fdf8fb;
+}
+.sig-box .sig-role {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #8a4060;
+  margin-bottom: 6pt;
+}
+.sig-box img {
+  max-width: 100%;
+  max-height: 80pt;
+  display: block;
+  margin-bottom: 6pt;
+}
+.sig-box .sig-pending {
+  height: 70pt;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b0a0a8;
+  font-style: italic;
+  font-size: 9pt;
+  border: 1px dashed #d0b0c0;
+  margin-bottom: 6pt;
+}
+.sig-box .sig-line {
+  border-top: 1px solid #555;
+  padding-top: 4pt;
+  font-size: 9pt;
+  color: #333;
+}
+.sig-box .sig-meta {
+  font-size: 8.5pt;
+  color: #666;
+  margin-top: 3pt;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ── Acknowledgement ──────────────────────────────────────────────── */
+.ack { font-size: 9.5pt; color: #333; }
+
+/* ── Hidden footer strings ────────────────────────────────────────── */
+.footer-strings { display: none; }
 </style>
 </head>
 <body>
-  <h1>Deed of Debt</h1>
-  <div class="subtitle">Executed between Goddess and Sub under the House of Mean Mal</div>
 
-  <div class="parties">
-    <div class="party">
-      <div class="label">Goddess (Creditor)</div>
-      <div class="name">{{ goddess_name }}</div>
+<!-- Hidden elements that feed @page string() captures -->
+<span class="footer-strings">
+  <span id="footer-id">{{ contract_short_id }}</span>
+  <span id="footer-date">{{ generated_at_fmt }} (London)</span>
+</span>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────── -->
+<div class="header">
+  <h1>{{ goddess_display_name }}</h1>
+  <div class="subtitle">Deed of Debt · House of Mean Mal</div>
+  <div class="meta">
+    Contract ref: <strong>{{ contract_short_id }}</strong>
+    &nbsp;·&nbsp;
+    Created: {{ created_at_fmt }} (London)
+  </div>
+</div>
+
+<!-- ── PARTIES ────────────────────────────────────────────────────── -->
+<h2>Parties</h2>
+<div class="parties">
+  <div class="party-box">
+    <div class="role-label">Goddess (Creditor)</div>
+    <div class="party-name">{{ goddess_display_name }}</div>
+    <div class="party-detail">
+      {{ goddess_email }}
     </div>
-    <div class="party">
-      <div class="label">Sub (Debtor)</div>
-      <div class="name">{{ sub_full_name }}</div>
+  </div>
+  <div class="party-box">
+    <div class="role-label">Sub (Debtor)</div>
+    <div class="party-name">{{ sub_full_name }}</div>
+    <div class="party-detail">
+      @{{ sub_username }}<br/>
+      {% if sub_first_name or sub_last_name %}
+      {{ sub_first_name }} {{ sub_last_name }}<br/>
+      {% endif %}
+      ID prefix: {{ sub_id_prefix }}
+    </div>
+  </div>
+</div>
+
+<!-- ── PRINCIPAL & SCHEDULE SUMMARY ──────────────────────────────── -->
+<h2>Financial Terms</h2>
+<table class="terms">
+  <tr>
+    <th>Principal</th>
+    <td>{{ principal_fmt }}</td>
+  </tr>
+  <tr>
+    <th>Duration</th>
+    <td>{{ duration_periods }} {{ frequency_label }} period(s)</td>
+  </tr>
+  <tr>
+    <th>Payment frequency</th>
+    <td>{{ frequency_label | capitalize }}</td>
+  </tr>
+  <tr>
+    <th>Interest rate</th>
+    <td>{{ interest_rate_pct }}% {{ interest_period_label }}</td>
+  </tr>
+  <tr>
+    <th>Minimum payment per period</th>
+    <td>{{ minimum_payment_fmt }}</td>
+  </tr>
+  <tr>
+    <th>Late penalty</th>
+    <td>{{ late_penalty_severity | capitalize }} — {{ penalty_pct }}% of outstanding balance</td>
+  </tr>
+  <tr>
+    <th>Exit / early-buyout amount</th>
+    <td>{{ exit_amount_fmt }}</td>
+  </tr>
+  <tr>
+    <th>Mid-contract additions</th>
+    <td>{{ contract.mid_contract_addition_mode.value | replace("_", " ") | capitalize }}</td>
+  </tr>
+  <tr>
+    <th>Surprise penalties</th>
+    <td>{% if contract.dom_can_add_surprise_penalty %}Enabled{% else %}Disabled{% endif %}</td>
+  </tr>
+</table>
+
+<!-- ── FULL REPAYMENT SCHEDULE ────────────────────────────────────── -->
+<h2>Repayment Schedule</h2>
+{% if schedule_rows %}
+<table class="schedule">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Due date (London)</th>
+      <th>Amount due (£)</th>
+      <th>Interest (£)</th>
+      <th>Running balance (£)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in schedule_rows %}
+    <tr>
+      <td>{{ row.period }}</td>
+      <td>{{ row.due_date }}</td>
+      <td>{{ row.amount_due }}</td>
+      <td>{{ row.interest }}</td>
+      <td>{{ row.running_balance }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p style="font-size:8.5pt; color:#666; font-style:italic;">
+  Projection assumes minimum payment each period with no additional penalties or adjustments.
+  Actual amounts may differ.
+</p>
+{% else %}
+<p style="font-size:9pt; color:#888; font-style:italic;">Schedule not available for this contract.</p>
+{% endif %}
+
+<!-- ── LATE-PENALTY CLAUSES ───────────────────────────────────────── -->
+<h2>Late-Penalty Clauses</h2>
+<div class="clause">
+  A late-payment penalty of <strong>{{ penalty_pct }}%</strong> of the outstanding balance applies
+  once a payment is overdue, classified under the
+  <strong>{{ late_penalty_severity | capitalize }}</strong> severity tier.
+  {% if contract.dom_can_add_surprise_penalty %}
+  In addition, the Goddess retains the right to apply discretionary surprise penalties at any
+  time during the contract term.
+  {% endif %}
+  Penalties compound with the regular interest rate ({{ interest_rate_pct }}% {{ interest_period_label }})
+  until the overdue amount is settled in full.
+</div>
+
+<!-- ── EXIT / EARLY-BUYOUT CLAUSES ───────────────────────────────── -->
+<h2>Exit &amp; Early-Buyout Clauses</h2>
+<div class="clause">
+  The Sub may exit this contract early by paying the buyout amount of
+  <strong>{{ exit_amount_fmt }}</strong>, prorated linearly over the contract's
+  {{ duration_periods }} {{ frequency_label }} period(s). The prorated buyout amount is calculated
+  at the time of the exit request and is subject to any outstanding penalties or adjustments
+  at that date.
+  Mid-contract additions are governed by the
+  <strong>{{ contract.mid_contract_addition_mode.value | replace("_", " ") | capitalize }}</strong>
+  policy.
+</div>
+
+<!-- ── ACKNOWLEDGEMENT ────────────────────────────────────────────── -->
+<h2>Acknowledgement</h2>
+<p class="ack">
+  The Sub named above acknowledges and accepts the terms recorded in this deed, binding themselves
+  to the Goddess under the conditions specified. The Sub affirms this contract is entered into
+  willingly and with full understanding of the financial obligations described herein.
+  This instrument is private and is not a regulated financial product.
+</p>
+
+<!-- ── SIGNATURES ─────────────────────────────────────────────────── -->
+<h2>Signatures</h2>
+<div class="signatures">
+
+  <!-- Goddess signature -->
+  <div class="sig-box">
+    <div class="sig-role">Goddess (Creditor)</div>
+    {% if goddess_signature_b64 %}
+      <img src="data:image/png;base64,{{ goddess_signature_b64 }}" alt="Goddess signature" />
+    {% else %}
+      <div class="sig-pending">Pending signature</div>
+    {% endif %}
+    <div class="sig-line">{{ goddess_display_name }}</div>
+    <div class="sig-meta">
+      {% if signed_at_fmt %}
+        Signed: {{ signed_at_fmt }}
+      {% else %}
+        Signed: —
+      {% endif %}
     </div>
   </div>
 
-  <h2>Financial Terms</h2>
-  <table class="terms">
-    <tr><th>Principal</th><td>£{{ "%.2f"|format(contract.principal) }}</td></tr>
-    <tr><th>Interest rate</th><td>{{ "%.4f"|format(contract.interest_rate * 100) }}% {{ contract.interest_period.value }}</td></tr>
-    <tr><th>Duration</th><td>{{ contract.duration_periods }} {{ contract.interest_period.value }} period(s)</td></tr>
-    <tr><th>Payment frequency</th><td>{{ contract.payment_frequency.value }}</td></tr>
-    <tr><th>Minimum payment</th><td>£{{ "%.2f"|format(contract.minimum_payment) }}</td></tr>
-    <tr><th>Late penalty</th><td>{{ contract.late_penalty_severity.value }} — {{ "%.2f"|format(contract.late_penalty_percent * 100) }}%</td></tr>
-    <tr><th>Mid-contract addition</th><td>{{ contract.mid_contract_addition_mode.value }}</td></tr>
-    <tr><th>Exit amount</th><td>£{{ "%.2f"|format(contract.exit_amount) }}</td></tr>
-  </table>
-
-  <h2>Acknowledgement</h2>
-  <p>The Sub named above acknowledges and accepts the terms recorded in this deed, binding themselves to the Goddess under the conditions specified. The Sub affirms this contract is entered into willingly and with full understanding.</p>
-
-  <div class="sig-block">
-    <div class="label" style="font-family: 'Playfair Display', serif; color: #6a4a60; font-size: 10pt; text-transform: uppercase; letter-spacing: 1px;">Signature of Sub</div>
-    <img src="data:image/png;base64,{{ signature_b64 }}" alt="Sub signature" />
-    <div class="sig-meta">Signed by {{ sub_full_name }} on {{ signed_at }}</div>
+  <!-- Sub signature -->
+  <div class="sig-box">
+    <div class="sig-role">Sub (Debtor)</div>
+    {% if signature_b64 %}
+      <img src="data:image/png;base64,{{ signature_b64 }}" alt="Sub signature" />
+    {% else %}
+      <div class="sig-pending">Pending signature</div>
+    {% endif %}
+    <div class="sig-line">{{ sub_full_name }}</div>
+    <div class="sig-meta">
+      @{{ sub_username }}
+      {% if signed_at_fmt %}
+        · Signed: {{ signed_at_fmt }}
+      {% else %}
+        · Signed: —
+      {% endif %}
+    </div>
   </div>
 
-  <div class="footer">House of Mean Mal — private instrument, not a regulated financial product.</div>
+</div>
+
 </body>
 </html>
