@@ -1,4 +1,5 @@
 import { getAccessToken } from "@/services/auth/tokenStorage";
+import { env } from "@/utils/env";
 
 export interface AdminListParams {
   q?: string;
@@ -14,7 +15,7 @@ export interface AdminListResult {
 }
 
 function baseUrl(): string {
-  return import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4011";
+  return env.VITE_API_BASE_URL;
 }
 
 function authHeaders(): Record<string, string> {

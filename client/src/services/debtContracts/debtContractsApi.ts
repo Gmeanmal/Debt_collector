@@ -1,6 +1,7 @@
 import { apiClient } from "@/api/client";
 import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { components } from "@/types/api.generated";
+import { env } from "@/utils/env";
 
 export type DebtContractCreate = components["schemas"]["DebtContractCreate"];
 export type DebtContractCounter = components["schemas"]["DebtContractCounter"];
@@ -100,8 +101,7 @@ export async function signContractApi(
 }
 
 export async function downloadContractPdfApi(contractId: string): Promise<string> {
-  const base = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4011";
-  const url = `${base}/debts/${contractId}/pdf`;
+  const url = `${env.VITE_API_BASE_URL}/debts/${contractId}/pdf`;
   const response = await fetch(url, {
     headers: authHeaders(),
     redirect: "follow",

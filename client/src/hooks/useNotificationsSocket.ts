@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { NotificationOut } from "@/services/notifications/notificationsApi";
 import { useNotificationsStore } from "@/stores/notificationsStore";
+import { env } from "@/utils/env";
 
 const INITIAL_BACKOFF_MS = 1000;
 const MAX_BACKOFF_MS = 30_000;
@@ -12,8 +13,7 @@ interface UseNotificationsSocketResult {
 }
 
 function buildWsUrl(token: string): string {
-  const base = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4011";
-  const wsBase = base.replace(/^http/, "ws");
+  const wsBase = env.VITE_WS_BASE_URL;
   return `${wsBase}/ws/notifications?token=${encodeURIComponent(token)}`;
 }
 
