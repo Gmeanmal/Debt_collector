@@ -5,6 +5,16 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **P0 foundation pass** (audit-driven from Malverse + Calidra):
+  - `client/src/utils/env.ts` — only file allowed to read `import.meta.env`; zod schema fails fast on missing/malformed `VITE_*` vars.
+  - `client/src/lib/queryKeys.ts` — typed TanStack Query key factory organised by domain; every inline key migrated.
+  - `GET /healthz` liveness probe; `openapi_url`/`docs_url`/`redoc_url` forced to `None` in prod.
+  - `RequestIdMiddleware` generates/echoes `X-Request-ID`; structlog rewires logging (json in staging/prod, console in dev/test) with `request_id` bound into contextvars per request.
+  - Password pepper: `base64(hmac-sha256(PASSWORD_PEPPER, plain))` pre-argon2 hash; dual-verify on login transparently rehashes legacy rows.
+  - `RateLimiter` Protocol with `MemoryRateLimiter` / `RedisRateLimiter` impls, toggled by `RATE_LIMITER_BACKEND` + `REDIS_URL`; slowapi route decorators preserved.
+  - `make sync-types` + CI `api-types-drift` job fail if `client/src/types/api.generated.ts` drifts from live `/openapi.json`.
+  - Makefile `help`, `install`, `quality`, `feed-dbs` composite targets with `## description` annotations.
+  - Postgres healthcheck in `docker-compose.yml`.
 - `APP_ENV` setting (`dev` | `test` | `staging` | `prod`). Prod auto-enables `Secure` cookies, `SameSite=strict`, and HSTS — no manual toggle.
 - Rate limiting (`slowapi`) on `/auth/login`, `/auth/password-reset/request`, `/auth/password-reset/confirm`, `/signup`, and `GET /invite/{token}`.
 - `SecurityHeadersMiddleware` — CSP, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS (prod only).
