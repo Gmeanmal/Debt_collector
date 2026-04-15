@@ -1,4 +1,12 @@
+from typing import Literal
+
 from fastapi import APIRouter
+from pydantic import BaseModel
+
+
+class HealthzResponse(BaseModel):
+    status: Literal["ok"]
+
 
 router = APIRouter(tags=["infra"])
 
@@ -21,3 +29,19 @@ router = APIRouter(tags=["infra"])
 )
 async def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@router.get(
+    "/healthz",
+    summary="Liveness probe",
+    description=(
+        "Returns `{\"status\": \"ok\"}` when the server process is running. "
+        "Does not verify database connectivity. Use as a Kubernetes/Docker liveness probe."
+    ),
+    response_model=HealthzResponse,
+    status_code=200,
+    tags=["system"],
+    responses={},
+)
+async def healthz() -> HealthzResponse:
+    return HealthzResponse(status="ok")

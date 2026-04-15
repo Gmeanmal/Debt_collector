@@ -58,11 +58,18 @@ async def lifespan(_: FastAPI):
         await engine.dispose()
 
 
-app = FastAPI(title="Debt Collector API", version="0.1.0", lifespan=lifespan)
+_settings = get_settings()
+
+app = FastAPI(
+    title="Debt Collector API",
+    version="0.1.0",
+    lifespan=lifespan,
+    openapi_url=None if _settings.is_prod else "/openapi.json",
+    docs_url=None if _settings.is_prod else "/docs",
+    redoc_url=None if _settings.is_prod else "/redoc",
+)
 
 app.state.limiter = limiter
-
-_settings = get_settings()
 
 if _settings.rate_limit_enabled:
     app.add_middleware(SlowAPIMiddleware)
