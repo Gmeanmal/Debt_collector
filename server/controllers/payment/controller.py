@@ -271,6 +271,9 @@ class PaymentController:
                 "id": str(s.id),
                 "username": s.username,
                 "display_name": " ".join(p for p in [s.first_name, s.last_name] if p) or s.username,
+                "first_name": s.first_name,
+                "last_name": s.last_name,
+                "avatar_key": s.avatar_key,
                 "status": s.status,
             }
             for s in subs
