@@ -5,6 +5,11 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **P1.1** base64 signature + on-demand PDF: `signature_b64` column replaces `signed_pdf_url`/`signed_pdf_sha256`; `GET /debts/{id}/pdf[?draft=1]` regenerates via WeasyPrint and streams inline; `services/storage/*` removed.
+- **P1.3** redesigned contract PDF template: A4 with 8 named sections, full repayment schedule, framed signature block (Europe/London `signed_at`), draft watermark variant.
+- **P1.6** avatars + goddess-moderated profile changes: `AvatarKey` enum, 10 seeded SVGs, `payment_handle` on `User` (sub-editable), `ProfileChangeRequest` workflow (approve / reject / set fee — fee paths tied to a special `profile_change_fee` `PaymentDeclaration`), goddess review UI at `/goddess/profile-change-requests`, sub edit UI on `/profile`. `UserOut` now carries `payment_handle`.
+- **P1.7** goddess dashboard charts: `GET /goddess/dashboard/charts` returns pre-aggregated monthly revenue, method breakdown, subs-by-status, top-5 subs, 30-day late-rate, and contract-state counts. Client renders with recharts + `ChartPanel`, colours bound to `tokens.css`.
+- **P1.8** goddess contract preview page at `/goddess/contracts/:id/preview`: header summary, full schedule table, what-if simulator calling `/debts/simulate`, balance decay chart, DRAFT PDF export button.
 - **P0 foundation pass** (audit-driven from Malverse + Calidra):
   - `client/src/utils/env.ts` — only file allowed to read `import.meta.env`; zod schema fails fast on missing/malformed `VITE_*` vars.
   - `client/src/lib/queryKeys.ts` — typed TanStack Query key factory organised by domain; every inline key migrated.

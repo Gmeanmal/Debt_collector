@@ -54,15 +54,9 @@ Postgres + Mailhog present with matching ports and healthcheck.
 
 These depend on P0 being solid (typed API, real tests, visual regression baseline).
 
-### P1.1 — Base64 signature instead of storing the signed PDF
+### P1.1 — Base64 signature instead of storing the signed PDF ✅ DONE (2026-04-15)
 
-- Drop `signed_pdf_url` and `signed_pdf_sha256` on `DebtContract`.
-- Add `signature_b64` (TEXT) — PNG encoded as base64 data URI.
-- Migration to swap columns.
-- `sign_contract` controller: store `signature_b64`, stop calling storage service.
-- `GET /debts/{id}/pdf` endpoint: regenerate on the fly via `generate_contract_pdf(...)` and stream inline (`Response(pdf, media_type="application/pdf")`).
-- Seeds: replace `signed_pdf_url=…` with a 1×1 transparent PNG encoded as base64.
-- Remove `services/storage/*` if no other route still uses it after this change.
+`signed_pdf_url`/`signed_pdf_sha256` dropped; `signature_b64` added (Text). Sign controller stores the data URI; `GET /debts/{id}/pdf[?draft]` regenerates and streams inline. `services/storage/*` removed. Client sign route posts `signature_b64`; download gate is now `signed_at`.
 
 ### P1.2 — Throne API integration for automatic payment ingestion
 
@@ -72,13 +66,9 @@ These depend on P0 being solid (typed API, real tests, visual regression baselin
 - Goddess dashboard: "Auto-detected via Throne" badge on payments received via webhook.
 - Polling fallback if no webhook available.
 
-### P1.3 — Redesign signed-contract PDF template
+### P1.3 — Redesign signed-contract PDF template ✅ DONE (2026-04-15)
 
-- Redesign `server/services/pdf/templates/contract.html`: clear hierarchy, named sections (parties, principal, schedule, late-penalty clauses, exit, signatures).
-- Add full repayment schedule (one row per period with due date + amount due + interest).
-- Print-ready style (A4, margins, pagination, footer with contract id + sha).
-- Framed signature block with `signed_at` in Europe/London timezone.
-- Include goddess header (logo + display_name) and full sub info block.
+A4 redesign with 8 named sections, full repayment schedule, print-ready margins/pagination, framed signature block with Europe/London `signed_at`, goddess + sub info blocks, and DRAFT watermark variant.
 
 ### P1.4 — Payment ingestion via goddess's own payment methods (receipt webhooks)
 
@@ -95,36 +85,17 @@ These depend on P0 being solid (typed API, real tests, visual regression baselin
 - Otherwise: deep-link fallback (open YouPay in new tab with query params).
 - Contact YouPay support if documentation unclear.
 
-### P1.6 — Avatars + sub profiles controlled by the goddess
+### P1.6 — Avatars + sub profiles controlled by the goddess ✅ DONE (2026-04-15)
 
-- Seed 10 default avatars (in `client/src/assets/avatars/`) + "default" avatar assigned at sign-up.
-- `avatar_key` field on `User` (enum or FK to `Avatar` table).
-- Only goddess can edit a sub's `avatar_key`, `first_name`, `last_name`, `display_name`, `notes`.
-- `ProfileChangeRequest` table: sub requests change → goddess approves / rejects / proposes "cost" (e.g. 50 GBP). If sub accepts cost, generate special `PaymentDeclaration` "profile_change_fee" → change applied on validation.
-- Sub **can** edit exactly one field: their `payment_handle` (Throne / PayPal username). Add to sign-up form + `/sub/profile`.
-- Everywhere goddess lists/views subs → avatar + first name + last name (never UUID).
-- `payment_handle` is matching key for Throne webhook (see P1.2).
+10 seeded SVG avatars + `AvatarKey` enum on `User`. `payment_handle` (max 64) sub-editable; surfaced on `UserOut`. `ProfileChangeRequest` workflow (sub submits, goddess approves/rejects/sets fee; fee-gated changes apply on payment validation). Goddess sub listings render avatar + first/last name. UUIDs stay admin-only.
 
-### P1.7 — Goddess dashboard: charts and styled aggregates
+### P1.7 — Goddess dashboard: charts and styled aggregates ✅ DONE (2026-04-15)
 
-- Add dashboard page with:
-  - Monthly revenue (line chart: rolling + tributes + contracts).
-  - Breakdown by payment method (pie/donut).
-  - Subs by status (stacked bar).
-  - Top 5 subs by generated revenue (leaderboard).
-  - 30-day late rate (sparkline).
-  - Active vs completed vs breached contracts (progress bars).
-- Library: recharts or visx (ESM, lightweight, tailwind-friendly).
-- Style consistent with `tokens.css`, no inline colours.
+`GET /goddess/dashboard/charts` exposes pre-aggregated DTOs: monthly revenue (12 months, rolling/one-off/contract split), method breakdown, subs-by-status, top-5 subs, 30-day late-rate sparkline, active/completed/breached contract counts. Client renders via recharts + `ChartPanel`, colours sourced from `tokens.css` (CSS-var bridge for runtime recharts fills).
 
-### P1.8 — Improve contract preview
+### P1.8 — Improve contract preview ✅ DONE (2026-04-15)
 
-- `/goddess/contracts/:id/preview` page (and sub-side before signing):
-  - Header summary (principal, duration, frequency, rate).
-  - Full schedule: table with period #, due date, amount due, running total.
-  - "Late payment" / "early buyout" / "breach" simulator (use existing `/debts/simulate`).
-  - Balance decay chart over time.
-  - "Draft" PDF export (same template as P1.3, with "DRAFT" watermark).
+Goddess-only `/goddess/contracts/:id/preview` route: header summary, full schedule table (period #, due date, amount, running balance), what-if simulator posting to `/debts/simulate`, recharts balance decay chart, and DRAFT PDF export via `GET /debts/{id}/pdf?draft=1`. Linked from `ContractDetailRoute`.
 
 ### P1.9 — More goddess photos + multi-tenant later
 
