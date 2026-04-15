@@ -12,8 +12,8 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U debt"]
       interval: 5s
-      timeout: 3s
-      retries: 10
+      timeout: 10s
+      retries: 5
 
   mailhog:
     image: mailhog/mailhog:latest
