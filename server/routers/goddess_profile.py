@@ -37,6 +37,7 @@ def _user_out(user: User) -> UserOut:
         last_name=user.last_name,
         bio=user.bio,
         avatar_key=user.avatar_key,
+        payment_handle=user.payment_handle,
         theme_preference=user.theme_preference,
         created_at=user.created_at,
         impersonator_id=None,

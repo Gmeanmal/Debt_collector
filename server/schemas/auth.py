@@ -67,6 +67,13 @@ class UserOut(BaseModel):
     avatar_key: AvatarKey = Field(
         default=AvatarKey.default, description="Avatar key", examples=["default"]
     )
+    payment_handle: str | None = Field(
+        None,
+        description=(
+            "Sub's payment handle (Throne / PayPal username) used to match incoming payments."
+        ),
+        examples=["demosub3"],
+    )
     theme_preference: str = Field(..., description="UI theme preference", examples=["system"])
     created_at: datetime = Field(..., description="Account creation timestamp (UTC)")
     impersonator_id: UUID | None = Field(
