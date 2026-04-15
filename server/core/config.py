@@ -1,5 +1,6 @@
 from enum import StrEnum
 from functools import lru_cache
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -53,6 +54,8 @@ class Settings(BaseSettings):
     rate_limit_signup: str = "5/minute"
     rate_limit_password_reset: str = "3/minute"
     rate_limit_public_invitation: str = "30/minute"
+    rate_limiter_backend: Literal["memory", "redis"] = "memory"
+    redis_url: str = ""
 
     # Defense-in-depth: HMAC key applied before argon2. Empty string disables pepper.
     # Must differ from JWT_SECRET_KEY and be rotated independently.
