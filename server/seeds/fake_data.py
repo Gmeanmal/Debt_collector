@@ -755,6 +755,7 @@ async def _seed_fred(s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID) -
     v0 = _version_from_contract(contract, goddess_user_id, round_no=0)
     v1 = _version_from_contract(contract, sub.id, round_no=1)
     s.add_all([v0, v1])
+    await s.flush()
     contract.current_version_id = v1.id
     s.add_all(
         [
@@ -850,6 +851,7 @@ async def _seed_henry(s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID) 
     v0 = _version_from_contract(contract, goddess_user_id, round_no=0)
     v1 = _version_from_contract(contract, sub.id, round_no=1)
     s.add_all([v0, v1])
+    await s.flush()
     contract.current_version_id = v1.id
     s.add_all(
         [
