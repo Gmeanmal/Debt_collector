@@ -1815,6 +1815,26 @@ export interface paths {
         patch: operations["edit_sub_profile_goddess_subs__sub_id__profile_patch"];
         trace?: never;
     };
+    "/goddess/dashboard/charts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Goddess dashboard chart aggregates
+         * @description Returns pre-aggregated chart data for the goddess dashboard: 12-month revenue split by payment type (rolling / one-off / contract), payment method breakdown, sub counts by user status with rolling/contract splits, top 5 subs by revenue, 30-day daily late-sub counts, and current contract state totals. All monetary amounts are GBP. Months are Europe/London calendar months.
+         */
+        get: operations["goddess_dashboard_charts_goddess_dashboard_charts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/goddess/dashboard": {
         parameters: {
             query?: never;
@@ -3326,6 +3346,27 @@ export interface components {
              */
             resolved_at?: string | null;
         };
+        /** ContractStateCount */
+        ContractStateCount: {
+            /**
+             * Active
+             * @description Number of active contracts
+             * @example 4
+             */
+            active: number;
+            /**
+             * Completed
+             * @description Number of completed contracts
+             * @example 1
+             */
+            completed: number;
+            /**
+             * Breached
+             * @description Number of breached contracts
+             * @example 1
+             */
+            breached: number;
+        };
         /** CronRunOut */
         CronRunOut: {
             /**
@@ -3358,6 +3399,52 @@ export interface components {
              * @example 1
              */
             contracts: number;
+        };
+        /** DailyLateCount */
+        DailyLateCount: {
+            /**
+             * Date
+             * Format: date
+             * @description Europe/London calendar date
+             * @example 2026-04-15
+             */
+            date: string;
+            /**
+             * Count
+             * @description Number of distinct subs with at least one late obligation on this date
+             * @example 2
+             */
+            count: number;
+        };
+        /** DashboardChartsOut */
+        DashboardChartsOut: {
+            /**
+             * Monthly Revenue
+             * @description Last 12 calendar months of revenue split by type (oldest first). Each bucket is a Europe/London calendar month.
+             */
+            monthly_revenue?: components["schemas"]["MonthlyRevenueBucket"][];
+            /**
+             * Method Breakdown
+             * @description Validated payment volume grouped by payment method type (all time). Ordered by total descending.
+             */
+            method_breakdown?: components["schemas"]["MethodBreakdownItem"][];
+            /**
+             * Subs By Status
+             * @description Sub counts grouped by user status, with rolling/contract splits. All known statuses are included (zero-filled where absent).
+             */
+            subs_by_status?: components["schemas"]["SubStatusCount"][];
+            /**
+             * Top Subs
+             * @description Top 5 subs by total validated payment volume (all time), sorted descending.
+             */
+            top_subs?: components["schemas"]["TopSubRevenue"][];
+            /**
+             * Daily Late Counts
+             * @description For each of the last 30 Europe/London calendar days, the number of distinct subs who were late on a rolling tribute on that day. Oldest first.
+             */
+            daily_late_counts?: components["schemas"]["DailyLateCount"][];
+            /** @description Current counts of active / completed / breached contracts. */
+            contract_states: components["schemas"]["ContractStateCount"];
         };
         /**
          * DeadlineDay
@@ -4225,11 +4312,58 @@ export interface components {
              */
             password: string;
         };
+        /** MethodBreakdownItem */
+        MethodBreakdownItem: {
+            /**
+             * @description Payment method type key
+             * @example paypal
+             */
+            method_type: components["schemas"]["PaymentMethodType"];
+            /**
+             * Total
+             * @description Sum of validated payments via this method (GBP)
+             * @example 300.00
+             */
+            total: string;
+            /**
+             * Count
+             * @description Number of validated declarations via this method
+             * @example 5
+             */
+            count: number;
+        };
         /**
          * MidContractAdditionMode
          * @enum {string}
          */
         MidContractAdditionMode: "disabled" | "dom_controlled" | "sub_approval_required";
+        /** MonthlyRevenueBucket */
+        MonthlyRevenueBucket: {
+            /**
+             * Month
+             * @description ISO month label YYYY-MM (Europe/London calendar month)
+             * @example 2026-04
+             */
+            month: string;
+            /**
+             * Rolling
+             * @description Sum of validated rolling tribute payments in this month (GBP)
+             * @example 150.00
+             */
+            rolling: string;
+            /**
+             * One Off
+             * @description Sum of validated one-off tribute / entry / profile_change_fee payments (GBP)
+             * @example 50.00
+             */
+            one_off: string;
+            /**
+             * Contract
+             * @description Sum of validated contract payments (weekly_debt + debt_payment + buyout) (GBP)
+             * @example 200.00
+             */
+            contract: string;
+        };
         /** NotificationListOut */
         NotificationListOut: {
             /**
@@ -5095,6 +5229,27 @@ export interface components {
              */
             rolling_remaining_this_month: string;
         };
+        /** SubStatusCount */
+        SubStatusCount: {
+            /**
+             * Status
+             * @description User status value
+             * @example active
+             */
+            status: string;
+            /**
+             * Rolling Count
+             * @description Number of subs with this status who have an active rolling tribute
+             * @example 3
+             */
+            rolling_count: number;
+            /**
+             * Contract Count
+             * @description Number of subs with this status who have an active contract
+             * @example 2
+             */
+            contract_count: number;
+        };
         /** SurprisePenaltyIn */
         SurprisePenaltyIn: {
             /**
@@ -5137,6 +5292,27 @@ export interface components {
              * @example 900
              */
             expires_in: number;
+        };
+        /** TopSubRevenue */
+        TopSubRevenue: {
+            /**
+             * Display Name
+             * @description Sub display name (first + last or username fallback)
+             * @example John D.
+             */
+            display_name: string;
+            /**
+             * Username
+             * @description Sub username
+             * @example johnd
+             */
+            username: string;
+            /**
+             * Total
+             * @description Sum of all validated payment allocations by this sub (GBP)
+             * @example 750.00
+             */
+            total: string;
         };
         /** UpcomingPaymentItem */
         UpcomingPaymentItem: {
@@ -5232,6 +5408,12 @@ export interface components {
              * @example default
              */
             avatar_key: components["schemas"]["AvatarKey"];
+            /**
+             * Payment Handle
+             * @description Sub's payment handle (Throne / PayPal username) used to match incoming payments.
+             * @example demosub3
+             */
+            payment_handle?: string | null;
             /**
              * Theme Preference
              * @description UI theme preference
@@ -12808,6 +12990,58 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+        };
+    };
+    goddess_dashboard_charts_goddess_dashboard_charts_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardChartsOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller role is not permitted for this dashboard */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
