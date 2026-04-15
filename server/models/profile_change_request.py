@@ -43,9 +43,7 @@ class ProfileChangeRequest(SQLModel, table=True):
     )
     fee_payment_id: UUID | None = Field(
         default=None,
-        sa_column=Column(
-            ForeignKey("payment_declaration.id", ondelete="SET NULL"), nullable=True
-        ),
+        sa_column=Column(ForeignKey("payment_declaration.id", ondelete="SET NULL"), nullable=True),
     )
 
     resolved_at: datetime | None = Field(default=None, nullable=True)

@@ -178,7 +178,9 @@ class DebtContractSignIn(BaseModel):
             "The frontend is responsible for enforcing size limits before submission."
         ),
         min_length=1,
-        examples=["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="],
+        examples=[
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+        ],
     )
 
     @field_validator("signature_b64")

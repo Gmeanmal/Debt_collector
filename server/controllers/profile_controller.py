@@ -43,9 +43,13 @@ class ProfileController:
         self, sub_user: User, payload: ProfileChangeRequestIn
     ) -> ProfileChangeRequestOut:
         """Sub submits a profile change request. Creates a pending request."""
-        if not payload.proposed_first_name and not payload.proposed_last_name \
-                and not payload.proposed_display_name and not payload.proposed_notes \
-                and not payload.proposed_avatar_key:
+        if (
+            not payload.proposed_first_name
+            and not payload.proposed_last_name
+            and not payload.proposed_display_name
+            and not payload.proposed_notes
+            and not payload.proposed_avatar_key
+        ):
             raise BadRequest("at least one proposed field must be set")
 
         req = ProfileChangeRequest(
@@ -76,9 +80,7 @@ class ProfileController:
         rows = await self._req_dao.list_pending_by_goddess(sub_ids)
         return [_to_out(r) for r in rows]
 
-    async def approve_free(
-        self, request_id: UUID, goddess_user: User
-    ) -> ProfileChangeRequestOut:
+    async def approve_free(self, request_id: UUID, goddess_user: User) -> ProfileChangeRequestOut:
         """Goddess approves a request without a fee — applies diff immediately."""
         req = await self._req_dao.get_by_id(request_id)
         await self._assert_goddess_owns_request(goddess_user, req)
@@ -183,9 +185,7 @@ class ProfileController:
         )
         return _to_out(req)
 
-    async def update_payment_handle(
-        self, sub_user: User, payload: PaymentHandleIn
-    ) -> User:
+    async def update_payment_handle(self, sub_user: User, payload: PaymentHandleIn) -> User:
         """Sub self-edits their payment handle."""
         return await self._user_dao.update_payment_handle(sub_user, payload.payment_handle)
 

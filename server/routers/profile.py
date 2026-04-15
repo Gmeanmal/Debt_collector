@@ -55,8 +55,7 @@ async def create_change_request(
     "/profile/change-requests",
     summary="List my profile change requests",
     description=(
-        "Returns all profile change requests submitted by the authenticated sub, "
-        "newest first."
+        "Returns all profile change requests submitted by the authenticated sub, newest first."
     ),
     response_model=list[ProfileChangeRequestOut],
     status_code=200,
@@ -75,8 +74,7 @@ async def list_my_change_requests(
     "/me/payment-handle",
     summary="Update payment handle",
     description=(
-        "Sub self-edits their payment handle (max 64 chars). "
-        "Pass null to clear the handle."
+        "Sub self-edits their payment handle (max 64 chars). Pass null to clear the handle."
     ),
     response_model=PaymentHandleOut,
     status_code=200,

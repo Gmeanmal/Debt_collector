@@ -35,7 +35,7 @@ async def health() -> dict[str, str]:
     "/healthz",
     summary="Liveness probe",
     description=(
-        "Returns `{\"status\": \"ok\"}` when the server process is running. "
+        'Returns `{"status": "ok"}` when the server process is running. '
         "Does not verify database connectivity. Use as a Kubernetes/Docker liveness probe."
     ),
     response_model=HealthzResponse,

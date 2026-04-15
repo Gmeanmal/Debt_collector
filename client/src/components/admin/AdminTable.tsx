@@ -55,7 +55,8 @@ export function AdminTable({ schema }: AdminTableProps) {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => adminDelete(schema.entity, id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.entity(schema.entity) }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.entity(schema.entity) }),
   });
 
   const total = query.data?.total ?? 0;

@@ -5,6 +5,7 @@ Revises: e6be45ff52ea
 Create Date: 2026-04-15 09:24:32.537119
 
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -50,25 +51,15 @@ def upgrade() -> None:
         sa.Column("sub_id", sa.Uuid(), nullable=False),
         sa.Column("requested_at", sa.DateTime(), nullable=False),
         sa.Column("status", _pcr_status_enum, nullable=False),
-        sa.Column(
-            "proposed_first_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True
-        ),
-        sa.Column(
-            "proposed_last_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True
-        ),
-        sa.Column(
-            "proposed_display_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True
-        ),
-        sa.Column(
-            "proposed_notes", sqlmodel.sql.sqltypes.AutoString(), nullable=True
-        ),
+        sa.Column("proposed_first_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column("proposed_last_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column("proposed_display_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column("proposed_notes", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.Column("proposed_avatar_key", _avatarkey_enum, nullable=True),
         sa.Column("fee_amount", sa.Numeric(precision=12, scale=2), nullable=True),
         sa.Column("fee_payment_id", sa.Uuid(), nullable=True),
         sa.Column("resolved_at", sa.DateTime(), nullable=True),
-        sa.Column(
-            "resolution_note", sqlmodel.sql.sqltypes.AutoString(), nullable=True
-        ),
+        sa.Column("resolution_note", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.ForeignKeyConstraint(
             ["fee_payment_id"], ["payment_declaration.id"], ondelete="SET NULL"
         ),
@@ -105,12 +96,8 @@ def upgrade() -> None:
         "password_reset_token",
         type_="foreignkey",
     )
-    op.create_foreign_key(
-        None, "password_reset_token", "user", ["user_id"], ["id"]
-    )
-    op.drop_constraint(
-        op.f("refresh_token_user_id_fkey"), "refresh_token", type_="foreignkey"
-    )
+    op.create_foreign_key(None, "password_reset_token", "user", ["user_id"], ["id"])
+    op.drop_constraint(op.f("refresh_token_user_id_fkey"), "refresh_token", type_="foreignkey")
     op.create_foreign_key(None, "refresh_token", "user", ["user_id"], ["id"])
 
     # --- user table: add avatar_key (nullable first, backfill, then NOT NULL) ---
@@ -182,12 +169,8 @@ def downgrade() -> None:
         ondelete="CASCADE",
     )
     op.drop_constraint("fk_debt_contract_current_version", "debt_contract", type_="foreignkey")
-    op.drop_index(
-        op.f("ix_profile_change_request_sub_id"), table_name="profile_change_request"
-    )
-    op.drop_index(
-        op.f("ix_profile_change_request_status"), table_name="profile_change_request"
-    )
+    op.drop_index(op.f("ix_profile_change_request_sub_id"), table_name="profile_change_request")
+    op.drop_index(op.f("ix_profile_change_request_status"), table_name="profile_change_request")
     op.drop_table("profile_change_request")
     _pcr_status_enum.drop(op.get_bind(), checkfirst=True)
     _avatarkey_enum.drop(op.get_bind(), checkfirst=True)

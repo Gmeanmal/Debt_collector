@@ -8,9 +8,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(import.meta.env);
 
 if (!parsed.success) {
-  const missing = parsed.error.issues
-    .map((i) => `${i.path.join(".")}: ${i.message}`)
-    .join(", ");
+  const missing = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
   throw new Error(`[env] Invalid environment variables — ${missing}`);
 }
 
