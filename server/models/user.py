@@ -18,6 +18,19 @@ class UserStatus(StrEnum):
     deleted = "deleted"
 
 
+class AvatarKey(StrEnum):
+    default = "default"
+    pink_1 = "pink_1"
+    pink_2 = "pink_2"
+    pink_3 = "pink_3"
+    pink_4 = "pink_4"
+    dark_1 = "dark_1"
+    dark_2 = "dark_2"
+    dark_3 = "dark_3"
+    accent_1 = "accent_1"
+    accent_2 = "accent_2"
+
+
 class Goddess(SQLModel, table=True):
     __tablename__ = "goddess"
     id: UUID = Field(default_factory=uuid4, primary_key=True)
@@ -42,7 +55,8 @@ class User(SQLModel, table=True):
     last_name: str | None = None
     twitter_handle: str | None = None
     source_note: str | None = None
-    avatar_url: str | None = None
+    avatar_key: AvatarKey = Field(default=AvatarKey.default, nullable=False)
+    payment_handle: str | None = Field(default=None, max_length=64, nullable=True)
     bio: str | None = Field(default=None, sa_column_kwargs={"nullable": True})
     theme_preference: str = Field(default="system")
     last_login_at: datetime | None = None

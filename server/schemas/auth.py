@@ -2,9 +2,9 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
-from models.user import UserRole, UserStatus
+from models.user import AvatarKey, UserRole, UserStatus
 
 
 class LoginRequest(BaseModel):
@@ -64,7 +64,9 @@ class UserOut(BaseModel):
         description="Free-text bio (max 500 chars)",
         examples=["A sub living in London."],
     )
-    avatar_url: str | None = Field(None, description="Avatar URL", examples=[None])
+    avatar_key: AvatarKey = Field(
+        default=AvatarKey.default, description="Avatar key", examples=["default"]
+    )
     theme_preference: str = Field(..., description="UI theme preference", examples=["system"])
     created_at: datetime = Field(..., description="Account creation timestamp (UTC)")
     impersonator_id: UUID | None = Field(
@@ -90,20 +92,13 @@ class ProfileUpdate(BaseModel):
         examples=["A sub living in London."],
         max_length=500,
     )
-    avatar_url: str | None = Field(
-        None, description="Avatar image URL", examples=["https://example.com/avatar.png"]
+    avatar_key: AvatarKey = Field(
+        default=AvatarKey.default,
+        description="Avatar key selecting the pre-defined avatar image.",
+        examples=["pink_1"],
     )
 
     model_config = {"str_strip_whitespace": True}
-
-    @field_validator("avatar_url")
-    @classmethod
-    def avatar_url_must_be_http(cls, v: str | None) -> str | None:
-        if v is None:
-            return v
-        if not (v.startswith("http://") or v.startswith("https://")):
-            raise ValueError("avatar_url must be a valid HTTP/HTTPS URL")
-        return v
 
 
 class ImpersonationAccess(BaseModel):

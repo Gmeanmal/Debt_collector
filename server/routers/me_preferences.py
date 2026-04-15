@@ -12,7 +12,7 @@ from schemas.auth import ProfileUpdate, UserOut
 
 router = APIRouter(prefix="/me", tags=["me"])
 
-_E400 = {"description": "Bad request — validation failed (e.g. bio too long, invalid avatar URL)"}
+_E400 = {"description": "Bad request — validation failed (e.g. bio too long, invalid avatar key)"}
 
 
 def _display_name(user: User) -> str:
@@ -30,7 +30,7 @@ def _build_user_out(user: User) -> UserOut:
         first_name=user.first_name,
         last_name=user.last_name,
         bio=user.bio,
-        avatar_url=user.avatar_url,
+        avatar_key=user.avatar_key,
         theme_preference=user.theme_preference,
         created_at=user.created_at,
         impersonator_id=None,
@@ -88,10 +88,9 @@ async def update_preferences(
     "/profile",
     summary="Update the authenticated user's profile",
     description=(
-        "Updates first_name, last_name, bio, and avatar_url for the authenticated user. "
-        "All fields are optional — only provided (non-null) values are written. "
-        "Pass null explicitly to clear a field. "
-        "bio is capped at 500 characters; avatar_url must be a valid HTTP/HTTPS URL if provided."
+        "Updates first_name, last_name, bio, and avatar_key for the authenticated user. "
+        "All fields are optional. "
+        "bio is capped at 500 characters; avatar_key must be one of the defined enum values."
     ),
     response_model=UserOut,
     status_code=200,
@@ -109,7 +108,7 @@ async def update_profile(
         first_name=body.first_name,
         last_name=body.last_name,
         bio=body.bio,
-        avatar_url=body.avatar_url,
+        avatar_key=body.avatar_key,
     )
     await session.commit()
     return _build_user_out(updated)

@@ -18,7 +18,7 @@ from models.notification import NotificationType
 from models.payment import DeclarationSource, PaymentCategory, PaymentStatus
 from models.payment_method import PaymentMethodType
 from models.rolling import DeadlineDay
-from models.user import UserRole, UserStatus
+from models.user import AvatarKey, UserRole, UserStatus
 
 
 class AdminListOut[RowT: BaseModel](BaseModel):
@@ -46,8 +46,8 @@ class AdminRowUser(BaseModel):
     source_note: str | None = Field(
         None, description="Acquisition note", examples=["referred by Bob"]
     )
-    avatar_url: str | None = Field(
-        None, description="Avatar image URL", examples=["https://cdn.example.com/alice.jpg"]
+    avatar_key: AvatarKey = Field(
+        default=AvatarKey.default, description="Avatar key", examples=["default"]
     )
     bio: str | None = Field(None, description="User bio", examples=["Hello world"])
     theme_preference: str = Field(..., description="UI theme key", examples=["system"])

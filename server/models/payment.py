@@ -18,6 +18,7 @@ class PaymentCategory(StrEnum):
     debt_payment = "debt_payment"
     buyout = "buyout"
     tribute = "tribute"
+    profile_change_fee = "profile_change_fee"
 
 
 class PaymentStatus(StrEnum):

@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
-from models.user import User
+from models.user import AvatarKey, User
 
 
 class UserDao:
@@ -40,11 +40,25 @@ class UserDao:
         first_name: str | None,
         last_name: str | None,
         bio: str | None,
-        avatar_url: str | None,
+        avatar_key: AvatarKey,
     ) -> User:
+        """Update basic profile fields for the given user."""
         user.first_name = first_name
         user.last_name = last_name
         user.bio = bio
-        user.avatar_url = avatar_url
+        user.avatar_key = avatar_key
+        self._session.add(user)
+        return user
+
+    async def update_profile_fields(self, user: User, **fields: object) -> User:
+        """Apply an arbitrary set of profile field patches to the user row."""
+        for key, value in fields.items():
+            setattr(user, key, value)
+        self._session.add(user)
+        return user
+
+    async def update_payment_handle(self, user: User, handle: str | None) -> User:
+        """Set or clear the sub's payment handle."""
+        user.payment_handle = handle
         self._session.add(user)
         return user

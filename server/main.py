@@ -20,12 +20,14 @@ from routers import (
     blacklist,
     dashboards,
     debt_contracts,
+    goddess_profile,
     goddess_views,
     health,
     invitations,
     me_preferences,
     notifications,
     payment_methods,
+    profile,
     public_invitation,
     rolling,
     signup,
@@ -110,6 +112,8 @@ app.include_router(admin_cron.router)
 app.include_router(admin.router)
 app.include_router(notifications.router)
 app.include_router(me_preferences.router)
+app.include_router(profile.router)
+app.include_router(goddess_profile.router)
 app.include_router(dashboards.goddess_router)
 app.include_router(dashboards.sub_router)
 app.include_router(goddess_views.router)

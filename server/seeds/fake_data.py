@@ -41,7 +41,7 @@ from models.payment import (
 )
 from models.payment_method import PaymentMethod, PaymentMethodType
 from models.rolling import DeadlineDay, RollingTribute
-from models.user import Goddess, User, UserRole, UserStatus
+from models.user import AvatarKey, Goddess, User, UserRole, UserStatus
 from utils.ledger import replay_events
 
 log = structlog.get_logger()
@@ -86,6 +86,9 @@ async def _get_goddess(session: AsyncSession) -> tuple[Goddess, User]:
     return goddess, user
 
 
+_AVATAR_CYCLE = list(AvatarKey)
+
+
 def _make_sub(
     goddess_id: UUID,
     username: str,
@@ -96,6 +99,8 @@ def _make_sub(
     twitter: str | None = None,
     note: str | None = None,
     days_old: int = 60,
+    avatar_key: AvatarKey | None = None,
+    payment_handle: str | None = None,
 ) -> User:
     return User(
         id=uuid4(),
@@ -110,6 +115,8 @@ def _make_sub(
         twitter_handle=twitter,
         source_note=note,
         theme_preference="dark",
+        avatar_key=avatar_key or AvatarKey.default,
+        payment_handle=payment_handle,
         created_at=_ago(days=days_old),
     )
 
@@ -397,6 +404,8 @@ async def _seed_alex(s: AsyncSession, goddess_id: UUID, throne_id: UUID) -> User
         "Bishop",
         twitter="@alexbishop",
         note="Recruited via Twitter DM in February.",
+        avatar_key=AvatarKey.pink_1,
+        payment_handle="alexbishop",
     )
     s.add(sub)
     await s.flush()
@@ -431,7 +440,15 @@ async def _seed_alex(s: AsyncSession, goddess_id: UUID, throne_id: UUID) -> User
 
 async def _seed_ben(s: AsyncSession, goddess_id: UUID, paypal_id: UUID) -> User:
     """Rolling 6 days late, has paid before, no debt."""
-    sub = _make_sub(goddess_id, "sub_ben", "Ben", "Carter", twitter="@bencarter88")
+    sub = _make_sub(
+        goddess_id,
+        "sub_ben",
+        "Ben",
+        "Carter",
+        twitter="@bencarter88",
+        avatar_key=AvatarKey.pink_2,
+        payment_handle="bencarter88",
+    )
     s.add(sub)
     await s.flush()
     rolling = _rolling(
@@ -471,7 +488,7 @@ async def _seed_chris(
     s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID, throne_id: UUID
 ) -> User:
     """Active rolling + active debt contract repaying nicely; one pending adjustment."""
-    sub = _make_sub(goddess_id, "sub_chris", "Chris", "Doyle")
+    sub = _make_sub(goddess_id, "sub_chris", "Chris", "Doyle", avatar_key=AvatarKey.dark_1)
     s.add(sub)
     await s.flush()
     rolling = _rolling(sub.id, goddess_id, amount=Decimal("60.00"), last_paid_days_ago=3)
@@ -573,7 +590,9 @@ async def _seed_chris(
 
 async def _seed_dan(s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID) -> User:
     """Active debt contract LATE: missed last 2 weekly payments, late penalties accrued."""
-    sub = _make_sub(goddess_id, "sub_dan", "Dan", "Ellis", twitter="@dellis")
+    sub = _make_sub(
+        goddess_id, "sub_dan", "Dan", "Ellis", twitter="@dellis", avatar_key=AvatarKey.dark_2
+    )
     s.add(sub)
     await s.flush()
 
@@ -671,6 +690,7 @@ async def _seed_eli(
         status=UserStatus.pending_entry_tribute,
         days_old=2,
         note="Twitter recruitment, claimed invitation 2 days ago.",
+        avatar_key=AvatarKey.accent_1,
     )
     s.add(sub)
     await s.flush()
@@ -714,7 +734,7 @@ async def _seed_eli(
 
 async def _seed_fred(s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID) -> User:
     """Contract pending_sub_signature — counter accepted by goddess, awaiting sign."""
-    sub = _make_sub(goddess_id, "sub_fred", "Fred", "Greene")
+    sub = _make_sub(goddess_id, "sub_fred", "Fred", "Greene", avatar_key=AvatarKey.accent_2)
     s.add(sub)
     await s.flush()
     contract = _contract(
@@ -765,7 +785,7 @@ async def _seed_fred(s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID) -
 
 async def _seed_gary(s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID) -> User:
     """Sub-initiated contract still pending_dom — awaiting goddess decision."""
-    sub = _make_sub(goddess_id, "sub_gary", "Gary", "Hill")
+    sub = _make_sub(goddess_id, "sub_gary", "Gary", "Hill", avatar_key=AvatarKey.pink_3)
     s.add(sub)
     await s.flush()
     contract = _contract(
@@ -809,7 +829,7 @@ async def _seed_gary(s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID) -
 
 async def _seed_henry(s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID) -> User:
     """Sub countered the goddess's proposal; pending_dom_counter."""
-    sub = _make_sub(goddess_id, "sub_henry", "Henry", "Irving")
+    sub = _make_sub(goddess_id, "sub_henry", "Henry", "Irving", avatar_key=AvatarKey.pink_4)
     s.add(sub)
     await s.flush()
     contract = _contract(
@@ -864,7 +884,15 @@ async def _seed_ian(
     s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID, bank_id: UUID
 ) -> User:
     """Contract paid in full via buyout → completed; large total drained."""
-    sub = _make_sub(goddess_id, "sub_ian", "Ian", "Jones", twitter="@ianjones")
+    sub = _make_sub(
+        goddess_id,
+        "sub_ian",
+        "Ian",
+        "Jones",
+        twitter="@ianjones",
+        avatar_key=AvatarKey.dark_3,
+        payment_handle="ianjones",
+    )
     s.add(sub)
     await s.flush()
     rolling = _rolling(sub.id, goddess_id, amount=Decimal("200.00"), last_paid_days_ago=4)
@@ -993,6 +1021,7 @@ async def _seed_jack(
         "King",
         status=UserStatus.blacklisted,
         days_old=120,
+        avatar_key=AvatarKey.dark_2,
     )
     s.add(sub)
     await s.flush()
@@ -1132,7 +1161,9 @@ async def _seed_jack(
 
 async def _seed_kev(s: AsyncSession, goddess_id: UUID, throne_id: UUID) -> User:
     """Reinstated: was blacklisted, paid reinstatement fee, now active again with rolling."""
-    sub = _make_sub(goddess_id, "sub_kev", "Kev", "Lloyd", days_old=180)
+    sub = _make_sub(
+        goddess_id, "sub_kev", "Kev", "Lloyd", days_old=180, avatar_key=AvatarKey.accent_1
+    )
     s.add(sub)
     await s.flush()
     rolling = _rolling(sub.id, goddess_id, amount=Decimal("100.00"), last_paid_days_ago=4)
