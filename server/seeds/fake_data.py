@@ -693,7 +693,7 @@ async def _seed_eli(
         status=UserStatus.pending_entry_tribute,
         days_old=2,
         note="Twitter recruitment, claimed invitation 2 days ago.",
-        avatar_key=AvatarKey.accent_1,
+        avatar_key=AvatarKey.pink_4,
     )
     s.add(sub)
     await s.flush()
@@ -737,7 +737,7 @@ async def _seed_eli(
 
 async def _seed_fred(s: AsyncSession, goddess_id: UUID, goddess_user_id: UUID) -> User:
     """Contract pending_sub_signature — counter accepted by goddess, awaiting sign."""
-    sub = _make_sub(goddess_id, "sub_fred", "Fred", "Greene", avatar_key=AvatarKey.accent_2)
+    sub = _make_sub(goddess_id, "sub_fred", "Fred", "Greene", avatar_key=AvatarKey.dark_3)
     s.add(sub)
     await s.flush()
     contract = _contract(
@@ -1167,7 +1167,7 @@ async def _seed_jack(
 async def _seed_kev(s: AsyncSession, goddess_id: UUID, throne_id: UUID) -> User:
     """Reinstated: was blacklisted, paid reinstatement fee, now active again with rolling."""
     sub = _make_sub(
-        goddess_id, "sub_kev", "Kev", "Lloyd", days_old=180, avatar_key=AvatarKey.accent_1
+        goddess_id, "sub_kev", "Kev", "Lloyd", days_old=180, avatar_key=AvatarKey.pink_2
     )
     s.add(sub)
     await s.flush()
