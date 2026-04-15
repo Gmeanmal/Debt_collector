@@ -22,11 +22,11 @@ log = structlog.get_logger()
 
 
 DEV_ADMIN_USERNAME = "admin"
-DEV_ADMIN_EMAIL = "admin@example.test"
-DEV_ADMIN_PASSWORD = "ChangeMe!Dev123"  # noqa: S105 — dev-only seed constant
+DEV_ADMIN_EMAIL = "admin+dev@debt-collector.uk"
+DEV_ADMIN_PASSWORD = "177@tTr$EbgA2CvMr@&4FM#DYaq6"  # noqa: S105 — dev-only seed constant
 
-DEV_GODDESS_EMAIL = "meanmal@example.test"
-DEV_GODDESS_PASSWORD = "ChangeMe!Dev123"  # noqa: S105 — dev-only seed constant
+DEV_GODDESS_EMAIL = "meanmal@debt-collector.uk"
+DEV_GODDESS_PASSWORD = "!Z#9by05NEnHsi*m%Q&8XKS$d2$%"  # noqa: S105 — dev-only seed constant
 DEV_GODDESS_DISPLAY_NAME = "Mean Mal"
 
 

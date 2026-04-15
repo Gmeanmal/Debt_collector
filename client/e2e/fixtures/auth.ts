@@ -1,13 +1,13 @@
 import { expect, type Page } from "@playwright/test";
 
 export const GODDESS = {
-  email: process.env.E2E_GODDESS_EMAIL ?? "goddess@localhost",
-  password: process.env.E2E_GODDESS_PASSWORD ?? "ChangeMe!Dev123",
+  email: process.env.E2E_GODDESS_EMAIL ?? "meanmal@debt-collector.uk",
+  password: process.env.E2E_GODDESS_PASSWORD ?? "!Z#9by05NEnHsi*m%Q&8XKS$d2$%",
 };
 
 export const ADMIN = {
-  email: process.env.E2E_ADMIN_EMAIL ?? "admin@localhost",
-  password: process.env.E2E_ADMIN_PASSWORD ?? "ChangeMe!Dev123",
+  email: process.env.E2E_ADMIN_EMAIL ?? "admin+dev@debt-collector.uk",
+  password: process.env.E2E_ADMIN_PASSWORD ?? "177@tTr$EbgA2CvMr@&4FM#DYaq6",
 };
 
 export async function login(page: Page, email: string, password: string): Promise<void> {
