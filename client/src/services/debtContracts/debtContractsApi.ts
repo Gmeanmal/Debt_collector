@@ -93,7 +93,7 @@ export async function signContractApi(
 ): Promise<DebtContractOut> {
   const { data, error } = await apiClient.POST("/debts/{contract_id}/sign", {
     params: { path: { contract_id: contractId } },
-    body: { signature_png_b64: signaturePngB64 },
+    body: { signature_b64: signaturePngB64 },
     headers: authHeaders(),
   });
   if (error || !data) throw new Error(extractMessage(error, "Failed to sign contract"));

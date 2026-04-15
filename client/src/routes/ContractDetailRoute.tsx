@@ -160,7 +160,7 @@ export function ContractDetailRoute() {
   const canSubSign =
     role === "sub" &&
     (contract.status === "pending_sub" || contract.status === "pending_sub_signature");
-  const canDownloadPdf = contract.status === "active" && Boolean(contract.signed_pdf_url);
+  const canDownloadPdf = contract.status === "active" && Boolean(contract.signed_at);
   const isActive = contract.status === "active";
   const canSurprisePenalty =
     role === "goddess" && isActive && contract.dom_can_add_surprise_penalty;
