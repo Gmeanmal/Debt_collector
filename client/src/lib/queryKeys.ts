@@ -36,6 +36,7 @@ export const queryKeys = {
     audit: (contractId: string) => ["contractAudit", contractId] as const,
     pendingAdjustments: () => ["pendingAdjustments"] as const,
     debtDetail: (contractId: string) => ["debt-contract", contractId] as const,
+    preview: (contractId: string) => ["contract", contractId, "preview"] as const,
   },
 
   rolling: {

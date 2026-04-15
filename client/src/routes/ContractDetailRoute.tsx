@@ -216,6 +216,14 @@ export function ContractDetailRoute() {
         <ContractStats contract={contract} />
 
         <div className="flex flex-wrap gap-3">
+          {role === "goddess" && (
+            <Link
+              to={`/goddess/contracts/${contract.id}/preview`}
+              className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
+            >
+              Preview contract
+            </Link>
+          )}
           {canSubSign && (
             <Link
               to={`/sub/debts/${contract.id}/sign`}

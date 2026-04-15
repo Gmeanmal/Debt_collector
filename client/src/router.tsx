@@ -36,6 +36,7 @@ import { SubDashboardRoute } from "./routes/sub/DashboardRoute";
 import { NotFoundRoute, RouterErrorBoundary } from "./routes/NotFoundRoute";
 import { ProfileRoute } from "./routes/ProfileRoute";
 import { ProfileChangeRequestsRoute } from "./routes/goddess/ProfileChangeRequestsRoute";
+import { ContractPreviewRoute } from "./routes/goddess/ContractPreviewRoute";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginRoute /> },
@@ -309,6 +310,16 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
           <ProfileChangeRequestsRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/contracts/:contractId/preview",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <ContractPreviewRoute />
         </RoleProtectedRoute>
       </ProtectedRoute>
     ),
