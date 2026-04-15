@@ -4,7 +4,7 @@ interface Props {
   title: string;
   onClose: () => void;
   children: ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   labelledById?: string;
 }
 
@@ -12,6 +12,7 @@ const SIZE_CLASSES: Record<NonNullable<Props["size"]>, string> = {
   sm: "max-w-sm",
   md: "max-w-md",
   lg: "max-w-lg",
+  xl: "max-w-5xl",
 };
 
 const FOCUSABLE =

@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { ContractHeaderSummary } from "@/components/contracts/preview/ContractHeaderSummary";
 import { ScheduleTable } from "@/components/contracts/preview/ScheduleTable";
@@ -59,8 +59,6 @@ export function ContractPreviewRoute() {
     },
     onSuccess: setSimulation,
   });
-
-  const queryClient = useQueryClient();
 
   // Trigger initial simulation once contract loads
   if (contract && !simulation && !initMutation.isPending && !initMutation.isError) {
@@ -160,13 +158,13 @@ export function ContractPreviewRoute() {
           subDisplayName={subDisplayName(contract.sub_id)}
         />
 
-        {initMutation.isPending && (
+        {initMutation.isPending && periods.length === 0 && (
           <div className="bg-base-surface border border-base-border rounded-lg p-5">
             <p className="text-sm text-base-text-muted">Loading schedule…</p>
           </div>
         )}
 
-        {initMutation.isError && (
+        {initMutation.isError && periods.length === 0 && (
           <div className="bg-base-surface border border-base-border rounded-lg p-5">
             <p className="text-sm text-status-danger" role="alert">
               Failed to load repayment schedule. Check connection and retry.
@@ -182,13 +180,7 @@ export function ContractPreviewRoute() {
           </>
         )}
 
-        <SimulatorPanel
-          contract={contract}
-          onSimulationResult={(result) => {
-            setSimulation(result);
-            void queryClient.invalidateQueries({ queryKey: queryKeys.contracts.detail(safeId) });
-          }}
-        />
+        <SimulatorPanel contract={contract} currentPeriods={periods} />
       </div>
     </div>
   );

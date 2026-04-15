@@ -4,6 +4,14 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Changed
+- Replaced 10 generated SVG avatars with 8 AI-illustrated PNG avatars; `AvatarKey.accent_1/accent_2` remain as enum slots but fall back to the default image. Seed data uses only the available art keys.
+- Contract preview page: what-if simulator applies the event at the current payment period (not period 1), preserving paid rows, and shows the before/after comparison in a modal with red highlights on changed rows. `ScheduleTable` marks paid periods green with a dot indicator.
+- Unified contract totals: `Total interest` and `Total to pay` are now derived from the live simulation (not `min_payment × duration`) and rendered as StatPills alongside `Period rate` / `Monthly rate` on every page using `SimulationChart`. Removed the divergent naive-math tiles from `ContractHeaderSummary`.
+
+### Fixed
+- `GET /payments/subs` (goddess sub picker) now returns `first_name`, `last_name`, and `avatar_key`, so goddess-moderated profile changes show immediately in the UI.
+
 ### Added
 - **P1.1** base64 signature + on-demand PDF: `signature_b64` column replaces `signed_pdf_url`/`signed_pdf_sha256`; `GET /debts/{id}/pdf[?draft=1]` regenerates via WeasyPrint and streams inline; `services/storage/*` removed.
 - **P1.3** redesigned contract PDF template: A4 with 8 named sections, full repayment schedule, framed signature block (Europe/London `signed_at`), draft watermark variant.

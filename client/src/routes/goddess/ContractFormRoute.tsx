@@ -119,7 +119,7 @@ export function ContractFormRoute() {
               <h2 className="text-base font-semibold text-base-text mb-4">Live projection</h2>
               {simError && <p className="text-xs text-status-warning mb-3">{simError}</p>}
               {simulation ? (
-                <SimulationChart simulation={simulation} />
+                <SimulationChart simulation={simulation} principal={String(form.principal)} />
               ) : (
                 <p className="text-base-text-muted text-sm">Calculating…</p>
               )}

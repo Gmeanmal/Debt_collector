@@ -42,10 +42,6 @@ function SummaryItem({ label, value }: SummaryItemProps) {
 }
 
 export function ContractHeaderSummary({ contract, subDisplayName }: Props) {
-  const totalOwed = fmtGbp(
-    String(parseFloat(contract.minimum_payment) * contract.duration_periods),
-  );
-
   return (
     <div className="bg-base-surface border border-base-border rounded-lg p-5">
       <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
@@ -63,7 +59,7 @@ export function ContractHeaderSummary({ contract, subDisplayName }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
         <SummaryItem label="Duration" value={`${contract.duration_periods} periods`} />
         <SummaryItem label="Frequency" value={humanFrequency(contract.payment_frequency)} />
         <SummaryItem
@@ -71,7 +67,6 @@ export function ContractHeaderSummary({ contract, subDisplayName }: Props) {
           value={fmtPct(contract.interest_rate)}
         />
         <SummaryItem label="Min. payment" value={fmtGbp(contract.minimum_payment)} />
-        <SummaryItem label="Total owed" value={totalOwed} />
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import type { DebtSimulationOut } from "@/services/debtContracts/debtContractsAp
 
 interface Props {
   simulation: DebtSimulationOut;
+  principal: string;
 }
 
 function StatPill({ label, value }: { label: string; value: string }) {
@@ -39,8 +40,10 @@ function fmtGbp(value: number): string {
   return `£${value.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export function SimulationChart({ simulation }: Props) {
+export function SimulationChart({ simulation, principal }: Props) {
   const chartData = toChartData(simulation);
+  const totalPayments = simulation.periods.reduce((s, p) => s + parseFloat(p.payment), 0);
+  const totalInterest = Math.max(0, totalPayments - parseFloat(principal));
 
   return (
     <div className="flex flex-col gap-4">
@@ -59,6 +62,8 @@ export function SimulationChart({ simulation }: Props) {
       <div className="flex gap-3 flex-wrap">
         <StatPill label="Period rate" value={fmtPct(simulation.period_rate)} />
         <StatPill label="Monthly rate" value={fmtPct(simulation.monthly_rate)} />
+        <StatPill label="Total interest" value={fmtGbp(totalInterest)} />
+        <StatPill label="Total to pay" value={fmtGbp(totalPayments)} />
       </div>
 
       <div className="bg-base-surface border border-base-border rounded-lg p-4">

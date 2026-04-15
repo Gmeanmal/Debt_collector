@@ -35,6 +35,10 @@ function periodDueDate(contract: DebtContractOut, periodIndex: number): string {
 }
 
 export function ScheduleTable({ periods, contract }: Props) {
+  const paidPeriods = contract.payment_count;
+  const totalPayments = periods.reduce((sum, p) => sum + parseFloat(p.payment), 0);
+  const totalInterest = Math.max(0, totalPayments - parseFloat(contract.principal));
+
   return (
     <div className="bg-base-surface border border-base-border rounded-lg overflow-x-auto">
       <div className="px-5 py-4 border-b border-base-border">
@@ -61,23 +65,65 @@ export function ScheduleTable({ periods, contract }: Props) {
           </tr>
         </thead>
         <tbody className="divide-y divide-base-border">
-          {periods.map((p) => (
-            <tr key={p.period} className="hover:bg-base-surface-raised transition-colors">
-              <td className="px-4 py-2.5 text-base-text-muted tabular-nums">{p.period}</td>
-              <td className="px-4 py-2.5 text-base-text">{periodDueDate(contract, p.period)}</td>
-              <td className="px-4 py-2.5 text-base-text text-right tabular-nums">
-                {fmtGbp(p.payment)}
-              </td>
-              <td
-                className={`px-4 py-2.5 text-right tabular-nums font-semibold ${
-                  parseFloat(p.balance_end) <= 0 ? "text-status-success" : "text-base-text"
-                }`}
-              >
-                {fmtGbp(Math.max(0, parseFloat(p.balance_end)))}
-              </td>
-            </tr>
-          ))}
+          {periods.map((p) => {
+            const isPaid = p.period <= paidPeriods;
+            const rowClass = isPaid
+              ? "bg-status-success/10 hover:bg-status-success/15 transition-colors"
+              : "hover:bg-base-surface-raised transition-colors";
+            return (
+              <tr key={p.period} className={rowClass}>
+                <td className="px-4 py-2.5 tabular-nums">
+                  <span className="inline-flex items-center gap-1.5">
+                    {isPaid && (
+                      <span
+                        className="inline-block h-1.5 w-1.5 rounded-full bg-status-success"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className={isPaid ? "text-status-success" : "text-base-text-muted"}>
+                      {p.period}
+                    </span>
+                  </span>
+                </td>
+                <td className={`px-4 py-2.5 ${isPaid ? "text-status-success" : "text-base-text"}`}>
+                  {periodDueDate(contract, p.period)}
+                </td>
+                <td
+                  className={`px-4 py-2.5 text-right tabular-nums ${
+                    isPaid ? "text-status-success" : "text-base-text"
+                  }`}
+                >
+                  {fmtGbp(p.payment)}
+                </td>
+                <td
+                  className={`px-4 py-2.5 text-right tabular-nums font-semibold ${
+                    isPaid ? "text-status-success" : "text-base-text"
+                  }`}
+                >
+                  {fmtGbp(Math.max(0, parseFloat(p.balance_end)))}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
+        <tfoot className="border-t-2 border-base-border bg-base-surface-raised">
+          <tr>
+            <td colSpan={2} className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+              Total interest
+            </td>
+            <td colSpan={2} className="px-4 py-3 text-right tabular-nums font-semibold text-base-text">
+              {fmtGbp(totalInterest)}
+            </td>
+          </tr>
+          <tr>
+            <td colSpan={2} className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+              Total to pay
+            </td>
+            <td colSpan={2} className="px-4 py-3 text-right tabular-nums font-semibold text-pink-primary">
+              {fmtGbp(totalPayments)}
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   );

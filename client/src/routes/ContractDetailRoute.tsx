@@ -98,7 +98,7 @@ function SimulationPanel({ contract }: { contract: DebtContractOut }) {
 
   if (simError) return <p className="text-xs text-status-warning">{simError}</p>;
   if (!simulation) return <p className="text-sm text-base-text-muted">Loading projection…</p>;
-  return <SimulationChart simulation={simulation} />;
+  return <SimulationChart simulation={simulation} principal={contract.principal} />;
 }
 
 export function ContractDetailRoute() {
