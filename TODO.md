@@ -18,10 +18,9 @@ Stolen from Malverse_Games + Calidra Platform audits. Order = impact × effort. 
 
 ### P0.5 — openapi-typescript pipeline + CI drift check ✅ DONE (2026-04-15)
 
-- `client/src/types/api.generated.ts` already in place.
+- `client/src/types/api.generated.ts` generated and committed.
 - `make sync-types` + `make check-types-drift` wired.
 - CI job `api-types-drift` boots the server and fails if the generated file drifts.
-- Not done: swap hand-written request/response types for generated ones everywhere (incremental) + `openapi-fetch` adoption is already partial; finish migration as P2.
 
 ### P0.6 — Real-Postgres test fixture with SAVEPOINT pattern ⏸ DEFERRED to phase 10
 
