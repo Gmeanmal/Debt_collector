@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useAuth } from "@/services/auth/useAuth";
@@ -8,128 +9,78 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { queryKeys } from "@/lib/queryKeys";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
-
-const BIO_MAX = 500;
-
-const profileSchema = z.object({
-  first_name: z.string().max(100).nullable(),
-  last_name: z.string().max(100).nullable(),
-  bio: z.string().max(BIO_MAX).nullable(),
-  avatar_url: z
-    .string()
-    .url("Must be a valid URL")
-    .nullable()
-    .or(z.literal("").transform(() => null)),
-});
-
-type ProfileForm = z.infer<typeof profileSchema>;
-
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("");
-}
+import { AvatarImage } from "@/components/profile/AvatarImage";
+import { AvatarPicker } from "@/components/profile/AvatarPicker";
+import { ChangeRequestDialog } from "@/components/profile/ChangeRequestDialog";
+import { ChangeRequestList } from "@/components/profile/ChangeRequestList";
+import { updatePaymentHandleApi, listMyChangeRequestsApi } from "@/services/profile/profileApi";
+import type { AvatarKey } from "@/services/profile/avatarMap";
 
 function emptyToNull(v: string): string | null {
   return v.trim() === "" ? null : v.trim();
 }
 
-interface FieldRowProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  type?: string;
-  error?: string;
-}
-
-function FieldRow({
-  id,
-  label,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-  error,
-}: FieldRowProps) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-      />
-      {error && <p className="text-xs text-status-danger">{error}</p>}
-    </div>
-  );
-}
+const paymentHandleSchema = z.string().max(64).nullable();
 
 export function ProfileRoute() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [form, setForm] = useState<ProfileForm>({
-    first_name: user?.first_name ?? null,
-    last_name: user?.last_name ?? null,
-    bio: user?.bio ?? null,
-    avatar_url: user?.avatar_url ?? null,
-  });
-  const [errors, setErrors] = useState<Partial<Record<keyof ProfileForm, string>>>({});
+  const [avatarKey, setAvatarKey] = useState<AvatarKey>(user?.avatar_key ?? "default");
+  const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [paymentHandle, setPaymentHandle] = useState("");
+  const [paymentHandleError, setPaymentHandleError] = useState("");
 
-  const mutation = useMutation({
-    mutationFn: updateProfileApi,
+  const { data: changeRequests = [] } = useQuery({
+    queryKey: queryKeys.profile.changeRequests.own(),
+    queryFn: listMyChangeRequestsApi,
+    enabled: user?.role === "sub",
+  });
+
+  const avatarMutation = useMutation({
+    mutationFn: (key: AvatarKey) =>
+      updateProfileApi({
+        avatar_key: key,
+        first_name: user?.first_name ?? null,
+        last_name: user?.last_name ?? null,
+        bio: user?.bio ?? null,
+      }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
-      toast.success("Profile updated");
+      toast.success("Avatar updated");
     },
-    onError: () => {
-      toast.error("Failed to update profile");
-    },
+    onError: () => toast.error("Failed to update avatar"),
   });
 
-  function field(key: keyof ProfileForm) {
-    return form[key] ?? "";
-  }
+  const handleMutation = useMutation({
+    mutationFn: (handle: string | null) => updatePaymentHandleApi(handle),
+    onSuccess: () => {
+      toast.success("Payment handle updated");
+    },
+    onError: () => toast.error("Failed to update payment handle"),
+  });
 
-  function setField(key: keyof ProfileForm, value: string) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
-  }
-
-  function handleSave() {
-    const payload: ProfileForm = {
-      first_name: emptyToNull(form.first_name ?? ""),
-      last_name: emptyToNull(form.last_name ?? ""),
-      bio: emptyToNull(form.bio ?? ""),
-      avatar_url: emptyToNull(form.avatar_url ?? ""),
-    };
-
-    const parsed = profileSchema.safeParse(payload);
+  function handleSaveHandle() {
+    const parsed = paymentHandleSchema.safeParse(emptyToNull(paymentHandle));
     if (!parsed.success) {
-      const fieldErrors: Partial<Record<keyof ProfileForm, string>> = {};
-      for (const issue of parsed.error.issues) {
-        const key = issue.path[0] as keyof ProfileForm;
-        if (key) fieldErrors[key] = issue.message;
-      }
-      setErrors(fieldErrors);
+      setPaymentHandleError(parsed.error.issues[0]?.message ?? "Invalid");
       return;
     }
-
-    mutation.mutate(parsed.data);
+    setPaymentHandleError("");
+    handleMutation.mutate(parsed.data);
   }
 
-  const bioLength = (form.bio ?? "").length;
-  const avatarPreview =
-    form.avatar_url && form.avatar_url.startsWith("http") ? form.avatar_url : undefined;
+  function handleSaveAvatar() {
+    avatarMutation.mutate(avatarKey);
+  }
+
+  function handlePayToFee(requestId: string) {
+    void navigate(`/sub/payments/new?change_request_id=${requestId}`);
+  }
+
+  const isSubRole = user?.role === "sub";
 
   return (
     <div className="p-4 md:p-8">
@@ -138,79 +89,103 @@ export function ProfileRoute() {
           <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
             Profile
           </h1>
-          <p className="text-sm text-base-text-muted mt-1">Update your personal details.</p>
+          <p className="text-sm text-base-text-muted mt-1">Your identity on the platform.</p>
         </div>
 
         <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
-              <Avatar className="h-14 w-14">
-                {avatarPreview && <AvatarImage src={avatarPreview} alt="Avatar preview" />}
-                <AvatarFallback className="text-lg">
-                  {user ? initials(user.display_name) : "?"}
-                </AvatarFallback>
-              </Avatar>
-              <CardTitle className="text-lg">{user?.display_name}</CardTitle>
+              <AvatarImage avatarKey={user?.avatar_key ?? "default"} size="lg" />
+              <div>
+                <CardTitle className="text-lg">{user?.display_name}</CardTitle>
+                {user?.first_name || user?.last_name ? (
+                  <p className="text-sm text-base-text-muted">
+                    {[user.first_name, user.last_name].filter(Boolean).join(" ")}
+                  </p>
+                ) : null}
+              </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-4">
-              <FieldRow
-                id="first_name"
-                label="First name"
-                value={field("first_name") as string}
-                onChange={(v) => setField("first_name", v)}
-                placeholder="Jane"
-                error={errors.first_name}
-              />
-              <FieldRow
-                id="last_name"
-                label="Last name"
-                value={field("last_name") as string}
-                onChange={(v) => setField("last_name", v)}
-                placeholder="Doe"
-                error={errors.last_name}
-              />
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="bio">Bio</Label>
-                  <span
-                    className={`text-xs ${bioLength > BIO_MAX ? "text-status-danger" : "text-base-text-muted"}`}
-                    role="status"
-                    aria-label={`${bioLength} of ${BIO_MAX} characters`}
-                  >
-                    {bioLength}/{BIO_MAX}
-                  </span>
-                </div>
-                <textarea
-                  id="bio"
-                  className="flex min-h-[100px] w-full rounded-md border border-base-border bg-base-surface-raised/60 px-4 py-2 text-sm text-base-text shadow-[0_1px_0_rgba(244,237,225,0.04)_inset] transition-all duration-200 placeholder:text-base-text-subtle focus:border-pink-primary/60 focus:bg-base-surface-raised focus:outline-none focus:ring-2 focus:ring-pink-ring focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
-                  value={form.bio ?? ""}
-                  onChange={(e) => setField("bio", e.target.value)}
-                  placeholder="Tell us a bit about yourself…"
-                  maxLength={BIO_MAX}
-                />
-                {errors.bio && <p className="text-xs text-status-danger">{errors.bio}</p>}
-              </div>
-              <FieldRow
-                id="avatar_url"
-                label="Avatar URL"
-                value={field("avatar_url") as string}
-                onChange={(v) => setField("avatar_url", v)}
-                placeholder="https://example.com/avatar.png"
-                type="url"
-                error={errors.avatar_url}
-              />
-              <Button
-                onClick={handleSave}
-                disabled={mutation.isPending}
-                className="w-full sm:w-auto sm:self-end"
-              >
-                {mutation.isPending ? "Saving…" : "Save"}
-              </Button>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Label>Choose avatar</Label>
+              <AvatarPicker value={avatarKey} onChange={setAvatarKey} />
             </div>
+            <Button
+              onClick={handleSaveAvatar}
+              disabled={avatarMutation.isPending || avatarKey === user?.avatar_key}
+              variant="outline"
+              className="self-end"
+            >
+              {avatarMutation.isPending ? "Saving…" : "Save avatar"}
+            </Button>
           </CardContent>
         </Card>
+
+        {isSubRole && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Payment handle</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <p className="text-xs text-base-text-muted">
+                Your payment identifier (e.g. CashApp tag, Throne handle). Visible only to you.
+              </p>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="payment_handle">Handle</Label>
+                <Input
+                  id="payment_handle"
+                  value={paymentHandle}
+                  onChange={(e) => {
+                    setPaymentHandle(e.target.value);
+                    setPaymentHandleError("");
+                  }}
+                  placeholder="@yourhandle"
+                  maxLength={64}
+                />
+                {paymentHandleError && (
+                  <p className="text-xs text-status-danger">{paymentHandleError}</p>
+                )}
+              </div>
+              <Button
+                onClick={handleSaveHandle}
+                disabled={handleMutation.isPending}
+                className="self-end"
+              >
+                {handleMutation.isPending ? "Saving…" : "Save handle"}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {isSubRole && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">Profile change requests</CardTitle>
+                <Button size="sm" onClick={() => setShowRequestDialog(true)}>
+                  Request change
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ChangeRequestList requests={changeRequests} onPayFee={handlePayToFee} />
+            </CardContent>
+          </Card>
+        )}
+
+        {showRequestDialog && (
+          <ChangeRequestDialog
+            open={showRequestDialog}
+            onClose={() => setShowRequestDialog(false)}
+            onSuccess={() => {
+              void queryClient.invalidateQueries({
+                queryKey: queryKeys.profile.changeRequests.own(),
+              });
+              setShowRequestDialog(false);
+            }}
+          />
+        )}
       </div>
     </div>
   );

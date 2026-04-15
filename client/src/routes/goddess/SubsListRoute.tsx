@@ -7,6 +7,8 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { queryKeys } from "@/lib/queryKeys";
+import { AvatarImage } from "@/components/profile/AvatarImage";
+import type { AvatarKey } from "@/services/profile/avatarMap";
 
 const STATUS_CLASSES: Record<string, string> = {
   active: "bg-status-success/15 text-status-success border-status-success/30",
@@ -116,9 +118,19 @@ export function SubsListRoute() {
                     }}
                   >
                     <td className="px-4 py-3">
-                      <div className="flex flex-col">
-                        <span className="font-medium text-base-text">{sub.display_name}</span>
-                        <span className="text-xs text-base-text-muted">@{sub.username}</span>
+                      <div className="flex items-center gap-2">
+                        <AvatarImage
+                          avatarKey={(sub.avatar_key as AvatarKey | undefined) ?? "default"}
+                          size="sm"
+                        />
+                        <div className="flex flex-col">
+                          <span className="font-medium text-base-text">
+                            {sub.first_name || sub.last_name
+                              ? [sub.first_name, sub.last_name].filter(Boolean).join(" ")
+                              : sub.display_name}
+                          </span>
+                          <span className="text-xs text-base-text-muted">@{sub.username}</span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3">

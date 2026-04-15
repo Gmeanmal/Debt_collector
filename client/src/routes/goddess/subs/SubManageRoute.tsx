@@ -7,6 +7,9 @@ import { SubOverviewTab } from "./SubOverviewTab";
 import { SubRollingTab } from "./SubRollingTab";
 import { SubContractsTab } from "./SubContractsTab";
 import { SubLateTab } from "./SubLateTab";
+import { SubProfileTab } from "./SubProfileTab";
+import { AvatarImage } from "@/components/profile/AvatarImage";
+import type { AvatarKey } from "@/services/profile/avatarMap";
 
 const STATUS_CLASSES: Record<string, string> = {
   active: "bg-status-success/15 text-status-success border-status-success/30",
@@ -45,20 +48,28 @@ export function SubManageRoute() {
             ← All subs
           </Link>
           <div className="flex items-start justify-between gap-3 flex-wrap mt-1">
-            <div className="flex flex-col gap-1">
-              <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-                {sub?.display_name ?? (isLoading ? "Loading…" : "Unknown sub")}
-              </h1>
+            <div className="flex items-center gap-3">
               {sub && (
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs text-base-text-muted">@{sub.username}</span>
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border capitalize ${STATUS_CLASSES[sub.status] ?? ""}`}
-                  >
-                    {sub.status.replace(/_/g, " ")}
-                  </span>
-                </div>
+                <AvatarImage
+                  avatarKey={(sub.avatar_key as AvatarKey | undefined) ?? "default"}
+                  size="md"
+                />
               )}
+              <div className="flex flex-col gap-1">
+                <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
+                  {sub?.display_name ?? (isLoading ? "Loading…" : "Unknown sub")}
+                </h1>
+                {sub && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-base-text-muted">@{sub.username}</span>
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border capitalize ${STATUS_CLASSES[sub.status] ?? ""}`}
+                    >
+                      {sub.status.replace(/_/g, " ")}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -70,6 +81,7 @@ export function SubManageRoute() {
               <TabsTrigger value="rolling">Rolling</TabsTrigger>
               <TabsTrigger value="contracts">Contracts</TabsTrigger>
               <TabsTrigger value="late">Late</TabsTrigger>
+              <TabsTrigger value="profile">Profile</TabsTrigger>
             </TabsList>
           </div>
 
@@ -87,6 +99,15 @@ export function SubManageRoute() {
 
           <TabsContent value="late">
             <SubLateTab />
+          </TabsContent>
+
+          <TabsContent value="profile">
+            <SubProfileTab
+              subId={safeSubId}
+              currentFirstName={sub?.first_name}
+              currentLastName={sub?.last_name}
+              currentAvatarKey={(sub?.avatar_key as AvatarKey | undefined) ?? "default"}
+            />
           </TabsContent>
         </Tabs>
       </div>

@@ -20,6 +20,7 @@ export const queryKeys = {
   goddess: {
     all: () => ["goddess"] as const,
     dashboard: () => ["goddessDashboard"] as const,
+    dashboardCharts: () => ["goddessDashboardCharts"] as const,
     subs: () => ["goddessSubs"] as const,
     contracts: () => ["goddessContracts"] as const,
     pendingPayments: () => ["pendingPayments"] as const,
@@ -59,6 +60,15 @@ export const queryKeys = {
 
   blacklist: {
     all: () => ["blacklist"] as const,
+  },
+
+  profile: {
+    all: () => ["profile"] as const,
+    changeRequests: {
+      all: () => ["profile", "changeRequests"] as const,
+      own: () => ["profile", "changeRequests", "own"] as const,
+      pendingByGoddess: () => ["profile", "changeRequests", "pendingByGoddess"] as const,
+    },
   },
 
   admin: {

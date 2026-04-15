@@ -113,12 +113,20 @@ export async function recordPaymentApi(body: RecordPaymentIn): Promise<PaymentOu
   return data;
 }
 
-export async function listGoddessSubsApi(): Promise<
-  { id: string; username: string; display_name: string; status: string }[]
-> {
+export type GoddessSub = {
+  id: string;
+  username: string;
+  display_name: string;
+  status: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  avatar_key?: string | null;
+};
+
+export async function listGoddessSubsApi(): Promise<GoddessSub[]> {
   const { data, error } = await apiClient.GET("/goddess/subs", {
     headers: authHeaders(),
   });
   if (error || !data) throw new Error("Failed to list subs");
-  return data as { id: string; username: string; display_name: string; status: string }[];
+  return data as GoddessSub[];
 }

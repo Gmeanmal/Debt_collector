@@ -35,6 +35,7 @@ import { LateSubsRoute } from "./routes/goddess/LateSubsRoute";
 import { SubDashboardRoute } from "./routes/sub/DashboardRoute";
 import { NotFoundRoute, RouterErrorBoundary } from "./routes/NotFoundRoute";
 import { ProfileRoute } from "./routes/ProfileRoute";
+import { ProfileChangeRequestsRoute } from "./routes/goddess/ProfileChangeRequestsRoute";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginRoute /> },
@@ -299,6 +300,16 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ProfileRoute />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/profile-change-requests",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <ProfileChangeRequestsRoute />
+        </RoleProtectedRoute>
       </ProtectedRoute>
     ),
   },

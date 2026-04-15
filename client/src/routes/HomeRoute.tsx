@@ -48,6 +48,11 @@ const GODDESS_ACTIONS: ActionCard[] = [
     title: "Blacklist",
     description: "Review breached subs and process reinstatements.",
   },
+  {
+    to: "/goddess/profile-change-requests",
+    title: "Profile change requests",
+    description: "Review and act on sub profile change requests.",
+  },
 ];
 
 const SUB_ACTIONS: ActionCard[] = [
@@ -80,6 +85,11 @@ const SUB_ACTIONS: ActionCard[] = [
     to: "/sub/adjustments",
     title: "Pending approvals",
     description: "Accept or refuse mid-contract adjustments from your Goddess.",
+  },
+  {
+    to: "/profile",
+    title: "Profile",
+    description: "Update your avatar, payment handle, or request a profile change.",
   },
 ];
 
