@@ -40,7 +40,6 @@ from schemas.debt import (
 )
 from services.notifications.notify import notify
 from services.pdf.generator import generate as generate_contract_pdf
-from services.storage.factory import get_storage_service
 from utils.finance import exit_due
 from utils.ledger import apply_event_and_recompute
 from utils.periods import current_period_index
@@ -383,9 +382,9 @@ class DebtController:
         return contract_out(contract, original, stats)
 
     async def sign_as_sub(
-        self, sub_user: User, contract_id: UUID, signature_png_b64: str
+        self, sub_user: User, contract_id: UUID, signature_b64: str
     ) -> DebtContractOut:
-        """Sub signs the finalised contract, activating it and generating the signed PDF."""
+        """Sub signs the finalised contract, activating it and persisting the signature."""
         contract = await self._get_contract_or_404(contract_id)
 
         if contract.sub_id != sub_user.id:
@@ -398,31 +397,13 @@ class DebtController:
         if contract.status not in valid_sign_statuses:
             raise Conflict("contract is not in a signable state")
 
-        goddess = await self._session.get(Goddess, contract.goddess_id)
-        if goddess is None:
-            raise NotFound("goddess profile not found for this contract")
-
         sub_display = user_display_name(sub_user)
         from_status = contract.status
         signed_at = now_utc()
         contract.status = DebtContractStatus.active
         contract.signed_at = signed_at
+        contract.signature_b64 = signature_b64
         contract.updated_at = signed_at
-
-        pdf_bytes, sha = generate_contract_pdf(
-            contract=contract,
-            goddess=goddess,
-            sub_user=sub_user,
-            signature_b64=signature_png_b64,
-            signed_at=signed_at,
-        )
-
-        storage = get_storage_service()
-        key = f"contracts/{contract.goddess_id}/{contract.id}.pdf"
-        await storage.upload_pdf(key=key, data=pdf_bytes)
-
-        contract.signed_pdf_url = key
-        contract.signed_pdf_sha256 = sha
         await self._dao.save(contract)
 
         current_version = await self._load_current_version(contract)
@@ -452,30 +433,35 @@ class DebtController:
         stats = await self._stats_for(contract)
         return contract_out(contract, current_version, stats)
 
-    async def download_pdf(self, viewer: User, contract_id: UUID) -> str:
-        """Return a presigned download URL for the contract's signed PDF."""
+    async def generate_contract_pdf_bytes(
+        self, viewer: User, contract_id: UUID, draft: bool = False
+    ) -> bytes:
+        """Render the contract PDF on-the-fly and return raw bytes.
+
+        When the contract is signed, the stored signature_b64 is embedded.
+        When unsigned, renders a draft preview (no signature, draft watermark when draft=True).
+        Auth/ownership checks are the caller's responsibility.
+        """
         contract = await self._get_contract_or_404(contract_id)
         await self._assert_viewer_can_see(viewer, contract)
 
-        if contract.signed_pdf_url is None:
-            raise NotFound("contract has no signed PDF")
+        goddess = await self._session.get(Goddess, contract.goddess_id)
+        if goddess is None:
+            raise NotFound("goddess profile not found for this contract")
 
-        storage = get_storage_service()
-        return await storage.presign_download(contract.signed_pdf_url)
+        sub_user = await self._session.get(User, contract.sub_id)
+        if sub_user is None:
+            raise NotFound("sub user not found for this contract")
 
-    async def read_pdf_bytes(self, viewer: User, contract_id: UUID) -> bytes:
-        """Return raw signed PDF bytes (fake storage path)."""
-        contract = await self._get_contract_or_404(contract_id)
-        await self._assert_viewer_can_see(viewer, contract)
-
-        if contract.signed_pdf_url is None:
-            raise NotFound("contract has no signed PDF")
-
-        storage = get_storage_service()
-        try:
-            return await storage.fetch_bytes(contract.signed_pdf_url)
-        except FileNotFoundError as exc:
-            raise NotFound("signed PDF file missing") from exc
+        pdf_bytes, _ = generate_contract_pdf(
+            contract=contract,
+            goddess=goddess,
+            sub_user=sub_user,
+            signature_b64=contract.signature_b64,
+            signed_at=contract.signed_at,
+            draft=draft,
+        )
+        return pdf_bytes
 
     async def close_as_goddess(self, goddess_user: User, contract_id: UUID) -> DebtContractOut:
         """Goddess cancels a pending contract."""

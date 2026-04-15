@@ -163,8 +163,6 @@ def _build_context(
         "schedule_rows": _build_schedule_rows(contract, signed_at),
         "signature_b64": signature_b64,
         "goddess_signature_b64": goddess_signature_b64,
-        "signed_pdf_url": contract.signed_pdf_url,
-        "signed_pdf_sha256": contract.signed_pdf_sha256,
         "draft": draft,
     }
 

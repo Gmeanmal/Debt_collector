@@ -1,8 +1,7 @@
 from decimal import Decimal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.debt_controller import DebtController
@@ -19,7 +18,6 @@ from schemas.debt import (
     DebtSimulationOut,
     DebtSimulationPeriod,
 )
-from services.storage import get_storage_service
 from utils.finance import monthly_rate, period_rate, severe_warning, simulate
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
@@ -216,8 +214,8 @@ async def reject_counter(
         "Sub signs the finalised contract, transitioning it to `active`. "
         "Valid when status is `pending_sub` (direct sign on goddess proposal) "
         "or `pending_sub_signature` (post-negotiation). "
-        "Renders the signed PDF from the supplied signature PNG, uploads it to object "
-        "storage, and populates `signed_pdf_url` and `signed_pdf_sha256` on the contract."
+        "The signature PNG is stored as a base64 data URI on the contract row; "
+        "no file is persisted to object storage. The PDF is generated on-the-fly."
     ),
     response_model=DebtContractOut,
     status_code=200,
@@ -231,53 +229,51 @@ async def sign_as_sub(
     user: User = Depends(require_role(UserRole.sub)),
     ctrl: DebtController = Depends(_build_controller),
 ) -> DebtContractOut:
-    result = await ctrl.sign_as_sub(user, contract_id, body.signature_png_b64)
+    result = await ctrl.sign_as_sub(user, contract_id, body.signature_b64)
     await session.commit()
     return result
 
 
 @router.get(
     "/debts/{contract_id}/pdf",
-    summary="Download the signed contract PDF",
+    summary="Download the contract PDF",
     description=(
-        "Returns the signed contract PDF. In production the response is a 302 redirect "
-        "to a short-lived presigned R2 URL; in dev (fake storage) the bytes are streamed "
-        "inline. Accessible to the contract's sub and to the owning goddess. "
-        "Returns 404 when the contract has not been signed yet."
+        "Renders the contract PDF on-the-fly from the stored contract data and signature. "
+        "Accessible to the contract's sub and to the owning goddess. "
+        "When `draft=true` is passed, renders with a DRAFT watermark regardless of signing status. "
+        "A signed contract embeds the sub's signature; an unsigned contract renders without one."
     ),
     response_class=Response,
     response_model=None,
     status_code=200,
-    tags=["debt-contracts"],
+    tags=["contracts"],
     responses={
         200: {
-            "description": "Signed contract PDF bytes (fake storage)",
+            "description": "Contract PDF bytes",
             "content": {"application/pdf": {}},
         },
-        302: {"description": "Redirect to the presigned PDF URL (R2)"},
         401: _E401,
         403: _E403,
         404: _E404,
+        409: _E409,
         500: _E500,
     },
 )
 async def download_contract_pdf(
     contract_id: UUID,
+    draft: bool = Query(default=False, description="When true, renders with a DRAFT watermark"),
     user: User = Depends(get_current_user),
     ctrl: DebtController = Depends(_build_controller),
 ) -> Response:
-    storage = get_storage_service()
-    if storage.supports_direct_fetch():
-        data = await ctrl.read_pdf_bytes(user, contract_id)
-        return Response(
-            content=data,
-            media_type="application/pdf",
-            headers={
-                "Content-Disposition": f'inline; filename="contract-{contract_id}.pdf"',
-            },
-        )
-    url = await ctrl.download_pdf(user, contract_id)
-    return RedirectResponse(url=url, status_code=302)
+    data = await ctrl.generate_contract_pdf_bytes(user, contract_id, draft=draft)
+    short_id = str(contract_id).upper()[:8]
+    return Response(
+        content=data,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'inline; filename="contract-{short_id}.pdf"',
+        },
+    )
 
 
 @router.post(

@@ -39,12 +39,6 @@ class Settings(BaseSettings):
     smtp_port: int = 1025
     public_base_url: str = "http://localhost:4010"
 
-    r2_account_id: str = ""
-    r2_access_key_id: str = ""
-    r2_secret_access_key: str = ""
-    r2_bucket: str = ""
-    r2_public_url: str = ""
-
     app_url: str = "http://localhost:4010"
     app_timezone: str = "Europe/London"
     cron_enabled: bool = True

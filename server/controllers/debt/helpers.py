@@ -103,8 +103,6 @@ def contract_out(
         exit_amount=Decimal(str(contract.exit_amount)),
         status=contract.status,
         current_version=ver_out,
-        signed_pdf_url=contract.signed_pdf_url,
-        signed_pdf_sha256=contract.signed_pdf_sha256,
         signed_at=contract.signed_at,
         balance=Decimal(str(contract.balance)),
         created_at=contract.created_at,

@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from models.debt import (
     DebtContractEventType,
@@ -170,14 +170,25 @@ class DebtContractCounter(BaseModel):
 
 
 class DebtContractSignIn(BaseModel):
-    signature_png_b64: str = Field(
+    signature_b64: str = Field(
         ...,
-        description="Base64-encoded PNG of the sub's signature",
+        description=(
+            "Sub's signature as a base64 data URI in PNG format. "
+            "Must start with 'data:image/png;base64,'. "
+            "The frontend is responsible for enforcing size limits before submission."
+        ),
         min_length=1,
-        examples=[
-            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="
-        ],
+        examples=["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="],
     )
+
+    @field_validator("signature_b64")
+    @classmethod
+    def must_be_png_data_uri(cls, v: str) -> str:
+        if not v.startswith("data:image/png;base64,"):
+            raise ValueError(
+                "signature_b64 must be a data URI with prefix 'data:image/png;base64,'"
+            )
+        return v
 
 
 class DebtContractVersionOut(BaseModel):
@@ -245,13 +256,6 @@ class DebtContractOut(BaseModel):
     current_version: DebtContractVersionOut | None = Field(
         default=None,
         description="Expanded current negotiation version snapshot",
-    )
-    signed_pdf_url: str | None = Field(
-        default=None, description="Presigned R2 URL of the signed PDF"
-    )
-    signed_pdf_sha256: str | None = Field(
-        default=None,
-        description="SHA-256 hash of the signed PDF for integrity",
     )
     signed_at: datetime | None = Field(
         default=None, description="UTC datetime when the contract was signed"

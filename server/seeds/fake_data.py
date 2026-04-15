@@ -316,8 +316,11 @@ def _contract(
         created_at=created,
         updated_at=created,
         signed_at=signed_at,
-        signed_pdf_url=(f"contracts/dev/{uuid4()}.pdf" if signed_at else None),
-        signed_pdf_sha256=("0" * 64) if signed_at else None,
+        signature_b64=(
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+            if signed_at
+            else None
+        ),
     )
 
 

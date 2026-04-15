@@ -248,12 +248,6 @@ class AdminRowDebtContract(BaseModel):
     current_version_id: UUID | None = Field(
         None, description="FK to latest negotiation version", examples=[None]
     )
-    signed_pdf_url: str | None = Field(
-        None, description="URL to signed contract PDF", examples=[None]
-    )
-    signed_pdf_sha256: str | None = Field(
-        None, description="SHA-256 of the signed PDF", examples=[None]
-    )
     signed_at: datetime | None = Field(
         None, description="Signature timestamp (UTC)", examples=[None]
     )

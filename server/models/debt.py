@@ -102,8 +102,9 @@ class DebtContract(SQLModel, table=True):
             nullable=True,
         ),
     )
-    signed_pdf_url: str | None = Field(default=None, nullable=True)
-    signed_pdf_sha256: str | None = Field(default=None, nullable=True)
+    # Raw base64 data URI of the sub's signature PNG (e.g. "data:image/png;base64,…").
+    # The PDF is generated on-the-fly from this value; nothing is persisted to object storage.
+    signature_b64: str | None = Field(default=None, nullable=True, sa_type=Text)
     signed_at: datetime | None = Field(default=None, nullable=True)
     balance: Decimal = Field(sa_column=Column(Numeric(12, 2), nullable=False))
     created_at: datetime = Field(
