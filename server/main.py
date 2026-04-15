@@ -10,6 +10,7 @@ from core.db import engine
 from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
 from core.rate_limit import limiter, rate_limit_exceeded_handler
+from middleware.request_id import RequestIdMiddleware
 from middleware.security_headers import SecurityHeadersMiddleware
 from routers import (
     adjustments,
@@ -47,7 +48,7 @@ from workers.daily_cron import start_scheduler
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    configure_logging(dev=True)
+    configure_logging()
     settings = get_settings()
     scheduler = start_scheduler() if settings.cron_enabled else None
     try:
@@ -86,6 +87,8 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],
 )
+# Added last so it runs first on ingress — request_id is available to all inner middleware.
+app.add_middleware(RequestIdMiddleware)
 
 register_exception_handlers(app)
 
