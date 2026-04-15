@@ -77,7 +77,7 @@ UUIDs are never rendered for `sub` or `goddess` users. Only `admin` may see raw 
 - Prefix: `VITE_`. Vite strips the prefix; only `VITE_*` is exposed to the browser bundle.
 - Access via `import.meta.env.VITE_*`.
 - Defaults for development live in `.env.example`; actual values in `.env` (gitignored).
-- Never hard-code `localhost:8000` outside of a fallback — always read `import.meta.env.VITE_API_BASE_URL`.
+- Never hard-code `localhost:4011` outside of a fallback — always read `import.meta.env.VITE_API_BASE_URL`.
 
 ## Data fetching
 
@@ -97,7 +97,7 @@ UUIDs are never rendered for `sub` or `goddess` users. Only `admin` may see raw 
 ## Scripts
 
 ```bash
-pnpm dev          # Vite dev server on :5173
+pnpm dev          # Vite dev server on :4010
 pnpm build        # TypeScript compile + Vite build
 pnpm lint         # ESLint
 pnpm format       # Prettier write

@@ -42,7 +42,7 @@ class InvitationOut(BaseModel):
     url: str = Field(
         ...,
         description="Full invite URL to share with the sub",
-        examples=["http://localhost:5173/invite/abc123xyz"],
+        examples=["http://localhost:4010/invite/abc123xyz"],
     )
     entry_tribute_amount: Decimal = Field(
         ..., description="Entry tribute amount in GBP", examples=["50.00"]

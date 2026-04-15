@@ -32,7 +32,7 @@ Failures write diff PNGs to `client/test-results/`.
 
 ## Overrides
 
-- `E2E_BASE_URL` — defaults to `http://localhost:5173`.
+- `E2E_BASE_URL` — defaults to `http://localhost:4010`.
 - `E2E_GODDESS_EMAIL` / `E2E_GODDESS_PASSWORD` — default to bootstrap seeds.
 - `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` — default to bootstrap seeds.
 

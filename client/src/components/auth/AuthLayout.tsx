@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -8,7 +9,10 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
+    <div className="relative grid min-h-screen grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
+      <div className="absolute right-4 top-4 z-20">
+        <ThemeToggle />
+      </div>
       <aside className="relative hidden overflow-hidden bg-base-surface lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,79,163,0.22),transparent_55%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(168,85,247,0.2),transparent_55%)]" />

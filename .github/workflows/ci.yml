@@ -101,7 +101,7 @@ jobs:
           POSTGRES_USER: debt
           POSTGRES_PASSWORD: debt
           POSTGRES_DB: debt
-        ports: ["5432:5432"]
+        ports: ["4012:5432"]
         options: >-
           --health-cmd "pg_isready -U debt"
           --health-interval 5s
@@ -111,7 +111,7 @@ jobs:
       run:
         working-directory: server
     env:
-      DATABASE_URL: postgresql+asyncpg://debt:debt@localhost:5432/debt
+      DATABASE_URL: postgresql+asyncpg://debt:debt@localhost:4012/debt
       JWT_SECRET_KEY: ci-placeholder-secret-do-not-use-in-prod
     steps:
       - uses: actions/checkout@v4
@@ -135,7 +135,7 @@ jobs:
           POSTGRES_USER: debt
           POSTGRES_PASSWORD: debt
           POSTGRES_DB: debt
-        ports: ["5432:5432"]
+        ports: ["4012:5432"]
         options: >-
           --health-cmd "pg_isready -U debt"
           --health-interval 5s
@@ -145,7 +145,7 @@ jobs:
       run:
         working-directory: server
     env:
-      DATABASE_URL: postgresql+asyncpg://debt:debt@localhost:5432/debt
+      DATABASE_URL: postgresql+asyncpg://debt:debt@localhost:4012/debt
       JWT_SECRET_KEY: ci-placeholder-secret-do-not-use-in-prod
     steps:
       - uses: actions/checkout@v4

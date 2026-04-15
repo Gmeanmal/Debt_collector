@@ -62,7 +62,7 @@ cp client/.env.example client/.env
 # 2. Install deps
 make install         # uv sync (server) + pnpm install (client)
 
-# 3. Start infra (Postgres on :5432, Mailhog on :1025/:8025)
+# 3. Start infra (Postgres on :4012, Mailhog on :4013/:4014)
 make up
 
 # 4. Migrate + seed fake data (11 subs covering every state)
@@ -74,10 +74,10 @@ make init-dbs
 Two terminals (both hot-reload):
 
 ```bash
-# terminal 1 — FastAPI on :8000
+# terminal 1 — FastAPI on :4011
 make server
 
-# terminal 2 — Vite on :5173
+# terminal 2 — Vite on :4010
 make client
 ```
 
@@ -85,9 +85,9 @@ Open:
 
 | URL                              | What                                    |
 | -------------------------------- | --------------------------------------- |
-| http://localhost:5173            | Web app                                 |
-| http://localhost:8000/docs       | Swagger UI (full API contract)          |
-| http://localhost:8025            | Mailhog inbox (catches all dev emails)  |
+| http://localhost:4010            | Web app                                 |
+| http://localhost:4011/docs       | Swagger UI (full API contract)          |
+| http://localhost:4014            | Mailhog inbox (catches all dev emails)  |
 
 ### Default credentials
 
@@ -172,7 +172,7 @@ make down                  # stop docker infra
 
 After modifying SQLModel models always run `make migration m="…"`, inspect the generated revision in `server/alembic/versions/`, then `make migrate`.
 
-After adding/editing any FastAPI route or Pydantic schema, regenerate the client types before touching the frontend: `cd client && pnpm sync-types` (server must be running on :8000). Commit the updated `src/types/api.generated.ts` alongside the backend change — the file is checked in so `tsc` can run without the server up.
+After adding/editing any FastAPI route or Pydantic schema, regenerate the client types before touching the frontend: `cd client && pnpm sync-types` (server must be running on :4011). Commit the updated `src/types/api.generated.ts` alongside the backend change — the file is checked in so `tsc` can run without the server up.
 
 ## Environment variables
 
@@ -191,7 +191,7 @@ Full list with inline comments lives in `server/.env.example` and `client/.env.e
 | `APP_TIMEZONE`               | `Europe/London`        | business-rule timezone; all deadlines + cron times derive from it       |
 | `R2_*`                       | empty                  | Cloudflare R2 bucket for signed contract PDFs (prod only)               |
 | `ADMIN_*` / `GODDESS_*`      | see `.env.example`     | bootstrap credentials seeded on first `make init-dbs`                   |
-| `VITE_API_BASE_URL`          | `http://localhost:8000`| client-side base for openapi-fetch                                      |
+| `VITE_API_BASE_URL`          | `http://localhost:4011`| client-side base for openapi-fetch                                      |
 
 ## License
 

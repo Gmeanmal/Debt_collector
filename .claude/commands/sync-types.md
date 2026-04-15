@@ -6,16 +6,16 @@ description: Regenerate `src/types/api.generated.ts` from the running backend's 
 
 ## Steps
 
-1. Check that the backend is running locally (`http://localhost:8000/openapi.json` reachable). If not, start it:
+1. Check that the backend is running locally (`http://localhost:4011/openapi.json` reachable). If not, start it:
    ```
-   cd backend && uv run uvicorn main:app --reload --port 8000 &
+   cd backend && uv run uvicorn main:app --reload --port 4011 &
    ```
    Wait until the port responds.
 2. Run the generator:
    ```
    pnpm -C frontend generate:types
    ```
-   (Which runs `openapi-typescript http://localhost:8000/openapi.json -o src/types/api.generated.ts`.)
+   (Which runs `openapi-typescript http://localhost:4011/openapi.json -o src/types/api.generated.ts`.)
 3. Run `git diff --exit-code frontend/src/types/api.generated.ts`:
    - If no diff: report "types already in sync"
    - If diff: report that types drifted, show the diff summary, and stage the file. Note which routes changed so the user can decide whether the drift is intended.

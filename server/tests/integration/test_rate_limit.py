@@ -52,7 +52,7 @@ async def rate_limit_client(pg_url: str) -> AsyncGenerator[AsyncClient, None]:
         app.add_middleware(SecurityHeadersMiddleware, enable_hsts=False)
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=["http://localhost:5173"],
+            allow_origins=["http://localhost:4010"],
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],

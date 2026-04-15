@@ -100,7 +100,7 @@ export async function signContractApi(
 }
 
 export async function downloadContractPdfApi(contractId: string): Promise<string> {
-  const base = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+  const base = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4011";
   const url = `${base}/debts/${contractId}/pdf`;
   const response = await fetch(url, {
     headers: authHeaders(),

@@ -28,7 +28,7 @@ down:
 	docker compose down
 
 server:
-	cd server && uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
+	cd server && uv run uvicorn main:app --reload --host 0.0.0.0 --port 4011
 
 client:
 	cd client && pnpm dev

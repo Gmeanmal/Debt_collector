@@ -12,7 +12,7 @@ interface UseNotificationsSocketResult {
 }
 
 function buildWsUrl(token: string): string {
-  const base = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+  const base = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4011";
   const wsBase = base.replace(/^http/, "ws");
   return `${wsBase}/ws/notifications?token=${encodeURIComponent(token)}`;
 }

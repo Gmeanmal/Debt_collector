@@ -184,14 +184,14 @@ To re-seed later (destroys data): re-run the three commands above.
 
 ## 6. Run the app (two terminals)
 
-### Terminal A — backend (FastAPI on port 8000)
+### Terminal A — backend (FastAPI on port 4011)
 
 ```powershell
 cd server
-uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uv run uvicorn main:app --reload --host 0.0.0.0 --port 4011
 ```
 
-### Terminal B — frontend (Vite on port 5173)
+### Terminal B — frontend (Vite on port 4010)
 
 ```powershell
 cd client
@@ -202,9 +202,9 @@ pnpm dev
 
 | URL                         | What                                  |
 | --------------------------- | ------------------------------------- |
-| http://localhost:5173       | Web app                               |
-| http://localhost:8000/docs  | Swagger UI (full API contract)        |
-| http://localhost:8025       | Mailhog inbox (catches dev emails)    |
+| http://localhost:4010       | Web app                               |
+| http://localhost:4011/docs  | Swagger UI (full API contract)        |
+| http://localhost:4014       | Mailhog inbox (catches dev emails)    |
 
 ### Login
 
@@ -221,7 +221,7 @@ Replacements for the `make` targets. Run from the **project root** unless stated
 | Install deps                         | `cd server; uv sync; cd ..; cd client; pnpm install; cd ..`                                                                     |
 | Start infra                          | `docker compose up -d`                                                                                                          |
 | Stop infra                           | `docker compose down`                                                                                                           |
-| Run server                           | `cd server; uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000`                                                        |
+| Run server                           | `cd server; uv run uvicorn main:app --reload --host 0.0.0.0 --port 4011`                                                        |
 | Run client                           | `cd client; pnpm dev`                                                                                                           |
 | Apply migrations                     | `cd server; uv run alembic upgrade head`                                                                                        |
 | Create migration                     | `cd server; uv run alembic revision --autogenerate -m "message"`                                                                |
@@ -238,7 +238,7 @@ Replacements for the `make` targets. Run from the **project root** unless stated
 
 ## 8. Troubleshooting
 
-### Port already in use (5173 / 8000 / 5432)
+### Port already in use (4010 / 4011 / 4012)
 
 Find and kill the process holding the port:
 

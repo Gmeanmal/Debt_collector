@@ -66,7 +66,7 @@ Every route needs: `summary`, `description`, `response_model`, `status_code`, `t
 After adding or editing a route, regenerate the client types before touching the frontend:
 
 ```bash
-cd client && pnpm sync-types   # server must be running on :8000
+cd client && pnpm sync-types   # server must be running on :4011
 ```
 
 Commit the updated `client/src/types/api.generated.ts` alongside the backend change.
