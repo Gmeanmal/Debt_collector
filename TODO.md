@@ -6,90 +6,48 @@ Legend: **P0** = infra/foundation (do first, unblocks everything else). **P1** =
 
 ## P0 — Foundation & DevX (priority 0)
 
-Stolen from Malverse_Games + Calidra Platform audits. Order = impact × effort. Do top-down. 12 items.
+Stolen from Malverse_Games + Calidra Platform audits. Order = impact × effort. 9 of 12 shipped on 2026-04-15. Remaining 3 are test-tier work (phase 10) + one optional swap.
 
-### P0.1 — `utils/env.ts` with Zod validation (frontend, low effort)
+### P0.1 — `utils/env.ts` with Zod validation ✅ DONE (2026-04-15)
 
-- Create `client/src/utils/env.ts`. Only file allowed to read `import.meta.env`.
-- Zod schema parses at module load → fail-fast on missing/malformed vars.
-- Export typed `env` constant. Replace every `import.meta.env.*` call site.
-- Ref: Malverse `frontend/src/utils/env.ts`.
+### P0.2 — Request ID middleware + structlog contextvars ✅ DONE (2026-04-15)
 
-### P0.2 — Request ID middleware + structlog contextvars (backend, low effort)
+### P0.3 — TanStack Query key factory ✅ DONE (2026-04-15)
 
-- Add `server/middleware/request_id.py`: generate UUID per request or read `X-Request-ID`; echo on response.
-- Bind into `structlog.contextvars` so every log line carries `request_id`.
-- Update `core/logging.py` to use structlog (JSON prod, pretty dev).
-- Ref: Malverse `backend/middleware/request_id.py` + `core/logging.py`.
+### P0.4 — `/healthz` endpoint + hide OpenAPI in prod ✅ DONE (2026-04-15)
 
-### P0.3 — TanStack Query key factory (frontend, low effort)
+### P0.5 — openapi-typescript pipeline + CI drift check ✅ DONE (2026-04-15)
 
-- Create `client/src/lib/queryKeys.ts` with typed per-domain factory (`queryKeys.sub.payments(id)`).
-- Replace every inline `["foo","bar"]` key across hooks/services.
-- Enables surgical invalidation, kills typo-split caches.
-- Ref: Malverse `frontend/src/utils/queryKeys.ts`.
+- `client/src/types/api.generated.ts` already in place.
+- `make sync-types` + `make check-types-drift` wired.
+- CI job `api-types-drift` boots the server and fails if the generated file drifts.
+- Not done: swap hand-written request/response types for generated ones everywhere (incremental) + `openapi-fetch` adoption is already partial; finish migration as P2.
 
-### P0.4 — `/healthz` endpoint + hide OpenAPI in prod (backend, trivial)
+### P0.6 — Real-Postgres test fixture with SAVEPOINT pattern ⏸ DEFERRED to phase 10
 
-- `GET /healthz` → `{"status":"ok"}` — liveness probe.
-- `FastAPI(openapi_url="/openapi.json" if settings.env == "development" else None, docs_url=None if prod)`.
-- Security hardening: don't expose schema to random scanners.
+Project rule: no tests during phases 1–9. Revisit when the test suite is retrofitted.
 
-### P0.5 — openapi-typescript pipeline + CI drift check (medium effort)
+### P0.7 — Playwright visual regression ⏸ DEFERRED to phase 10
 
-- Install `openapi-typescript`. Generate `client/src/types/api.generated.ts` from server `/openapi.json`.
-- `make sync-types` target (skill already exists: `sync-types`).
-- CI job: regenerate, `git diff --exit-code` → fail on drift.
-- Swap hand-written request/response types for generated ones.
-- Consider `openapi-fetch` client to replace raw axios calls (typed end-to-end).
+Same reason as P0.6 — phase-10 test work.
 
-### P0.6 — Real-Postgres test fixture with SAVEPOINT pattern (medium effort, phase-10 prep)
+### P0.8 — Password pepper layer ✅ DONE (2026-04-15)
 
-- `server/tests/conftest.py`: session-scoped ephemeral `debt_collector_test` DB, run Alembic once.
-- Per-test fixture: nested transaction (SAVEPOINT). `session.commit()` commits savepoint only; teardown rolls back outer tx.
-- No SQLite swap. No per-test drop/recreate. ~100× faster.
-- Add polyfactory for SQLModel auto-factories. Replace any hand-written fixture.
-- Ref: Malverse `backend/tests/conftest.py`.
+Repo uses argon2 (not bcrypt as TODO said); pepper + base64 pre-hash still applies the same way. Dual-verify transparently upgrades legacy rows.
 
-### P0.7 — Playwright visual regression (medium effort)
+### P0.9 — Rate limiter Protocol swap ✅ DONE (2026-04-15)
 
-- `client/tests/visual/` with Playwright. Two viewports: `1440×900` desktop, `390×844` mobile.
-- Per-surface snapshot vs `Docs/*.html` mockups.
-- CI runs in official container `mcr.microsoft.com/playwright:<version>-jammy` → pixel-perfect.
-- Snapshots committed under `__snapshots__/`.
+slowapi kept for route decorators; new generic `RateLimiter` Protocol + Memory/Redis impls selected via `RATE_LIMITER_BACKEND`.
 
-### P0.8 — Password pepper layer (backend, low effort, security)
+### P0.10 — Biome swap 🟡 OPTIONAL (skipped)
 
-- `core/security.py`: wrap raw password in `hmac.digest(PEPPER, raw, "sha256")` → base64 → bcrypt.
-- Add `PASSWORD_PEPPER` to `server/.env.example` + settings.
-- Defense-in-depth: pepper blocks offline rainbow tables; base64 blocks bcrypt null-byte truncation.
-- Migration path: re-hash on next login (dual-verify for old hashes until rotated).
-- Ref: Calidra `auth_controller._get_base64_password`.
+Current ESLint + Prettier setup works fine. Low ROI unless lint time becomes painful.
 
-### P0.9 — Rate limiter Protocol swap (backend, low effort)
+### P0.11 — docker-compose infra verification ✅ DONE (2026-04-15)
 
-- Refactor `core/rate_limit.py` to `RateLimiter` Protocol.
-- Two impls: `MemoryRateLimiter` (dev/test) + `RedisRateLimiter` (prod, when needed).
-- Pick in `core/config.py` via `RATE_LIMITER=memory|redis` env var.
-- `check(key, limit, window) -> RateLimitResult` with `Retry-After`.
+Postgres + Mailhog present with matching ports and healthcheck.
 
-### P0.10 — Biome swap (frontend, optional, medium effort)
-
-- Replace `eslint.config.js` + prettier with Biome (`biome.json`).
-- Enforce `noDefaultExport: "error"`, `useImportType: "error"`, `noExplicitAny: "error"`.
-- One tool, ~10× faster. Skip if eslint setup works fine — low ROI.
-
-### P0.11 — docker-compose infra verification (trivial)
-
-- Confirm `docker-compose.yml` has Postgres + Mailhog (SMTP 1025, UI 8025). Add Mailhog if missing.
-- Optional: add pgAdmin on 5050 for DB GUI.
-- Health-checks on Postgres for reliable CI bring-up.
-
-### P0.12 — Makefile help + composite targets (DevX, trivial)
-
-- Add `## comment` annotations to every target. Default `make` target greps them: `@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk ...`.
-- Composite targets: `make install` (server+client), `make quality` (lint+type+test), `make reset-dbs`, `make feed-dbs`.
-- Ref: Calidra root `Makefile`.
+### P0.12 — Makefile help + composite targets ✅ DONE (2026-04-15)
 
 ---
 
