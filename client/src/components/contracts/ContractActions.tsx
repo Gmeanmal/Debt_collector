@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ContractFormFields } from "@/components/contracts/ContractFormFields";
+import { queryKeys } from "@/lib/queryKeys";
 import {
   counterProposeApi,
   acceptCounterApi,
@@ -48,8 +49,8 @@ export function ContractActions({ contract, role, onBanner }: Props) {
   const [counterForm, setCounterForm] = useState<DebtContractCreate>(versionToCreate(contract));
 
   function invalidate() {
-    qc.invalidateQueries({ queryKey: ["contract", contract.id] });
-    qc.invalidateQueries({ queryKey: ["contractAudit", contract.id] });
+    qc.invalidateQueries({ queryKey: queryKeys.contracts.detail(contract.id) });
+    qc.invalidateQueries({ queryKey: queryKeys.contracts.audit(contract.id) });
   }
 
   const counterMutation = useMutation({

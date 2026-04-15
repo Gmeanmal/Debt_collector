@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SignaturePad } from "@/components/signature/SignaturePad";
 import { getContractApi, signContractApi } from "@/services/debtContracts/debtContractsApi";
 import { useAuth } from "@/services/auth/useAuth";
+import { queryKeys } from "@/lib/queryKeys";
 
 const SIGNABLE_STATUSES = ["pending_sub", "pending_sub_signature"] as const;
 
@@ -27,7 +28,7 @@ export function ContractSignRoute() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["debt-contract", safeId],
+    queryKey: queryKeys.contracts.debtDetail(safeId),
     queryFn: () => getContractApi(safeId),
     enabled: safeId.length > 0,
   });
@@ -35,9 +36,9 @@ export function ContractSignRoute() {
   const signMutation = useMutation({
     mutationFn: (signaturePngB64: string) => signContractApi(safeId, signaturePngB64),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["debt-contract", safeId] });
-      qc.invalidateQueries({ queryKey: ["contract", safeId] });
-      qc.invalidateQueries({ queryKey: ["contractAudit", safeId] });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.debtDetail(safeId) });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.detail(safeId) });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.audit(safeId) });
       navigate(`/debts/${safeId}`);
     },
     onError: (err: Error) => setError(err.message),

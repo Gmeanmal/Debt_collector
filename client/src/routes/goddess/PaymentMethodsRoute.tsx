@@ -28,6 +28,7 @@ import {
   type PaymentMethodOut,
   type PaymentMethodUpdate,
 } from "@/services/paymentMethods/paymentMethodsApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface SortableCardProps {
   method: PaymentMethodOut;
@@ -153,7 +154,7 @@ export function PaymentMethodsRoute() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["paymentMethods", "goddess"],
+    queryKey: queryKeys.payments.methods("goddess"),
     queryFn: () => listPaymentMethodsApi(false),
   });
 
@@ -165,7 +166,7 @@ export function PaymentMethodsRoute() {
   const createMutation = useMutation({
     mutationFn: createPaymentMethodApi,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["paymentMethods", "goddess"] });
+      qc.invalidateQueries({ queryKey: queryKeys.payments.methods("goddess") });
       setLocalOrder([]);
       setShowAdd(false);
     },
@@ -175,7 +176,7 @@ export function PaymentMethodsRoute() {
     mutationFn: ({ id, patch }: { id: string; patch: PaymentMethodUpdate }) =>
       updatePaymentMethodApi(id, patch),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["paymentMethods", "goddess"] });
+      qc.invalidateQueries({ queryKey: queryKeys.payments.methods("goddess") });
       setLocalOrder([]);
       setEditTarget(null);
     },
@@ -184,7 +185,7 @@ export function PaymentMethodsRoute() {
   const deleteMutation = useMutation({
     mutationFn: deletePaymentMethodApi,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["paymentMethods", "goddess"] });
+      qc.invalidateQueries({ queryKey: queryKeys.payments.methods("goddess") });
       setLocalOrder([]);
     },
   });

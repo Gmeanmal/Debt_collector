@@ -17,6 +17,7 @@ import { Modal } from "@/components/ui/Modal";
 import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
 import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
 import { cn } from "@/lib/utils";
+import { queryKeys } from "@/lib/queryKeys";
 
 const SOURCE_LABEL: Record<DeclarationSource, string> = {
   sub_declared: "Self-declared",
@@ -55,7 +56,7 @@ function EditModal({ decl, onClose }: EditModalProps) {
   const [note, setNote] = useState(decl.note ?? "");
 
   const { data: methods = [] } = useQuery({
-    queryKey: ["subPaymentMethods"],
+    queryKey: queryKeys.sub.paymentMethods(),
     queryFn: listSubPaymentMethodsApi,
   });
 
@@ -69,7 +70,7 @@ function EditModal({ decl, onClose }: EditModalProps) {
         note: note || undefined,
       }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["myPayments"] });
+      qc.invalidateQueries({ queryKey: queryKeys.sub.payments() });
       onClose();
     },
   });
@@ -170,13 +171,13 @@ export function PaymentHistoryRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["myPayments"],
+    queryKey: queryKeys.sub.payments(),
     queryFn: listMyPaymentsApi,
   });
 
   const cancelMutation = useMutation({
     mutationFn: cancelDeclarationApi,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["myPayments"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.sub.payments() }),
   });
 
   return (

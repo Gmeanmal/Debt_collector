@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createAdjustmentApi } from "@/services/debtContracts/debtContractsApi";
 import { Modal } from "@/components/ui/Modal";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
   contractId: string;
@@ -17,9 +18,9 @@ export function AdjustmentDialog({ contractId, onClose, onBanner }: Props) {
   const mutation = useMutation({
     mutationFn: () => createAdjustmentApi(contractId, { amount, reason: reason || undefined }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["contract", contractId] });
-      qc.invalidateQueries({ queryKey: ["contractAudit", contractId] });
-      qc.invalidateQueries({ queryKey: ["pendingAdjustments"] });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.detail(contractId) });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.audit(contractId) });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.pendingAdjustments() });
       onBanner?.("Adjustment submitted.", "success");
       onClose();
     },

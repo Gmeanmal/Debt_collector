@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { surprisePenaltyApi } from "@/services/debtContracts/debtContractsApi";
 import { Modal } from "@/components/ui/Modal";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
   contractId: string;
@@ -17,8 +18,8 @@ export function SurprisePenaltyDialog({ contractId, onClose, onBanner }: Props) 
   const mutation = useMutation({
     mutationFn: () => surprisePenaltyApi(contractId, { amount, reason: reason || undefined }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["contract", contractId] });
-      qc.invalidateQueries({ queryKey: ["contractAudit", contractId] });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.detail(contractId) });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.audit(contractId) });
       onBanner?.("Surprise penalty applied.", "success");
       onClose();
     },

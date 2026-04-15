@@ -11,6 +11,7 @@ import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
 import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
 import { cn } from "@/lib/utils";
+import { queryKeys } from "@/lib/queryKeys";
 
 const ACTIVE_CATEGORIES: { value: PaymentCategory; label: string }[] = [
   { value: "entry", label: "Entry tribute" },
@@ -35,14 +36,14 @@ export function PaymentFormRoute() {
   const [amountErr, setAmountErr] = useState("");
 
   const { data: methods = [], isLoading: methodsLoading } = useQuery({
-    queryKey: ["subPaymentMethods"],
+    queryKey: queryKeys.sub.paymentMethods(),
     queryFn: listSubPaymentMethodsApi,
   });
 
   const declareMutation = useMutation({
     mutationFn: declarePaymentApi,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["myPayments"] });
+      qc.invalidateQueries({ queryKey: queryKeys.sub.payments() });
       navigate("/sub/payments");
     },
   });

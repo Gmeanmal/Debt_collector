@@ -14,6 +14,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
 import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
+import { queryKeys } from "@/lib/queryKeys";
 
 const CATEGORIES: PaymentCategory[] = ["entry", "tribute"];
 
@@ -45,7 +46,7 @@ function RejectModal({ decl, onClose }: RejectModalProps) {
   const rejectMutation = useMutation({
     mutationFn: () => rejectDeclarationApi(decl.id, { reason: reason || undefined }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["pendingPayments"] });
+      qc.invalidateQueries({ queryKey: queryKeys.goddess.pendingPayments() });
       onClose();
     },
   });
@@ -100,7 +101,7 @@ export function PendingValidationsRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["pendingPayments"],
+    queryKey: queryKeys.goddess.pendingPayments(),
     queryFn: listPendingPaymentsApi,
   });
 
@@ -109,7 +110,7 @@ export function PendingValidationsRoute() {
       validateDeclarationApi(id, {
         recategorize_to: cat ? (cat as PaymentCategory) : undefined,
       }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pendingPayments"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.goddess.pendingPayments() }),
   });
 
   function setRecategory(id: string, val: string) {

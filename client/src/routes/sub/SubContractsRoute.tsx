@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { listSubDebtsApi } from "@/services/debtContracts/debtContractsApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
@@ -21,7 +22,7 @@ export function SubContractsRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["subContracts"],
+    queryKey: queryKeys.sub.contracts(),
     queryFn: listSubDebtsApi,
   });
 

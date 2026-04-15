@@ -8,6 +8,7 @@ import {
   upsertRollingApi,
   type RollingTributeIn,
 } from "@/services/rolling/rollingApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
   subId: string;
@@ -24,7 +25,7 @@ export function SubRollingTab({ subId }: Props) {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["rolling", subId],
+    queryKey: queryKeys.rolling.bySubId(subId),
     queryFn: () => getRollingApi(subId),
     enabled: subId.length > 0,
   });
@@ -32,7 +33,7 @@ export function SubRollingTab({ subId }: Props) {
   const upsertMutation = useMutation({
     mutationFn: (body: RollingTributeIn) => upsertRollingApi(subId, body),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["rolling", subId] });
+      qc.invalidateQueries({ queryKey: queryKeys.rolling.bySubId(subId) });
       setBanner({ kind: "success", message: "Rolling tribute saved." });
     },
     onError: (err: Error) => {
@@ -43,7 +44,7 @@ export function SubRollingTab({ subId }: Props) {
   const clearMutation = useMutation({
     mutationFn: () => clearRollingApi(subId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["rolling", subId] });
+      qc.invalidateQueries({ queryKey: queryKeys.rolling.bySubId(subId) });
       setBanner({ kind: "success", message: "Rolling tribute cleared." });
     },
     onError: (err: Error) => {

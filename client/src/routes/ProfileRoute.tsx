@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useAuth } from "@/services/auth/useAuth";
 import { updateProfileApi } from "@/services/auth/authApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { queryKeys } from "@/lib/queryKeys";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -87,7 +88,7 @@ export function ProfileRoute() {
   const mutation = useMutation({
     mutationFn: updateProfileApi,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
       toast.success("Profile updated");
     },
     onError: () => {

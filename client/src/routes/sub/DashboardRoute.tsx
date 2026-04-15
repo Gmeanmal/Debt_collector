@@ -12,6 +12,7 @@ import {
   getSubPlanningApi,
   type ActiveContractSummary,
 } from "@/services/dashboards/dashboardsApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 const GBP = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
 
@@ -93,12 +94,12 @@ export function SubDashboardRoute() {
     isError: dashError,
     error: dashErr,
   } = useQuery({
-    queryKey: ["subDashboard"],
+    queryKey: queryKeys.sub.dashboard(),
     queryFn: getSubDashboardApi,
   });
 
   const { data: planning, isLoading: planningLoading } = useQuery({
-    queryKey: ["subPlanning"],
+    queryKey: queryKeys.sub.planning(),
     queryFn: getSubPlanningApi,
   });
 

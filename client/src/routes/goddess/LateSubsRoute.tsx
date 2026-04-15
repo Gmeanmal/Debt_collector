@@ -7,13 +7,14 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { getLateSubsApi, type LateSubItem } from "@/services/goddess/lateSubsApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 type SortKey = "days_late" | "overdue_amount" | "display_name";
 type SortDir = "asc" | "desc";
 
 export function LateSubsRoute() {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["goddessLateSubs"],
+    queryKey: queryKeys.goddess.lateSubs(),
     queryFn: getLateSubsApi,
   });
 

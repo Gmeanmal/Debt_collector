@@ -9,6 +9,7 @@ import {
 } from "@/services/notifications/notificationsApi";
 import { useNotificationsStore } from "@/stores/notificationsStore";
 import { useNotificationsSocket } from "@/hooks/useNotificationsSocket";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface NotificationBellProps {
   enabled: boolean;
@@ -43,7 +44,7 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
   useNotificationsSocket(enabled);
 
   const seedQuery = useQuery({
-    queryKey: ["notifications"],
+    queryKey: queryKeys.notifications.all(),
     queryFn: listNotificationsApi,
     enabled,
     staleTime: 60_000,

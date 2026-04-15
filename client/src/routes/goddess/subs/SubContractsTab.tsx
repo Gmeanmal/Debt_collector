@@ -4,6 +4,7 @@ import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
   subId: string;
@@ -27,7 +28,7 @@ export function SubContractsTab({ subId }: Props) {
     isError,
     error,
   } = useQuery({
-    queryKey: ["goddessContracts"],
+    queryKey: queryKeys.goddess.contracts(),
     queryFn: listGoddessDebtsApi,
   });
 

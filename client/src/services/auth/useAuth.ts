@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { getMeApi, impersonateApi, loginApi, logoutApi, refreshApi } from "./authApi";
 import { clearTokens, setTokens } from "./tokenStorage";
 import type { components } from "@/types/api.generated";
+import { queryKeys } from "@/lib/queryKeys";
 
 type UserOut = components["schemas"]["UserOut"];
 
-const ME_KEY = ["auth", "me"] as const;
+const ME_KEY = queryKeys.auth.me();
 
 export function useAuth() {
   const queryClient = useQueryClient();

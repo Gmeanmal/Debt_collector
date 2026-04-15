@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { listInvitationsApi } from "@/services/invitations/invitationsApi";
 import type { components } from "@/types/api.generated";
+import { queryKeys } from "@/lib/queryKeys";
 
 type InvitationOut = components["schemas"]["InvitationOut"];
 
@@ -41,7 +42,7 @@ export function InvitationsListRoute() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["invitations", "goddess"],
+    queryKey: queryKeys.invitations.goddess(),
     queryFn: listInvitationsApi,
   });
 

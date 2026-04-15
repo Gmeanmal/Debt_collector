@@ -9,6 +9,7 @@ import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getGoddessDashboardApi } from "@/services/dashboards/dashboardsApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 export function DashboardRoute() {
   const {
@@ -17,7 +18,7 @@ export function DashboardRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["goddessDashboard"],
+    queryKey: queryKeys.goddess.dashboard(),
     queryFn: getGoddessDashboardApi,
   });
 

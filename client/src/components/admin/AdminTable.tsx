@@ -4,6 +4,7 @@ import { adminList, adminDelete } from "@/services/admin/adminApi";
 import type { EntitySchema } from "@/services/admin/entitySchemas";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { useAuth } from "@/services/auth/useAuth";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface AdminTableProps {
   schema: EntitySchema;
@@ -36,7 +37,7 @@ export function AdminTable({ schema }: AdminTableProps) {
 
   const queryClient = useQueryClient();
   const { impersonate } = useAuth();
-  const queryKey = ["admin", schema.entity, q, page] as const;
+  const queryKey = queryKeys.admin.list(schema.entity, q, page);
   const isUsers = schema.entity === "users";
   const isReadonly = schema.readonly === true;
 
@@ -54,7 +55,7 @@ export function AdminTable({ schema }: AdminTableProps) {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => adminDelete(schema.entity, id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", schema.entity] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.entity(schema.entity) }),
   });
 
   const total = query.data?.total ?? 0;
@@ -253,7 +254,7 @@ export function AdminTable({ schema }: AdminTableProps) {
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);
-            queryClient.invalidateQueries({ queryKey: ["admin", schema.entity] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.entity(schema.entity) });
           }}
         />
       )}
@@ -265,7 +266,7 @@ export function AdminTable({ schema }: AdminTableProps) {
           onClose={() => setCreating(false)}
           onSaved={() => {
             setCreating(false);
-            queryClient.invalidateQueries({ queryKey: ["admin", schema.entity] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.entity(schema.entity) });
           }}
         />
       )}

@@ -6,6 +6,7 @@ import {
   refuseAdjustmentApi,
   type ContractAdjustmentOut,
 } from "@/services/debtContracts/debtContractsApi";
+import { queryKeys } from "@/lib/queryKeys";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
@@ -26,24 +27,24 @@ export function PendingAdjustmentsPanel() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["pendingAdjustments"],
+    queryKey: queryKeys.contracts.pendingAdjustments(),
     queryFn: listPendingAdjustmentsApi,
   });
 
   const accept = useMutation({
     mutationFn: (id: string) => acceptAdjustmentApi(id),
     onSuccess: (adj: ContractAdjustmentOut) => {
-      qc.invalidateQueries({ queryKey: ["pendingAdjustments"] });
-      qc.invalidateQueries({ queryKey: ["contract", adj.contract_id] });
-      qc.invalidateQueries({ queryKey: ["contractAudit", adj.contract_id] });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.pendingAdjustments() });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.detail(adj.contract_id) });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.audit(adj.contract_id) });
     },
   });
 
   const refuse = useMutation({
     mutationFn: (id: string) => refuseAdjustmentApi(id),
     onSuccess: (adj: ContractAdjustmentOut) => {
-      qc.invalidateQueries({ queryKey: ["pendingAdjustments"] });
-      qc.invalidateQueries({ queryKey: ["contract", adj.contract_id] });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.pendingAdjustments() });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.detail(adj.contract_id) });
     },
   });
 

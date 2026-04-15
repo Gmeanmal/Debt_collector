@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { RollingReadonlyPanel } from "@/components/rolling/RollingReadonlyPanel";
 import { getRollingApi } from "@/services/rolling/rollingApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
   subId: string;
@@ -13,7 +14,7 @@ export function SubRollingSection({ subId }: Props) {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["rolling", subId],
+    queryKey: queryKeys.rolling.bySubId(subId),
     queryFn: () => getRollingApi(subId),
   });
 

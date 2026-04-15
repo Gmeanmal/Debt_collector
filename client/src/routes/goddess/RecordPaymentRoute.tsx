@@ -11,6 +11,7 @@ import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
 import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
 import { cn } from "@/lib/utils";
+import { queryKeys } from "@/lib/queryKeys";
 
 const CATEGORIES: { value: PaymentCategory; label: string }[] = [
   { value: "entry", label: "Entry tribute" },
@@ -32,19 +33,19 @@ export function RecordPaymentRoute() {
   const [amountErr, setAmountErr] = useState("");
 
   const { data: subs = [] } = useQuery({
-    queryKey: ["goddessSubs"],
+    queryKey: queryKeys.goddess.subs(),
     queryFn: listGoddessSubsApi,
   });
 
   const { data: methods = [] } = useQuery({
-    queryKey: ["paymentMethods", "goddess"],
+    queryKey: queryKeys.payments.methods("goddess"),
     queryFn: () => listPaymentMethodsApi(true),
   });
 
   const recordMutation = useMutation({
     mutationFn: recordPaymentApi,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["pendingPayments"] });
+      qc.invalidateQueries({ queryKey: queryKeys.goddess.pendingPayments() });
       navigate("/goddess/validations");
     },
   });

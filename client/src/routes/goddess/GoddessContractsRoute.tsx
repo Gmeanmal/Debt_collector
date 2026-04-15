@@ -7,6 +7,7 @@ import { ListSkeleton } from "@/components/ui/Skeleton";
 import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
 import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
 import { useAuth } from "@/services/auth/useAuth";
+import { queryKeys } from "@/lib/queryKeys";
 
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
@@ -26,12 +27,12 @@ export function GoddessContractsRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["goddessContracts"],
+    queryKey: queryKeys.goddess.contracts(),
     queryFn: listGoddessDebtsApi,
   });
 
   const { data: subs = [] } = useQuery({
-    queryKey: ["goddessSubs"],
+    queryKey: queryKeys.goddess.subs(),
     queryFn: listGoddessSubsApi,
   });
 

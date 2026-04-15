@@ -4,10 +4,11 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { getWeeklyPaymentsApi, type WeeklyPaymentBucket } from "@/services/goddess/weeklyApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 export function WeeklyPaymentsRoute() {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["goddessWeeklyPayments"],
+    queryKey: queryKeys.goddess.weeklyPayments(),
     queryFn: getWeeklyPaymentsApi,
   });
 

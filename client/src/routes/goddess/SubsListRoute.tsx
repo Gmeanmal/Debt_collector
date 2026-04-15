@@ -6,6 +6,7 @@ import { getRollingApi } from "@/services/rolling/rollingApi";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { queryKeys } from "@/lib/queryKeys";
 
 const STATUS_CLASSES: Record<string, string> = {
   active: "bg-status-success/15 text-status-success border-status-success/30",
@@ -31,18 +32,18 @@ export function SubsListRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["goddessSubs"],
+    queryKey: queryKeys.goddess.subs(),
     queryFn: listGoddessSubsApi,
   });
 
   const { data: contracts = [] } = useQuery({
-    queryKey: ["goddessContracts"],
+    queryKey: queryKeys.goddess.contracts(),
     queryFn: listGoddessDebtsApi,
     enabled: subs.length > 0,
   });
 
   const rollingQueries = useQuery({
-    queryKey: ["goddessAllRolling", subs.map((s) => s.id)],
+    queryKey: queryKeys.goddess.allRolling(subs.map((s) => s.id)),
     queryFn: async () => {
       const results = await Promise.allSettled(subs.map((s) => getRollingApi(s.id)));
       return Object.fromEntries(

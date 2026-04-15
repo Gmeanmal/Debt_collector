@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/api/client";
+import { queryKeys } from "@/lib/queryKeys";
 
 export function HealthRoute() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["health"],
+    queryKey: queryKeys.health.all(),
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/health");
       if (error) throw error;

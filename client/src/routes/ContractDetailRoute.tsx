@@ -20,6 +20,7 @@ import {
 import { useAuth } from "@/services/auth/useAuth";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { queryKeys } from "@/lib/queryKeys";
 
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
@@ -116,13 +117,13 @@ export function ContractDetailRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["contract", safeId],
+    queryKey: queryKeys.contracts.detail(safeId),
     queryFn: () => getContractApi(safeId),
     enabled: safeId.length > 0,
   });
 
   const { data: audit = [] } = useQuery({
-    queryKey: ["contractAudit", safeId],
+    queryKey: queryKeys.contracts.audit(safeId),
     queryFn: () => getContractAuditApi(safeId),
     enabled: safeId.length > 0,
   });

@@ -10,6 +10,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
 import { useAuth } from "@/services/auth/useAuth";
+import { queryKeys } from "@/lib/queryKeys";
 
 function fmtGbp(v: string): string {
   return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -31,7 +32,7 @@ function ForgiveModal({ entry, onClose }: ForgiveModalProps) {
   const mutation = useMutation({
     mutationFn: () => forgiveEntryApi(entry.id, { reinstatement_fee_paid: fee }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["blacklist"] });
+      qc.invalidateQueries({ queryKey: queryKeys.blacklist.all() });
       onClose();
     },
   });
@@ -89,7 +90,7 @@ export function BlacklistRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["blacklist"],
+    queryKey: queryKeys.blacklist.all(),
     queryFn: listBlacklistApi,
   });
 

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { listPendingPaymentsApi } from "@/services/payments/paymentsApi";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
   subId: string;
@@ -29,7 +30,7 @@ export function SubPaymentsSection({ subId }: Props) {
     isError,
     error,
   } = useQuery({
-    queryKey: ["goddessPendingPayments"],
+    queryKey: queryKeys.goddess.pendingValidations(),
     queryFn: listPendingPaymentsApi,
   });
 

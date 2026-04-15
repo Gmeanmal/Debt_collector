@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
+import { queryKeys } from "@/lib/queryKeys";
 import { SubOverviewTab } from "./SubOverviewTab";
 import { SubRollingTab } from "./SubRollingTab";
 import { SubContractsTab } from "./SubContractsTab";
@@ -19,7 +20,7 @@ export function SubManageRoute() {
   const safeSubId = subId ?? "";
 
   const { data: subs = [], isLoading } = useQuery({
-    queryKey: ["goddessSubs"],
+    queryKey: queryKeys.goddess.subs(),
     queryFn: listGoddessSubsApi,
   });
 

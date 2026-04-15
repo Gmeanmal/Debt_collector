@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { signupViaInviteApi } from "@/services/invitations/invitationsApi";
 import { setTokens } from "@/services/auth/tokenStorage";
+import { queryKeys } from "@/lib/queryKeys";
 
 const schema = z
   .object({
@@ -45,7 +46,7 @@ export function SignupRoute() {
         last_name: values.last_name || null,
       });
       setTokens({ access: pair.access_token });
-      await queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
       navigate("/pending-entry-tribute", { replace: true });
     } catch (err) {
       const status = (err as { status?: number } | null)?.status;

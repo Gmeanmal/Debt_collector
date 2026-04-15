@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicInvitationApi } from "@/services/invitations/invitationsApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 function errorMessage(err: unknown): string {
   const e = err as { status?: number; detail?: string } | null;
@@ -22,7 +23,7 @@ export function InviteLandingRoute() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["invitation", "public", token],
+    queryKey: queryKeys.invitations.public(token ?? ""),
     queryFn: () => getPublicInvitationApi(token!),
     enabled: !!token,
     retry: false,
