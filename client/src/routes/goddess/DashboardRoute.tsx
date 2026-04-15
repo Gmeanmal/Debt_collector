@@ -3,12 +3,20 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { LatePaymentList } from "@/components/dashboard/LatePaymentList";
+import { MonthlyRevenueChart } from "@/components/dashboard/MonthlyRevenueChart";
+import { MethodBreakdownChart } from "@/components/dashboard/MethodBreakdownChart";
+import { SubsByStatusChart } from "@/components/dashboard/SubsByStatusChart";
+import { TopSubsLeaderboard } from "@/components/dashboard/TopSubsLeaderboard";
+import { LateRateSparkline } from "@/components/dashboard/LateRateSparkline";
+import { ContractStateProgress } from "@/components/dashboard/ContractStateProgress";
+import { ChartSkeleton } from "@/components/dashboard/ChartPanel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getGoddessDashboardApi } from "@/services/dashboards/dashboardsApi";
+import { useGoddessDashboardCharts } from "@/hooks/dashboard/useGoddessDashboardCharts";
 import { queryKeys } from "@/lib/queryKeys";
 
 export function DashboardRoute() {
@@ -121,6 +129,8 @@ function DashboardContent({ dash }: ContentProps) {
         />
       </div>
 
+      <ChartGrid />
+
       <section className="flex flex-col gap-4">
         <div className="flex items-end justify-between">
           <div>
@@ -136,5 +146,41 @@ function DashboardContent({ dash }: ContentProps) {
         <LatePaymentList items={late} />
       </section>
     </>
+  );
+}
+
+function ChartGrid() {
+  const { data, isLoading, isError, error } = useGoddessDashboardCharts();
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <ChartSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  const errMsg = isError
+    ? ((error as Error | undefined)?.message ?? "Failed to load charts")
+    : undefined;
+
+  const monthly = data?.monthly_revenue ?? [];
+  const methods = data?.method_breakdown ?? [];
+  const byStatus = data?.subs_by_status ?? [];
+  const topSubs = data?.top_subs ?? [];
+  const dailyLate = data?.daily_late_counts ?? [];
+  const contractStates = data?.contract_states ?? { active: 0, completed: 0, breached: 0 };
+
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <MonthlyRevenueChart data={monthly} error={errMsg} />
+      <MethodBreakdownChart data={methods} error={errMsg} />
+      <SubsByStatusChart data={byStatus} error={errMsg} />
+      <TopSubsLeaderboard data={topSubs} error={errMsg} />
+      <LateRateSparkline data={dailyLate} error={errMsg} />
+      <ContractStateProgress data={contractStates} error={errMsg} />
+    </div>
   );
 }
