@@ -90,7 +90,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** A1.
 - **Subagent hint:** **3 parallel backend-feature subagents**, one per provider.
 
-### A5 — YouPay iframe / deep-link component 🟢
+### A5 — YouPay iframe / deep-link component ✅
 
 - **Scope:** `client`, `payments`.
 - **Goal:** embed YouPay on sub's "Declare payment" page if T&C permit iframe; otherwise a deep-link button prefilled with amount + reference.

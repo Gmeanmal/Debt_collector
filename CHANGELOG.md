@@ -5,6 +5,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **A5** YouPay widget: `components/payments/YouPayWidget.tsx` renders a deep-link button (default) or iframe (opt-in via `VITE_YOUPAY_IFRAME_ALLOWED="true"`) when a payment method named "YouPay" is selected on `/sub/payments/new`. `services/payments/youpay.ts` builds the `youpay.com.au/pay?amount=&ref=&currency=GBP` URL; `youpay_ref` query param on return auto-populates the reference field.
 - Roadmap prep: `cryptography` + `pillow` server deps (Phase J, B4). Env stubs for R2 (sub photos / toys / vault), root KEK + version, Throne webhook / polling. `client/src/assets/goddess/` scaffold folder. `Docs/blackmail_threat_model.md` DRAFT stub (K1 gate).
 
 ### Changed
