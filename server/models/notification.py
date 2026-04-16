@@ -30,6 +30,8 @@ class NotificationType(StrEnum):
     contract_buyout_paid = "contract_buyout_paid"
     contract_breached = "contract_breached"
     contract_forgiven = "contract_forgiven"
+    journal_comment = "journal_comment"
+    wishlist_fulfilled = "wishlist_fulfilled"
 
 
 class Notification(SQLModel, table=True):

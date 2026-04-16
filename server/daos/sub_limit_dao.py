@@ -65,15 +65,25 @@ class SubLimitDao:
         self,
         limit_id: UUID,
         *,
+        kind: LimitKind | None = None,
         body: str | None = None,
         severity: LimitSeverity | None = None,
+        clear_acknowledgement: bool = False,
     ) -> SubLimit:
-        """Update mutable fields on an existing limit row."""
+        """Update mutable fields on an existing limit row.
+
+        When ``clear_acknowledgement`` is true, ``acknowledged_by_goddess_at`` is set back
+        to ``None`` so the goddess must re-acknowledge after a sub-initiated edit.
+        """
         row = await self.get(limit_id)
+        if kind is not None:
+            row.kind = kind
         if body is not None:
             row.body = body
         if severity is not None:
             row.severity = severity
+        if clear_acknowledgement:
+            row.acknowledged_by_goddess_at = None
         row.updated_at = datetime.now(UTC).replace(tzinfo=None)
         self._session.add(row)
         return row

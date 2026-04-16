@@ -24,6 +24,9 @@ from routers import (
     goddess_views,
     health,
     invitations,
+    journal,
+    kinks,
+    limits,
     me_preferences,
     notifications,
     payment_methods,
@@ -32,6 +35,7 @@ from routers import (
     rolling,
     safeword,
     signup,
+    wishlist,
     ws,
 )
 from routers.payments import (
@@ -120,4 +124,9 @@ app.include_router(dashboards.goddess_router)
 app.include_router(dashboards.sub_router)
 app.include_router(goddess_views.router)
 app.include_router(safeword.router)
+app.include_router(journal.router)
+app.include_router(kinks.router)
+app.include_router(limits.router)
+app.include_router(wishlist.goddess_router)
+app.include_router(wishlist.sub_router)
 app.include_router(ws.router)

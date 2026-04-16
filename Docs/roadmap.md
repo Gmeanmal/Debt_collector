@@ -202,7 +202,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** —
 - **Subagent hint:** migration-writer + backend-feature.
 
-### C2 — Sub rating API 🟡
+### C2 — Sub rating API ✅
 
 - **Scope:** `server`, `kinks`.
 - **Goal:** `GET /profile/kinks` (matrix), `PUT /profile/kinks/{item_id}` (upsert rating with `rating` + `note`).
@@ -256,7 +256,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** —
 - **Subagent hint:** migration-writer + backend-feature.
 
-### D2 — Limits & triggers CRUD API 🟡
+### D2 — Limits & triggers CRUD API ✅
 
 - **Scope:** `server`, `limits`.
 - **Goal:** sub CRUD on own limits + triggers; goddess read + `POST /goddess/subs/{id}/limits/{lid}/acknowledge`.
@@ -374,7 +374,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** —
 - **Subagent hint:** migration-writer + backend-feature.
 
-### F2 — Journal API (sub write, goddess read + comment) 🟡
+### F2 — Journal API (sub write, goddess read + comment) ✅
 
 - **Scope:** `server`, `journal`.
 - **Goal:** `POST /journal`, `GET /journal` (sub self), `GET /goddess/subs/{id}/journal`, `PATCH /goddess/journal/{id}/comment`.
@@ -516,7 +516,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** —
 - **Subagent hint:** migration-writer + backend-feature.
 
-### I2 — Wishlist CRUD + auto-fulfil logic 🟡
+### I2 — Wishlist CRUD + auto-fulfil logic ✅
 
 - **Scope:** `server`, `payments`.
 - **Goal:** goddess CRUD + sub propose; when a `wishlist` allocation brings `collected >= target`, status flips to `fulfilled`, both notified.

@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col
 
@@ -67,6 +67,52 @@ class JournalDao:
             .limit(limit)
             .offset(offset)
         )
+        return list(result.scalars().all())
+
+    async def list_for_sub_cursor(
+        self,
+        sub_id: UUID,
+        limit: int,
+        before: datetime | None,
+    ) -> list[JournalEntry]:
+        """Return entries for a sub, newest-first, created before `before` if given."""
+        stmt = select(JournalEntry).where(col(JournalEntry.sub_id) == sub_id)
+        if before is not None:
+            stmt = stmt.where(col(JournalEntry.created_at) < before)
+        stmt = stmt.order_by(col(JournalEntry.created_at).desc()).limit(limit)
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def list_for_goddess_sub_and_mark_read(
+        self,
+        goddess_id: UUID,
+        sub_id: UUID,
+        limit: int,
+        before: datetime | None,
+    ) -> list[JournalEntry]:
+        """Return entries for a goddess+sub pair and mark unread ones read in one unit of work.
+
+        The bulk UPDATE and the SELECT run in the same DB transaction, so the caller observes
+        either both or neither once `session.commit()` fires at the router boundary.
+        """
+        now = datetime.now(UTC).replace(tzinfo=None)
+        await self._session.execute(
+            update(JournalEntry)
+            .where(
+                col(JournalEntry.goddess_id) == goddess_id,
+                col(JournalEntry.sub_id) == sub_id,
+                col(JournalEntry.read_by_goddess_at).is_(None),
+            )
+            .values(read_by_goddess_at=now)
+        )
+        stmt = select(JournalEntry).where(
+            col(JournalEntry.goddess_id) == goddess_id,
+            col(JournalEntry.sub_id) == sub_id,
+        )
+        if before is not None:
+            stmt = stmt.where(col(JournalEntry.created_at) < before)
+        stmt = stmt.order_by(col(JournalEntry.created_at).desc()).limit(limit)
+        result = await self._session.execute(stmt)
         return list(result.scalars().all())
 
     async def mark_read(self, entry_id: UUID, goddess_id: UUID) -> JournalEntry:

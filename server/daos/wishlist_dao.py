@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from decimal import Decimal
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import func
@@ -113,3 +114,39 @@ class WishlistDao:
             )
         )
         return Decimal(str(result.scalar_one()))
+
+    async def count_allocations(self, wishlist_id: UUID) -> int:
+        """Return the number of allocation rows targeting this wishlist item."""
+        result = await self._session.execute(
+            select(func.count(col(PaymentAllocation.id))).where(
+                col(PaymentAllocation.target_type) == AllocationTargetType.wishlist_goal,
+                col(PaymentAllocation.target_id) == wishlist_id,
+            )
+        )
+        return int(result.scalar_one())
+
+    async def update(self, item: WishlistItem, patch: dict[str, Any]) -> WishlistItem:
+        """Apply partial updates to a wishlist item and stamp updated_at."""
+        for field, value in patch.items():
+            setattr(item, field, value)
+        item.updated_at = datetime.now(UTC).replace(tzinfo=None)
+        self._session.add(item)
+        await self._session.flush()
+        return item
+
+    async def delete(self, item: WishlistItem) -> None:
+        """Hard-delete a wishlist item row."""
+        await self._session.delete(item)
+        await self._session.flush()
+
+    async def mark_fulfilled(self, item: WishlistItem) -> WishlistItem:
+        """Flip status to fulfilled and stamp fulfilled_at; idempotent on already-fulfilled rows."""
+        if item.status == WishlistStatus.fulfilled:
+            return item
+        now = datetime.now(UTC).replace(tzinfo=None)
+        item.status = WishlistStatus.fulfilled
+        item.fulfilled_at = now
+        item.updated_at = now
+        self._session.add(item)
+        await self._session.flush()
+        return item
