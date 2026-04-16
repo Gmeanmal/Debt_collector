@@ -77,4 +77,8 @@ export const queryKeys = {
     entity: (entity: string) => ["admin", entity] as const,
     list: (entity: string, q: string, page: number) => ["admin", entity, q, page] as const,
   },
+
+  goddessPhotos: {
+    queue: () => ["goddess", "photos", "queue"] as const,
+  },
 };

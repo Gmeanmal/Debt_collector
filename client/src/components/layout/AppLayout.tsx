@@ -32,6 +32,7 @@ const GODDESS_NAV: NavItem[] = [
   { to: "/goddess/subs", label: "Subs" },
   { to: "/goddess/invitations", label: "Invitations" },
   { to: "/goddess/validations", label: "Validations" },
+  { to: "/goddess/photo-queue", label: "Photo queue" },
   { to: "/goddess/payments/record", label: "Record" },
   { to: "/goddess/payment-methods", label: "Methods" },
   { to: "/goddess/debts", label: "Contracts" },

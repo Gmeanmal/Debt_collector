@@ -21,6 +21,7 @@ from routers import (
     consent,
     dashboards,
     debt_contracts,
+    goddess_photos,
     goddess_profile,
     goddess_views,
     health,
@@ -147,4 +148,5 @@ app.include_router(merits.router)
 app.include_router(consent.router)
 app.include_router(penalty_rules.router)
 app.include_router(photo.router)
+app.include_router(goddess_photos.router)
 app.include_router(ws.router)

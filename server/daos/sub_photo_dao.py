@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import select
@@ -6,6 +7,7 @@ from sqlmodel import col
 
 from core.exceptions import NotFound
 from models.sub_photo import SubPhoto, SubPhotoStatus
+from models.user import User
 
 
 class SubPhotoDao:
@@ -74,3 +76,61 @@ class SubPhotoDao:
             .offset(offset)
         )
         return list(result.scalars().all())
+
+    async def get_pending_for_goddess(
+        self,
+        goddess_id: UUID,
+        limit: int = 50,
+        before: datetime | None = None,
+    ) -> list[tuple[SubPhoto, User]]:
+        """Return pending photos for the goddess joined with their sub's User row.
+
+        Results are ordered by ``uploaded_at`` descending (newest first).
+        Pass ``before`` (a UTC-naive datetime) for cursor-based pagination.
+        """
+        stmt = (
+            select(SubPhoto, User)
+            .join(User, col(SubPhoto.sub_id) == col(User.id))
+            .where(
+                col(SubPhoto.goddess_id) == goddess_id,
+                col(SubPhoto.status) == SubPhotoStatus.pending,
+            )
+            .order_by(col(SubPhoto.uploaded_at).desc())
+            .limit(limit)
+        )
+        if before is not None:
+            stmt = stmt.where(col(SubPhoto.uploaded_at) < before)
+        result = await self._session.execute(stmt)
+        return [(row.SubPhoto, row.User) for row in result.all()]
+
+    async def approve(self, photo_id: UUID, reviewer_id: UUID) -> SubPhoto:
+        """Flip status to approved and stamp review metadata.
+
+        Idempotent: returns the row unchanged if already approved.
+        Raises ``NotFound`` if the photo does not exist.
+        """
+        photo = await self.get(photo_id)
+        if photo.status == SubPhotoStatus.approved:
+            return photo
+        photo.status = SubPhotoStatus.approved
+        photo.reviewed_at = datetime.now(UTC).replace(tzinfo=None)
+        photo.reviewed_by = reviewer_id
+        self._session.add(photo)
+        return photo
+
+    async def reject(self, photo_id: UUID, reviewer_id: UUID, reason: str) -> SubPhoto:
+        """Flip status to rejected, stamp review metadata, and store rejection reason.
+
+        Soft delete only — the object-store key is preserved for 30-day GC.
+        Idempotent: returns the row unchanged if already rejected.
+        Raises ``NotFound`` if the photo does not exist.
+        """
+        photo = await self.get(photo_id)
+        if photo.status == SubPhotoStatus.rejected:
+            return photo
+        photo.status = SubPhotoStatus.rejected
+        photo.reviewed_at = datetime.now(UTC).replace(tzinfo=None)
+        photo.reviewed_by = reviewer_id
+        photo.rejection_reason = reason
+        self._session.add(photo)
+        return photo
