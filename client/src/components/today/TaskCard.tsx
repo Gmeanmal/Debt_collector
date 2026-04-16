@@ -84,8 +84,7 @@ export function TaskCard({ task }: Props) {
 
       {task.due_at && (
         <p className="text-xs text-base-text-muted">
-          Due{" "}
-          <span className="text-base-text font-medium">{formatDue(task.due_at)}</span>
+          Due <span className="text-base-text font-medium">{formatDue(task.due_at)}</span>
         </p>
       )}
 

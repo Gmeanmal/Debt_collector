@@ -1,10 +1,5 @@
 import { z } from "zod";
-import {
-  fetchOwnMedical,
-  putOwnMedical,
-  acceptConsent,
-  revealSubMedical,
-} from "@/api/medical";
+import { fetchOwnMedical, putOwnMedical, acceptConsent, revealSubMedical } from "@/api/medical";
 import { queryKeys } from "@/lib/queryKeys";
 
 export const SubMedicalSelfOutSchema = z.object({

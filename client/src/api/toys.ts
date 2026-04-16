@@ -91,10 +91,7 @@ export async function createGoddessSubToy(
   });
 }
 
-export async function updateGoddessToy(
-  toyId: string,
-  body: RawToyUpdateIn,
-): Promise<RawToyItem> {
+export async function updateGoddessToy(toyId: string, body: RawToyUpdateIn): Promise<RawToyItem> {
   return fetchJson<RawToyItem>(`/goddess/toys/${toyId}`, {
     method: "PATCH",
     body: JSON.stringify(body),

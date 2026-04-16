@@ -133,9 +133,7 @@ export function MeritsAdminRoute() {
               />
             )}
 
-            {!rewardsLoading && !rewardsError && (
-              <RewardTierList tiers={rewards} mode="goddess" />
-            )}
+            {!rewardsLoading && !rewardsError && <RewardTierList tiers={rewards} mode="goddess" />}
           </section>
 
           {/* Punishments column */}

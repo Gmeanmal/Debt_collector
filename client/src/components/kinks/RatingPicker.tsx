@@ -63,11 +63,7 @@ interface Props {
 
 export function RatingPicker({ value, onChange, compact = false, disabled = false }: Props) {
   return (
-    <div
-      className="flex flex-wrap gap-1"
-      role="group"
-      aria-label="Kink rating"
-    >
+    <div className="flex flex-wrap gap-1" role="group" aria-label="Kink rating">
       {RATING_OPTIONS.map((opt) => {
         const isActive = opt.value === value;
         return (

@@ -74,14 +74,11 @@ export function KinkRow({ item, onRatingChange, isPending = false }: Props) {
       </div>
 
       {pendingRating !== null && (
-        <Modal
-          title="Safety-flagged item"
-          onClose={handleCancel}
-          size="sm"
-        >
+        <Modal title="Safety-flagged item" onClose={handleCancel} size="sm">
           <p className="text-sm text-base-text-muted">
             <strong className="text-base-text">{item.label}</strong> is marked as safety-critical.
-            Selecting <strong className="text-status-warning">{pendingRating.replace("_", " ")}</strong> means
+            Selecting{" "}
+            <strong className="text-status-warning">{pendingRating.replace("_", " ")}</strong> means
             you acknowledge the associated risks and require prior negotiation with your Goddess.
           </p>
           <div className="flex justify-end gap-2 mt-2">

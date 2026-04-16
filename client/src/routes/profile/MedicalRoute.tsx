@@ -24,8 +24,7 @@ export function MedicalRoute() {
     throwOnError: false,
   });
 
-  const consentError =
-    error instanceof ConsentRequiredError ? error : null;
+  const consentError = error instanceof ConsentRequiredError ? error : null;
 
   function handleConsentAccepted() {
     setConsentState(null);
@@ -33,9 +32,11 @@ export function MedicalRoute() {
     void refetch();
   }
 
-  const resolvedConsentState = consentState ?? (consentError
-    ? { bodyMd: consentError.detail.bodyMd, consentTextId: consentError.detail.consentTextId }
-    : null);
+  const resolvedConsentState =
+    consentState ??
+    (consentError
+      ? { bodyMd: consentError.detail.bodyMd, consentTextId: consentError.detail.consentTextId }
+      : null);
 
   return (
     <div className="p-4 md:p-8">

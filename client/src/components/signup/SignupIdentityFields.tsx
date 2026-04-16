@@ -48,9 +48,7 @@ export function SignupIdentityFields({ register, errors }: Props) {
           readOnly
           {...register("timezone")}
         />
-        {errors.timezone && (
-          <p className="text-sm text-status-danger">{errors.timezone.message}</p>
-        )}
+        {errors.timezone && <p className="text-sm text-status-danger">{errors.timezone.message}</p>}
       </div>
 
       <div className="flex flex-col gap-1">

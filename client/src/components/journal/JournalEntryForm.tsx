@@ -88,7 +88,10 @@ export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
       </fieldset>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="journal-body" className="text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+        <label
+          htmlFor="journal-body"
+          className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+        >
           Entry
         </label>
         <textarea

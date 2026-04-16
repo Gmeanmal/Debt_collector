@@ -82,9 +82,7 @@ export function ToyCard({ toy, goddessContext = false, subId, onEdit, onDelete }
           <Badge variant={CATEGORY_BADGE_VARIANT[toy.category]}>
             {CATEGORY_LABELS[toy.category]}
           </Badge>
-          {toy.proposed_by === "sub" && (
-            <Badge variant="info">Sub proposed</Badge>
-          )}
+          {toy.proposed_by === "sub" && <Badge variant="info">Sub proposed</Badge>}
         </div>
       </div>
 

@@ -29,18 +29,9 @@ interface FieldErrors {
   category?: string;
 }
 
-export function ToyForm({
-  initial,
-  isPending,
-  isError,
-  submitLabel,
-  onSubmit,
-  onCancel,
-}: Props) {
+export function ToyForm({ initial, isPending, isError, submitLabel, onSubmit, onCancel }: Props) {
   const [name, setName] = useState(initial?.name ?? "");
-  const [category, setCategory] = useState<ToyCategory>(
-    initial?.category ?? "other",
-  );
+  const [category, setCategory] = useState<ToyCategory>(initial?.category ?? "other");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
@@ -95,9 +86,7 @@ export function ToyForm({
             fieldErrors.name ? "border-status-danger" : "border-base-border",
           )}
         />
-        {fieldErrors.name && (
-          <p className="text-xs text-status-danger">{fieldErrors.name}</p>
-        )}
+        {fieldErrors.name && <p className="text-xs text-status-danger">{fieldErrors.name}</p>}
       </div>
 
       <div className="flex flex-col gap-1">
@@ -129,8 +118,7 @@ export function ToyForm({
 
       <div className="flex flex-col gap-1">
         <label htmlFor="toy-description" className="text-sm font-semibold text-base-text">
-          Description{" "}
-          <span className="text-base-text-subtle font-normal">(optional)</span>
+          Description <span className="text-base-text-subtle font-normal">(optional)</span>
         </label>
         <textarea
           id="toy-description"
@@ -145,9 +133,7 @@ export function ToyForm({
       {/* Photo upload deferred — B4 presigned upload URL not yet wired to toy endpoints */}
       {/* TODO: wire photo upload once B4 presigned PUT URL is surfaced for toys */}
 
-      {isError && (
-        <p className="text-xs text-status-danger">Failed to save. Please try again.</p>
-      )}
+      {isError && <p className="text-xs text-status-danger">Failed to save. Please try again.</p>}
 
       <div className="flex flex-col gap-2 sm:flex-row sm:justify-end pt-1">
         <button

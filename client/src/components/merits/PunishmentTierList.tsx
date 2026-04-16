@@ -87,9 +87,7 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
             {isEditing ? (
               <PunishmentTierForm
                 initial={tier}
-                onSubmit={(values) =>
-                  updateMutation.mutate({ id: tier.id, payload: values })
-                }
+                onSubmit={(values) => updateMutation.mutate({ id: tier.id, payload: values })}
                 onCancel={() => setEditState(null)}
                 isPending={updateMutation.isPending}
                 error={editState.error}
@@ -118,11 +116,7 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
                   <p className="text-xs text-status-danger">{invokeState.error}</p>
                 )}
                 <div className="flex gap-2 justify-end">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setInvokeState(null)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setInvokeState(null)}>
                     Cancel
                   </Button>
                   <Button
@@ -154,9 +148,7 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
                     <Badge variant={tier.active ? "warning" : "default"}>
                       {tier.active ? "Active" : "Inactive"}
                     </Badge>
-                    <Badge variant="danger">
-                      {tier.default_points_penalty} pts
-                    </Badge>
+                    <Badge variant="danger">{tier.default_points_penalty} pts</Badge>
                   </div>
                 </div>
 
@@ -181,9 +173,7 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
                   {tier.active && subs.length > 0 && (
                     <Button
                       size="sm"
-                      onClick={() =>
-                        setInvokeState({ tierId: tier.id, subId: "", error: null })
-                      }
+                      onClick={() => setInvokeState({ tierId: tier.id, subId: "", error: null })}
                       aria-label={`Invoke ${tier.name} for sub`}
                     >
                       Invoke

@@ -19,7 +19,11 @@ const formSchema = z.object({
 });
 
 interface TriggerFormProps {
-  onSubmit: (values: { severity: LimitSeverity; trigger_text: string; notes: string | null }) => Promise<void>;
+  onSubmit: (values: {
+    severity: LimitSeverity;
+    trigger_text: string;
+    notes: string | null;
+  }) => Promise<void>;
   isPending: boolean;
 }
 

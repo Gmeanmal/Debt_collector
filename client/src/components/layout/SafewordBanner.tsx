@@ -39,9 +39,7 @@ export function SafewordBanner() {
             Emergency:{" "}
             <span className="font-medium text-status-warning">
               {safeword.emergency_contact_name}
-              {safeword.emergency_contact_phone
-                ? ` · ${safeword.emergency_contact_phone}`
-                : ""}
+              {safeword.emergency_contact_phone ? ` · ${safeword.emergency_contact_phone}` : ""}
             </span>
           </span>
         )}

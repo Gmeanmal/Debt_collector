@@ -102,9 +102,7 @@ export function JournalReaderRoute() {
             disabled={subsLoading}
             className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
           >
-            <option value="">
-              {subsLoading ? "Loading subs…" : "Select a sub"}
-            </option>
+            <option value="">{subsLoading ? "Loading subs…" : "Select a sub"}</option>
             {subs.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.display_name} (@{s.username})
@@ -152,9 +150,7 @@ export function JournalReaderRoute() {
                   <GoddessCommentForm
                     entryId={entry.id}
                     existingComment={entry.goddess_comment}
-                    onSubmit={(entryId, comment) =>
-                      commentMutation.mutate({ entryId, comment })
-                    }
+                    onSubmit={(entryId, comment) => commentMutation.mutate({ entryId, comment })}
                     isPending={commentMutation.isPending}
                     error={commentErrors[entry.id]}
                   />

@@ -91,9 +91,7 @@ export function AftercareEditForm({ initial }: Props) {
         </Button>
         {saved && <span className="text-sm text-status-success">Saved.</span>}
         {mutation.isError && (
-          <span className="text-sm text-status-danger">
-            {(mutation.error as Error).message}
-          </span>
+          <span className="text-sm text-status-danger">{(mutation.error as Error).message}</span>
         )}
       </div>
     </form>

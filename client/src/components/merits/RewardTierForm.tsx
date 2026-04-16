@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RewardTierInSchema, type RewardTier, type RewardTierIn } from "@/services/merits/meritsApi";
+import {
+  RewardTierInSchema,
+  type RewardTier,
+  type RewardTierIn,
+} from "@/services/merits/meritsApi";
 
 interface Props {
   initial?: Partial<RewardTier>;
@@ -10,10 +14,7 @@ interface Props {
   error?: string | null;
 }
 
-function fieldError(
-  errors: Record<string, string>,
-  field: string,
-): string | undefined {
+function fieldError(errors: Record<string, string>, field: string): string | undefined {
   return errors[field];
 }
 
@@ -54,7 +55,10 @@ export function RewardTierForm({ initial, onSubmit, onCancel, isPending, error }
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="rw-name" className="text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+        <label
+          htmlFor="rw-name"
+          className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+        >
           Name
         </label>
         <input
@@ -71,7 +75,10 @@ export function RewardTierForm({ initial, onSubmit, onCancel, isPending, error }
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="rw-desc" className="text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+        <label
+          htmlFor="rw-desc"
+          className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+        >
           Description <span className="normal-case font-normal">(optional)</span>
         </label>
         <textarea
@@ -84,7 +91,10 @@ export function RewardTierForm({ initial, onSubmit, onCancel, isPending, error }
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="rw-cost" className="text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+        <label
+          htmlFor="rw-cost"
+          className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+        >
           Cost (points)
         </label>
         <input

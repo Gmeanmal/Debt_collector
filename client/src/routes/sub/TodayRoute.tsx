@@ -48,10 +48,7 @@ export function TodayRoute() {
         </div>
 
         <section aria-labelledby="rituals-heading" className="flex flex-col gap-3">
-          <h2
-            id="rituals-heading"
-            className="font-display text-lg text-pink-primary"
-          >
+          <h2 id="rituals-heading" className="font-display text-lg text-pink-primary">
             Rituals
           </h2>
 
@@ -81,10 +78,7 @@ export function TodayRoute() {
         </section>
 
         <section aria-labelledby="tasks-heading" className="flex flex-col gap-3">
-          <h2
-            id="tasks-heading"
-            className="font-display text-lg text-pink-primary"
-          >
+          <h2 id="tasks-heading" className="font-display text-lg text-pink-primary">
             Open tasks
           </h2>
 
@@ -114,10 +108,7 @@ export function TodayRoute() {
         </section>
 
         <section aria-labelledby="journal-heading" className="flex flex-col gap-3">
-          <h2
-            id="journal-heading"
-            className="font-display text-lg text-pink-primary"
-          >
+          <h2 id="journal-heading" className="font-display text-lg text-pink-primary">
             Journal
           </h2>
           <JournalCTA />

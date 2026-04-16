@@ -49,7 +49,9 @@ export function RewardTierList({ tiers, mode, onRedeem, isRedeemPending }: Props
   });
 
   if (tiers.length === 0) {
-    return <EmptyState title="No reward tiers yet" message="Create one to let subs redeem points." />;
+    return (
+      <EmptyState title="No reward tiers yet" message="Create one to let subs redeem points." />
+    );
   }
 
   return (
@@ -65,9 +67,7 @@ export function RewardTierList({ tiers, mode, onRedeem, isRedeemPending }: Props
             {isEditing && mode === "goddess" ? (
               <RewardTierForm
                 initial={tier}
-                onSubmit={(values) =>
-                  updateMutation.mutate({ id: tier.id, payload: values })
-                }
+                onSubmit={(values) => updateMutation.mutate({ id: tier.id, payload: values })}
                 onCancel={() => setEditState(null)}
                 isPending={updateMutation.isPending}
                 error={editState.error}

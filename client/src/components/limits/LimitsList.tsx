@@ -35,8 +35,12 @@ function LimitRow({ item }: { item: LimitItem }) {
   const queryClient = useQueryClient();
 
   const updateMutation = useMutation({
-    mutationFn: (vals: { kind: LimitKind; severity: LimitSeverity; label: string; notes: string | null }) =>
-      editLimit(item.id, vals),
+    mutationFn: (vals: {
+      kind: LimitKind;
+      severity: LimitSeverity;
+      label: string;
+      notes: string | null;
+    }) => editLimit(item.id, vals),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [...limitsKey] });
       toast.success("Limit updated");
@@ -59,7 +63,9 @@ function LimitRow({ item }: { item: LimitItem }) {
       <div className="rounded-md border border-pink-primary/30 bg-base-surface-raised/40 p-4">
         <LimitForm
           initial={item}
-          onSubmit={async (vals) => { await updateMutation.mutateAsync(vals); }}
+          onSubmit={async (vals) => {
+            await updateMutation.mutateAsync(vals);
+          }}
           onCancel={() => setEditing(false)}
           isPending={updateMutation.isPending}
         />
@@ -75,7 +81,9 @@ function LimitRow({ item }: { item: LimitItem }) {
       )}
     >
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-base-text font-medium leading-snug">{item.body.split("\n\n")[0]}</p>
+        <p className="text-sm text-base-text font-medium leading-snug">
+          {item.body.split("\n\n")[0]}
+        </p>
         {item.body.includes("\n\n") && (
           <p className="mt-1 text-xs text-base-text-muted whitespace-pre-wrap">
             {item.body.split("\n\n").slice(1).join("\n\n")}
@@ -118,9 +126,7 @@ function LimitRow({ item }: { item: LimitItem }) {
 
 export function LimitsList({ items }: LimitsListProps) {
   if (items.length === 0) {
-    return (
-      <p className="text-sm text-base-text-subtle py-2">No limits recorded yet.</p>
-    );
+    return <p className="text-sm text-base-text-subtle py-2">No limits recorded yet.</p>;
   }
 
   return (

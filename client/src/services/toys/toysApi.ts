@@ -102,10 +102,7 @@ export async function listGoddessSubToys(subId: string): Promise<ToyItem[]> {
   }
 }
 
-export async function createToyForSub(
-  subId: string,
-  input: ToyCreateInput,
-): Promise<ToyItem> {
+export async function createToyForSub(subId: string, input: ToyCreateInput): Promise<ToyItem> {
   try {
     const raw = await createGoddessSubToy(subId, input);
     return ToyItemSchema.parse(raw);
@@ -114,10 +111,7 @@ export async function createToyForSub(
   }
 }
 
-export async function updateToy(
-  toyId: string,
-  input: ToyUpdateInput,
-): Promise<ToyItem> {
+export async function updateToy(toyId: string, input: ToyUpdateInput): Promise<ToyItem> {
   try {
     const raw = await updateGoddessToy(toyId, input);
     return ToyItemSchema.parse(raw);

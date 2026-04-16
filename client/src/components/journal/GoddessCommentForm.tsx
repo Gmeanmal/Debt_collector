@@ -50,7 +50,10 @@ export function GoddessCommentForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <label htmlFor={`comment-${entryId}`} className="text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+      <label
+        htmlFor={`comment-${entryId}`}
+        className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+      >
         Your comment
       </label>
       <textarea

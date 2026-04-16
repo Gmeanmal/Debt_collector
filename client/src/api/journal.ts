@@ -75,9 +75,7 @@ export async function listSubJournalForGoddessApi(
   if (params.limit != null) qs.set("limit", String(params.limit));
   if (params.before) qs.set("before", params.before);
   const query = qs.toString();
-  return fetchJson<RawJournalEntry[]>(
-    `/goddess/subs/${subId}/journal${query ? `?${query}` : ""}`,
-  );
+  return fetchJson<RawJournalEntry[]>(`/goddess/subs/${subId}/journal${query ? `?${query}` : ""}`);
 }
 
 export async function upsertJournalCommentApi(

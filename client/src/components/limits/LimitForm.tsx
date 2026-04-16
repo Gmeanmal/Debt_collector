@@ -21,7 +21,12 @@ const formSchema = z.object({
 
 interface LimitFormProps {
   initial?: LimitItem;
-  onSubmit: (values: { kind: LimitKind; severity: LimitSeverity; label: string; notes: string | null }) => Promise<void>;
+  onSubmit: (values: {
+    kind: LimitKind;
+    severity: LimitSeverity;
+    label: string;
+    notes: string | null;
+  }) => Promise<void>;
   onCancel?: () => void;
   isPending: boolean;
 }

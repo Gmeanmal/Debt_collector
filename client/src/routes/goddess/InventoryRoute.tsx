@@ -41,7 +41,12 @@ export function GoddessInventoryRoute() {
 
   const toysKey = goddessSubToysKey(safeSubId);
 
-  const { data: toys = [], isLoading, isError, error } = useQuery({
+  const {
+    data: toys = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: toysKey,
     queryFn: () => listGoddessSubToys(safeSubId),
     enabled: Boolean(safeSubId),
@@ -161,9 +166,7 @@ export function GoddessInventoryRoute() {
           </div>
         )}
 
-        {deleteErrorId && (
-          <ErrorState title="Failed to delete toy" message="Please try again." />
-        )}
+        {deleteErrorId && <ErrorState title="Failed to delete toy" message="Please try again." />}
 
         {isLoading && <ListSkeleton rows={3} />}
         {isError && (

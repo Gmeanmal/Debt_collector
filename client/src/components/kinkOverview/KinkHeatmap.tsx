@@ -85,11 +85,7 @@ function CategoryGroup({ label, items, maxPerColumn }: CategoryGroupProps) {
             </span>
           </td>
           {RATING_COLUMNS.map((col) => (
-            <HeatCell
-              key={col}
-              count={item.counts[col] ?? 0}
-              max={maxPerColumn[col]}
-            />
+            <HeatCell key={col} count={item.counts[col] ?? 0} max={maxPerColumn[col]} />
           ))}
         </tr>
       ))}
@@ -103,9 +99,10 @@ interface Props {
 
 export function KinkHeatmap({ overview }: Props) {
   const { grouped, maxPerColumn } = useMemo(() => {
-    const colMaxes = Object.fromEntries(
-      RATING_COLUMNS.map((col) => [col, 0]),
-    ) as Record<RatingColumn, number>;
+    const colMaxes = Object.fromEntries(RATING_COLUMNS.map((col) => [col, 0])) as Record<
+      RatingColumn,
+      number
+    >;
 
     for (const item of overview.items) {
       for (const col of RATING_COLUMNS) {
@@ -115,9 +112,7 @@ export function KinkHeatmap({ overview }: Props) {
     }
 
     const sorted = [...overview.items].sort(
-      (a, b) =>
-        a.category_sort_order - b.category_sort_order ||
-        a.label.localeCompare(b.label),
+      (a, b) => a.category_sort_order - b.category_sort_order || a.label.localeCompare(b.label),
     );
 
     const groups = new Map<string, KinkOverviewItem[]>();
@@ -131,11 +126,7 @@ export function KinkHeatmap({ overview }: Props) {
   }, [overview]);
 
   if (overview.items.length === 0) {
-    return (
-      <p className="text-sm text-base-text-muted text-center py-10">
-        No kink items found.
-      </p>
-    );
+    return <p className="text-sm text-base-text-muted text-center py-10">No kink items found.</p>;
   }
 
   return (

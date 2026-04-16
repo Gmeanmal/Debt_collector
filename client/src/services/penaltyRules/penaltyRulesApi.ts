@@ -42,7 +42,10 @@ export const PenaltyRuleInSchema = z
       .number()
       .int()
       .max(0, "Points delta must be 0 or negative (penalties subtract points)"),
-    fee_amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Must be a valid GBP amount").optional(),
+    fee_amount: z
+      .string()
+      .regex(/^\d+(\.\d{1,2})?$/, "Must be a valid GBP amount")
+      .optional(),
     cooldown_hours: z.number().int().min(0),
     active: z.boolean(),
     // TODO: replace with a sub picker component — this is a UUID text input for now

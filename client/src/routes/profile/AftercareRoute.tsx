@@ -18,8 +18,8 @@ export function AftercareRoute() {
             Aftercare profile
           </h1>
           <p className="text-sm text-base-text-muted mt-1">
-            Describe what helps you recover after an intense scene. Your Goddess will see this
-            when she marks a session complete.
+            Describe what helps you recover after an intense scene. Your Goddess will see this when
+            she marks a session complete.
           </p>
         </div>
 

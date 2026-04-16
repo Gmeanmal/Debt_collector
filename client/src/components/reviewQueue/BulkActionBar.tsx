@@ -38,9 +38,7 @@ export function BulkActionBar({ selectedCount, isPending, onApprove, onReject }:
   return (
     <div className="sticky top-0 z-20 bg-base-surface border border-base-border rounded-lg shadow-[var(--shadow-card)] p-3 flex flex-col gap-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <span className="text-sm font-medium text-base-text">
-          {selectedCount} selected
-        </span>
+        <span className="text-sm font-medium text-base-text">{selectedCount} selected</span>
         <div className="flex gap-2">
           <button
             type="button"
@@ -78,9 +76,7 @@ export function BulkActionBar({ selectedCount, isPending, onApprove, onReject }:
             className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-debt-primary"
             placeholder="Explain why these items are being rejected…"
           />
-          {reasonError && (
-            <p className="text-xs text-status-danger">{reasonError}</p>
-          )}
+          {reasonError && <p className="text-xs text-status-danger">{reasonError}</p>}
           <div className="flex gap-2 justify-end">
             <button
               type="button"

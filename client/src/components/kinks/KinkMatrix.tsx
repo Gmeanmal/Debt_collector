@@ -2,7 +2,11 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { KinkRow } from "@/components/kinks/KinkRow";
-import type { KinkCategory, KinkMatrix as KinkMatrixType, KinkRating } from "@/services/kinks/kinksApi";
+import type {
+  KinkCategory,
+  KinkMatrix as KinkMatrixType,
+  KinkRating,
+} from "@/services/kinks/kinksApi";
 
 // TODO virtualise once item count >= 100
 interface CategorySectionProps {

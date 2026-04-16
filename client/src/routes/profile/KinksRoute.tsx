@@ -37,9 +37,7 @@ export function KinksRoute() {
         return {
           categories: old.categories.map((cat) => ({
             ...cat,
-            items: cat.items.map((item) =>
-              item.id === itemId ? { ...item, rating } : item,
-            ),
+            items: cat.items.map((item) => (item.id === itemId ? { ...item, rating } : item)),
           })),
         };
       });
@@ -91,8 +89,8 @@ export function KinksRoute() {
             Kink matrix
           </h1>
           <p className="text-sm text-base-text-muted mt-1">
-            Set your ratings for each kink. Items marked with a warning icon are safety-critical
-            and require your acknowledgement.
+            Set your ratings for each kink. Items marked with a warning icon are safety-critical and
+            require your acknowledgement.
           </p>
         </div>
 

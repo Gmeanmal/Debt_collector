@@ -120,10 +120,7 @@ export async function submitOccurrence(
   });
 }
 
-export async function submitTask(
-  id: string,
-  body: OccurrenceActionBody,
-): Promise<RawTaskOut> {
+export async function submitTask(id: string, body: OccurrenceActionBody): Promise<RawTaskOut> {
   return fetchJson<RawTaskOut>(`/sub/tasks/${id}/submit`, {
     method: "POST",
     body: JSON.stringify(body),

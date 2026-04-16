@@ -18,7 +18,12 @@ export function PenaltyRulesRoute() {
   const [showForm, setShowForm] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  const { data: rules = [], isLoading, isError, error } = useQuery({
+  const {
+    data: rules = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: [...penaltyRulesKey],
     queryFn: listPenaltyRules,
   });

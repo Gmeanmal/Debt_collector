@@ -151,8 +151,12 @@ export function LimitsRoute() {
   });
 
   const addLimitMutation = useMutation({
-    mutationFn: (vals: { kind: LimitKind; severity: LimitSeverity; label: string; notes: string | null }) =>
-      addLimit(vals),
+    mutationFn: (vals: {
+      kind: LimitKind;
+      severity: LimitSeverity;
+      label: string;
+      notes: string | null;
+    }) => addLimit(vals),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [...limitsKey] });
       toast.success("Limit added");

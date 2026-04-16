@@ -34,13 +34,7 @@ interface Props {
   onDelete?: (toyId: string) => void;
 }
 
-export function InventoryGrid({
-  toys,
-  goddessContext = false,
-  subId,
-  onEdit,
-  onDelete,
-}: Props) {
+export function InventoryGrid({ toys, goddessContext = false, subId, onEdit, onDelete }: Props) {
   if (toys.length === 0) {
     return (
       <EmptyState

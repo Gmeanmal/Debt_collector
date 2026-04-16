@@ -36,11 +36,7 @@ const ACTION_LABELS: Record<string, string> = {
 
 function ActionBadge({ action }: { action: string }) {
   const variant =
-    action === "apply_fee"
-      ? "danger"
-      : action === "apply_points"
-        ? "warning"
-        : "default";
+    action === "apply_fee" ? "danger" : action === "apply_points" ? "warning" : "default";
   return <Badge variant={variant}>{ACTION_LABELS[action] ?? action}</Badge>;
 }
 
@@ -111,9 +107,7 @@ export function PenaltyRuleList({ rules }: Props) {
                   <td colSpan={8} className="px-4 py-4">
                     <PenaltyRuleForm
                       initial={rule}
-                      onSubmit={(values) =>
-                        updateMutation.mutate({ id: rule.id, payload: values })
-                      }
+                      onSubmit={(values) => updateMutation.mutate({ id: rule.id, payload: values })}
                       onCancel={() => setEditState(null)}
                       isPending={updateMutation.isPending}
                       error={editState.error}
@@ -155,9 +149,7 @@ export function PenaltyRuleList({ rules }: Props) {
                 <td className="px-4 py-3">
                   <button
                     type="button"
-                    onClick={() =>
-                      toggleMutation.mutate({ id: rule.id, active: !rule.active })
-                    }
+                    onClick={() => toggleMutation.mutate({ id: rule.id, active: !rule.active })}
                     disabled={toggleMutation.isPending}
                     aria-label={rule.active ? "Deactivate rule" : "Activate rule"}
                     className="focus-visible:ring-2 focus-visible:ring-pink-primary rounded"

@@ -119,7 +119,13 @@ function TriggerEditForm({ item, onDone }: TriggerEditFormProps) {
         />
       </div>
       <div className="flex items-center justify-end gap-2">
-        <Button type="button" variant="ghost" size="sm" onClick={onDone} disabled={updateMutation.isPending}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onDone}
+          disabled={updateMutation.isPending}
+        >
           Cancel
         </Button>
         <Button type="submit" size="sm" disabled={updateMutation.isPending}>

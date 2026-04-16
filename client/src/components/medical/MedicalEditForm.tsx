@@ -27,11 +27,7 @@ function FieldLabel({ label, isSet }: { label: string; isSet: boolean }) {
   return (
     <div className="flex items-center gap-2">
       <Label className="text-sm text-base-text">{label}</Label>
-      {isSet ? (
-        <Badge variant="success">Set</Badge>
-      ) : (
-        <Badge variant="default">Not set</Badge>
-      )}
+      {isSet ? <Badge variant="success">Set</Badge> : <Badge variant="default">Not set</Badge>}
     </div>
   );
 }
@@ -137,7 +133,9 @@ export function MedicalEditForm({ current }: MedicalEditFormProps) {
               className="min-h-[80px] w-full rounded-md border border-base-border bg-base-surface-raised px-3 py-2 text-sm text-base-text placeholder:text-base-text-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary resize-y"
               value={allergies}
               onChange={(e) => setAllergies(e.target.value)}
-              placeholder={current.allergies_is_set ? "Enter new value to replace…" : "Known allergies…"}
+              placeholder={
+                current.allergies_is_set ? "Enter new value to replace…" : "Known allergies…"
+              }
             />
           </div>
 
@@ -149,7 +147,9 @@ export function MedicalEditForm({ current }: MedicalEditFormProps) {
               className="min-h-[80px] w-full rounded-md border border-base-border bg-base-surface-raised px-3 py-2 text-sm text-base-text placeholder:text-base-text-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary resize-y"
               value={medications}
               onChange={(e) => setMedications(e.target.value)}
-              placeholder={current.medications_is_set ? "Enter new value to replace…" : "Current medications…"}
+              placeholder={
+                current.medications_is_set ? "Enter new value to replace…" : "Current medications…"
+              }
             />
           </div>
 
@@ -161,7 +161,11 @@ export function MedicalEditForm({ current }: MedicalEditFormProps) {
               className="min-h-[64px] w-full rounded-md border border-base-border bg-base-surface-raised px-3 py-2 text-sm text-base-text placeholder:text-base-text-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary resize-y"
               value={emergencyContact}
               onChange={(e) => setEmergencyContact(e.target.value)}
-              placeholder={current.emergency_contact_is_set ? "Enter new value to replace…" : "Name, phone number…"}
+              placeholder={
+                current.emergency_contact_is_set
+                  ? "Enter new value to replace…"
+                  : "Name, phone number…"
+              }
             />
           </div>
 
@@ -173,7 +177,11 @@ export function MedicalEditForm({ current }: MedicalEditFormProps) {
               className="min-h-[96px] w-full rounded-md border border-base-border bg-base-surface-raised px-3 py-2 text-sm text-base-text placeholder:text-base-text-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary resize-y"
               value={medicalNotes}
               onChange={(e) => setMedicalNotes(e.target.value)}
-              placeholder={current.medical_notes_is_set ? "Enter new value to replace…" : "Any other relevant medical information…"}
+              placeholder={
+                current.medical_notes_is_set
+                  ? "Enter new value to replace…"
+                  : "Any other relevant medical information…"
+              }
             />
           </div>
 

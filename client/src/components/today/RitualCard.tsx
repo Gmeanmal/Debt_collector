@@ -95,9 +95,7 @@ export function RitualCard({ data }: Props) {
           <span className="font-semibold text-base-text text-sm">{ritualTitle}</span>
           <DeadlineLabel deadlineTime={deadlineTime} />
         </div>
-        <Badge variant={STATUS_BADGE[occurrence.status] ?? "default"}>
-          {occurrence.status}
-        </Badge>
+        <Badge variant={STATUS_BADGE[occurrence.status] ?? "default"}>{occurrence.status}</Badge>
       </div>
 
       {ritualDescription && (

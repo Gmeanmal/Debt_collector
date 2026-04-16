@@ -42,15 +42,10 @@ export function JournalEntryCard({ entry, commentSlot }: Props) {
 
   return (
     <article
-      className={cn(
-        "bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-3",
-      )}
+      className={cn("bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-3")}
     >
       <header className="flex flex-wrap items-center justify-between gap-2">
-        <time
-          dateTime={entry.created_at}
-          className="text-xs text-base-text-muted"
-        >
+        <time dateTime={entry.created_at} className="text-xs text-base-text-muted">
           {formatTs(entry.created_at)}
         </time>
         <Badge variant={MOOD_VARIANT[mood]}>{MOOD_LABEL[mood]}</Badge>

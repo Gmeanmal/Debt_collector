@@ -121,10 +121,7 @@ export async function submitOccurrenceService(
   return RitualOccurrenceSchema.parse(raw);
 }
 
-export async function submitTaskService(
-  id: string,
-  body: OccurrenceActionBody,
-): Promise<OpenTask> {
+export async function submitTaskService(id: string, body: OccurrenceActionBody): Promise<OpenTask> {
   const raw = await submitTask(id, body);
   return OpenTaskSchema.parse(raw);
 }

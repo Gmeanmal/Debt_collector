@@ -131,8 +131,7 @@ export const queryKeys = {
   },
 
   tributeGauge: {
-    forSub: (subId: string) =>
-      ["goddess", "subs", subId, "tribute-minimum", "gauge"] as const,
+    forSub: (subId: string) => ["goddess", "subs", subId, "tribute-minimum", "gauge"] as const,
   },
 
   aftercare: {

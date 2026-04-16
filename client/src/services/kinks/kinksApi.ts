@@ -61,7 +61,10 @@ export async function getKinkMatrix(): Promise<KinkMatrix> {
   return KinkMatrixSchema.parse(raw);
 }
 
-export async function updateKinkRating(itemId: string, rating: KinkRating): Promise<SubKinkRatingOut> {
+export async function updateKinkRating(
+  itemId: string,
+  rating: KinkRating,
+): Promise<SubKinkRatingOut> {
   const raw = await upsertSubKinkRating(itemId, rating);
   return SubKinkRatingOutSchema.parse(raw);
 }

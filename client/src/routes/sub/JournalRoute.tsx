@@ -21,7 +21,12 @@ export function JournalRoute() {
   const [pages, setPages] = useState<JournalEntry[][]>([]);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  const { data: entries = [], isLoading, isError, error } = useQuery({
+  const {
+    data: entries = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: [...subJournalKey, { before: cursor, limit: PAGE_LIMIT }],
     queryFn: () => listOwnJournal({ limit: PAGE_LIMIT, before: cursor }),
   });
@@ -92,10 +97,7 @@ export function JournalRoute() {
         )}
 
         {!isLoading && !isError && allEntries.length === 0 && (
-          <EmptyState
-            title="No entries yet"
-            message="Write your first journal entry above."
-          />
+          <EmptyState title="No entries yet" message="Write your first journal entry above." />
         )}
 
         {allEntries.length > 0 && (

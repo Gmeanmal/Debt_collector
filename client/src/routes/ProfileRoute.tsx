@@ -125,7 +125,10 @@ export function ProfileRoute() {
           </CardContent>
         </Card>
 
-        <IdentityFieldsCard user={user} onSaved={() => queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() })} />
+        <IdentityFieldsCard
+          user={user}
+          onSaved={() => queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() })}
+        />
 
         {isSubRole && (
           <Card>

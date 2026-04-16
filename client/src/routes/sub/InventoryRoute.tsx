@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  listSubToys,
-  proposeToy,
-  subToysKey,
-} from "@/services/toys/toysApi";
+import { listSubToys, proposeToy, subToysKey } from "@/services/toys/toysApi";
 import type { ToyCreateInput } from "@/services/toys/toysApi";
 import { InventoryGrid } from "@/components/toys/InventoryGrid";
 import { ToyForm } from "@/components/toys/ToyForm";
@@ -15,7 +11,12 @@ export function InventoryRoute() {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
 
-  const { data: toys = [], isLoading, isError, error } = useQuery({
+  const {
+    data: toys = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: subToysKey,
     queryFn: listSubToys,
   });
@@ -76,9 +77,7 @@ export function InventoryRoute() {
           />
         )}
 
-        {!isLoading && !isError && (
-          <InventoryGrid toys={toys} goddessContext={false} />
-        )}
+        {!isLoading && !isError && <InventoryGrid toys={toys} goddessContext={false} />}
       </div>
     </div>
   );

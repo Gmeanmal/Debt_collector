@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-  fetchReviewQueue,
-  bulkReviewAction,
-  type RawBulkActionIn,
-} from "@/api/reviewQueue";
+import { fetchReviewQueue, bulkReviewAction, type RawBulkActionIn } from "@/api/reviewQueue";
 import { queryKeys } from "@/lib/queryKeys";
 
 export const reviewQueueKey = queryKeys.reviewQueue.all();
