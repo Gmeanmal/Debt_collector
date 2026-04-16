@@ -55,6 +55,8 @@ from models.sub_limit import LimitKind as LimitKind
 from models.sub_limit import LimitSeverity as LimitSeverity
 from models.sub_limit import SubLimit as SubLimit
 from models.sub_medical import SubMedical as SubMedical
+from models.sub_photo import SubPhoto as SubPhoto
+from models.sub_photo import SubPhotoStatus as SubPhotoStatus
 from models.sub_profile import Gender as Gender
 from models.sub_profile import OwnershipStatus as OwnershipStatus
 from models.sub_profile import SubProfile as SubProfile

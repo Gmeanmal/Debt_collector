@@ -1,4 +1,4 @@
-.PHONY: help up down server client install init-dbs flush-dbs reset-dbs feed-dbs migrate migration sync-types check-types-drift fmt lint typecheck quality check erd
+.PHONY: help up down minio seed-photos server client install init-dbs flush-dbs reset-dbs feed-dbs migrate migration sync-types check-types-drift fmt lint typecheck quality check erd
 
 .DEFAULT_GOAL := help
 
@@ -9,11 +9,24 @@ install: ## install server + client deps
 	cd server && uv sync
 	cd client && pnpm install
 
-up: ## start postgres + mailhog (docker)
+up: ## start postgres + mailhog + minio (docker)
 	docker compose up -d
+
+minio: ## start minio + minio-init only
+	docker compose up -d minio minio-init
 
 down: ## stop docker services
 	docker compose down
+
+seed-photos: ## upload stub photos from server/seeds/photos/sub-photos/ into MinIO (idempotent)
+	@files=$$(ls server/seeds/photos/sub-photos/ 2>/dev/null | grep -v '\.gitkeep' || true); \
+	if [ -z "$$files" ]; then \
+	  echo "seed-photos: no photo files found, skipping"; \
+	else \
+	  for f in server/seeds/photos/sub-photos/$$files; do \
+	    docker compose exec -T minio-init mc cp /dev/stdin "local/sub-photos/$$(basename $$f)" < "$$f" || true; \
+	  done; \
+	fi
 
 server: ## run FastAPI on :4011
 	cd server && uv run uvicorn main:app --reload --host 0.0.0.0 --port 4011
@@ -30,8 +43,9 @@ migration: ## create a new alembic migration (m=<msg>)
 flush-dbs: ## drop all tables and re-create schema (no data)
 	cd server && uv run python -m scripts.flush_db
 
-init-dbs: ## flush + migrate + seed rich fake data
+init-dbs: ## flush + migrate + seed rich fake data + seed photos
 	cd server && uv run python -m scripts.flush_db && uv run alembic upgrade head && uv run python -m scripts.init_db
+	$(MAKE) seed-photos
 
 reset-dbs: ## drop + recreate dev database (destructive)
 	$(MAKE) init-dbs

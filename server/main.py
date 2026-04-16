@@ -34,6 +34,7 @@ from routers import (
     panic,
     payment_methods,
     penalty_rules,
+    photo,
     profile,
     public_invitation,
     rituals,
@@ -145,4 +146,5 @@ app.include_router(tasks.sub_router)
 app.include_router(merits.router)
 app.include_router(consent.router)
 app.include_router(penalty_rules.router)
+app.include_router(photo.router)
 app.include_router(ws.router)

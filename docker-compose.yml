@@ -21,5 +21,38 @@ services:
       - "4013:1025"   # SMTP
       - "4014:8025"   # Web UI
 
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: debt
+      MINIO_ROOT_PASSWORD: debtdebt
+    volumes:
+      - minio_data:/data
+    ports:
+      - "4015:9000"   # S3 API
+      - "4016:9001"   # Console UI
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fSs http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set local http://minio:9000 debt debtdebt &&
+        mc mb --ignore-existing local/sub-photos &&
+        mc mb --ignore-existing local/toy-photos &&
+        mc mb --ignore-existing local/vault
+      "
+
 volumes:
   postgres_data:
+  minio_data:

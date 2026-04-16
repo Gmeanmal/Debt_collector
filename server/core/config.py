@@ -66,6 +66,13 @@ class Settings(BaseSettings):
     r2_bucket_vault: str = ""
     r2_presign_ttl_seconds: int = 600
 
+    # S3-compatible object store — dev: MinIO on :4015; prod: AWS S3 / Cloudflare R2 / B2
+    s3_endpoint_url: str = "http://localhost:4015"
+    s3_region: str = "us-east-1"
+    s3_access_key: str = "debt"
+    s3_secret_key: str = "debtdebt"
+    s3_bucket_sub_photos: str = "sub-photos"
+
     root_kek_b64: str = ""
     root_kek_version: int = 1
 
