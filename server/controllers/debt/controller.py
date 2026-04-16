@@ -1,5 +1,5 @@
 from decimal import Decimal
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
@@ -33,6 +33,7 @@ from models.notification import NotificationType
 from models.user import Goddess, User, UserRole
 from schemas.adjustment import ContractAdjustmentOut
 from schemas.debt import (
+    ContractClauseIn,
     DebtContractAuditOut,
     DebtContractCounter,
     DebtContractCreate,
@@ -49,6 +50,20 @@ _PENDING_STATUSES = {
     DebtContractStatus.pending_dom,
     DebtContractStatus.pending_dom_counter,
     DebtContractStatus.pending_sub_signature,
+}
+
+# Pre-signature statuses: clauses can be edited freely without triggering re-signature.
+_CLAUSES_PRE_SIGN_STATUSES = _PENDING_STATUSES
+
+# Post-signature statuses eligible for the re-signature flow.
+_CLAUSES_POST_SIGN_STATUSES = {DebtContractStatus.active}
+
+# Terminal statuses where clauses cannot be edited at all.
+_CLAUSES_TERMINAL_STATUSES = {
+    DebtContractStatus.closed,
+    DebtContractStatus.breached,
+    DebtContractStatus.completed,
+    DebtContractStatus.cancelled_by_dom,
 }
 
 
@@ -493,6 +508,75 @@ class DebtController:
         stats = await self._stats_for(contract)
         return contract_out(contract, current_version, stats)
 
+    async def update_clauses(
+        self,
+        goddess_user: User,
+        contract_id: UUID,
+        clauses: list[ContractClauseIn],
+    ) -> DebtContractOut:
+        """Replace the clauses array on a contract; trigger re-signature when signed."""
+        contract = await self._get_contract_or_404(contract_id)
+        goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
+        if contract.goddess_id != goddess_id:
+            raise Forbidden("contract does not belong to this goddess")
+        if contract.status in _CLAUSES_TERMINAL_STATUSES:
+            raise Conflict("clauses cannot be edited on a terminal contract")
+
+        normalized = _normalize_clauses(clauses)
+        existing = _stored_clauses_signature(contract.clauses_json)
+        incoming = _normalized_clauses_signature(normalized)
+        clauses_changed = existing != incoming
+
+        from_status = contract.status
+        trigger_resign = clauses_changed and contract.status in _CLAUSES_POST_SIGN_STATUSES
+
+        contract.clauses_json = [
+            {
+                "id": str(c["id"]),
+                "label": c["label"],
+                "body": c["body"],
+                "sort_order": c["sort_order"],
+            }
+            for c in normalized
+        ]
+        contract.updated_at = now_utc()
+
+        if trigger_resign:
+            contract.status = DebtContractStatus.pending_sub_signature
+            contract.signed_at = None
+            contract.signature_b64 = None
+
+        await self._dao.save(contract)
+
+        if clauses_changed:
+            await self._audit_dao.append(
+                DebtContractAudit(
+                    contract_id=contract.id,
+                    event_type=DebtContractEventType.clauses_changed,
+                    actor_id=goddess_user.id,
+                    from_status=from_status,
+                    to_status=contract.status,
+                )
+            )
+
+        if trigger_resign:
+            await notify(
+                self._session,
+                contract.sub_id,
+                NotificationType.contract_needs_resignature,
+                title="Contract clauses changed",
+                body=(
+                    "Your goddess updated the contract clauses. "
+                    "Please review and sign again to re-activate the contract."
+                ),
+                link=f"/debts/{contract.id}",
+                payload={"contract_id": str(contract.id)},
+            )
+
+        current_version = await self._load_current_version(contract)
+        stats = await self._stats_for(contract)
+        return contract_out(contract, current_version, stats)
+
     async def get(self, viewer: User, contract_id: UUID) -> DebtContractOut:
         """Return a contract, enforcing visibility rules."""
         contract = await self._get_contract_or_404(contract_id)
@@ -753,3 +837,56 @@ class DebtController:
                 raise Forbidden("contract does not belong to this goddess")
         else:
             raise Forbidden("only sub or goddess users may view contracts")
+
+
+NormalizedClause = dict[str, object]
+
+
+def _normalize_clauses(clauses: list[ContractClauseIn]) -> list[NormalizedClause]:
+    """Assign fresh UUIDs where missing and densify ``sort_order`` to 0..N-1."""
+    result: list[NormalizedClause] = []
+    for index, clause in enumerate(clauses):
+        clause_id = clause.id if clause.id is not None else uuid4()
+        result.append(
+            {
+                "id": clause_id,
+                "label": clause.label,
+                "body": clause.body,
+                "sort_order": index,
+            }
+        )
+    return result
+
+
+def _normalized_clauses_signature(
+    clauses: list[NormalizedClause],
+) -> list[tuple[str, str, int]]:
+    """Content-only signature (label, body, sort_order) ignoring ids."""
+    signature: list[tuple[str, str, int]] = []
+    for clause in clauses:
+        label = clause["label"]
+        body = clause["body"]
+        sort_order = clause["sort_order"]
+        if not isinstance(label, str) or not isinstance(body, str):
+            continue
+        if not isinstance(sort_order, int):
+            continue
+        signature.append((label, body, sort_order))
+    return sorted(signature, key=lambda t: t[2])
+
+
+def _stored_clauses_signature(
+    raw: list[dict[str, object]],
+) -> list[tuple[str, str, int]]:
+    """Content-only signature extracted from a persisted ``clauses_json`` blob."""
+    signature: list[tuple[str, str, int]] = []
+    for entry in raw or []:
+        label = entry.get("label")
+        body = entry.get("body")
+        sort_order = entry.get("sort_order")
+        if not isinstance(label, str) or not isinstance(body, str):
+            continue
+        if not isinstance(sort_order, int):
+            continue
+        signature.append((label, body, sort_order))
+    return sorted(signature, key=lambda t: t[2])

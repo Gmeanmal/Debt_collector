@@ -138,7 +138,6 @@ class KinkMatrixOut(BaseModel):
     categories: list[KinkCategoryOut] = Field(
         ...,
         description=(
-            "Kink taxonomy grouped by category, with each item's current rating "
-            "for the target sub."
+            "Kink taxonomy grouped by category, with each item's current rating for the target sub."
         ),
     )

@@ -59,6 +59,7 @@ class DebtContractEventType(StrEnum):
     closed = "closed"
     breached = "breached"
     completed = "completed"
+    clauses_changed = "clauses_changed"
 
 
 class DebtContract(SQLModel, table=True):

@@ -10,6 +10,7 @@ from dependencies.auth import get_current_user, require_role
 from models.debt import DebtContract, DebtContractStatus
 from models.user import User, UserRole
 from schemas.debt import (
+    ContractClausesUpdateIn,
     DebtContractAuditOut,
     DebtContractCounter,
     DebtContractCreate,
@@ -296,6 +297,40 @@ async def close_as_goddess(
     ctrl: DebtController = Depends(_build_controller),
 ) -> DebtContractOut:
     result = await ctrl.close_as_goddess(user, contract_id)
+    await session.commit()
+    return result
+
+
+@router.patch(
+    "/debts/{contract_id}/clauses",
+    summary="Replace the clauses of a debt contract as goddess",
+    description=(
+        "Goddess replaces the full clauses array on a contract. "
+        "Each clause is a `{id?, label, body, sort_order}` tuple; ids are preserved when "
+        "supplied and otherwise generated server-side. `sort_order` is normalized to a "
+        "dense `0..N-1` sequence in request order.\n\n"
+        "**Re-signature flow.** If the contract is already `active` (signed) and the new "
+        "clauses differ from the stored ones by `label`/`body`/`sort_order` (ids are "
+        "ignored in the diff), the contract transitions back to `pending_sub_signature`, "
+        "`signed_at` + `signature_b64` are cleared, and the sub receives a "
+        "`contract_needs_resignature` notification.\n\n"
+        "Pre-signature contracts (`pending_*` states) simply update in place with no "
+        "status transition. Terminal contracts "
+        "(`closed`, `breached`, `completed`, `cancelled_by_dom`) return 409."
+    ),
+    response_model=DebtContractOut,
+    status_code=200,
+    tags=["debt-contracts"],
+    responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422, 500: _E500},
+)
+async def update_clauses(
+    contract_id: UUID,
+    body: ContractClausesUpdateIn,
+    session: AsyncSession = Depends(get_session),
+    user: User = Depends(require_role(UserRole.goddess)),
+    ctrl: DebtController = Depends(_build_controller),
+) -> DebtContractOut:
+    result = await ctrl.update_clauses(user, contract_id, body.clauses)
     await session.commit()
     return result
 

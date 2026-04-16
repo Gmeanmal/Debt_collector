@@ -97,6 +97,24 @@ class RitualOccurrenceDao:
         await self._session.flush()
         return result.rowcount  # type: ignore[return-value]
 
+    async def mark_missed_by_date(self, date: datetime.date) -> int:
+        """Flip every still-pending occurrence on ``date`` to missed in a single UPDATE.
+
+        Naturally idempotent: the second run finds no rows in ``pending`` and returns 0.
+        Returns the number of rows affected.
+        """
+        stmt = (
+            update(RitualOccurrence)
+            .where(
+                col(RitualOccurrence.date) == date,
+                col(RitualOccurrence.status) == OccurrenceStatus.pending,
+            )
+            .values(status=OccurrenceStatus.missed)
+        )
+        result = await self._session.execute(stmt)
+        await self._session.flush()
+        return result.rowcount  # type: ignore[return-value]
+
     async def mark_submitted(
         self,
         occurrence_id: UUID,

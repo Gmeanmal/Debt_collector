@@ -20,6 +20,7 @@ class NotificationType(StrEnum):
     contract_counter_accepted = "contract_counter_accepted"
     contract_counter_rejected = "contract_counter_rejected"
     contract_signed = "contract_signed"
+    contract_needs_resignature = "contract_needs_resignature"
     contract_period_interest = "contract_period_interest"
     contract_late_penalty = "contract_late_penalty"
     contract_surprise_penalty = "contract_surprise_penalty"

@@ -5,14 +5,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
 from controllers._goddess import resolve_goddess_id
-from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
+from core.exceptions import BadRequest, Conflict, Forbidden, IllegalTransition, NotFound
 from daos.payment_dao import PaymentDeclarationDao
 from daos.payment_method_dao import PaymentMethodDao
 from daos.profile_change_request_dao import ProfileChangeRequestDao
+from daos.status_event_dao import StatusEventDao
+from daos.sub_profile_dao import SubProfileDao
 from daos.user_dao import UserDao
 from models.payment import DeclarationSource, PaymentCategory, PaymentStatus
 from models.profile_change_request import ProfileChangeRequest, ProfileChangeRequestStatus
-from models.user import User
+from models.status_event import StatusEvent
+from models.sub_profile import OwnershipStatus
+from models.user import User, UserRole
 from schemas.profile import (
     GoddessEditSubProfileIn,
     GoddessRejectIn,
@@ -21,6 +25,13 @@ from schemas.profile import (
     ProfileChangeRequestIn,
     ProfileChangeRequestOut,
 )
+from schemas.status import (
+    OwnershipStatusChangeIn,
+    OwnershipStatusChangeOut,
+    StatusEventOut,
+    SubProfileStatusOut,
+)
+from services.profile.status_machine import ALLOWED_TRANSITIONS, can_transition
 
 
 def _now() -> datetime:
@@ -38,6 +49,8 @@ class ProfileController:
         self._req_dao = ProfileChangeRequestDao(session)
         self._decl_dao = PaymentDeclarationDao(session)
         self._method_dao = PaymentMethodDao(session)
+        self._profile_dao = SubProfileDao(session)
+        self._status_event_dao = StatusEventDao(session)
 
     async def request_change(
         self, sub_user: User, payload: ProfileChangeRequestIn
@@ -234,3 +247,74 @@ class ProfileController:
         sub = await self._user_dao.get_by_id(req.sub_id)
         if sub is None or sub.goddess_id != goddess_id:
             raise Forbidden("request does not belong to a sub of this goddess")
+
+    async def change_ownership_status(
+        self,
+        goddess_user: User,
+        sub_id: UUID,
+        payload: OwnershipStatusChangeIn,
+    ) -> OwnershipStatusChangeOut:
+        """Goddess changes a sub's ownership status atomically with an audit event."""
+        goddess_id = await self._resolve_goddess_owns_sub(goddess_user, sub_id)
+        profile = await self._profile_dao.get_by_user_id(sub_id)
+        from_status = profile.ownership_status
+        to_status = payload.to_status
+
+        if not can_transition(from_status, to_status):
+            raise IllegalTransition(
+                from_state=from_status.value,
+                to_state=to_status.value,
+                allowed=sorted(s.value for s in ALLOWED_TRANSITIONS.get(from_status, set())),
+            )
+
+        updated = await self._profile_dao.upsert(sub_id, ownership_status=to_status)
+        event = await self._status_event_dao.create(
+            sub_id=sub_id,
+            goddess_id=goddess_id,
+            from_status=from_status,
+            to_status=to_status,
+            created_by=goddess_user.id,
+            reason=payload.reason,
+        )
+        return OwnershipStatusChangeOut(
+            profile=SubProfileStatusOut(
+                user_id=updated.user_id,
+                ownership_status=updated.ownership_status,
+                updated_at=updated.updated_at,
+            ),
+            event=_status_event_to_out(event),
+        )
+
+    async def list_status_events(
+        self,
+        goddess_user: User,
+        sub_id: UUID,
+        *,
+        limit: int = 50,
+    ) -> list[StatusEventOut]:
+        """List the ownership status events for a sub owned by the calling goddess, newest first."""
+        await self._resolve_goddess_owns_sub(goddess_user, sub_id)
+        rows = await self._status_event_dao.list_by_sub(sub_id, limit=limit)
+        return [_status_event_to_out(row) for row in rows]
+
+    async def _resolve_goddess_owns_sub(self, goddess_user: User, sub_id: UUID) -> UUID:
+        goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
+        sub = await self._user_dao.get_by_id(sub_id)
+        if sub is None or sub.role != UserRole.sub:
+            raise NotFound("sub not found")
+        if sub.goddess_id != goddess_id:
+            raise Forbidden("sub does not belong to this goddess")
+        return goddess_id
+
+
+def _status_event_to_out(event: StatusEvent) -> StatusEventOut:
+    return StatusEventOut(
+        id=event.id,
+        sub_id=event.sub_id,
+        goddess_id=event.goddess_id,
+        from_status=OwnershipStatus(event.from_status),
+        to_status=OwnershipStatus(event.to_status),
+        reason=event.reason,
+        created_by=event.created_by,
+        created_at=event.created_at,
+    )

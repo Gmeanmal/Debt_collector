@@ -35,6 +35,7 @@ from routers import (
     rolling,
     safeword,
     signup,
+    toys,
     wishlist,
     ws,
 )
@@ -129,4 +130,6 @@ app.include_router(kinks.router)
 app.include_router(limits.router)
 app.include_router(wishlist.goddess_router)
 app.include_router(wishlist.sub_router)
+app.include_router(toys.goddess_router)
+app.include_router(toys.sub_router)
 app.include_router(ws.router)

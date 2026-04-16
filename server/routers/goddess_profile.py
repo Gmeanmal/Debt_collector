@@ -14,12 +14,23 @@ from schemas.profile import (
     GoddessSetFeeIn,
     ProfileChangeRequestOut,
 )
+from schemas.status import (
+    OwnershipStatusChangeIn,
+    OwnershipStatusChangeOut,
+    StatusEventOut,
+)
 
 _E400 = {"description": "Bad request — validation failed or no fields provided"}
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
 _E403 = {"description": "Forbidden — caller is not a goddess or does not own this resource"}
 _E404 = {"description": "Not found — request or sub not found"}
 _E409 = {"description": "Conflict — request is not in an actionable state"}
+_E422_TRANSITION = {
+    "description": (
+        "Illegal ownership status transition — body is "
+        "`{error:'illegal_transition', from, to, allowed[]}`."
+    )
+}
 
 router = APIRouter(prefix="/goddess", tags=["profile"])
 
@@ -159,3 +170,59 @@ async def edit_sub_profile(
     updated = await ctrl.goddess_edit_sub(goddess, sub_id, body)
     await session.commit()
     return _user_out(updated)
+
+
+@router.patch(
+    "/subs/{sub_id}/status",
+    summary="Change a sub's ownership status",
+    description=(
+        "Goddess-only: transitions a sub's `ownership_status` following the state machine "
+        "defined in specs §16.3. The new status must be reachable from the current status; "
+        "otherwise the request is rejected with 422 `illegal_transition`. The profile update "
+        "and the `status_event` audit row are written in the same database transaction."
+    ),
+    response_model=OwnershipStatusChangeOut,
+    status_code=200,
+    responses={
+        401: _E401,
+        403: _E403,
+        404: _E404,
+        422: _E422_TRANSITION,
+    },
+)
+async def change_sub_ownership_status(
+    sub_id: UUID,
+    body: OwnershipStatusChangeIn,
+    goddess: User = Depends(require_role(UserRole.goddess)),
+    session: AsyncSession = Depends(get_session),
+) -> OwnershipStatusChangeOut:
+    """Change the ownership status of a sub owned by the calling goddess."""
+    ctrl = ProfileController(session)
+    result = await ctrl.change_ownership_status(goddess, sub_id, body)
+    await session.commit()
+    return result
+
+
+@router.get(
+    "/subs/{sub_id}/status-events",
+    summary="List a sub's ownership status events",
+    description=(
+        "Returns up to 50 most-recent ownership status events for a sub owned by the calling "
+        "goddess, newest first. Subs not linked to the caller are rejected with 403."
+    ),
+    response_model=list[StatusEventOut],
+    status_code=200,
+    responses={
+        401: _E401,
+        403: _E403,
+        404: _E404,
+    },
+)
+async def list_sub_status_events(
+    sub_id: UUID,
+    goddess: User = Depends(require_role(UserRole.goddess)),
+    session: AsyncSession = Depends(get_session),
+) -> list[StatusEventOut]:
+    """List recent status events for a sub owned by the calling goddess."""
+    ctrl = ProfileController(session)
+    return await ctrl.list_status_events(goddess, sub_id)

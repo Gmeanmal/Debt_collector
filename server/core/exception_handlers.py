@@ -6,6 +6,7 @@ from core.exceptions import (
     BadRequest,
     Conflict,
     Forbidden,
+    IllegalTransition,
     NotFound,
     Unauthorized,
     Validation,
@@ -53,6 +54,18 @@ def register(app: FastAPI) -> None:
         return JSONResponse(
             status_code=422,
             content={"error": "Validation", "message": exc.message, "context": exc.context},
+        )
+
+    @app.exception_handler(IllegalTransition)
+    async def _handle_illegal_transition(_: Request, exc: IllegalTransition) -> JSONResponse:
+        return JSONResponse(
+            status_code=422,
+            content={
+                "error": "illegal_transition",
+                "from": exc.from_state,
+                "to": exc.to_state,
+                "allowed": exc.allowed,
+            },
         )
 
     @app.exception_handler(AppError)

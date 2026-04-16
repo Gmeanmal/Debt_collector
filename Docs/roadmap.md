@@ -140,7 +140,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** B1.
 - **Subagent hint:** backend-feature + frontend-feature.
 
-### B3 — Ownership status enum + transitions 🟡
+### B3 — Ownership status enum + transitions ✅
 
 - **Scope:** `server`, `db`, `profile`.
 - **Goal:** add `status_event` table; expose `PATCH /goddess/subs/{id}/status` with server-side transition validation (§16.3 rules); reject illegal transitions with 422.
@@ -320,7 +320,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** —
 - **Subagent hint:** migration-writer + backend-feature.
 
-### E2 — Daily cron job: ritual occurrence seeding 🟡
+### E2 — Daily cron job: ritual occurrence seeding ✅
 
 - **Scope:** `server`, `rituals`, `notif`.
 - **Goal:** at 00:00 Europe/London generate one `ritual_occurrence(status='pending')` per active ritual per day; end-of-day job flips `pending → missed`.
@@ -438,7 +438,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** —
 - **Subagent hint:** migration-writer.
 
-### G2 — Toy CRUD + approval API 🟡
+### G2 — Toy CRUD + approval API ✅
 
 - **Scope:** `server`, `toys`.
 - **Goal:** goddess CRUD (`approved=true` immediately); sub propose (`approved=false`), goddess approve/reject.
@@ -472,7 +472,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** —
 - **Subagent hint:** migration-writer.
 
-### H2 — Clauses editor + PDF section 🟡
+### H2 — Clauses editor (backend) + re-sign flow ✅
 
 - **Scope:** `server`, `client`, `contracts`.
 - **Goal:** typed clause editor in contract form (add/remove/sort); PDF template gets a "Clauses" section rendering `label` + `body`; re-signature flow triggered if clauses change after `signed_at`.

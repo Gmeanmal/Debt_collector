@@ -34,3 +34,24 @@ class BadRequest(AppError):
 
 class Validation(AppError):
     status_code = 422
+
+
+class IllegalTransition(AppError):
+    """422 raised when a domain state machine rejects a transition."""
+
+    status_code = 422
+
+    def __init__(
+        self,
+        *,
+        from_state: str,
+        to_state: str,
+        allowed: list[str],
+    ) -> None:
+        super().__init__(
+            f"illegal transition from {from_state} to {to_state}",
+            **{"from": from_state, "to": to_state, "allowed": allowed},
+        )
+        self.from_state = from_state
+        self.to_state = to_state
+        self.allowed = allowed

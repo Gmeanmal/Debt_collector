@@ -40,6 +40,7 @@ from models.ritual_occurrence import OccurrenceStatus as OccurrenceStatus
 from models.ritual_occurrence import RitualOccurrence as RitualOccurrence
 from models.rolling import DeadlineDay as DeadlineDay
 from models.rolling import RollingTribute as RollingTribute
+from models.status_event import StatusEvent as StatusEvent
 from models.sub_kink_rating import KinkRating as KinkRating
 from models.sub_kink_rating import SubKinkRating as SubKinkRating
 from models.sub_limit import LimitKind as LimitKind

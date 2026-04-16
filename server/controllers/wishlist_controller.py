@@ -131,9 +131,7 @@ class WishlistController:
 
         await self._dao.delete(item)
 
-    async def approve_as_goddess(
-        self, goddess_user: User, wishlist_id: UUID
-    ) -> WishlistItemOut:
+    async def approve_as_goddess(self, goddess_user: User, wishlist_id: UUID) -> WishlistItemOut:
         """Approve a sub-proposed wishlist item."""
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
         item = await self._require_owned(goddess_id, wishlist_id)

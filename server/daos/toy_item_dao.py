@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,6 +7,10 @@ from sqlmodel import col, select
 
 from core.exceptions import NotFound
 from models.toy_item import ToyCategory, ToyItem, ToyProposedBy
+
+_MUTABLE_PATCH_FIELDS: frozenset[str] = frozenset(
+    {"category", "name", "description", "photo_r2_key"}
+)
 
 
 class ToyItemDao:
@@ -28,6 +33,19 @@ class ToyItemDao:
                 col(ToyItem.approved) == True,  # noqa: E712
             )
             .order_by(col(ToyItem.category), col(ToyItem.name))
+        )
+        return list(result.scalars().all())
+
+    async def list_all_by_sub(self, sub_id: UUID) -> list[ToyItem]:
+        """Return every toy item belonging to a sub (approved and pending proposals)."""
+        result = await self._session.execute(
+            select(ToyItem)
+            .where(col(ToyItem.sub_id) == sub_id)
+            .order_by(
+                col(ToyItem.approved).desc(),
+                col(ToyItem.category),
+                col(ToyItem.name),
+            )
         )
         return list(result.scalars().all())
 
@@ -89,6 +107,17 @@ class ToyItemDao:
             item.description = description
         if photo_r2_key is not None:
             item.photo_r2_key = photo_r2_key
+        item.updated_at = datetime.now(UTC).replace(tzinfo=None)
+        self._session.add(item)
+        await self._session.flush()
+        return item
+
+    async def update_fields(self, item: ToyItem, patch: dict[str, Any]) -> ToyItem:
+        """Apply an explicit partial patch to a toy_item (None values clear fields)."""
+        for field, value in patch.items():
+            if field not in _MUTABLE_PATCH_FIELDS:
+                continue
+            setattr(item, field, value)
         item.updated_at = datetime.now(UTC).replace(tzinfo=None)
         self._session.add(item)
         await self._session.flush()

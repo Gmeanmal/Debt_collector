@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from decimal import Decimal
+from uuid import UUID
 
 from daos.allocation_dao import ContractPaymentStats
 from models.adjustment import ContractAdjustment
@@ -7,6 +8,7 @@ from models.debt import DebtContract, DebtContractVersion
 from models.user import User
 from schemas.adjustment import ContractAdjustmentOut
 from schemas.debt import (
+    ContractClauseOut,
     DebtContractCounter,
     DebtContractOut,
     DebtContractVersionOut,
@@ -33,6 +35,35 @@ def user_display_name(user: User) -> str:
     if user.username:
         return user.username
     return user.email
+
+
+def clauses_out(contract: DebtContract) -> list[ContractClauseOut]:
+    """Parse the stored ``clauses_json`` blob into ordered ``ContractClauseOut`` models."""
+    raw = contract.clauses_json or []
+    parsed: list[ContractClauseOut] = []
+    for entry in raw:
+        raw_id = entry.get("id")
+        raw_label = entry.get("label")
+        raw_body = entry.get("body")
+        raw_sort = entry.get("sort_order")
+        if not isinstance(raw_id, str) or not isinstance(raw_label, str):
+            continue
+        if not isinstance(raw_body, str) or not isinstance(raw_sort, int):
+            continue
+        try:
+            clause_id = UUID(raw_id)
+        except ValueError:
+            continue
+        parsed.append(
+            ContractClauseOut(
+                id=clause_id,
+                label=raw_label,
+                body=raw_body,
+                sort_order=raw_sort,
+            )
+        )
+    parsed.sort(key=lambda c: c.sort_order)
+    return parsed
 
 
 def version_out(version: DebtContractVersion) -> DebtContractVersionOut:
@@ -115,6 +146,7 @@ def contract_out(
         last_payment_at=stats.last_payment_at,
         first_payment_at=stats.first_payment_at,
         on_track=on_track,
+        clauses=clauses_out(contract),
     )
 
 

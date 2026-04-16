@@ -193,6 +193,70 @@ class DebtContractSignIn(BaseModel):
         return v
 
 
+class ContractClauseIn(BaseModel):
+    id: UUID | None = Field(
+        default=None,
+        description=(
+            "Existing clause UUID to preserve identity across edits. "
+            "Omit (or send null) to have the server assign a fresh UUID."
+        ),
+        examples=["9d9b4c7e-8c5d-4a1e-9c2a-0e6f8d0f3a1b"],
+    )
+    label: str = Field(
+        ...,
+        min_length=1,
+        max_length=200,
+        description="Short human-readable clause title",
+        examples=["Exclusive ownership for 6 months"],
+    )
+    body: str = Field(
+        ...,
+        min_length=1,
+        max_length=4000,
+        description="Full clause text rendered verbatim into the contract PDF",
+        examples=["The sub consents to exclusive ownership for six calendar months."],
+    )
+    sort_order: int = Field(
+        ...,
+        ge=0,
+        description=(
+            "Client-provided ordering hint. Normalized server-side to a dense 0..N-1 sequence"
+            " in the order clauses are received."
+        ),
+        examples=[0],
+    )
+
+
+class ContractClausesUpdateIn(BaseModel):
+    clauses: list[ContractClauseIn] = Field(
+        ...,
+        description=(
+            "Full replacement list of clauses. The server overwrites the existing array."
+            " Missing ids are generated; sort_order is re-densified 0..N-1 based on the"
+            " request order (sort_order field is treated as a tie-breaker hint only)."
+        ),
+        examples=[
+            [
+                {
+                    "id": None,
+                    "label": "Exclusive ownership",
+                    "body": "The sub belongs exclusively to the goddess for 6 months.",
+                    "sort_order": 0,
+                }
+            ]
+        ],
+    )
+
+
+class ContractClauseOut(BaseModel):
+    id: UUID = Field(..., description="Stable UUID for this clause")
+    label: str = Field(..., description="Clause title")
+    body: str = Field(..., description="Clause body text")
+    sort_order: int = Field(..., ge=0, description="Normalized 0..N-1 position")
+
+    model_config = {"from_attributes": True}
+
+
 class DebtContractVersionOut(BaseModel):
     id: UUID = Field(..., description="Version record UUID")
     contract_id: UUID = Field(..., description="Parent contract UUID")
@@ -312,6 +376,15 @@ class DebtContractOut(BaseModel):
             "Always true for contracts that have not yet been signed."
         ),
         examples=[True],
+    )
+    clauses: list[ContractClauseOut] = Field(
+        default_factory=list,
+        description=(
+            "Typed special clauses attached to this contract, ordered by sort_order asc."
+            " Mutated via PATCH /debts/{contract_id}/clauses; changes after signature"
+            " trigger the re-signature flow (status reverts to pending_sub_signature,"
+            " signed_at + signature_b64 cleared)."
+        ),
     )
 
     model_config = {"from_attributes": True}

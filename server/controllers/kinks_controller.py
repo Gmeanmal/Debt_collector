@@ -58,9 +58,7 @@ class KinksController:
         )
         return self._rating_to_out(record, item)
 
-    async def get_matrix_for_goddess(
-        self, goddess_user_id: UUID, sub_id: UUID
-    ) -> KinkMatrixOut:
+    async def get_matrix_for_goddess(self, goddess_user_id: UUID, sub_id: UUID) -> KinkMatrixOut:
         """Return the kink matrix for one of the calling goddess's subs (read-only)."""
         goddess_id = await resolve_goddess_id(self._session, goddess_user_id)
         sub = await self._user_dao.get_by_id(sub_id)
