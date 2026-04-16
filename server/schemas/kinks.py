@@ -6,6 +6,84 @@ from pydantic import BaseModel, Field
 from models.sub_kink_rating import KinkRating
 
 
+class KinkProposeIn(BaseModel):
+    category_id: UUID = Field(
+        ...,
+        description="Category under which the proposed kink item should be placed",
+        examples=["c1a2b3d4-e5f6-7890-abcd-ef1234567890"],
+    )
+    label: str = Field(
+        ...,
+        min_length=1,
+        max_length=128,
+        description="Human-readable label for the proposed item",
+        examples=["Sensory deprivation hood"],
+    )
+    description: str | None = Field(
+        default=None,
+        max_length=2000,
+        description="Optional long-form description of the item",
+        examples=["Full-coverage hood that eliminates sight and reduces hearing."],
+    )
+    safety_flag: bool = Field(
+        default=False,
+        description="Whether the proposer considers this item safety-critical",
+        examples=[False],
+    )
+
+
+class KinkProposalOut(BaseModel):
+    id: UUID = Field(
+        ...,
+        description="Identifier of the proposed kink item",
+        examples=["a1b2c3d4-e5f6-7890-abcd-ef1234567890"],
+    )
+    category_id: UUID = Field(
+        ...,
+        description="Category the proposal belongs to",
+        examples=["c1a2b3d4-e5f6-7890-abcd-ef1234567890"],
+    )
+    slug: str = Field(
+        ...,
+        description="Auto-generated slug for the proposed item",
+        examples=["sensory-deprivation-hood-a3f9"],
+    )
+    label: str = Field(
+        ...,
+        description="Human-readable label for the proposed item",
+        examples=["Sensory deprivation hood"],
+    )
+    description: str | None = Field(
+        default=None,
+        description="Optional long-form description of the item",
+        examples=["Full-coverage hood that eliminates sight and reduces hearing."],
+    )
+    safety_flag: bool = Field(
+        ...,
+        description="Whether the item is flagged as safety-critical",
+        examples=[False],
+    )
+    approved: bool = Field(
+        ...,
+        description="Whether the proposal has been approved by the goddess",
+        examples=[False],
+    )
+    proposed_by: UUID | None = Field(
+        default=None,
+        description="User ID of the sub who proposed this item",
+        examples=["a1b2c3d4-e5f6-7890-abcd-ef1234567890"],
+    )
+    proposer_username: str | None = Field(
+        default=None,
+        description="Username of the sub who proposed this item",
+        examples=["slave_john"],
+    )
+    created_at: datetime = Field(
+        ...,
+        description="UTC datetime when the proposal was submitted",
+    )
+
+
 class SubKinkRatingIn(BaseModel):
     rating: KinkRating = Field(
         ...,

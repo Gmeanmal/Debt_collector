@@ -1,4 +1,4 @@
-"""Daily cron service for contract review reminders.
+"""Daily cron service for contract review reminders and auto-extend renewals.
 
 Single pass, idempotent, driven by APScheduler in Europe/London at 09:00:
 
@@ -8,19 +8,35 @@ Single pass, idempotent, driven by APScheduler in Europe/London at 09:00:
   yet for that contract.  Idempotency is enforced by querying
   ``notification`` rows with
   ``type = 'review_reminder' AND payload->>'contract_id' = <id>``.
+
+- ``run_auto_extend_renewals`` — for every active contract with
+  ``renewal_policy='auto_extend'`` whose ``review_at <= now_utc``, clones
+  it into a new ``pending_sub_signature`` contract with an advanced
+  ``review_at``.  Idempotency is enforced by checking for an existing
+  ``debt_contract_audit`` row with
+  ``event_type='contract_renewed' AND note`` containing the old contract id.
 """
 
 import datetime
 from datetime import UTC
-from uuid import UUID
+from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo
 
 import structlog
+from dateutil.relativedelta import relativedelta
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
-from models.debt import DebtContract, DebtContractStatus
+from models.debt import (
+    DebtContract,
+    DebtContractAudit,
+    DebtContractEventType,
+    DebtContractStatus,
+    DebtContractVersion,
+    PaymentFrequency,
+    RenewalPolicy,
+)
 from models.notification import NotificationType
 from models.user import User, UserRole
 from services.notifications.notify import notify
@@ -151,3 +167,188 @@ async def run_review_reminders(session: AsyncSession) -> int:
         created += 1
 
     return created
+
+
+def _advance_review_at(
+    old_review_at: datetime.datetime,
+    payment_frequency: PaymentFrequency,
+    duration_periods: int,
+) -> datetime.datetime:
+    """Return the new review_at by advancing old_review_at by one contract duration.
+
+    Duration = duration_periods × one_period:
+      weekly   → 7 days per period
+      biweekly → 14 days per period
+      monthly  → 1 calendar month per period (dateutil.relativedelta)
+    """
+    if payment_frequency == PaymentFrequency.weekly:
+        delta = datetime.timedelta(days=7 * duration_periods)
+        return old_review_at + delta
+    if payment_frequency == PaymentFrequency.biweekly:
+        delta = datetime.timedelta(days=14 * duration_periods)
+        return old_review_at + delta
+    # monthly
+    return old_review_at + relativedelta(months=duration_periods)
+
+
+async def _already_cloned(session: AsyncSession, source_contract_id: str) -> bool:
+    """Return True if a contract_renewed audit row for this source already exists.
+
+    The note field stores the source contract id prefixed with 'source_contract_id:'
+    so it is uniquely queryable without adding a new column.
+    """
+    result = await session.execute(
+        text(
+            "SELECT 1 FROM debt_contract_audit "
+            "WHERE event_type = 'contract_renewed' "
+            "AND note = :note "
+            "LIMIT 1"
+        ),
+        {"note": f"source_contract_id:{source_contract_id}"},
+    )
+    return result.first() is not None
+
+
+async def _clone_contract(
+    session: AsyncSession,
+    source: DebtContract,
+    goddess_user_id: UUID,
+) -> DebtContract:
+    """Create a new pending_sub_signature contract cloned from source.
+
+    Copies all financial fields and clauses; assigns a fresh id, clears
+    signature fields, and advances review_at by one contract duration.
+    """
+    assert source.review_at is not None
+
+    new_review_at = _advance_review_at(
+        source.review_at, source.payment_frequency, source.duration_periods
+    )
+    now = datetime.datetime.now(UTC).replace(tzinfo=None)
+
+    clone = DebtContract(
+        id=uuid4(),
+        sub_id=source.sub_id,
+        goddess_id=source.goddess_id,
+        sub_initiated=False,
+        principal=source.principal,
+        interest_rate=source.interest_rate,
+        interest_period=source.interest_period,
+        duration_periods=source.duration_periods,
+        payment_frequency=source.payment_frequency,
+        minimum_payment=source.minimum_payment,
+        late_penalty_severity=source.late_penalty_severity,
+        late_penalty_percent=source.late_penalty_percent,
+        dom_can_add_surprise_penalty=source.dom_can_add_surprise_penalty,
+        mid_contract_addition_mode=source.mid_contract_addition_mode,
+        exit_amount=source.exit_amount,
+        clauses_json=list(source.clauses_json),
+        renewal_policy=source.renewal_policy,
+        status=DebtContractStatus.pending_sub_signature,
+        balance=source.principal,
+        signature_b64=None,
+        signed_at=None,
+        review_at=new_review_at,
+        created_at=now,
+        updated_at=now,
+    )
+    session.add(clone)
+    await session.flush()
+
+    version = DebtContractVersion(
+        id=uuid4(),
+        contract_id=clone.id,
+        round_no=0,
+        proposed_by=goddess_user_id,
+        principal=source.principal,
+        interest_rate=source.interest_rate,
+        interest_period=source.interest_period,
+        duration_periods=source.duration_periods,
+        payment_frequency=source.payment_frequency,
+        minimum_payment=source.minimum_payment,
+        late_penalty_severity=source.late_penalty_severity,
+        late_penalty_percent=source.late_penalty_percent,
+        dom_can_add_surprise_penalty=source.dom_can_add_surprise_penalty,
+        mid_contract_addition_mode=source.mid_contract_addition_mode,
+        exit_amount=source.exit_amount,
+    )
+    session.add(version)
+    await session.flush()
+
+    clone.current_version_id = version.id
+    clone.updated_at = datetime.datetime.now(UTC).replace(tzinfo=None)
+    session.add(clone)
+    await session.flush()
+
+    audit = DebtContractAudit(
+        id=uuid4(),
+        contract_id=clone.id,
+        event_type=DebtContractEventType.contract_renewed,
+        actor_id=goddess_user_id,
+        from_status=None,
+        to_status=DebtContractStatus.pending_sub_signature,
+        # Source contract id stored in note for idempotency queries.
+        note=f"source_contract_id:{source.id}",
+    )
+    session.add(audit)
+    await session.flush()
+
+    return clone
+
+
+async def run_auto_extend_renewals(session: AsyncSession) -> int:
+    """Clone active auto_extend contracts whose review_at has passed into pending_sub_signature.
+
+    Returns the count of contracts cloned.  Re-running is safe: idempotency is
+    enforced by checking for an existing ``contract_renewed`` audit row whose
+    ``note`` matches the source contract id.
+    """
+    now_utc = datetime.datetime.now(UTC).replace(tzinfo=None)
+
+    result = await session.execute(
+        select(DebtContract).where(
+            col(DebtContract.status) == DebtContractStatus.active,
+            col(DebtContract.renewal_policy) == RenewalPolicy.auto_extend,
+            col(DebtContract.review_at) <= now_utc,
+            col(DebtContract.review_at).is_not(None),
+        )
+    )
+    contracts = list(result.scalars().all())
+
+    cloned = 0
+    for contract in contracts:
+        contract_id_str = str(contract.id)
+
+        if await _already_cloned(session, contract_id_str):
+            log.debug("auto_extend_skip_already_cloned", contract_id=contract_id_str)
+            continue
+
+        goddess_user = await _goddess_user_for_contract(session, contract)
+        if goddess_user is None:
+            log.warning("auto_extend_no_goddess_user", contract_id=contract_id_str)
+            continue
+
+        clone = await _clone_contract(session, contract, UUID(str(goddess_user.id)))
+        clone_id_str = str(clone.id)
+
+        await notify(
+            session,
+            contract.sub_id,
+            NotificationType.contract_renewed,
+            title="Contract renewed",
+            body="Your contract has been automatically renewed. Please sign to activate it.",
+            link=f"/sub/contracts/{clone_id_str}",
+            payload={
+                "contract_id": clone_id_str,
+                "deep_link": f"/sub/contracts/{clone_id_str}",
+            },
+        )
+
+        log.info(
+            "auto_extend_cloned",
+            source_contract_id=contract_id_str,
+            new_contract_id=clone_id_str,
+        )
+        cloned += 1
+
+    return cloned

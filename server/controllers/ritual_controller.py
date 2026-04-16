@@ -21,6 +21,7 @@ from schemas.rituals import (
     RitualOut,
     RitualUpdateIn,
 )
+from services.merits.credits import record_ritual_complete, record_ritual_miss
 
 _LONDON = ZoneInfo("Europe/London")
 
@@ -114,6 +115,8 @@ class RitualController:
             status=OccurrenceStatus.completed,
             reviewer_id=goddess_user.id,
         )
+        ritual = await self._ritual_dao.get_by_id(occ.ritual_id)
+        await record_ritual_complete(self._session, updated, ritual)
         return _occurrence_to_out(updated)
 
     async def reject_occurrence(
@@ -132,6 +135,8 @@ class RitualController:
             status=OccurrenceStatus.rejected,
             reviewer_id=goddess_user.id,
         )
+        ritual = await self._ritual_dao.get_by_id(occ.ritual_id)
+        await record_ritual_miss(self._session, updated, ritual)
         return _occurrence_to_out(updated)
 
     # ------------------------------------------------------------------
@@ -166,6 +171,8 @@ class RitualController:
             note=body.note,
             evidence_r2_key=body.evidence_r2_key,
         )
+        ritual = await self._ritual_dao.get_by_id(occ.ritual_id)
+        await record_ritual_complete(self._session, updated, ritual)
         return _occurrence_to_out(updated)
 
     async def submit_occurrence(

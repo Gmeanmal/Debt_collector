@@ -28,6 +28,7 @@ from routers import (
     kinks,
     limits,
     me_preferences,
+    merits,
     notifications,
     panic,
     payment_methods,
@@ -142,4 +143,5 @@ app.include_router(rituals.goddess_router)
 app.include_router(rituals.sub_router)
 app.include_router(tasks.goddess_router)
 app.include_router(tasks.sub_router)
+app.include_router(merits.router)
 app.include_router(ws.router)

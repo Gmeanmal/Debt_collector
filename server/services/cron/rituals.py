@@ -7,8 +7,10 @@ Two passes, both idempotent, driven by APScheduler in Europe/London:
   London date. Idempotency comes from the ``(ritual_id, date)`` unique index
   combined with ``ON CONFLICT DO NOTHING``.
 - ``mark_missed_for_today`` (23:59) — flips every still-pending occurrence
-  for the given date to ``missed``. Idempotency is natural: a second run
-  finds no rows in ``pending``.
+  for the given date to ``missed`` and emits one ``ritual_miss`` merit event
+  per row. Idempotency is natural: a second run finds no rows in ``pending``
+  and the merit partial unique index on (source_kind, source_id) silently
+  swallows any duplicate inserts.
 """
 
 import datetime
@@ -22,6 +24,7 @@ from daos.ritual_dao import RitualDao
 from daos.ritual_occurrence_dao import RitualOccurrenceDao
 from models.ritual import Ritual, RitualFrequency
 from models.ritual_occurrence import OccurrenceStatus
+from services.merits.credits import record_ritual_miss_for_cron
 
 log = structlog.get_logger()
 
@@ -87,14 +90,29 @@ async def seed_occurrences_for_today(
 
 
 async def mark_missed_for_today(session: AsyncSession, today_london_date: datetime.date) -> int:
-    """Flip every still-pending occurrence for today to ``missed``.
+    """Flip every still-pending occurrence for today to ``missed`` and emit merit events.
 
     Returns the number of rows updated. A second call within the same day
-    returns 0 because no pending rows remain.
+    returns 0 because no pending rows remain, and the merit partial unique
+    index silently swallows any duplicate inserts.
     """
     log.info("ritual_missed_start", date=today_london_date.isoformat())
     occurrence_dao = RitualOccurrenceDao(session)
+
+    # Fetch pending rows with point data before the bulk UPDATE removes them.
+    pending = await occurrence_dao.list_pending_for_date_with_points(today_london_date)
+
     updated = await occurrence_dao.mark_missed_by_date(today_london_date)
+
+    for occurrence_id, sub_id, goddess_id, points_on_miss in pending:
+        await record_ritual_miss_for_cron(
+            session,
+            occurrence_id=occurrence_id,
+            sub_id=sub_id,
+            goddess_id=goddess_id,
+            delta=points_on_miss,
+        )
+
     log.info(
         "ritual_missed_done",
         date=today_london_date.isoformat(),

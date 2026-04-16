@@ -212,7 +212,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** C1.
 - **Subagent hint:** backend-feature.
 
-### C3 — Custom kink proposal flow 🟡
+### C3 — Custom kink proposal flow ✅
 
 - **Scope:** `server`, `client`, `kinks`.
 - **Goal:** sub proposes custom `kink_item` (`is_custom=true, approved=false`); `GET /goddess/kinks/proposals`, `POST /goddess/kinks/proposals/{id}/approve|reject`.
@@ -296,7 +296,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** B3 (ownership transitions), E1 (rituals — to pause them).
 - **Subagent hint:** backend-feature.
 
-### D6 — `sub_medical` model shell (encryption deferred to J) 🟡
+### D6 — `sub_medical` model shell (encryption deferred to J) ✅
 
 - **Scope:** `server`, `db`, `limits`.
 - **Goal:** define `sub_medical` with `*_enc bytea` columns + nulls permitted; do not expose read/write API yet (wait for J's envelope service).
@@ -384,7 +384,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** F1.
 - **Subagent hint:** backend-feature.
 
-### F3 — `merit_event` model + auto-credits 🟡
+### F3 — `merit_event` model + auto-credits ✅
 
 - **Scope:** `server`, `db`, `journal`.
 - **Goal:** merit ledger + auto-credit hooks on `ritual_occurrence.completed`, `task.approved`, `ritual_occurrence.missed`, `task.rejected`. Per-ritual / per-task configurable points.
@@ -492,7 +492,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** H1.
 - **Subagent hint:** backend-feature.
 
-### H4 — `auto_extend` renewal flow 🟡
+### H4 — `auto_extend` renewal flow ✅
 
 - **Scope:** `server`, `contracts`.
 - **Goal:** cron clones a contract into `PENDING_SUB` with `review_at += duration` when `renewal_policy='auto_extend'` and `review_at` passed.
@@ -570,7 +570,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** —
 - **Subagent hint:** backend-feature.
 
-### J2 — `services/crypto/envelope.py` 🟡
+### J2 — `services/crypto/envelope.py` ✅
 
 - **Scope:** `server`, `crypto`.
 - **Goal:** `encrypt(goddess_id, plaintext) -> (wrapped_key, iv, ciphertext)`, `decrypt(...)`. AES-256-GCM. DEK generated fresh per row.

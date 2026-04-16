@@ -20,6 +20,8 @@ from models.journal_entry import JournalEntry as JournalEntry
 from models.journal_entry import JournalMood as JournalMood
 from models.kink_category import KinkCategory as KinkCategory
 from models.kink_item import KinkItem as KinkItem
+from models.merit_event import MeritEvent as MeritEvent
+from models.merit_event import MeritSourceKind as MeritSourceKind
 from models.notification import Notification as Notification
 from models.notification import NotificationType as NotificationType
 from models.payment import AllocationTargetType as AllocationTargetType
@@ -46,6 +48,7 @@ from models.sub_kink_rating import SubKinkRating as SubKinkRating
 from models.sub_limit import LimitKind as LimitKind
 from models.sub_limit import LimitSeverity as LimitSeverity
 from models.sub_limit import SubLimit as SubLimit
+from models.sub_medical import SubMedical as SubMedical
 from models.sub_profile import Gender as Gender
 from models.sub_profile import OwnershipStatus as OwnershipStatus
 from models.sub_profile import SubProfile as SubProfile

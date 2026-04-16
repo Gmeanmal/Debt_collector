@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
 from core.exceptions import NotFound
+from models.ritual import Ritual
 from models.ritual_occurrence import OccurrenceStatus, RitualOccurrence
 
 
@@ -60,6 +61,29 @@ class RitualOccurrenceDao:
             .order_by(col(RitualOccurrence.created_at).asc())
         )
         return list(result.scalars().all())
+
+    async def list_pending_for_date_with_points(
+        self, date: datetime.date
+    ) -> list[tuple[UUID, UUID, UUID, int]]:
+        """Return (occurrence_id, sub_id, goddess_id, points_on_miss) for pending occurrences.
+
+        Used by the cron mark-missed pass so merit events can be emitted before the
+        bulk UPDATE removes the pending status. Only rows still in ``pending`` are returned.
+        """
+        result = await self._session.execute(
+            select(
+                col(RitualOccurrence.id),
+                col(RitualOccurrence.sub_id),
+                col(RitualOccurrence.goddess_id),
+                col(Ritual.points_on_miss),
+            )
+            .join(Ritual, col(RitualOccurrence.ritual_id) == col(Ritual.id))
+            .where(
+                col(RitualOccurrence.date) == date,
+                col(RitualOccurrence.status) == OccurrenceStatus.pending,
+            )
+        )
+        return [(row[0], row[1], row[2], row[3]) for row in result.all()]
 
     async def mark_completed(
         self,

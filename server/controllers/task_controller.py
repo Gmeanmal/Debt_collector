@@ -16,6 +16,7 @@ from schemas.tasks import (
     TaskSubmitIn,
     TaskUpdateIn,
 )
+from services.merits.credits import record_task_complete, record_task_miss
 
 _SUBMIT_FROM: frozenset[TaskStatus] = frozenset({TaskStatus.open})
 _CANCEL_FROM: frozenset[TaskStatus] = frozenset({TaskStatus.open})
@@ -84,7 +85,7 @@ class TaskController:
         return _to_out(updated)
 
     async def approve_task(self, goddess_user: User, task_id: UUID) -> TaskOut:
-        """Approve a submitted task."""
+        """Approve a submitted task and credit merit points."""
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
         task = await self._require_owned_task(goddess_id, task_id)
         if task.status not in _APPROVE_FROM:
@@ -96,10 +97,11 @@ class TaskController:
             reviewed_at=now,
             reviewed_by=goddess_user.id,
         )
+        await record_task_complete(self._session, updated)
         return _to_out(updated)
 
     async def reject_task(self, goddess_user: User, task_id: UUID, body: TaskRejectIn) -> TaskOut:
-        """Reject a submitted task with an optional reason."""
+        """Reject a submitted task and debit merit points."""
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
         task = await self._require_owned_task(goddess_id, task_id)
         if task.status not in _REJECT_FROM:
@@ -112,6 +114,7 @@ class TaskController:
             reviewed_at=now,
             reviewed_by=goddess_user.id,
         )
+        await record_task_miss(self._session, updated)
         return _to_out(updated)
 
     # ------------------------------------------------------------------
