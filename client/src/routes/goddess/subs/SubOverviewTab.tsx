@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { SubRollingSection } from "@/components/subDetail/SubRollingSection";
 import { SubContractsSection } from "@/components/subDetail/SubContractsSection";
 import { SubPaymentsSection } from "@/components/subDetail/SubPaymentsSection";
+import { TributeGauge } from "@/components/goddess/TributeGauge";
 
 interface Props {
   subId: string;
@@ -11,6 +12,7 @@ interface Props {
 export function SubOverviewTab({ subId, status }: Props) {
   return (
     <div className="flex flex-col gap-6">
+      <TributeGauge subId={subId} />
       {status === "active" && (
         <div className="flex justify-end">
           <Link

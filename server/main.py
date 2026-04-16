@@ -38,6 +38,7 @@ from routers import (
     photo,
     profile,
     public_invitation,
+    review_queue,
     rituals,
     rolling,
     safeword,
@@ -149,4 +150,5 @@ app.include_router(consent.router)
 app.include_router(penalty_rules.router)
 app.include_router(photo.router)
 app.include_router(goddess_photos.router)
+app.include_router(review_queue.router)
 app.include_router(ws.router)

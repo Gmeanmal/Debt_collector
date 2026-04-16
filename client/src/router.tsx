@@ -46,6 +46,9 @@ import { InventoryRoute as SubInventoryRoute } from "./routes/sub/InventoryRoute
 import { JournalReaderRoute } from "./routes/goddess/JournalReaderRoute";
 import { MeritsAdminRoute } from "./routes/goddess/MeritsAdminRoute";
 import { GoddessInventoryRoute } from "./routes/goddess/InventoryRoute";
+import { PenaltyRulesRoute } from "./routes/goddess/PenaltyRulesRoute";
+import { KinkOverviewRoute } from "./routes/goddess/KinkOverviewRoute";
+import { ReviewQueueRoute } from "./routes/goddess/ReviewQueueRoute";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginRoute /> },
@@ -419,6 +422,36 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
           <GoddessInventoryRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/penalty-rules",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <PenaltyRulesRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/kinks",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <KinkOverviewRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/review-queue",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <ReviewQueueRoute />
         </RoleProtectedRoute>
       </ProtectedRoute>
     ),

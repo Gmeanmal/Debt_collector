@@ -33,13 +33,16 @@ const GODDESS_NAV: NavItem[] = [
   { to: "/goddess/subs", label: "Subs" },
   { to: "/goddess/invitations", label: "Invitations" },
   { to: "/goddess/validations", label: "Validations" },
+  { to: "/goddess/review-queue", label: "Review queue" },
   { to: "/goddess/photo-queue", label: "Photo queue" },
+  { to: "/goddess/kinks", label: "Kinks" },
   { to: "/goddess/payments/record", label: "Record" },
   { to: "/goddess/payment-methods", label: "Methods" },
   { to: "/goddess/debts", label: "Contracts" },
   { to: "/goddess/weekly", label: "Weekly" },
   { to: "/goddess/late", label: "Late" },
   { to: "/goddess/merits", label: "Rewards & Punishments" },
+  { to: "/goddess/penalty-rules", label: "Penalty rules" },
 ];
 
 const SUB_NAV: NavItem[] = [

@@ -5,6 +5,16 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **P1.3 goddess-facing UI consolidation** (5 slices, single commit, ref `Docs/plan_post_wave7.md`):
+  - **B6** `SubProfileCard`: replaces the inline hero on `/goddess/subs/:subId` with a dedicated component (`client/src/components/goddess/SubProfileCard.tsx`) bundling avatar + identity strip + ownership-status chip. Top-approved-photo placeholder left as a TODO pending a `GET /goddess/subs/{sub_id}/photos` list endpoint.
+  - **I4 gauge UI**: new `TributeGauge` component (`client/src/components/goddess/TributeGauge.tsx`) renders a horizontal bar against the existing wave-5 backend (`GET /goddess/subs/{sub_id}/tribute-minimum/gauge`). Mounted in `SubOverviewTab`. Bar fill width injected via the `--gauge-fill-width` CSS variable on a `.gauge-fill-el` class (matches the existing `.planning-tooltip` pattern — no inline styles).
+  - **C5 kink overview**: backend `GET /goddess/kinks/overview` returns one row per visible kink item with a `counts` dict mapped over the goddess's subs (single grouped SQL via the new `SubKinkRatingDao.count_ratings_per_item_for_goddess`). Frontend `KinkHeatmap` renders a sticky-header / sticky-first-column heatmap grid with 5-step Tailwind opacity scale (`bg-pink-primary/{10,20,40,60,80}`) at `/goddess/kinks`.
+  - **E5 review queue**: backend adds `GET /goddess/review-queue` (cursor-paginated, unified ritual_occurrence + task feed sorted by `submitted_at DESC`) and `POST /goddess/review-queue/bulk` (partial-success bulk approve/reject; per-item domain errors collected into `failed`). Frontend `/goddess/review-queue` route with checkbox selection, sticky `BulkActionBar`, inline reject-reason form (1–500 chars), expandable failure-details panel.
+  - **I5 penalty rules UI**: full CRUD page at `/goddess/penalty-rules` on the existing wave-7 backend. `PenaltyRuleForm` reuses one component for create + edit; `fee_amount` field auto-hides unless `action === 'apply_fee'`; `points_delta ≤ 0` enforced via Zod. List with active toggle + two-step delete. Sub override is a UUID text input with a TODO to swap for a sub picker.
+  - All 4 new inline query keys migrated to `client/src/lib/queryKeys.ts` factory (`penaltyRules`, `kinkOverview`, `reviewQueue`, `tributeGauge`).
+  - `GODDESS_NAV` gains: "Review queue" (after Validations), "Kinks" (after Photo queue), "Penalty rules" (after Rewards & Punishments).
+
+### Added
 - **P1.2 sub-facing UI burst** (5 frontend slices, single commit, ref `Docs/plan_post_wave7.md`):
   - **C4** kink matrix: `/profile/kinks` route with category-grouped `KinkMatrix` + per-item `RatingPicker`. Optimistic mutation via `useMutation.onMutate` snapshot/rollback, Zod-parsed `KinkMatrix`/`SubKinkRatingOut` schemas, `needs_confirmation` flag surfaced for safety-flagged items.
   - **D4** limits + safeword: `/profile/limits` route with `LimitForm`/`LimitsList` (hard/soft × low/medium/high) and `TriggerForm`/`TriggersList`. Global `<SafewordBanner />` mounted in `AppLayout` after `<ImpersonationBanner />`, only renders for sub role with `throwOnError: false` so missing safeword does not page the boundary.

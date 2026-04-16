@@ -1,4 +1,5 @@
 import re
+from collections.abc import Mapping
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,6 +18,8 @@ from schemas.kinks import (
     KinkCategoryOut,
     KinkItemOut,
     KinkMatrixOut,
+    KinkOverviewItemOut,
+    KinkOverviewOut,
     KinkProposalOut,
     KinkProposeIn,
     SubKinkRatingIn,
@@ -224,3 +227,50 @@ class KinksController:
         item = await self._item_dao.get_by_id(item_id)
         _assert_goddess_owns_proposal(item, goddess_id)
         await self._item_dao.reject(item)
+
+    async def overview_for_goddess(self, goddess_user_id: UUID) -> KinkOverviewOut:
+        """Aggregate per-item rating counts across all subs for the calling goddess."""
+        goddess_id = await resolve_goddess_id(self._session, goddess_user_id)
+        all_items = await self._item_dao.list_for_goddess(goddess_id)
+        categories = await self._category_dao.list_all()
+        category_by_id = {c.id: c for c in categories}
+        rating_rows = await self._rating_dao.count_ratings_per_item_for_goddess(goddess_id)
+        total_subs = await self._rating_dao.count_subs_for_goddess(goddess_id)
+
+        all_ratings = list(KinkRating)
+        counts_by_item: dict[UUID, dict[str, int]] = {}
+        for item in all_items:
+            counts_by_item[item.id] = {r.value: 0 for r in all_ratings}
+        for item_id, rating, count in rating_rows:
+            if item_id in counts_by_item:
+                counts_by_item[item_id][rating.value] = count
+        for _item_id, rating_counts in counts_by_item.items():
+            explicit_total = sum(
+                v for k, v in rating_counts.items() if k != KinkRating.not_set
+            )
+            rating_counts[KinkRating.not_set] = max(0, total_subs - explicit_total)
+
+        overview_items = [
+            self._build_overview_item(item, category_by_id, counts_by_item[item.id])
+            for item in all_items
+        ]
+        return KinkOverviewOut(total_subs=total_subs, items=overview_items)
+
+    def _build_overview_item(
+        self,
+        item: KinkItem,
+        category_by_id: Mapping[UUID, KinkCategory],
+        counts: dict[str, int],
+    ) -> KinkOverviewItemOut:
+        cat = category_by_id.get(item.category_id)
+        cat_label = cat.label if cat is not None else ""
+        cat_order = cat.sort_order if cat is not None else 0
+        return KinkOverviewItemOut(
+            item_id=item.id,
+            slug=item.slug,
+            label=item.label,
+            category_label=cat_label,
+            category_sort_order=cat_order,
+            safety_flag=item.safety_flag,
+            counts=counts,
+        )

@@ -9,6 +9,7 @@ from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.kinks import (
     KinkMatrixOut,
+    KinkOverviewOut,
     KinkProposalOut,
     KinkProposeIn,
     SubKinkRatingIn,
@@ -91,6 +92,34 @@ async def upsert_own_kink_rating(
     result = await ctrl.upsert_self_rating(user.id, item_id, body)
     await session.commit()
     return result
+
+
+@router.get(
+    "/goddess/kinks/overview",
+    summary="Get per-item kink rating counts across all subs",
+    description=(
+        "Returns one aggregated row per kink item visible to the authenticated goddess "
+        "(global items plus her own approved custom items). Each row includes a `counts` dict "
+        "mapping every `KinkRating` value to the number of her subs who hold that rating. "
+        "Subs with no explicit rating for an item are counted as `not_set`. "
+        "The response is dense: all six rating keys are always present "
+        "even when the count is zero. "
+        "Items are ordered by category sort_order then item slug."
+    ),
+    response_model=KinkOverviewOut,
+    status_code=200,
+    tags=["kinks"],
+    responses={
+        401: _ERROR_401,
+        403: _ERROR_403,
+        500: _ERROR_500,
+    },
+)
+async def get_kink_overview_for_goddess(
+    user: User = Depends(require_role(UserRole.goddess)),
+    ctrl: KinksController = Depends(_build_controller),
+) -> KinkOverviewOut:
+    return await ctrl.overview_for_goddess(user.id)
 
 
 @router.get(

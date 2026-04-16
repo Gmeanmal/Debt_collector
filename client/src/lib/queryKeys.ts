@@ -117,4 +117,21 @@ export const queryKeys = {
     own: () => ["sub", "profile", "toys"] as const,
     forSub: (subId: string) => ["goddess", "subs", subId, "toys"] as const,
   },
+
+  penaltyRules: {
+    all: () => ["goddess", "penalty-rules"] as const,
+  },
+
+  kinkOverview: {
+    all: () => ["goddess", "kinks", "overview"] as const,
+  },
+
+  reviewQueue: {
+    all: () => ["goddess", "review-queue"] as const,
+  },
+
+  tributeGauge: {
+    forSub: (subId: string) =>
+      ["goddess", "subs", subId, "tribute-minimum", "gauge"] as const,
+  },
 };

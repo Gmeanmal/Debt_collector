@@ -219,3 +219,64 @@ class KinkMatrixOut(BaseModel):
             "Kink taxonomy grouped by category, with each item's current rating for the target sub."
         ),
     )
+
+
+class KinkOverviewItemOut(BaseModel):
+    item_id: UUID = Field(
+        ...,
+        description="Identifier of the kink item",
+        examples=["a1b2c3d4-e5f6-7890-abcd-ef1234567890"],
+    )
+    slug: str = Field(
+        ...,
+        description="Stable machine slug for the item",
+        examples=["rope_bondage"],
+    )
+    label: str = Field(
+        ...,
+        description="Human-readable label for the item",
+        examples=["Rope bondage"],
+    )
+    category_label: str = Field(
+        ...,
+        description="Human-readable label of the item's category",
+        examples=["Bondage"],
+    )
+    category_sort_order: int = Field(
+        ...,
+        description="Ascending sort order of the parent category, used for grouping",
+        examples=[10],
+    )
+    safety_flag: bool = Field(
+        ...,
+        description="True when this item is tagged safety-critical",
+        examples=[False],
+    )
+    counts: dict[str, int] = Field(
+        ...,
+        description=(
+            "Map of KinkRating value to the number of this goddess's subs who set that rating. "
+            "Every KinkRating key is always present (zero-filled for ratings with no explicit row)."
+        ),
+        examples=[
+            {
+                "hard_limit": 1, "soft_limit": 2, "not_set": 5,
+                "curious": 3, "loves": 1, "fetish_need": 0,
+            }
+        ],
+    )
+
+
+class KinkOverviewOut(BaseModel):
+    total_subs: int = Field(
+        ...,
+        description="Total number of subs assigned to this goddess",
+        examples=[12],
+    )
+    items: list[KinkOverviewItemOut] = Field(
+        ...,
+        description=(
+            "One row per kink item visible to this goddess (global + her custom items). "
+            "Ordered by category sort_order then item slug."
+        ),
+    )

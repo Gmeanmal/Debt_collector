@@ -117,3 +117,8 @@ html[data-theme="light"] .luxe-surface {
   top: var(--tt-top);
   left: var(--tt-left);
 }
+
+/* Tribute gauge fill — width driven by --gauge-fill-width set imperatively via setProperty */
+.gauge-fill-el {
+  width: var(--gauge-fill-width, 0%);
+}
