@@ -25,7 +25,6 @@ CATEGORY_TO_ALLOCATION_TARGET: dict[PaymentCategory, AllocationTargetType] = {
     PaymentCategory.weekly_debt: AllocationTargetType.contract_debt,
     PaymentCategory.debt_payment: AllocationTargetType.contract_debt,
     PaymentCategory.buyout: AllocationTargetType.contract_buyout,
-    PaymentCategory.wishlist: AllocationTargetType.wishlist_goal,
 }
 
 DEBT_PAYMENT_CATEGORIES = {
@@ -48,8 +47,6 @@ def check_category_for_sub(sub: User, category: PaymentCategory) -> None:
             )
     elif category == PaymentCategory.tribute and sub.status == UserStatus.pending_entry_tribute:
         raise BadRequest("tribute category not allowed until entry is validated")
-    elif category == PaymentCategory.wishlist and sub.status == UserStatus.pending_entry_tribute:
-        raise BadRequest("wishlist category not allowed until entry is validated")
 
 
 async def resolve_goddess_id(session: AsyncSession, user_id: UUID) -> UUID:

@@ -33,9 +33,6 @@ from models.payment import PaymentDeclaration as PaymentDeclaration
 from models.payment import PaymentStatus as PaymentStatus
 from models.payment_method import PaymentMethod as PaymentMethod
 from models.payment_method import PaymentMethodType as PaymentMethodType
-from models.payment_webhook_event import PaymentWebhookEvent as PaymentWebhookEvent
-from models.payment_webhook_event import PaymentWebhookProvider as PaymentWebhookProvider
-from models.payment_webhook_event import PaymentWebhookResult as PaymentWebhookResult
 from models.penalty_rule import PenaltyAction as PenaltyAction
 from models.penalty_rule import PenaltyEvent as PenaltyEvent
 from models.penalty_rule import PenaltyRule as PenaltyRule
@@ -65,7 +62,6 @@ from models.sub_safeword import SubSafeword as SubSafeword
 from models.sub_trigger import SubTrigger as SubTrigger
 from models.task import Task as Task
 from models.task import TaskStatus as TaskStatus
-from models.throne_connection import ThroneConnection as ThroneConnection
 from models.toy_item import ToyCategory as ToyCategory
 from models.toy_item import ToyItem as ToyItem
 from models.toy_item import ToyProposedBy as ToyProposedBy
@@ -78,6 +74,3 @@ from models.user import RefreshToken as RefreshToken
 from models.user import User as User
 from models.user import UserRole as UserRole
 from models.user import UserStatus as UserStatus
-from models.wishlist_item import WishlistCreatedBy as WishlistCreatedBy
-from models.wishlist_item import WishlistItem as WishlistItem
-from models.wishlist_item import WishlistStatus as WishlistStatus

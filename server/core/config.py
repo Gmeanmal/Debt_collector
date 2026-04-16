@@ -69,11 +69,6 @@ class Settings(BaseSettings):
     root_kek_b64: str = ""
     root_kek_version: int = 1
 
-    throne_api_base: str = "https://api.throne.com"
-    throne_webhook_secret: str = ""
-    throne_polling_enabled: bool = False
-    throne_polling_interval_minutes: int = 15
-
     @property
     def is_prod(self) -> bool:
         return self.app_env == AppEnv.prod

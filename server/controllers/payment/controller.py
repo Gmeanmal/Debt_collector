@@ -15,7 +15,6 @@ from controllers.payment.helpers import (
     resolve_goddess_id,
     to_out,
 )
-from controllers.wishlist_controller import WishlistController
 from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.allocation_dao import PaymentAllocationDao
 from daos.debt_dao import DebtContractAuditDao, DebtContractDao
@@ -141,8 +140,6 @@ class PaymentController:
             await self._apply_debt_payment(decl, sub.id)
         if payload.category == PaymentCategory.buyout:
             await self._apply_buyout(decl, sub.id, goddess_user.id, now)
-        if payload.category == PaymentCategory.wishlist:
-            await self._maybe_fulfil_wishlist(decl)
 
         return await to_out(self._session, decl)
 
@@ -216,8 +213,6 @@ class PaymentController:
             await self._apply_debt_payment(decl, sub.id)
         if category == PaymentCategory.buyout:
             await self._apply_buyout(decl, sub.id, goddess_user.id, now)
-        if category == PaymentCategory.wishlist:
-            await self._maybe_fulfil_wishlist(decl)
 
         await notify(
             self._session,
@@ -366,8 +361,3 @@ class PaymentController:
                 link=f"/debts/{contract.id}",
                 payload={"contract_id": str(contract.id)},
             )
-
-    async def _maybe_fulfil_wishlist(self, decl: PaymentDeclaration) -> None:
-        if decl.target_id is None:
-            return
-        await WishlistController(self._session).maybe_fulfil(decl.target_id, decl.sub_id)

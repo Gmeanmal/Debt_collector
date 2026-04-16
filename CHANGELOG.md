@@ -4,6 +4,14 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Removed
+- **P0 scope cut** (decision 2026-04-16, ref `Docs/plan_post_wave7.md`): every artefact tied to in-app wishlist + external payment ingestion + YouPay widget deleted. Debt_collector is a manual tracker; money moves outside the app and subs declare each tribute themselves. Specifically:
+  - **Wishlist (I1+I2)**: `wishlist_item` table dropped; `wishlist_item.py` model, `wishlist_dao.py`, `wishlist_controller.py`, `routers/wishlist.py`, `schemas/wishlist.py` deleted; wishlist auto-fulfil hook stripped from `payment/controller.py` + `payment/helpers.py`. Routes `/sub/wishlist*` and `/goddess/wishlist*` are gone.
+  - **Ingestion infra (A1)**: `payment_webhook_event` table dropped; `payment_webhook_event.py` model, `payment_webhook_dao.py`, `ingest_controller.py`, `services/ingest/` package deleted.
+  - **Throne integration (A2)**: `throne_connection` table dropped; `throne_connection.py` model, `throne_dao.py`, `integrations_controller.py`, `routers/goddess_integrations.py`, `schemas/integrations.py` deleted; `THRONE_*` env keys removed (`ROOT_KEK_B64` retained — still used by J4 medical via the envelope crypto service).
+  - **YouPay widget (A5)**: `YouPayWidget.tsx`, `services/payments/youpay.ts` deleted; `PaymentFormRoute.tsx` simplified to manual-only; `VITE_YOUPAY_*` env keys removed. "YouPay" remains a valid free-text payment-method name on the manual form.
+  - Single migration `328e11d71888_p0_drop_deferred_scope_tables` drops the three tables; `downgrade()` raises `NotImplementedError`. Four PG enum values (`declarationsource.ingested`, `paymentcategory.wishlist`, `allocationtargettype.wishlist_goal`, `notificationtype.wishlist_fulfilled`) remain as orphans because Postgres does not support `ALTER TYPE … DROP VALUE`; flagged in `payment.py`.
+
 ### Added
 - **Phase-wave-7 backend** (4 phases, 5 new Alembic migrations incl. one merge):
   - **A2** Throne connection: `throne_connection` table (PK=`goddess_id`, FK RESTRICT), stores `access_token_enc BYTEA` encrypted via `encrypt_for_goddess()` with AAD `goddess_id.bytes + b":throne:access_token"`, `access_token_last4` for UI, `dek_version` for future rotation. `GET|POST /goddess/integrations/throne` — POST accepts `{account_id, access_token}`, both verbs return `{is_configured, account_id, token_last4, created_at, updated_at}` with zero plaintext echo. Registered on `server/main.py`. Migration `52252f135ceb`. Required env: `ROOT_KEK_B64` now populated in `server/.env` (32-byte key generated locally).

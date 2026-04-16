@@ -30,6 +30,8 @@
 
 # PHASE A — Residual core (integrations & assets)
 
+> **🚫 SCOPE CUT 2026-04-16:** A1, A2, A3, A4, A5 are **OUT OF MVP** — Debt_collector does not duplicate external payment apps. See `Docs/plan_post_wave7.md` P0. Already-shipped A1/A2/A5 code was deleted in migration `328e11d71888`. **A6** (goddess photo assets) is the only Phase A item still on the roadmap.
+
 Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess photo assets.
 
 ### A1 — `payment_webhook_event` table + idempotency service ✅
@@ -506,6 +508,8 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 
 # PHASE I — Wishlist / tribute minimum / penalty rules
 
+> **🚫 SCOPE CUT 2026-04-16:** I1, I2, I3 (in-app wishlist) are **OUT OF MVP** — wishlist management belongs to external apps. Already-shipped I1/I2 code was deleted in migration `328e11d71888`. **I4** (tribute_minimum) and **I5** (penalty_rule) remain on the roadmap.
+
 ### I1 — `wishlist_item` model + category ✅
 
 - **Scope:** `server`, `db`, `payments`.
@@ -705,6 +709,8 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 ---
 
 # PHASE M — §24 Ingestion completion
+
+> **🚫 SCOPE CUT 2026-04-16:** M1, M2 (ingestion completion UI) are **OUT OF MVP** — see `Docs/plan_post_wave7.md` P0. Section retained for historical reference only.
 
 ### M1 — `goddess_integration` toggles UI 🟡
 

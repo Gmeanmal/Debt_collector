@@ -58,32 +58,21 @@ These depend on P0 being solid (typed API, real tests, visual regression baselin
 
 `signed_pdf_url`/`signed_pdf_sha256` dropped; `signature_b64` added (Text). Sign controller stores the data URI; `GET /debts/{id}/pdf[?draft]` regenerates and streams inline. `services/storage/*` removed. Client sign route posts `signature_b64`; download gate is now `signed_at`.
 
-### P1.2 — Throne API integration for automatic payment ingestion
+### P1.2 — Throne API integration for automatic payment ingestion 🚫 OUT OF MVP (2026-04-16)
 
-- Investigate Throne API / webhook (auth, payload format, HMAC signature).
-- Store one "Throne connection" per goddess (token + account id).
-- Webhook endpoint `/webhooks/throne` → verify signature → match sub by Throne handle → create auto-validated `PaymentDeclaration` with `source = goddess_recorded`.
-- Goddess dashboard: "Auto-detected via Throne" badge on payments received via webhook.
-- Polling fallback if no webhook available.
+External payment-app duplication. See `Docs/plan_post_wave7.md` P0 for rationale.
 
 ### P1.3 — Redesign signed-contract PDF template ✅ DONE (2026-04-15)
 
 A4 redesign with 8 named sections, full repayment schedule, print-ready margins/pagination, framed signature block with Europe/London `signed_at`, goddess + sub info blocks, and DRAFT watermark variant.
 
-### P1.4 — Payment ingestion via goddess's own payment methods (receipt webhooks)
+### P1.4 — Payment ingestion via goddess's own payment methods 🚫 OUT OF MVP (2026-04-16)
 
-- For each supported goddess-side `PaymentMethodType`, wire provider-specific webhook (PayPal IPN, Revolut Merchant, Cash App, etc.).
-- `PaymentWebhookEvent` table for idempotency (provider event id).
-- Payload → sub matching: by payment handle (see P1.6) or free-text reference.
-- Auto-create validated `PaymentDeclaration` + immediate allocation.
-- Goddess UI to enable/disable auto-ingest per method and view event log.
+External payment-app duplication. See `Docs/plan_post_wave7.md` P0.
 
-### P1.5 — YouPay iframe integration
+### P1.5 — YouPay iframe integration 🚫 OUT OF MVP (2026-04-16)
 
-- Check YouPay terms: is iframe embedding allowed? (X-Frame-Options / CSP on YouPay's side).
-- If allowed: widget embedded on sub's "Declare payment" page, prefilled with amount + reference.
-- Otherwise: deep-link fallback (open YouPay in new tab with query params).
-- Contact YouPay support if documentation unclear.
+External payment-app duplication. See `Docs/plan_post_wave7.md` P0. "YouPay" stays available as a free-text manual method name.
 
 ### P1.6 — Avatars + sub profiles controlled by the goddess ✅ DONE (2026-04-15)
 

@@ -12,8 +12,6 @@ import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
 import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
 import { cn } from "@/lib/utils";
 import { queryKeys } from "@/lib/queryKeys";
-import { YouPayWidget } from "@/components/payments/YouPayWidget";
-import { isYouPayMethod } from "@/services/payments/youpay";
 
 const ACTIVE_CATEGORIES: { value: PaymentCategory; label: string }[] = [
   { value: "entry", label: "Entry tribute" },
@@ -33,7 +31,6 @@ export function PaymentFormRoute() {
   const [category, setCategory] = useState<PaymentCategory>(isActive ? "tribute" : "entry");
   const [amount, setAmount] = useState("");
   const [methodId, setMethodId] = useState("");
-  const [reference, setReference] = useState("");
   const [externalTs, setExternalTs] = useState("");
   const [note, setNote] = useState("");
   const [amountErr, setAmountErr] = useState("");
@@ -42,10 +39,6 @@ export function PaymentFormRoute() {
     queryKey: queryKeys.sub.paymentMethods(),
     queryFn: listSubPaymentMethodsApi,
   });
-
-  const selectedMethod = methods.find((m) => m.id === methodId);
-  const showYouPay = selectedMethod !== undefined && isYouPayMethod(selectedMethod.name);
-  const parsedAmount = Number(amount);
 
   const declareMutation = useMutation({
     mutationFn: declarePaymentApi,
@@ -179,33 +172,6 @@ export function PaymentFormRoute() {
               </div>
             )}
           </fieldset>
-
-          {/* YouPay widget — rendered when a YouPay method is selected */}
-          {showYouPay && (
-            <YouPayWidget
-              amount={parsedAmount}
-              reference={reference}
-              onReferenceReturned={setReference}
-            />
-          )}
-
-          {/* YouPay reference (shown for YouPay methods so sub can paste it back) */}
-          {showYouPay && (
-            <div className="flex flex-col gap-1">
-              <label htmlFor="youpay-ref" className="text-sm font-semibold text-base-text">
-                YouPay reference{" "}
-                <span className="text-base-text-subtle font-normal">(from your payment)</span>
-              </label>
-              <input
-                id="youpay-ref"
-                type="text"
-                placeholder="e.g. YP-12345678"
-                value={reference}
-                onChange={(e) => setReference(e.target.value)}
-                className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
-              />
-            </div>
-          )}
 
           {/* External timestamp */}
           <div className="flex flex-col gap-1">

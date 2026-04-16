@@ -21,7 +21,6 @@ from routers import (
     consent,
     dashboards,
     debt_contracts,
-    goddess_integrations,
     goddess_profile,
     goddess_views,
     health,
@@ -44,7 +43,6 @@ from routers import (
     tasks,
     toys,
     tribute_minimum,
-    wishlist,
     ws,
 )
 from routers.payments import (
@@ -129,7 +127,6 @@ app.include_router(notifications.router)
 app.include_router(me_preferences.router)
 app.include_router(profile.router)
 app.include_router(goddess_profile.router)
-app.include_router(goddess_integrations.router)
 app.include_router(dashboards.goddess_router)
 app.include_router(dashboards.sub_router)
 app.include_router(goddess_views.router)
@@ -139,8 +136,6 @@ app.include_router(journal.router)
 app.include_router(kinks.router)
 app.include_router(limits.router)
 app.include_router(tribute_minimum.goddess_router)
-app.include_router(wishlist.goddess_router)
-app.include_router(wishlist.sub_router)
 app.include_router(toys.goddess_router)
 app.include_router(toys.sub_router)
 app.include_router(rituals.goddess_router)

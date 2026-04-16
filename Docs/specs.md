@@ -521,6 +521,8 @@ Only `goddess` or `admin` can change. Change creates a `status_event(sub_id, fro
 
 ### 16.5. Wishlist + tribute minimum schedule
 
+> **🚫 SCOPE CUT 2026-04-16 (wishlist only):** in-app wishlist (`wishlist_item`, `PaymentCategory.wishlist`, `AllocationTargetType.wishlist_goal`) is OUT OF MVP — wishlist management belongs to external apps. **Tribute minimum schedule** (`tribute_minimum` + dashboard gauge) stays. Migration `328e11d71888` dropped the table; PG enum values remain as orphans.
+
 **Wishlist (`wishlist_item`)**:
 
 | Field | Notes |
@@ -843,6 +845,8 @@ Each vendor gets an adapter under `services/devices/<vendor>/` implementing a `D
 # PART V — Integrations
 
 ## 24. Payment ingestion (webhooks / iframes)
+
+> **🚫 SCOPE CUT 2026-04-16:** §24 in its entirety is OUT OF MVP. Debt_collector does not duplicate Throne / PayPal / Revolut / Cash App / YouPay. Subs declare each tribute manually; goddess validates. Migration `328e11d71888` dropped `payment_webhook_event` and `throne_connection`. Section retained for historical reference only.
 
 Goal: reduce manual declaration by auto-creating validated `payment_declaration`s from provider webhooks. Each integration is optional per goddess and per method.
 

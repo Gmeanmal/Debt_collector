@@ -9,7 +9,7 @@ from sqlmodel import Field, SQLModel
 class DeclarationSource(StrEnum):
     sub_declared = "sub_declared"
     goddess_recorded = "goddess_recorded"
-    ingested = "ingested"
+    ingested = "ingested"  # orphan: PG enum value cannot be dropped, retained for back-compat
 
 
 class PaymentCategory(StrEnum):
