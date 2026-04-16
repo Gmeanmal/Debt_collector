@@ -1,8 +1,8 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class InvitationCreate(BaseModel):
@@ -95,3 +95,47 @@ class SignupRequest(BaseModel):
     )
     first_name: str | None = Field(default=None, description="Sub's first name", examples=["John"])
     last_name: str | None = Field(default=None, description="Sub's last name", examples=["Doe"])
+    gender: str | None = Field(
+        default=None,
+        description="Gender identity (free-text, max 64 chars)",
+        examples=["non-binary"],
+        max_length=64,
+    )
+    pronouns: str | None = Field(
+        default=None,
+        description="Preferred pronouns (free-text, max 64 chars)",
+        examples=["they/them"],
+        max_length=64,
+    )
+    location: str | None = Field(
+        default=None,
+        description="City or 'City, Country' (max 120 chars)",
+        examples=["London, UK"],
+        max_length=120,
+    )
+    timezone: str = Field(
+        ...,
+        description="IANA timezone string, auto-detected by the client",
+        examples=["Europe/London"],
+        max_length=64,
+    )
+    date_of_birth: date = Field(
+        ...,
+        description="Date of birth (YYYY-MM-DD). Sub must be at least 18 years old.",
+        examples=["1990-01-15"],
+    )
+    real_name: str | None = Field(
+        default=None,
+        description="Real name (goddess-only field, max 200 chars). Set once at signup.",
+        examples=["John Doe"],
+        max_length=200,
+    )
+
+    @field_validator("date_of_birth")
+    @classmethod
+    def validate_age(cls, v: date) -> date:
+        today = date.today()
+        age = today.year - v.year - ((today.month, today.day) < (v.month, v.day))
+        if age < 18:
+            raise ValueError("must be at least 18 years old")
+        return v

@@ -117,6 +117,12 @@ class InvitationController:
             status=UserStatus.pending_entry_tribute,
             first_name=signup.first_name,
             last_name=signup.last_name,
+            gender=signup.gender,
+            pronouns=signup.pronouns,
+            location=signup.location,
+            timezone=signup.timezone,
+            date_of_birth=signup.date_of_birth,
+            real_name=signup.real_name,
         )
         self._session.add(user)
         await self._session.flush()

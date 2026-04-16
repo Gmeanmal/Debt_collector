@@ -245,9 +245,7 @@ class KinksController:
             if item_id in counts_by_item:
                 counts_by_item[item_id][rating.value] = count
         for _item_id, rating_counts in counts_by_item.items():
-            explicit_total = sum(
-                v for k, v in rating_counts.items() if k != KinkRating.not_set
-            )
+            explicit_total = sum(v for k, v in rating_counts.items() if k != KinkRating.not_set)
             rating_counts[KinkRating.not_set] = max(0, total_subs - explicit_total)
 
         overview_items = [

@@ -260,8 +260,12 @@ class KinkOverviewItemOut(BaseModel):
         ),
         examples=[
             {
-                "hard_limit": 1, "soft_limit": 2, "not_set": 5,
-                "curious": 3, "loves": 1, "fetish_need": 0,
+                "hard_limit": 1,
+                "soft_limit": 2,
+                "not_set": 5,
+                "curious": 3,
+                "loves": 1,
+                "fetish_need": 0,
             }
         ],
     )

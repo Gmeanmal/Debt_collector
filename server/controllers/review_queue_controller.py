@@ -108,8 +108,12 @@ class ReviewQueueController:
         for ref in body.items:
             try:
                 await _dispatch(
-                    self._ritual_ctrl, self._task_ctrl,
-                    goddess_user, body.action, ref, body.reason,
+                    self._ritual_ctrl,
+                    self._task_ctrl,
+                    goddess_user,
+                    body.action,
+                    ref,
+                    body.reason,
                 )
                 succeeded.append(BulkItemResult(kind=ref.kind, id=ref.id))
             except AppError as exc:

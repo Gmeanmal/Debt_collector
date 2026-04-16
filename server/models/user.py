@@ -1,7 +1,8 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
+from sqlalchemy import Column, Date
 from sqlmodel import Field, SQLModel
 
 
@@ -60,6 +61,12 @@ class User(SQLModel, table=True):
     bio: str | None = Field(default=None, sa_column_kwargs={"nullable": True})
     theme_preference: str = Field(default="system")
     last_login_at: datetime | None = None
+    gender: str | None = Field(default=None, sa_column_kwargs={"nullable": True}, max_length=64)
+    pronouns: str | None = Field(default=None, sa_column_kwargs={"nullable": True}, max_length=64)
+    location: str | None = Field(default=None, sa_column_kwargs={"nullable": True}, max_length=120)
+    timezone: str | None = Field(default=None, sa_column_kwargs={"nullable": True}, max_length=64)
+    date_of_birth: date | None = Field(default=None, sa_column=Column(Date, nullable=True))
+    real_name: str | None = Field(default=None, sa_column_kwargs={"nullable": True}, max_length=200)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC).replace(tzinfo=None), nullable=False
     )

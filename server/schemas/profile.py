@@ -40,6 +40,12 @@ class ProfileChangeRequestIn(BaseModel):
         description="Proposed new avatar key.",
         examples=["pink_1"],
     )
+    proposed_real_name: str | None = Field(
+        default=None,
+        description="Proposed new real name (goddess-only field). Requires goddess approval.",
+        examples=["Jane Doe"],
+        max_length=200,
+    )
 
     model_config = {"str_strip_whitespace": True}
 
@@ -81,6 +87,9 @@ class ProfileChangeRequestOut(BaseModel):
     )
     proposed_avatar_key: AvatarKey | None = Field(
         default=None, description="Proposed avatar key.", examples=["pink_2"]
+    )
+    proposed_real_name: str | None = Field(
+        default=None, description="Proposed real name change.", examples=["Jane Doe"]
     )
     fee_amount: Decimal | None = Field(
         default=None, description="Fee imposed by goddess (GBP).", examples=[None]

@@ -3,6 +3,7 @@ import { SubRollingSection } from "@/components/subDetail/SubRollingSection";
 import { SubContractsSection } from "@/components/subDetail/SubContractsSection";
 import { SubPaymentsSection } from "@/components/subDetail/SubPaymentsSection";
 import { TributeGauge } from "@/components/goddess/TributeGauge";
+import { SessionCompleteToggle } from "@/components/goddess/SessionCompleteToggle";
 
 interface Props {
   subId: string;
@@ -14,7 +15,8 @@ export function SubOverviewTab({ subId, status }: Props) {
     <div className="flex flex-col gap-6">
       <TributeGauge subId={subId} />
       {status === "active" && (
-        <div className="flex justify-end">
+        <div className="flex items-center justify-end gap-3">
+          <SessionCompleteToggle subId={subId} />
           <Link
             to={`/goddess/subs/${subId}/breach`}
             className="px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-debt-primary"

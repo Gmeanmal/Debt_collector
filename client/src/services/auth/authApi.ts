@@ -1,4 +1,5 @@
 import { apiClient } from "@/api/client";
+import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { components } from "@/types/api.generated";
 
 type LoginRequest = components["schemas"]["LoginRequest"];
@@ -6,6 +7,15 @@ type TokenPair = components["schemas"]["TokenPair"];
 type UserOut = components["schemas"]["UserOut"];
 type ImpersonationAccess = components["schemas"]["ImpersonationAccess"];
 type ProfileUpdate = components["schemas"]["ProfileUpdate"];
+
+export type UpdateProfileResult =
+  | { kind: "applied"; user: UserOut }
+  | { kind: "pending_change_request"; changeRequestId: string };
+
+function authHeaders(): Record<string, string> {
+  const token = getAccessToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export async function loginApi(body: LoginRequest): Promise<TokenPair> {
   const { data, error } = await apiClient.POST("/auth/login", { body });
@@ -49,8 +59,19 @@ export async function impersonateApi(userId: string): Promise<ImpersonationAcces
   return data;
 }
 
-export async function updateProfileApi(body: ProfileUpdate): Promise<UserOut> {
-  const { data, error } = await apiClient.PATCH("/me/profile", { body });
+export async function updateProfileApi(body: ProfileUpdate): Promise<UpdateProfileResult> {
+  const { response, data, error } = await apiClient.PATCH("/me/profile", {
+    body,
+    headers: authHeaders(),
+    parseAs: "json",
+  });
+
+  if (response.status === 202) {
+    const raw = data as { change_request_id?: string } | null;
+    const changeRequestId = raw?.change_request_id ?? "";
+    return { kind: "pending_change_request", changeRequestId };
+  }
+
   if (error || !data) throw new Error("Failed to update profile");
-  return data;
+  return { kind: "applied", user: data as UserOut };
 }

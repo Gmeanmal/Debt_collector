@@ -28,7 +28,9 @@ class SubPhotoOut(BaseModel):
             "Stable object-store key (`<goddess_id>/<sub_id>/<uuid>.<ext>`) used to "
             "reference this photo in subsequent API calls (e.g. journal entries, ritual evidence)."
         ),
-        examples=["00000000-0000-0000-0000-000000000001/00000000-0000-0000-0000-000000000002/abc.jpg"],
+        examples=[
+            "00000000-0000-0000-0000-000000000001/00000000-0000-0000-0000-000000000002/abc.jpg"
+        ],
     )
     presigned_get_url: str = Field(
         ...,

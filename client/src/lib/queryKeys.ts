@@ -134,4 +134,8 @@ export const queryKeys = {
     forSub: (subId: string) =>
       ["goddess", "subs", subId, "tribute-minimum", "gauge"] as const,
   },
+
+  aftercare: {
+    own: () => ["aftercare", "own"] as const,
+  },
 };

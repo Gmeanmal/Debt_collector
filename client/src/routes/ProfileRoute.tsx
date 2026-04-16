@@ -16,6 +16,7 @@ import { ChangeRequestDialog } from "@/components/profile/ChangeRequestDialog";
 import { ChangeRequestList } from "@/components/profile/ChangeRequestList";
 import { updatePaymentHandleApi, listMyChangeRequestsApi } from "@/services/profile/profileApi";
 import type { AvatarKey } from "@/services/profile/avatarMap";
+import { IdentityFieldsCard } from "@/components/profile/IdentityFieldsCard";
 
 function emptyToNull(v: string): string | null {
   return v.trim() === "" ? null : v.trim();
@@ -47,9 +48,11 @@ export function ProfileRoute() {
         last_name: user?.last_name ?? null,
         bio: user?.bio ?? null,
       }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
-      toast.success("Avatar updated");
+    onSuccess: (result) => {
+      if (result.kind === "applied") {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+        toast.success("Avatar updated");
+      }
     },
     onError: () => toast.error("Failed to update avatar"),
   });
@@ -121,6 +124,8 @@ export function ProfileRoute() {
             </Button>
           </CardContent>
         </Card>
+
+        <IdentityFieldsCard user={user} onSaved={() => queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() })} />
 
         {isSubRole && (
           <Card>

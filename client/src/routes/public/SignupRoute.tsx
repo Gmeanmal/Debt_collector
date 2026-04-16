@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,8 +7,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { signupViaInviteApi } from "@/services/invitations/invitationsApi";
 import { setTokens } from "@/services/auth/tokenStorage";
 import { queryKeys } from "@/lib/queryKeys";
+import { SignupIdentityFields } from "@/components/signup/SignupIdentityFields";
 
-const schema = z
+function isAtLeast18(dob: string): boolean {
+  const birth = new Date(dob);
+  const cutoff = new Date();
+  cutoff.setFullYear(cutoff.getFullYear() - 18);
+  return birth <= cutoff;
+}
+
+const signupSchema = z
   .object({
     email: z.string().min(1, "Email is required").email("Invalid email address"),
     username: z.string().min(2, "Username must be at least 2 characters"),
@@ -15,13 +24,25 @@ const schema = z
     confirm_password: z.string().min(1, "Please confirm your password"),
     first_name: z.string().optional(),
     last_name: z.string().optional(),
+    timezone: z.string().min(1, "Timezone is required"),
+    date_of_birth: z
+      .string()
+      .min(1, "Date of birth is required")
+      .refine(isAtLeast18, { message: "You must be at least 18 years old" }),
+    gender: z.string().max(64).optional(),
+    pronouns: z.string().max(64).optional(),
+    location: z.string().max(120).optional(),
+    real_name: z.string().max(200).optional(),
   })
   .refine((d) => d.password === d.confirm_password, {
     message: "Passwords do not match",
     path: ["confirm_password"],
   });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<typeof signupSchema>;
+
+const INPUT_CLASS =
+  "bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary";
 
 export function SignupRoute() {
   const { token } = useParams<{ token: string }>();
@@ -32,8 +53,14 @@ export function SignupRoute() {
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormValues>({ resolver: zodResolver(signupSchema) });
+
+  useEffect(() => {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    setValue("timezone", tz);
+  }, [setValue]);
 
   async function onSubmit(values: FormValues) {
     if (!token) return;
@@ -44,6 +71,12 @@ export function SignupRoute() {
         password: values.password,
         first_name: values.first_name || null,
         last_name: values.last_name || null,
+        timezone: values.timezone,
+        date_of_birth: values.date_of_birth,
+        gender: values.gender || null,
+        pronouns: values.pronouns || null,
+        location: values.location || null,
+        real_name: values.real_name || null,
       });
       setTokens({ access: pair.access_token });
       await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
@@ -55,6 +88,8 @@ export function SignupRoute() {
         setError("root", { message: message || "Email or username already registered." });
       } else if (status === 404 || status === 410) {
         setError("root", { message: "This invitation is no longer valid." });
+      } else if (status === 422) {
+        setError("root", { message: message || "Validation failed. Check your details." });
       } else {
         setError("root", { message: message || "Signup failed. Please try again." });
       }
@@ -81,7 +116,7 @@ export function SignupRoute() {
                 id="email"
                 type="email"
                 autoComplete="email"
-                className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
+                className={INPUT_CLASS}
                 {...register("email")}
               />
               {errors.email && <p className="text-sm text-status-danger">{errors.email.message}</p>}
@@ -95,7 +130,7 @@ export function SignupRoute() {
                 id="username"
                 type="text"
                 autoComplete="username"
-                className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
+                className={INPUT_CLASS}
                 {...register("username")}
               />
               {errors.username && (
@@ -112,7 +147,7 @@ export function SignupRoute() {
                   id="first_name"
                   type="text"
                   autoComplete="given-name"
-                  className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
+                  className={INPUT_CLASS}
                   {...register("first_name")}
                 />
               </div>
@@ -124,7 +159,7 @@ export function SignupRoute() {
                   id="last_name"
                   type="text"
                   autoComplete="family-name"
-                  className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
+                  className={INPUT_CLASS}
                   {...register("last_name")}
                 />
               </div>
@@ -138,7 +173,7 @@ export function SignupRoute() {
                 id="password"
                 type="password"
                 autoComplete="new-password"
-                className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
+                className={INPUT_CLASS}
                 {...register("password")}
               />
               {errors.password && (
@@ -157,13 +192,20 @@ export function SignupRoute() {
                 id="confirm_password"
                 type="password"
                 autoComplete="new-password"
-                className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
+                className={INPUT_CLASS}
                 {...register("confirm_password")}
               />
               {errors.confirm_password && (
                 <p className="text-sm text-status-danger">{errors.confirm_password.message}</p>
               )}
             </div>
+
+            <hr className="border-base-border" />
+            <p className="text-xs text-base-text-muted -mb-2">
+              Identity (timezone and date of birth required)
+            </p>
+
+            <SignupIdentityFields register={register} errors={errors} />
 
             {errors.root && (
               <p className="text-sm text-status-danger text-center">{errors.root.message}</p>

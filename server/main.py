@@ -43,6 +43,7 @@ from routers import (
     rolling,
     safeword,
     signup,
+    sub_aftercare,
     tasks,
     toys,
     tribute_minimum,
@@ -151,4 +152,5 @@ app.include_router(penalty_rules.router)
 app.include_router(photo.router)
 app.include_router(goddess_photos.router)
 app.include_router(review_queue.router)
+app.include_router(sub_aftercare.router)
 app.include_router(ws.router)

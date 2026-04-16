@@ -121,6 +121,7 @@ export type GoddessSub = {
   first_name?: string | null;
   last_name?: string | null;
   avatar_key?: string | null;
+  real_name?: string | null;
 };
 
 export async function listGoddessSubsApi(): Promise<GoddessSub[]> {

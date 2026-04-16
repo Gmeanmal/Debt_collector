@@ -55,6 +55,7 @@ const SUB_NAV: NavItem[] = [
   { to: "/profile/limits", label: "Limits" },
   { to: "/sub/journal", label: "Journal" },
   { to: "/sub/profile/inventory", label: "Inventory" },
+  { to: "/profile/aftercare", label: "Aftercare" },
 ];
 
 const ADMIN_NAV: NavItem[] = [

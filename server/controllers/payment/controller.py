@@ -275,6 +275,7 @@ class PaymentController:
                 "last_name": s.last_name,
                 "avatar_key": s.avatar_key,
                 "status": s.status,
+                "real_name": s.real_name,
             }
             for s in subs
         ]

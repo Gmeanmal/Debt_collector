@@ -1,9 +1,11 @@
 from typing import Literal
+from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from controllers.profile_controller import ProfileController
 from core.db import get_session
 from daos.user_dao import UserDao
 from dependencies.auth import get_current_user
@@ -33,6 +35,12 @@ def _build_user_out(user: User) -> UserOut:
         avatar_key=user.avatar_key,
         payment_handle=user.payment_handle,
         theme_preference=user.theme_preference,
+        gender=user.gender,
+        pronouns=user.pronouns,
+        location=user.location,
+        timezone=user.timezone,
+        date_of_birth=user.date_of_birth,
+        real_name=user.real_name,
         created_at=user.created_at,
         impersonator_id=None,
         impersonator_display_name=None,
@@ -89,29 +97,38 @@ async def update_preferences(
     "/profile",
     summary="Update the authenticated user's profile",
     description=(
-        "Updates first_name, last_name, bio, and avatar_key for the authenticated user. "
+        "Updates identity and profile fields for the authenticated user. "
         "All fields are optional. "
-        "bio is capped at 500 characters; avatar_key must be one of the defined enum values."
+        "bio is capped at 500 characters; avatar_key must be one of the defined enum values. "
+        "gender, pronouns, location, timezone, date_of_birth are written directly. "
+        "real_name: written directly if currently null. If already set and the new value differs, "
+        "a ProfileChangeRequest is created and the response is 202 with the change_request_id. "
+        "Otherwise returns 200 with the updated UserOut."
     ),
     response_model=UserOut,
     status_code=200,
     tags=["me"],
-    responses={400: _E400, 401: _E401, 422: _E422, 500: _E500},
+    responses={
+        200: {"description": "Profile updated successfully"},
+        202: {"description": "real_name change routed through ProfileChangeRequest"},
+        400: _E400,
+        401: _E401,
+        422: _E422,
+        500: _E500,
+    },
 )
 async def update_profile(
     body: ProfileUpdate,
+    response: Response,
     session: AsyncSession = Depends(get_session),
     user: User = Depends(get_current_user),
-) -> UserOut:
-    dao = UserDao(session)
-    updated = await dao.update_profile(
-        user,
-        first_name=body.first_name,
-        last_name=body.last_name,
-        bio=body.bio,
-        avatar_key=body.avatar_key,
-    )
+) -> UserOut | dict[str, UUID]:
+    ctrl = ProfileController(session)
+    updated, change_req = await ctrl.update_identity(user, body)
     await session.commit()
+    if change_req is not None:
+        response.status_code = 202
+        return {"change_request_id": change_req.id}
     return _build_user_out(updated)
 
 

@@ -7,12 +7,15 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { PaymentChart } from "@/components/sub/PaymentChart";
 import { PlanningCalendar } from "@/components/sub/PlanningCalendar";
+import { AftercarePanel } from "@/components/aftercare/AftercarePanel";
 import {
   getSubDashboardApi,
   getSubPlanningApi,
   type ActiveContractSummary,
 } from "@/services/dashboards/dashboardsApi";
 import { queryKeys } from "@/lib/queryKeys";
+import { useAuth } from "@/services/auth/useAuth";
+import { useAftercareActive } from "@/hooks/useAftercareActive";
 
 const GBP = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
 
@@ -88,6 +91,10 @@ function ContractCard({ contract }: ContractCardProps) {
 }
 
 export function SubDashboardRoute() {
+  const { user } = useAuth();
+  const subId = user?.id ?? "";
+  const aftercareActive = useAftercareActive(subId || undefined);
+
   const {
     data: dash,
     isLoading: dashLoading,
@@ -131,6 +138,8 @@ export function SubDashboardRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
+        {aftercareActive && subId && <AftercarePanel subId={subId} />}
+
         <div>
           <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
             Dashboard

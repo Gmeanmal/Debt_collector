@@ -36,6 +36,7 @@ class ProfileChangeRequest(SQLModel, table=True):
     proposed_display_name: str | None = Field(default=None, nullable=True)
     proposed_notes: str | None = Field(default=None, nullable=True)
     proposed_avatar_key: AvatarKey | None = Field(default=None, nullable=True)
+    proposed_real_name: str | None = Field(default=None, nullable=True)
 
     fee_amount: Decimal | None = Field(
         default=None,

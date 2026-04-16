@@ -31,9 +31,7 @@ class ReviewQueueItemOut(BaseModel):
         default=None, description="Presigned GET URL for evidence (10-min TTL)"
     )
     note: str | None = Field(default=None, description="Sub's note accompanying the submission")
-    points_on_complete: int = Field(
-        ..., description="Points credited on approval", examples=[2]
-    )
+    points_on_complete: int = Field(..., description="Points credited on approval", examples=[2])
 
     model_config = {"from_attributes": True}
 

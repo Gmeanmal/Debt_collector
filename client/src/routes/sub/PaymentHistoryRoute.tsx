@@ -22,6 +22,7 @@ import { queryKeys } from "@/lib/queryKeys";
 const SOURCE_LABEL: Record<DeclarationSource, string> = {
   sub_declared: "Self-declared",
   goddess_recorded: "Goddess-recorded",
+  ingested: "Auto-ingested",
 };
 
 type BadgeVariant = "default" | "primary" | "debt";
@@ -29,6 +30,7 @@ type BadgeVariant = "default" | "primary" | "debt";
 const SOURCE_VARIANT: Record<DeclarationSource, BadgeVariant> = {
   sub_declared: "default",
   goddess_recorded: "debt",
+  ingested: "default",
 };
 
 const STATUS_CHIP: Record<string, string> = {

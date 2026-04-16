@@ -49,6 +49,7 @@ import { GoddessInventoryRoute } from "./routes/goddess/InventoryRoute";
 import { PenaltyRulesRoute } from "./routes/goddess/PenaltyRulesRoute";
 import { KinkOverviewRoute } from "./routes/goddess/KinkOverviewRoute";
 import { ReviewQueueRoute } from "./routes/goddess/ReviewQueueRoute";
+import { AftercareRoute } from "./routes/profile/AftercareRoute";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginRoute /> },
@@ -452,6 +453,16 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
           <ReviewQueueRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/profile/aftercare",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <AftercareRoute />
         </RoleProtectedRoute>
       </ProtectedRoute>
     ),

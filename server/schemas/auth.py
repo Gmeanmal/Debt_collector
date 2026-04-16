@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
 
@@ -75,6 +75,27 @@ class UserOut(BaseModel):
         examples=["demosub3"],
     )
     theme_preference: str = Field(..., description="UI theme preference", examples=["system"])
+    gender: str | None = Field(
+        None, description="Gender identity (free-text)", examples=["non-binary"]
+    )
+    pronouns: str | None = Field(None, description="Preferred pronouns", examples=["they/them"])
+    location: str | None = Field(
+        None, description="City or 'City, Country'", examples=["London, UK"]
+    )
+    timezone: str | None = Field(
+        None, description="IANA timezone string", examples=["Europe/London"]
+    )
+    date_of_birth: date | None = Field(
+        None, description="Date of birth (YYYY-MM-DD)", examples=["1990-01-15"]
+    )
+    real_name: str | None = Field(
+        None,
+        description=(
+            "Real name. Included only for the caller viewing their own profile, "
+            "or a goddess viewing her own sub, or an admin. Never exposed to other users."
+        ),
+        examples=["John Doe"],
+    )
     created_at: datetime = Field(..., description="Account creation timestamp (UTC)")
     impersonator_id: UUID | None = Field(
         None,
@@ -103,6 +124,42 @@ class ProfileUpdate(BaseModel):
         default=AvatarKey.default,
         description="Avatar key selecting the pre-defined avatar image.",
         examples=["pink_1"],
+    )
+    gender: str | None = Field(
+        None,
+        description="Gender identity (free-text, max 64 chars)",
+        examples=["non-binary"],
+        max_length=64,
+    )
+    pronouns: str | None = Field(
+        None,
+        description="Preferred pronouns (free-text, max 64 chars)",
+        examples=["they/them"],
+        max_length=64,
+    )
+    location: str | None = Field(
+        None,
+        description="City or 'City, Country' (max 120 chars)",
+        examples=["London, UK"],
+        max_length=120,
+    )
+    timezone: str | None = Field(
+        None,
+        description="IANA timezone string (max 64 chars)",
+        examples=["Europe/London"],
+        max_length=64,
+    )
+    date_of_birth: date | None = Field(
+        None, description="Date of birth (YYYY-MM-DD)", examples=["1990-01-15"]
+    )
+    real_name: str | None = Field(
+        None,
+        description=(
+            "Real name (max 200 chars). "
+            "If already set, changes are routed through ProfileChangeRequest."
+        ),
+        examples=["John Doe"],
+        max_length=200,
     )
 
     model_config = {"str_strip_whitespace": True}

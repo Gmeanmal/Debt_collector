@@ -17,6 +17,7 @@ from models.profile_change_request import ProfileChangeRequest, ProfileChangeReq
 from models.status_event import StatusEvent
 from models.sub_profile import OwnershipStatus
 from models.user import User, UserRole
+from schemas.auth import ProfileUpdate
 from schemas.profile import (
     GoddessEditSubProfileIn,
     GoddessRejectIn,
@@ -62,6 +63,7 @@ class ProfileController:
             and not payload.proposed_display_name
             and not payload.proposed_notes
             and not payload.proposed_avatar_key
+            and not payload.proposed_real_name
         ):
             raise BadRequest("at least one proposed field must be set")
 
@@ -74,6 +76,7 @@ class ProfileController:
             proposed_display_name=payload.proposed_display_name,
             proposed_notes=payload.proposed_notes,
             proposed_avatar_key=payload.proposed_avatar_key,
+            proposed_real_name=payload.proposed_real_name,
         )
         await self._req_dao.create(req)
         return _to_out(req)
@@ -202,6 +205,58 @@ class ProfileController:
         """Sub self-edits their payment handle."""
         return await self._user_dao.update_payment_handle(sub_user, payload.payment_handle)
 
+    async def update_identity(
+        self, user: User, payload: ProfileUpdate
+    ) -> tuple[User, ProfileChangeRequestOut | None]:
+        """
+        Apply identity field updates from PATCH /me/profile.
+
+        Free fields (gender, pronouns, location, timezone, date_of_birth,
+        first_name, last_name, bio, avatar_key) are written directly.
+
+        real_name: written directly if currently null. If non-null and the
+        new value differs, a ProfileChangeRequest is created instead and
+        returned as the second element of the tuple (caller should respond 202).
+        """
+        fields: dict[str, object] = {}
+        if payload.first_name is not None:
+            fields["first_name"] = payload.first_name
+        if payload.last_name is not None:
+            fields["last_name"] = payload.last_name
+        if payload.bio is not None:
+            fields["bio"] = payload.bio
+        fields["avatar_key"] = payload.avatar_key
+        if payload.gender is not None:
+            fields["gender"] = payload.gender
+        if payload.pronouns is not None:
+            fields["pronouns"] = payload.pronouns
+        if payload.location is not None:
+            fields["location"] = payload.location
+        if payload.timezone is not None:
+            fields["timezone"] = payload.timezone
+        if payload.date_of_birth is not None:
+            fields["date_of_birth"] = payload.date_of_birth
+
+        change_req: ProfileChangeRequestOut | None = None
+
+        if payload.real_name is not None:
+            if user.real_name is None:
+                fields["real_name"] = payload.real_name
+            elif user.real_name != payload.real_name:
+                req = ProfileChangeRequest(
+                    sub_id=user.id,
+                    requested_at=_now(),
+                    status=ProfileChangeRequestStatus.pending,
+                    proposed_real_name=payload.real_name,
+                )
+                await self._req_dao.create(req)
+                change_req = _to_out(req)
+
+        if fields:
+            await self._user_dao.update_profile_fields(user, **fields)
+
+        return user, change_req
+
     async def goddess_edit_sub(
         self, goddess_user: User, sub_id: UUID, payload: GoddessEditSubProfileIn
     ) -> User:
@@ -236,6 +291,8 @@ class ProfileController:
             fields["last_name"] = req.proposed_last_name
         if req.proposed_avatar_key is not None:
             fields["avatar_key"] = req.proposed_avatar_key
+        if req.proposed_real_name is not None:
+            fields["real_name"] = req.proposed_real_name
 
         if fields:
             await self._user_dao.update_profile_fields(sub, **fields)
