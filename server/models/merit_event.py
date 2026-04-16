@@ -12,6 +12,10 @@ class MeritSourceKind(StrEnum):
     task_complete = "task_complete"
     task_miss = "task_miss"
     manual = "manual"
+    reward_redeem = "reward_redeem"
+    punishment_invoke = "punishment_invoke"
+    contract_miss = "contract_miss"
+    rolling_late = "rolling_late"
 
 
 class MeritEvent(SQLModel, table=True):

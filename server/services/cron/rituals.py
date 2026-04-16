@@ -22,9 +22,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from daos.ritual_dao import RitualDao
 from daos.ritual_occurrence_dao import RitualOccurrenceDao
+from models.penalty_rule import PenaltyTrigger
 from models.ritual import Ritual, RitualFrequency
 from models.ritual_occurrence import OccurrenceStatus
-from services.merits.credits import record_ritual_miss_for_cron
+from services.penalty.engine import apply_penalty
 
 log = structlog.get_logger()
 
@@ -105,12 +106,14 @@ async def mark_missed_for_today(session: AsyncSession, today_london_date: dateti
     updated = await occurrence_dao.mark_missed_by_date(today_london_date)
 
     for occurrence_id, sub_id, goddess_id, points_on_miss in pending:
-        await record_ritual_miss_for_cron(
+        await apply_penalty(
             session,
-            occurrence_id=occurrence_id,
-            sub_id=sub_id,
             goddess_id=goddess_id,
-            delta=points_on_miss,
+            sub_id=sub_id,
+            trigger=PenaltyTrigger.ritual_missed,
+            source_kind="ritual_miss",
+            source_id=occurrence_id,
+            default_delta=points_on_miss,
         )
 
     log.info(

@@ -52,6 +52,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 [tool.ruff.lint.per-file-ignores]
 "routers/*" = ["B008"]
 "dependencies/*" = ["B008"]
+"services/consent/gate.py" = ["B008"]
 "alembic/versions/*" = ["E501"]
 "seeds/kinks.py" = ["E501"]
 

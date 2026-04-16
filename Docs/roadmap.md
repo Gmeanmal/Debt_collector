@@ -47,7 +47,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** —
 - **Subagent hint:** backend-feature.
 
-### A2 — Throne connection model + credentials store 🟢
+### A2 — Throne connection model + credentials store ✅
 
 - **Scope:** `server`, `db`, `auth`, `ingest`.
 - **Goal:** per-goddess Throne connection (API token + account id). Token stored via the envelope pattern (interim: `Fernet` until J lands, swap later).
@@ -394,7 +394,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** E3.
 - **Subagent hint:** backend-feature.
 
-### F4 — Rewards / punishments tiers 🟡
+### F4 — Rewards / punishments tiers ✅
 
 - **Scope:** `server`, `journal`.
 - **Goal:** `reward_tier`, `punishment_tier` CRUD (goddess-only); redeem endpoint for sub (`POST /rewards/{id}/redeem`); invoke endpoint for goddess (`POST /punishments/{id}/invoke` — creates a task with the punishment body).
@@ -546,7 +546,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** I1.
 - **Subagent hint:** backend-feature + frontend-feature.
 
-### I5 — `penalty_rule` + cron integration 🟡
+### I5 — `penalty_rule` + cron integration ✅
 
 - **Scope:** `server`, `payments`, `rollings`, `contracts`, `rituals`.
 - **Goal:** `penalty_rule` table + service consulted by rolling/contract/ritual crons before applying defaults; `cooldown_hours` guard.
@@ -580,7 +580,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** J1.
 - **Subagent hint:** backend-feature.
 
-### J3 — Consent text + acceptance tracking 🟡
+### J3 — Consent text + acceptance tracking ✅
 
 - **Scope:** `server`, `db`, `crypto`.
 - **Goal:** `consent_text` (versioned, markdown), `consent_acceptance`; helper `require_consent(slug)` decorator for routes.

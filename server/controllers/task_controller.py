@@ -7,6 +7,7 @@ from controllers._goddess import resolve_goddess_id
 from core.exceptions import Conflict, Forbidden, NotFound
 from daos.task_dao import TaskDao
 from daos.user_dao import UserDao
+from models.penalty_rule import PenaltyTrigger
 from models.task import Task, TaskStatus
 from models.user import User, UserRole
 from schemas.tasks import (
@@ -16,7 +17,8 @@ from schemas.tasks import (
     TaskSubmitIn,
     TaskUpdateIn,
 )
-from services.merits.credits import record_task_complete, record_task_miss
+from services.merits.credits import record_task_complete
+from services.penalty.engine import apply_penalty
 
 _SUBMIT_FROM: frozenset[TaskStatus] = frozenset({TaskStatus.open})
 _CANCEL_FROM: frozenset[TaskStatus] = frozenset({TaskStatus.open})
@@ -114,7 +116,15 @@ class TaskController:
             reviewed_at=now,
             reviewed_by=goddess_user.id,
         )
-        await record_task_miss(self._session, updated)
+        await apply_penalty(
+            self._session,
+            goddess_id=updated.goddess_id,
+            sub_id=updated.sub_id,
+            trigger=PenaltyTrigger.task_missed,
+            source_kind="task_miss",
+            source_id=updated.id,
+            default_delta=updated.points_on_miss,
+        )
         return _to_out(updated)
 
     # ------------------------------------------------------------------

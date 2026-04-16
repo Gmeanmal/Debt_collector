@@ -18,8 +18,10 @@ from routers import (
     admin_cron,
     auth,
     blacklist,
+    consent,
     dashboards,
     debt_contracts,
+    goddess_integrations,
     goddess_profile,
     goddess_views,
     health,
@@ -32,6 +34,7 @@ from routers import (
     notifications,
     panic,
     payment_methods,
+    penalty_rules,
     profile,
     public_invitation,
     rituals,
@@ -126,6 +129,7 @@ app.include_router(notifications.router)
 app.include_router(me_preferences.router)
 app.include_router(profile.router)
 app.include_router(goddess_profile.router)
+app.include_router(goddess_integrations.router)
 app.include_router(dashboards.goddess_router)
 app.include_router(dashboards.sub_router)
 app.include_router(goddess_views.router)
@@ -144,4 +148,6 @@ app.include_router(rituals.sub_router)
 app.include_router(tasks.goddess_router)
 app.include_router(tasks.sub_router)
 app.include_router(merits.router)
+app.include_router(consent.router)
+app.include_router(penalty_rules.router)
 app.include_router(ws.router)

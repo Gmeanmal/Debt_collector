@@ -11,8 +11,10 @@ from daos.rolling_dao import RollingTributeDao
 from models.debt import DebtContract, DebtContractStatus
 from models.debt_event import DebtEvent, EventType
 from models.notification import NotificationType
+from models.penalty_rule import PenaltyTrigger
 from models.user import User, UserRole, UserStatus
 from services.notifications.notify import notify
+from services.penalty.engine import apply_penalty
 from utils.finance import period_rate
 from utils.ledger import apply_event_and_recompute
 from utils.periods import current_period_index
@@ -66,6 +68,17 @@ class CronController:
                 link="/sub",
                 payload={"days_late": late},
             )
+            # default_delta=0 ⇒ no-op unless a penalty_rule is configured for
+            # this goddess/sub; cooldown prevents double-firing on repeated runs.
+            await apply_penalty(
+                self._session,
+                goddess_id=rolling.goddess_id,
+                sub_id=sub_id,
+                trigger=PenaltyTrigger.rolling_late,
+                source_kind="rolling_late",
+                source_id=rolling.id,
+                default_delta=0,
+            )
         else:
             log.info("rolling_reminder", sub_id=str(sub_id))
         return 1
@@ -114,6 +127,17 @@ class CronController:
                 body="You missed the minimum payment; a late penalty has been applied.",
                 link=f"/debts/{contract.id}",
                 payload={"contract_id": str(contract.id), "period_index": prev_idx},
+            )
+            # default_delta=0 ⇒ merit ledger stays untouched unless a penalty_rule
+            # is configured; cooldown prevents double-firing across cron retries.
+            await apply_penalty(
+                self._session,
+                goddess_id=contract.goddess_id,
+                sub_id=contract.sub_id,
+                trigger=PenaltyTrigger.contract_missed,
+                source_kind="contract_miss",
+                source_id=contract.id,
+                default_delta=0,
             )
 
         rate = period_rate(contract)
