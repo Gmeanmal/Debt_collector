@@ -51,9 +51,13 @@ from models.sub_profile import OwnershipStatus as OwnershipStatus
 from models.sub_profile import SubProfile as SubProfile
 from models.sub_safeword import SubSafeword as SubSafeword
 from models.sub_trigger import SubTrigger as SubTrigger
+from models.task import Task as Task
+from models.task import TaskStatus as TaskStatus
 from models.toy_item import ToyCategory as ToyCategory
 from models.toy_item import ToyItem as ToyItem
 from models.toy_item import ToyProposedBy as ToyProposedBy
+from models.tribute_minimum import TributeMinimum as TributeMinimum
+from models.tribute_minimum import TributePeriod as TributePeriod
 from models.user import AvatarKey as AvatarKey
 from models.user import Goddess as Goddess
 from models.user import PasswordResetToken as PasswordResetToken

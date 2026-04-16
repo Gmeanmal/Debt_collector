@@ -66,12 +66,18 @@ class RitualOccurrenceDao:
         occurrence_id: UUID,
         *,
         completed_at: datetime.datetime,
+        note: str | None = None,
+        evidence_r2_key: str | None = None,
         evidence_photo_id: UUID | None = None,
     ) -> RitualOccurrence:
         """Transition a pending occurrence to completed."""
         occ = await self._get_by_id(occurrence_id)
         occ.status = OccurrenceStatus.completed
         occ.completed_at = completed_at
+        if note is not None:
+            occ.note = note
+        if evidence_r2_key is not None:
+            occ.evidence_r2_key = evidence_r2_key
         if evidence_photo_id is not None:
             occ.evidence_photo_id = evidence_photo_id
         self._session.add(occ)
@@ -119,11 +125,17 @@ class RitualOccurrenceDao:
         self,
         occurrence_id: UUID,
         *,
+        note: str | None = None,
+        evidence_r2_key: str | None = None,
         evidence_photo_id: UUID | None = None,
     ) -> RitualOccurrence:
         """Transition a pending occurrence to submitted (sub has uploaded evidence)."""
         occ = await self._get_by_id(occurrence_id)
         occ.status = OccurrenceStatus.submitted
+        if note is not None:
+            occ.note = note
+        if evidence_r2_key is not None:
+            occ.evidence_r2_key = evidence_r2_key
         if evidence_photo_id is not None:
             occ.evidence_photo_id = evidence_photo_id
         self._session.add(occ)
@@ -145,6 +157,10 @@ class RitualOccurrenceDao:
         self._session.add(occ)
         await self._session.flush()
         return occ
+
+    async def get_by_id(self, occurrence_id: UUID) -> RitualOccurrence:
+        """Return an occurrence by id, raising NotFound if absent."""
+        return await self._get_by_id(occurrence_id)
 
     # ------------------------------------------------------------------
     # Internal helpers

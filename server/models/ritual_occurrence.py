@@ -2,7 +2,7 @@ import datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
-from sqlalchemy import Column, Date, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Date, ForeignKey, Text, UniqueConstraint
 from sqlmodel import Field, SQLModel
 
 
@@ -52,6 +52,10 @@ class RitualOccurrence(SQLModel, table=True):
     )
     # Nullable now; B4 adds the sub_photo table and wires this FK later.
     evidence_photo_id: UUID | None = Field(default=None, nullable=True)
+    # Optional text note from the sub when completing/submitting.
+    note: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
+    # Optional R2 object key for evidence; B4 wires the actual upload.
+    evidence_r2_key: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
     completed_at: datetime.datetime | None = Field(default=None, nullable=True)
     reviewed_at: datetime.datetime | None = Field(default=None, nullable=True)
     reviewed_by: UUID | None = Field(

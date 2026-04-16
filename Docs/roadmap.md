@@ -286,7 +286,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** D2, D3.
 - **Subagent hint:** frontend-feature.
 
-### D5 — Emergency-stop endpoint (scaffolding, no medical cross-refs yet) 🟡
+### D5 — Emergency-stop endpoint (scaffolding, no medical cross-refs yet) ✅
 
 - **Scope:** `server`, `limits`.
 - **Goal:** `POST /sub/panic` pauses rituals + tasks, sets `ownership_status='released'` (soft), notifies goddess with high-priority flag.
@@ -330,7 +330,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** E1.
 - **Subagent hint:** backend-feature.
 
-### E3 — Ritual & task CRUD API 🟡
+### E3 — Ritual & task CRUD API ✅
 
 - **Scope:** `server`, `rituals`.
 - **Goal:** goddess CRUD on `ritual`; sub `POST /rituals/{occ_id}/complete` (with optional evidence); `task` CRUD (goddess create/cancel, sub submit); goddess approve/reject submitted tasks.
@@ -482,7 +482,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** H1.
 - **Subagent hint:** backend-feature + frontend-feature.
 
-### H3 — Renewal reminder cron + notification 🟡
+### H3 — Renewal reminder cron + notification ✅
 
 - **Scope:** `server`, `contracts`, `notif`.
 - **Goal:** daily cron pushes a `review_reminder` notification to goddess 14 days before `review_at`; idempotent via unique `(contract_id, 'review_reminder')` notification type.
@@ -536,7 +536,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** I2.
 - **Subagent hint:** frontend-feature.
 
-### I4 — `tribute_minimum` + performance gauge 🟡
+### I4 — `tribute_minimum` + performance gauge (backend) ✅
 
 - **Scope:** `server`, `client`, `payments`.
 - **Goal:** `tribute_minimum` table (per sub) + dashboard gauge comparing `actual_this_period` vs `amount`.

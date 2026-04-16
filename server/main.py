@@ -29,13 +29,17 @@ from routers import (
     limits,
     me_preferences,
     notifications,
+    panic,
     payment_methods,
     profile,
     public_invitation,
+    rituals,
     rolling,
     safeword,
     signup,
+    tasks,
     toys,
+    tribute_minimum,
     wishlist,
     ws,
 )
@@ -94,7 +98,7 @@ app.add_middleware(
     allow_origin_regex=_settings.cors_origin_regex or None,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],
+    allow_headers=["Authorization", "Content-Type", "X-CSRF-Token", "X-Confirm-Password"],
 )
 # Added last so it runs first on ingress — request_id is available to all inner middleware.
 app.add_middleware(RequestIdMiddleware)
@@ -125,11 +129,17 @@ app.include_router(dashboards.goddess_router)
 app.include_router(dashboards.sub_router)
 app.include_router(goddess_views.router)
 app.include_router(safeword.router)
+app.include_router(panic.router)
 app.include_router(journal.router)
 app.include_router(kinks.router)
 app.include_router(limits.router)
+app.include_router(tribute_minimum.goddess_router)
 app.include_router(wishlist.goddess_router)
 app.include_router(wishlist.sub_router)
 app.include_router(toys.goddess_router)
 app.include_router(toys.sub_router)
+app.include_router(rituals.goddess_router)
+app.include_router(rituals.sub_router)
+app.include_router(tasks.goddess_router)
+app.include_router(tasks.sub_router)
 app.include_router(ws.router)

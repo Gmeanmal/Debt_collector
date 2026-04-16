@@ -6,6 +6,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from controllers.cron_controller import CronController
 from core.db import SessionMaker
+from services.cron.contracts import run_review_reminders
 from services.cron.rituals import (
     london_today,
     mark_missed_for_today,
@@ -35,6 +36,14 @@ async def _mark_missed_ritual_occurrences_job() -> None:
         await session.commit()
 
 
+async def _run_contract_review_reminders_job() -> None:
+    log.info("review_reminder_cron_start")
+    async with SessionMaker() as session:
+        count = await run_review_reminders(session)
+        await session.commit()
+    log.info("review_reminder_cron_done", count=count)
+
+
 def start_scheduler() -> AsyncIOScheduler:
     scheduler = AsyncIOScheduler(timezone=LONDON)
     scheduler.add_job(
@@ -55,6 +64,12 @@ def start_scheduler() -> AsyncIOScheduler:
         id="mark_missed_ritual_occurrences_job",
         replace_existing=True,
     )
+    scheduler.add_job(
+        _run_contract_review_reminders_job,
+        CronTrigger(hour=9, minute=0),
+        id="contract_review_reminders_job",
+        replace_existing=True,
+    )
     scheduler.start()
     log.info(
         "scheduler_started",
@@ -62,6 +77,7 @@ def start_scheduler() -> AsyncIOScheduler:
             "daily_08_uk": "08:00 Europe/London",
             "seed_ritual_occurrences_job": "00:00 Europe/London",
             "mark_missed_ritual_occurrences_job": "23:59 Europe/London",
+            "contract_review_reminders_job": "09:00 Europe/London",
         },
     )
     return scheduler

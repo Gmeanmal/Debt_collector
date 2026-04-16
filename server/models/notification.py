@@ -33,6 +33,8 @@ class NotificationType(StrEnum):
     contract_forgiven = "contract_forgiven"
     journal_comment = "journal_comment"
     wishlist_fulfilled = "wishlist_fulfilled"
+    sub_panic = "sub_panic"
+    review_reminder = "review_reminder"
 
 
 class Notification(SQLModel, table=True):
