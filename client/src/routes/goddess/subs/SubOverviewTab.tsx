@@ -4,6 +4,7 @@ import { SubContractsSection } from "@/components/subDetail/SubContractsSection"
 import { SubPaymentsSection } from "@/components/subDetail/SubPaymentsSection";
 import { TributeGauge } from "@/components/goddess/TributeGauge";
 import { SessionCompleteToggle } from "@/components/goddess/SessionCompleteToggle";
+import { MedicalRevealPanel } from "@/components/goddess/MedicalRevealPanel";
 
 interface Props {
   subId: string;
@@ -25,6 +26,7 @@ export function SubOverviewTab({ subId, status }: Props) {
           </Link>
         </div>
       )}
+      <MedicalRevealPanel subId={subId} />
       <SubRollingSection subId={subId} />
       <SubContractsSection subId={subId} />
       <SubPaymentsSection subId={subId} />

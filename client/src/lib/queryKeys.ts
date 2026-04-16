@@ -138,4 +138,8 @@ export const queryKeys = {
   aftercare: {
     own: () => ["aftercare", "own"] as const,
   },
+
+  medical: {
+    own: () => ["profile", "medical", "self"] as const,
+  },
 };

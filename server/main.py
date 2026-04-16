@@ -44,6 +44,7 @@ from routers import (
     safeword,
     signup,
     sub_aftercare,
+    sub_medical,
     tasks,
     toys,
     tribute_minimum,
@@ -153,4 +154,6 @@ app.include_router(photo.router)
 app.include_router(goddess_photos.router)
 app.include_router(review_queue.router)
 app.include_router(sub_aftercare.router)
+app.include_router(sub_medical.sub_router)
+app.include_router(sub_medical.goddess_router)
 app.include_router(ws.router)

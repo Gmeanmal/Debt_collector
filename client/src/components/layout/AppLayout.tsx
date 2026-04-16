@@ -56,6 +56,7 @@ const SUB_NAV: NavItem[] = [
   { to: "/sub/journal", label: "Journal" },
   { to: "/sub/profile/inventory", label: "Inventory" },
   { to: "/profile/aftercare", label: "Aftercare" },
+  { to: "/profile/medical", label: "Medical" },
 ];
 
 const ADMIN_NAV: NavItem[] = [

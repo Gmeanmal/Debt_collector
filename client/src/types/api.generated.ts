@@ -3389,6 +3389,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/profile/medical": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get own medical status
+         * @description Returns a boolean presence flag for each encrypted medical field. No plaintext is ever returned to the sub. If no record exists yet, all flags are false. Requires the sub to have accepted the current `medical` consent version.
+         */
+        get: operations["get_own_medical_status_profile_medical_get"];
+        /**
+         * Save own medical information
+         * @description Creates or updates the calling sub's encrypted medical record. Each field is individually encrypted with AES-256-GCM under the goddess's DEK and bound by an AAD of `sub_medical:<sub_id>:<field_name>`. Pass `null` or an empty string for any field to clear it. Returns is-set booleans — plaintext is never echoed back. Requires the sub to have accepted the current `medical` consent version. The sub must have an assigned goddess.
+         */
+        put: operations["upsert_own_medical_profile_medical_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/goddess/subs/{sub_id}/medical": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reveal a sub's medical information
+         * @description Decrypts and returns the full medical record for the given sub. The sub must belong to the authenticated goddess; any mismatch returns 403. Every successful reveal is logged to the audit trail as `medical_reveal`. Returns 404 if the sub has not yet saved any medical information.
+         */
+        get: operations["reveal_sub_medical_goddess_subs__sub_id__medical_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -8481,6 +8525,135 @@ export interface components {
              * @example Updated context
              */
             notes?: string | null;
+        };
+        /**
+         * SubMedicalRevealOut
+         * @description Decrypted medical record returned exclusively to the goddess on reveal.
+         */
+        SubMedicalRevealOut: {
+            /**
+             * Sub Id
+             * Format: uuid
+             * @description UUID of the sub whose medical data is being revealed.
+             * @example 00000000-0000-0000-0000-000000000002
+             */
+            sub_id: string;
+            /**
+             * Blood Type
+             * @description Decrypted blood type, or null if not set.
+             * @example A+
+             */
+            blood_type?: string | null;
+            /**
+             * Allergies
+             * @description Decrypted allergies, or null if not set.
+             * @example Penicillin, latex
+             */
+            allergies?: string | null;
+            /**
+             * Medications
+             * @description Decrypted medications, or null if not set.
+             * @example Sertraline 50mg daily
+             */
+            medications?: string | null;
+            /**
+             * Emergency Contact
+             * @description Decrypted emergency contact details, or null if not set.
+             * @example Jane Doe — 07700 900000
+             */
+            emergency_contact?: string | null;
+            /**
+             * Medical Notes
+             * @description Decrypted additional medical notes, or null if not set.
+             * @example Asthmatic — inhaler in left jacket pocket.
+             */
+            medical_notes?: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             * @description When this record was last modified (UTC).
+             * @example 2026-04-16T12:00:00
+             */
+            updated_at: string;
+        };
+        /**
+         * SubMedicalSelfOut
+         * @description Read representation returned to the sub — confirms what is stored without echoing plaintext.
+         */
+        SubMedicalSelfOut: {
+            /**
+             * Blood Type Is Set
+             * @description True if a blood type has been stored.
+             * @example true
+             */
+            blood_type_is_set: boolean;
+            /**
+             * Allergies Is Set
+             * @description True if allergies have been stored.
+             * @example false
+             */
+            allergies_is_set: boolean;
+            /**
+             * Medications Is Set
+             * @description True if medications have been stored.
+             * @example true
+             */
+            medications_is_set: boolean;
+            /**
+             * Emergency Contact Is Set
+             * @description True if emergency contact details have been stored.
+             * @example true
+             */
+            emergency_contact_is_set: boolean;
+            /**
+             * Medical Notes Is Set
+             * @description True if additional medical notes have been stored.
+             * @example false
+             */
+            medical_notes_is_set: boolean;
+            /**
+             * Updated At
+             * Format: date-time
+             * @description When this record was last modified (UTC).
+             * @example 2026-04-16T12:00:00
+             */
+            updated_at: string;
+        };
+        /**
+         * SubMedicalUpdate
+         * @description Payload for a sub to create or update her own medical record. All fields are optional.
+         */
+        SubMedicalUpdate: {
+            /**
+             * Blood Type
+             * @description Blood type in plain text. Pass null or empty string to clear the field.
+             * @example A+
+             */
+            blood_type?: string | null;
+            /**
+             * Allergies
+             * @description Known allergies in plain text. Pass null or empty string to clear.
+             * @example Penicillin, latex
+             */
+            allergies?: string | null;
+            /**
+             * Medications
+             * @description Current medications in plain text. Pass null or empty string to clear.
+             * @example Sertraline 50mg daily
+             */
+            medications?: string | null;
+            /**
+             * Emergency Contact
+             * @description Emergency contact details in plain text. Pass null or empty string to clear.
+             * @example Jane Doe — 07700 900000
+             */
+            emergency_contact?: string | null;
+            /**
+             * Medical Notes
+             * @description Any additional medical notes. Pass null or empty string to clear.
+             * @example Asthmatic — inhaler in left jacket pocket.
+             */
+            medical_notes?: string | null;
         };
         /** SubPhotoOut */
         SubPhotoOut: {
@@ -22435,6 +22608,175 @@ export interface operations {
             };
             /** @description Forbidden — caller does not have the sub role */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_own_medical_status_profile_medical_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubMedicalSelfOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller does not have the required role or the sub is not theirs */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Precondition required — medical consent not yet accepted */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    upsert_own_medical_profile_medical_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubMedicalUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubMedicalSelfOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller does not have the required role or the sub is not theirs */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict — the sub has no assigned goddess */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Precondition required — medical consent not yet accepted */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    reveal_sub_medical_goddess_subs__sub_id__medical_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                sub_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubMedicalRevealOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller does not have the required role or the sub is not theirs */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — the medical record does not exist */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
