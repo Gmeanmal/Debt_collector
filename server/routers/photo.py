@@ -54,5 +54,6 @@ async def upload_profile_photo(
         id=photo.id,
         status=photo.status,
         uploaded_at=photo.uploaded_at,
+        r2_key=photo.r2_key,
         presigned_get_url=presigned_url,
     )

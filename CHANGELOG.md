@@ -4,6 +4,19 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+- **P1.2 sub-facing UI burst** (5 frontend slices, single commit, ref `Docs/plan_post_wave7.md`):
+  - **C4** kink matrix: `/profile/kinks` route with category-grouped `KinkMatrix` + per-item `RatingPicker`. Optimistic mutation via `useMutation.onMutate` snapshot/rollback, Zod-parsed `KinkMatrix`/`SubKinkRatingOut` schemas, `needs_confirmation` flag surfaced for safety-flagged items.
+  - **D4** limits + safeword: `/profile/limits` route with `LimitForm`/`LimitsList` (hard/soft × low/medium/high) and `TriggerForm`/`TriggersList`. Global `<SafewordBanner />` mounted in `AppLayout` after `<ImpersonationBanner />`, only renders for sub role with `throwOnError: false` so missing safeword does not page the boundary.
+  - **E4** today: `/today` route with `RitualCard` (complete/submit + optional evidence file upload) + `TaskCard` + `JournalCTA`. Evidence upload now uses `SubPhotoOut.r2_key` directly (backend schema gained `r2_key: str` in this commit).
+  - **F5** journal + merits: sub `/sub/journal` with `JournalEntryForm` (mood + body + optional photo) + paginated `JournalEntryCard` list; goddess `/goddess/subs/:subId/journal` reader with `GoddessCommentForm`; goddess `/goddess/merits` admin route with `RewardTierForm`/`RewardTierList` + `PunishmentTierForm`/`PunishmentTierList` (cost > 0, default_points_penalty ≤ 0 enforced via Zod).
+  - **G3** toy inventory: sub `/sub/profile/inventory` with `InventoryGrid` + `ToyForm` (propose-only, hidden until approval); goddess `/goddess/subs/:subId/inventory` mirrors the grid with full CRUD + approve/reject controls.
+  - All 14 inline query keys migrated to `client/src/lib/queryKeys.ts` factory under new namespaces (`kinks`, `limits`, `safeword`, `today`, `journal`, `merits`, `toys`).
+  - Nav: `SUB_NAV` gains "Today" (first), "Kinks", "Limits", "Journal", "Inventory"; `GODDESS_NAV` gains "Rewards & Punishments". Per-sub goddess journal/inventory routes are deep-linked from `SubManageRoute` (no global nav entry — they require `:subId`).
+
+### Changed
+- `SubPhotoOut` schema gains `r2_key: str` so multi-step flows (journal entries, ritual evidence) reference uploads by stable key without parsing presigned URLs. Frontend `r2KeyFromPresignedUrl` workaround removed.
+
 ### Removed
 - **P0 scope cut** (decision 2026-04-16, ref `Docs/plan_post_wave7.md`): every artefact tied to in-app wishlist + external payment ingestion + YouPay widget deleted. Debt_collector is a manual tracker; money moves outside the app and subs declare each tribute themselves. Specifically:
   - **Wishlist (I1+I2)**: `wishlist_item` table dropped; `wishlist_item.py` model, `wishlist_dao.py`, `wishlist_controller.py`, `routers/wishlist.py`, `schemas/wishlist.py` deleted; wishlist auto-fulfil hook stripped from `payment/controller.py` + `payment/helpers.py`. Routes `/sub/wishlist*` and `/goddess/wishlist*` are gone.

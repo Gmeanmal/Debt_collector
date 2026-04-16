@@ -38,6 +38,14 @@ import { ProfileRoute } from "./routes/ProfileRoute";
 import { ProfileChangeRequestsRoute } from "./routes/goddess/ProfileChangeRequestsRoute";
 import { ContractPreviewRoute } from "./routes/goddess/ContractPreviewRoute";
 import { PhotoQueueRoute } from "./routes/goddess/PhotoQueueRoute";
+import { KinksRoute } from "./routes/profile/KinksRoute";
+import { LimitsRoute } from "./routes/profile/LimitsRoute";
+import { TodayRoute } from "./routes/sub/TodayRoute";
+import { JournalRoute } from "./routes/sub/JournalRoute";
+import { InventoryRoute as SubInventoryRoute } from "./routes/sub/InventoryRoute";
+import { JournalReaderRoute } from "./routes/goddess/JournalReaderRoute";
+import { MeritsAdminRoute } from "./routes/goddess/MeritsAdminRoute";
+import { GoddessInventoryRoute } from "./routes/goddess/InventoryRoute";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginRoute /> },
@@ -331,6 +339,86 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
           <PhotoQueueRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/profile/kinks",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <KinksRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/profile/limits",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <LimitsRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/today",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <TodayRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sub/journal",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <JournalRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sub/profile/inventory",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="sub">
+          <SubInventoryRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/subs/:subId/journal",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <JournalReaderRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/merits",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <MeritsAdminRoute />
+        </RoleProtectedRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/goddess/subs/:subId/inventory",
+    element: (
+      <ProtectedRoute>
+        <RoleProtectedRoute role="goddess">
+          <GoddessInventoryRoute />
         </RoleProtectedRoute>
       </ProtectedRoute>
     ),

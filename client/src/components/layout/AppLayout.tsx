@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { LogOut, Menu, User, X } from "lucide-react";
 import { useAuth } from "@/services/auth/useAuth";
 import { ImpersonationBanner } from "@/components/layout/ImpersonationBanner";
+import { SafewordBanner } from "@/components/layout/SafewordBanner";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useTheme, type ThemePref } from "@/hooks/useTheme";
@@ -38,13 +39,19 @@ const GODDESS_NAV: NavItem[] = [
   { to: "/goddess/debts", label: "Contracts" },
   { to: "/goddess/weekly", label: "Weekly" },
   { to: "/goddess/late", label: "Late" },
+  { to: "/goddess/merits", label: "Rewards & Punishments" },
 ];
 
 const SUB_NAV: NavItem[] = [
+  { to: "/today", label: "Today" },
   { to: "/", label: "Dashboard" },
   { to: "/sub/payments", label: "My payments" },
   { to: "/sub/payments/new", label: "Declare" },
   { to: "/sub/debts", label: "Contracts" },
+  { to: "/profile/kinks", label: "Kinks" },
+  { to: "/profile/limits", label: "Limits" },
+  { to: "/sub/journal", label: "Journal" },
+  { to: "/sub/profile/inventory", label: "Inventory" },
 ];
 
 const ADMIN_NAV: NavItem[] = [
@@ -112,6 +119,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-base-bg flex flex-col">
       <ImpersonationBanner />
+      <SafewordBanner />
       <header className="sticky top-0 z-40 border-b border-base-border/60 bg-base-bg/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center gap-3 sm:gap-8 px-3 sm:px-6 py-4">
           {nav.length > 0 && (

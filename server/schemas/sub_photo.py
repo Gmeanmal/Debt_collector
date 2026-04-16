@@ -22,6 +22,14 @@ class SubPhotoOut(BaseModel):
         description="UTC timestamp when the photo was uploaded.",
         examples=["2026-04-16T22:00:00"],
     )
+    r2_key: str = Field(
+        ...,
+        description=(
+            "Stable object-store key (`<goddess_id>/<sub_id>/<uuid>.<ext>`) used to "
+            "reference this photo in subsequent API calls (e.g. journal entries, ritual evidence)."
+        ),
+        examples=["00000000-0000-0000-0000-000000000001/00000000-0000-0000-0000-000000000002/abc.jpg"],
+    )
     presigned_get_url: str = Field(
         ...,
         description=(

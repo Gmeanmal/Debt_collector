@@ -81,4 +81,40 @@ export const queryKeys = {
   goddessPhotos: {
     queue: () => ["goddess", "photos", "queue"] as const,
   },
+
+  kinks: {
+    matrix: () => ["sub", "profile", "kinks"] as const,
+  },
+
+  limits: {
+    own: () => ["sub", "profile", "limits"] as const,
+    triggers: () => ["sub", "profile", "triggers"] as const,
+  },
+
+  safeword: {
+    own: () => ["profile", "safeword"] as const,
+  },
+
+  today: {
+    rituals: () => ["sub", "rituals", "today"] as const,
+    tasks: () => ["sub", "tasks", "open"] as const,
+    ritualsList: () => ["sub", "rituals", "list"] as const,
+  },
+
+  journal: {
+    own: () => ["sub", "journal"] as const,
+    forSub: (subId: string) => ["goddess", "subs", subId, "journal"] as const,
+  },
+
+  merits: {
+    subRewards: () => ["sub", "rewards"] as const,
+    subBalance: () => ["sub", "points-balance"] as const,
+    goddessRewards: () => ["goddess", "rewards"] as const,
+    goddessPunishments: () => ["goddess", "punishments"] as const,
+  },
+
+  toys: {
+    own: () => ["sub", "profile", "toys"] as const,
+    forSub: (subId: string) => ["goddess", "subs", subId, "toys"] as const,
+  },
 };
