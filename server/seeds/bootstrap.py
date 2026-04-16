@@ -135,10 +135,13 @@ async def _seed_goddess_kek(session: AsyncSession) -> str:
 
 
 async def seed_admin_and_goddess() -> None:
+    from seeds.kinks import seed_kinks
+
     async with SessionMaker() as session:
         admin_status = await _seed_admin(session)
         goddess_status = await _seed_goddess(session)
         kek_status = await _seed_goddess_kek(session)
+        await seed_kinks(session)
         await session.commit()
 
     print()

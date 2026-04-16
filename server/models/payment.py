@@ -20,6 +20,7 @@ class PaymentCategory(StrEnum):
     buyout = "buyout"
     tribute = "tribute"
     profile_change_fee = "profile_change_fee"
+    wishlist = "wishlist"
 
 
 class PaymentStatus(StrEnum):
@@ -35,6 +36,7 @@ class AllocationTargetType(StrEnum):
     contract_debt = "contract_debt"
     contract_buyout = "contract_buyout"
     tribute = "tribute"
+    wishlist_goal = "wishlist_goal"
 
 
 class PaymentDeclaration(SQLModel, table=True):

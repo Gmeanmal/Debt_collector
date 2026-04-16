@@ -192,7 +192,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 
 # PHASE C — §17 Kinks
 
-### C1 — Kink taxonomy models + seed 🟢
+### C1 — Kink taxonomy models + seed ✅
 
 - **Scope:** `server`, `db`, `kinks`.
 - **Goal:** `kink_category`, `kink_item` models + `sub_kink_rating` + seed data for the 8 categories listed in §17.1. Safety flag on `pain_endurance` items.
@@ -266,7 +266,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 - **Deps:** D1.
 - **Subagent hint:** backend-feature.
 
-### D3 — `sub_safeword` model + API 🟢
+### D3 — `sub_safeword` model + API ✅
 
 - **Scope:** `server`, `limits`.
 - **Goal:** one-row-per-sub safeword record (word, signal, emergency contact); `GET/PUT /profile/safeword`; `GET /goddess/subs/{id}/safeword`.
@@ -364,7 +364,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 
 # PHASE F — §20 Journal / merits / aftercare
 
-### F1 — `journal_entry` model + immutability guard 🟢
+### F1 — `journal_entry` model + immutability guard ✅
 
 - **Scope:** `server`, `db`, `journal`.
 - **Goal:** model + migration; DB trigger OR controller-level guard preventing `UPDATE/DELETE` on body after creation (comment field is separately editable).
@@ -506,7 +506,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 
 # PHASE I — Wishlist / tribute minimum / penalty rules
 
-### I1 — `wishlist_item` model + category 🟢
+### I1 — `wishlist_item` model + category ✅
 
 - **Scope:** `server`, `db`, `payments`.
 - **Goal:** `wishlist_item` table, new `PaymentCategory=wishlist`, new `AllocationTargetType=wishlist_goal`, DAO + migration.

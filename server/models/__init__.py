@@ -16,6 +16,10 @@ from models.debt_event import DebtEvent as DebtEvent
 from models.debt_event import EventType as EventType
 from models.goddess_kek import GoddessKek as GoddessKek
 from models.invitation import Invitation as Invitation
+from models.journal_entry import JournalEntry as JournalEntry
+from models.journal_entry import JournalMood as JournalMood
+from models.kink_category import KinkCategory as KinkCategory
+from models.kink_item import KinkItem as KinkItem
 from models.notification import Notification as Notification
 from models.notification import NotificationType as NotificationType
 from models.payment import AllocationTargetType as AllocationTargetType
@@ -36,12 +40,15 @@ from models.ritual_occurrence import OccurrenceStatus as OccurrenceStatus
 from models.ritual_occurrence import RitualOccurrence as RitualOccurrence
 from models.rolling import DeadlineDay as DeadlineDay
 from models.rolling import RollingTribute as RollingTribute
+from models.sub_kink_rating import KinkRating as KinkRating
+from models.sub_kink_rating import SubKinkRating as SubKinkRating
 from models.sub_limit import LimitKind as LimitKind
 from models.sub_limit import LimitSeverity as LimitSeverity
 from models.sub_limit import SubLimit as SubLimit
 from models.sub_profile import Gender as Gender
 from models.sub_profile import OwnershipStatus as OwnershipStatus
 from models.sub_profile import SubProfile as SubProfile
+from models.sub_safeword import SubSafeword as SubSafeword
 from models.sub_trigger import SubTrigger as SubTrigger
 from models.toy_item import ToyCategory as ToyCategory
 from models.toy_item import ToyItem as ToyItem
@@ -53,3 +60,6 @@ from models.user import RefreshToken as RefreshToken
 from models.user import User as User
 from models.user import UserRole as UserRole
 from models.user import UserStatus as UserStatus
+from models.wishlist_item import WishlistCreatedBy as WishlistCreatedBy
+from models.wishlist_item import WishlistItem as WishlistItem
+from models.wishlist_item import WishlistStatus as WishlistStatus

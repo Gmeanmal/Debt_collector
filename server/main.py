@@ -30,6 +30,7 @@ from routers import (
     profile,
     public_invitation,
     rolling,
+    safeword,
     signup,
     ws,
 )
@@ -118,4 +119,5 @@ app.include_router(goddess_profile.router)
 app.include_router(dashboards.goddess_router)
 app.include_router(dashboards.sub_router)
 app.include_router(goddess_views.router)
+app.include_router(safeword.router)
 app.include_router(ws.router)
