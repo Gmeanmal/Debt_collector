@@ -14,6 +14,7 @@ import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
+from core.config import get_settings
 from core.db import SessionMaker
 from core.security import hash_password
 from models.user import Goddess, User, UserRole, UserStatus
@@ -106,17 +107,46 @@ async def _seed_goddess(session: AsyncSession) -> str:
     return "created"
 
 
+async def _seed_goddess_kek(session: AsyncSession) -> str:
+    """Seed a KEK row for the dev goddess if ROOT_KEK_B64 is configured."""
+    if not get_settings().root_kek_b64:
+        return "skipped (ROOT_KEK_B64 not set)"
+
+    from models.goddess_kek import GoddessKek  # local import — model may not be migrated yet
+    from services.crypto.goddess_kek import ensure_goddess_kek
+
+    result = await session.execute(select(User).where(col(User.email) == DEV_GODDESS_EMAIL))
+    user = result.scalar_one_or_none()
+    if user is None or user.goddess_id is None:
+        return "skipped (goddess user not found)"
+
+    from sqlmodel import col as _col
+
+    kek_result = await session.execute(
+        select(GoddessKek).where(_col(GoddessKek.goddess_id) == user.goddess_id)
+    )
+    if kek_result.scalar_one_or_none() is not None:
+        log.info("goddess KEK already seeded", goddess_id=str(user.goddess_id))
+        return "skipped"
+
+    await ensure_goddess_kek(session, user.goddess_id)
+    log.info("seeded goddess KEK", goddess_id=str(user.goddess_id))
+    return "created"
+
+
 async def seed_admin_and_goddess() -> None:
     async with SessionMaker() as session:
         admin_status = await _seed_admin(session)
         goddess_status = await _seed_goddess(session)
+        kek_status = await _seed_goddess_kek(session)
         await session.commit()
 
     print()
     print("  Bootstrap summary")
     print("  ─────────────────────────────────────────")
-    print(f"  admin   ({DEV_ADMIN_EMAIL}): {admin_status}")
-    print(f"  goddess ({DEV_GODDESS_EMAIL}): {goddess_status}")
+    print(f"  admin      ({DEV_ADMIN_EMAIL}): {admin_status}")
+    print(f"  goddess    ({DEV_GODDESS_EMAIL}): {goddess_status}")
+    print(f"  goddess KEK: {kek_status}")
     print()
 
 

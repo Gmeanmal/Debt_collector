@@ -9,6 +9,7 @@ from core.config import get_settings
 from core.exceptions import Conflict, Forbidden, NotFound
 from core.security import create_access_token, create_refresh_token, hash_password
 from daos.invitation_dao import InvitationDao
+from daos.sub_profile_dao import SubProfileDao
 from daos.token_dao import TokenDao
 from daos.user_dao import UserDao
 from models.invitation import Invitation
@@ -41,6 +42,7 @@ class InvitationController:
         self._session = session
         self._dao = InvitationDao(session)
         self._users = UserDao(session)
+        self._sub_profiles = SubProfileDao(session)
 
     async def _get_goddess_profile(self, user_id: UUID) -> Goddess:
         result = await self._session.execute(
@@ -118,6 +120,8 @@ class InvitationController:
         )
         self._session.add(user)
         await self._session.flush()
+
+        await self._sub_profiles.create_default_row(user.id)
 
         await self._dao.consume(invitation, user.id, now)
 

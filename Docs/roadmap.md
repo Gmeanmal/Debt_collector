@@ -32,7 +32,7 @@
 
 Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess photo assets.
 
-### A1 — `payment_webhook_event` table + idempotency service 🟢
+### A1 — `payment_webhook_event` table + idempotency service ✅
 
 - **Scope:** `server`, `db`, `ingest`.
 - **Goal:** shared landing table for every provider webhook with unique `(provider, provider_event_id)` constraint and a generic ingestion service that resolves sub → creates validated `PaymentDeclaration + Allocation` with `source='ingested'`.
@@ -120,7 +120,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 
 # PHASE B — §16 Identity extension
 
-### B1 — `sub_profile` side table + migration 🟢
+### B1 — `sub_profile` side table + migration ✅
 
 - **Scope:** `server`, `db`, `profile`.
 - **Goal:** create the `sub_profile` table (PK `user_id` FK) with fields from §16.1: `real_name`, `age`, `gender`, `pronouns`, `location`, `timezone`, `joined_empire_at`, `ownership_status`.
@@ -246,7 +246,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 
 # PHASE D — §18 Limits, triggers, safewords (medical comes after J)
 
-### D1 — `sub_limit` + `sub_trigger` models 🟢
+### D1 — `sub_limit` + `sub_trigger` models ✅
 
 - **Scope:** `server`, `db`, `limits`.
 - **Goal:** models, DAOs, migration.
@@ -310,7 +310,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 
 # PHASE E — §19 Rituals & Tasks
 
-### E1 — `ritual` + `ritual_occurrence` models 🟢
+### E1 — `ritual` + `ritual_occurrence` models ✅
 
 - **Scope:** `server`, `db`, `rituals`.
 - **Goal:** models, DAOs, migration; `frequency` enum with `custom_days` bitmask.
@@ -428,7 +428,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 
 # PHASE G — §21 Toys inventory
 
-### G1 — `toy_item` model + migration 🟢
+### G1 — `toy_item` model + migration ✅
 
 - **Scope:** `server`, `db`, `toys`.
 - **Goal:** model with category enum, `approved` flag, `proposed_by`, optional `lock_code_enc` (column added now, encryption deferred to J).
@@ -462,7 +462,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 
 # PHASE H — Contract clauses & renewal
 
-### H1 — `clauses_json` + `review_at` + `renewal_policy` columns 🟢
+### H1 — `clauses_json` + `review_at` + `renewal_policy` columns ✅
 
 - **Scope:** `server`, `db`, `contracts`.
 - **Goal:** add columns to `debt_contract`; migration with backfill (`clauses_json='[]'`, `review_at=null`, `renewal_policy='none'`).
@@ -560,7 +560,7 @@ Finishes scope already in `TODO.md`: payment ingestion infrastructure + goddess 
 
 # PHASE J — Crypto envelope & consent framework (prerequisite for K/L + medical)
 
-### J1 — `goddess_kek` + root KEK config 🟢
+### J1 — `goddess_kek` + root KEK config ✅
 
 - **Scope:** `server`, `db`, `crypto`.
 - **Goal:** root KEK in env (`ROOT_KEK_B64`), per-goddess KEK row wrapped by root KEK (rotation-safe format: `version || nonce || ciphertext`).

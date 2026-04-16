@@ -4,6 +4,7 @@ from enum import StrEnum
 from uuid import UUID, uuid4
 
 from sqlalchemy import Column, ForeignKey, Index, Numeric, Text, UniqueConstraint
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, SQLModel
 
 
@@ -22,6 +23,12 @@ class LatePenaltySeverity(StrEnum):
     light = "light"
     medium = "medium"
     severe = "severe"
+
+
+class RenewalPolicy(StrEnum):
+    none = "none"
+    reminder = "reminder"
+    auto_extend = "auto_extend"
 
 
 class MidContractAdditionMode(StrEnum):
@@ -107,6 +114,19 @@ class DebtContract(SQLModel, table=True):
     signature_b64: str | None = Field(default=None, nullable=True, sa_type=Text)
     signed_at: datetime | None = Field(default=None, nullable=True)
     balance: Decimal = Field(sa_column=Column(Numeric(12, 2), nullable=False))
+    clauses_json: list[dict[str, object]] = Field(
+        default_factory=list,
+        sa_column=Column(JSONB, nullable=False, server_default="'[]'::jsonb"),
+    )
+    review_at: datetime | None = Field(default=None, nullable=True)
+    renewal_policy: RenewalPolicy = Field(
+        default=RenewalPolicy.none,
+        sa_column=Column(
+            Text,
+            nullable=False,
+            server_default=RenewalPolicy.none,
+        ),
+    )
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC).replace(tzinfo=None),
         nullable=False,

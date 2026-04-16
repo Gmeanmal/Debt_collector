@@ -9,6 +9,7 @@ from sqlmodel import Field, SQLModel
 class DeclarationSource(StrEnum):
     sub_declared = "sub_declared"
     goddess_recorded = "goddess_recorded"
+    ingested = "ingested"
 
 
 class PaymentCategory(StrEnum):
