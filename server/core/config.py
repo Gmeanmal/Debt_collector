@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     argon2_time_cost: int = 3
     argon2_parallelism: int = 4
     cors_origins: str = "http://localhost:4010"
+    cors_origin_regex: str = ""
+    refresh_cookie_samesite_override: Literal["", "lax", "strict", "none"] = ""
+    refresh_cookie_secure_override: Literal["", "true", "false"] = ""
 
     email_driver: str = "smtp"
     mail_from: str = "Goddess Mean Mal <no-reply@localhost>"
@@ -55,6 +58,22 @@ class Settings(BaseSettings):
     # Must differ from JWT_SECRET_KEY and be rotated independently.
     password_pepper: str = ""
 
+    r2_endpoint: str = ""
+    r2_access_key_id: str = ""
+    r2_secret_access_key: str = ""
+    r2_bucket_sub_photos: str = ""
+    r2_bucket_toys: str = ""
+    r2_bucket_vault: str = ""
+    r2_presign_ttl_seconds: int = 600
+
+    root_kek_b64: str = ""
+    root_kek_version: int = 1
+
+    throne_api_base: str = "https://api.throne.com"
+    throne_webhook_secret: str = ""
+    throne_polling_enabled: bool = False
+    throne_polling_interval_minutes: int = 15
+
     @property
     def is_prod(self) -> bool:
         return self.app_env == AppEnv.prod
@@ -65,10 +84,14 @@ class Settings(BaseSettings):
 
     @property
     def refresh_cookie_secure(self) -> bool:
+        if self.refresh_cookie_secure_override:
+            return self.refresh_cookie_secure_override == "true"
         return self.is_prod
 
     @property
     def refresh_cookie_samesite(self) -> str:
+        if self.refresh_cookie_samesite_override:
+            return self.refresh_cookie_samesite_override
         return "strict" if self.is_prod else "lax"
 
     @property

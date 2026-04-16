@@ -92,10 +92,7 @@ function ScheduleSide({ title, periods, diffs, highlight, contract }: SideProps)
   );
 }
 
-function computeDiffs(
-  before: DebtSimulationPeriod[],
-  after: DebtSimulationPeriod[],
-): Set<number> {
+function computeDiffs(before: DebtSimulationPeriod[], after: DebtSimulationPeriod[]): Set<number> {
   const byPeriod = new Map<number, DebtSimulationPeriod>();
   for (const b of before) byPeriod.set(b.period, b);
 

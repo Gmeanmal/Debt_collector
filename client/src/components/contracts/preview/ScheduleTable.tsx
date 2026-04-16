@@ -108,18 +108,30 @@ export function ScheduleTable({ periods, contract }: Props) {
         </tbody>
         <tfoot className="border-t-2 border-base-border bg-base-surface-raised">
           <tr>
-            <td colSpan={2} className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+            <td
+              colSpan={2}
+              className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+            >
               Total interest
             </td>
-            <td colSpan={2} className="px-4 py-3 text-right tabular-nums font-semibold text-base-text">
+            <td
+              colSpan={2}
+              className="px-4 py-3 text-right tabular-nums font-semibold text-base-text"
+            >
               {fmtGbp(totalInterest)}
             </td>
           </tr>
           <tr>
-            <td colSpan={2} className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+            <td
+              colSpan={2}
+              className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+            >
               Total to pay
             </td>
-            <td colSpan={2} className="px-4 py-3 text-right tabular-nums font-semibold text-pink-primary">
+            <td
+              colSpan={2}
+              className="px-4 py-3 text-right tabular-nums font-semibold text-pink-primary"
+            >
               {fmtGbp(totalPayments)}
             </td>
           </tr>

@@ -4,7 +4,11 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+- Roadmap prep: `cryptography` + `pillow` server deps (Phase J, B4). Env stubs for R2 (sub photos / toys / vault), root KEK + version, Throne webhook / polling. `client/src/assets/goddess/` scaffold folder. `Docs/blackmail_threat_model.md` DRAFT stub (K1 gate).
+
 ### Changed
+- Roadmap: every `client/src/pages/…` path rewritten to `client/src/routes/…` to match `client/CLAUDE.md` folder convention — no more drift for subagents.
 - Replaced 10 generated SVG avatars with 8 AI-illustrated PNG avatars; `AvatarKey.accent_1/accent_2` remain as enum slots but fall back to the default image. Seed data uses only the available art keys.
 - Contract preview page: what-if simulator applies the event at the current payment period (not period 1), preserving paid rows, and shows the before/after comparison in a modal with red highlights on changed rows. `ScheduleTable` marks paid periods green with a dot indicator.
 - Unified contract totals: `Total interest` and `Total to pay` are now derived from the live simulation (not `min_payment × duration`) and rendered as StatPills alongside `Period rate` / `Monthly rate` on every page using `SimulationChart`. Removed the divergent naive-math tiles from `ContractHeaderSummary`.

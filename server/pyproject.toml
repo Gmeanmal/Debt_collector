@@ -27,6 +27,8 @@ dependencies = [
     "aiosmtplib>=5.1.0",
     "slowapi>=0.1.9",
     "redis>=7.4.0",
+    "cryptography>=44.0",
+    "pillow>=11.0",
 ]
 
 [dependency-groups]

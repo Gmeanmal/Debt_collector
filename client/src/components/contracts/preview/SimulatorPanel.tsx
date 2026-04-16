@@ -118,8 +118,8 @@ export function SimulatorPanel({ contract, currentPeriods }: Props) {
       <div>
         <h2 className="text-sm font-semibold text-base-text">What-if simulator</h2>
         <p className="text-xs text-base-text-muted mt-0.5">
-          Applies the event at period {preview.eventPeriod} (current position). Earlier
-          periods remain unchanged; only the remaining {preview.remainingPeriods} period
+          Applies the event at period {preview.eventPeriod} (current position). Earlier periods
+          remain unchanged; only the remaining {preview.remainingPeriods} period
           {preview.remainingPeriods === 1 ? "" : "s"} are re-projected.
         </p>
       </div>
@@ -176,9 +176,7 @@ export function SimulatorPanel({ contract, currentPeriods }: Props) {
           Extra paid:{" "}
           <span
             className={
-              preview.extraReduction > 0
-                ? "text-status-success font-semibold"
-                : "text-base-text"
+              preview.extraReduction > 0 ? "text-status-success font-semibold" : "text-base-text"
             }
           >
             −{fmtGbp(preview.extraReduction)}
@@ -201,7 +199,9 @@ export function SimulatorPanel({ contract, currentPeriods }: Props) {
       </button>
 
       {!canSimulate && (
-        <p className="text-xs text-base-text-muted">Contract has no remaining periods to simulate.</p>
+        <p className="text-xs text-base-text-muted">
+          Contract has no remaining periods to simulate.
+        </p>
       )}
 
       {mutation.isError && (
@@ -215,8 +215,8 @@ export function SimulatorPanel({ contract, currentPeriods }: Props) {
           <div className="flex flex-col gap-3">
             <p className="text-xs text-base-text-muted">
               Event applied at period <strong>{preview.eventPeriod}</strong>. Periods 1–
-              {preview.eventPeriod} stay identical. Rows in red on the <strong>After</strong>{" "}
-              side differ from the current schedule.
+              {preview.eventPeriod} stay identical. Rows in red on the <strong>After</strong> side
+              differ from the current schedule.
             </p>
             <ScheduleComparisonTable
               beforePeriods={currentPeriods}
