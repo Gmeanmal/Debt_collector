@@ -4,6 +4,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+- **DROPDOWN-1 shared `SearchableSelect`** (ref `planning/todo.md` W1, single `feat(ui)` commit):
+  - New `client/src/components/shared/SearchableSelect.tsx` (249 lines) — generic combobox with type-to-filter input, arrow-key navigation, Enter/Escape/Tab handlers, click-outside-to-close (mousedown), full aria (`combobox` + `listbox` + `option`). `nullable` prop renders a "clear" pseudo-option at the top for pickers where no selection is valid state.
+  - `RecordPaymentRoute` sub picker migrated — typed subs list, avatar + `@username` in each option, inline state badge (ACTIVE / PENDING ENTRY TRIBUTE / BLACKLISTED). No change to the submission pipeline.
+  - `PenaltyRuleForm` sub override migrated — UUID text input replaced by `SearchableSelect` with `nullable=true` (top entry = "All subs (no override)", highlighted). Resolves the `LOOSE-2` follow-up from `Docs/prior_slice_review.md`.
+  - `PenaltyRuleList` now passes the `subs` prop through; `PenaltyRulesRoute` fetches via existing `queryKeys.goddess.subs()` — no new query key, no duplicate fetch.
+  - `JournalReaderRoute` admin filter migrated in the same component (admin had ≤5 options — cheap win, keeps the pattern consistent across the goddess area).
+  - Playwright walk verified on http://localhost:4010: Record Payment opens dropdown with 5 subs + search working; Penalty rules opens with "All subs (no override)" pinned at top and sub list below.
+
 ### Changed
 - **SEED-1 dev seed refonte** (ref `planning/todo.md` W0, single `chore(db)` commit):
   - `server/seeds/fake_data.py` rewritten as a thin orchestrator wired around a frozen cast and deterministic timelines. All timestamps anchor to `FROZEN_TODAY = date(2026, 4, 17)` — no `datetime.now()` in seed code. Every re-run of `make feed-dbs` is guarded by a `sub_chris` existence check (idempotent), while `make init-dbs` continues to drop+recreate.

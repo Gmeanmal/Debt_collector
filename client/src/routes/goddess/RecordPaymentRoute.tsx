@@ -4,14 +4,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   listGoddessSubsApi,
   recordPaymentApi,
+  type GoddessSub,
   type PaymentCategory,
 } from "@/services/payments/paymentsApi";
 import { listPaymentMethodsApi } from "@/services/paymentMethods/paymentMethodsApi";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
 import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
+import { Badge } from "@/components/ui/badge";
+import { AvatarImage } from "@/components/profile/AvatarImage";
+import { SearchableSelect } from "@/components/shared/SearchableSelect";
 import { cn } from "@/lib/utils";
 import { queryKeys } from "@/lib/queryKeys";
+import type { AvatarKey } from "@/services/profile/avatarMap";
 
 const CATEGORIES: { value: PaymentCategory; label: string }[] = [
   { value: "entry", label: "Entry tribute" },
@@ -24,7 +29,7 @@ export function RecordPaymentRoute() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const [subId, setSubId] = useState("");
+  const [selectedSub, setSelectedSub] = useState<GoddessSub | null>(null);
   const [category, setCategory] = useState<PaymentCategory>("tribute");
   const [amount, setAmount] = useState("");
   const [methodId, setMethodId] = useState("");
@@ -62,10 +67,10 @@ export function RecordPaymentRoute() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validateAmount()) return;
-    if (!subId || !methodId) return;
+    if (!selectedSub || !methodId) return;
 
     recordMutation.mutate({
-      sub_id: subId,
+      sub_id: selectedSub.id,
       amount: Number(amount) as unknown as string & number,
       method_id: methodId,
       category,
@@ -91,23 +96,35 @@ export function RecordPaymentRoute() {
         >
           {/* Sub */}
           <div className="flex flex-col gap-1">
-            <label htmlFor="sub" className="text-sm font-semibold text-base-text">
-              Sub
-            </label>
-            <select
-              id="sub"
-              value={subId}
-              onChange={(e) => setSubId(e.target.value)}
-              required
-              className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
-            >
-              <option value="">Select a sub</option>
-              {subs.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.display_name} ({s.username})
-                </option>
-              ))}
-            </select>
+            <span className="text-sm font-semibold text-base-text">Sub</span>
+            <SearchableSelect<GoddessSub>
+              options={subs}
+              value={selectedSub}
+              onChange={setSelectedSub}
+              getLabel={(s) => `${s.display_name} @${s.username}`}
+              getValue={(s) => s.id}
+              placeholder="Select a sub"
+              renderOption={(s) => (
+                <span className="flex items-center gap-2 min-w-0">
+                  <AvatarImage
+                    avatarKey={(s.avatar_key ?? "default") as AvatarKey}
+                    size="sm"
+                    className="shrink-0"
+                  />
+                  <span className="flex-1 min-w-0">
+                    <span className="block truncate font-medium text-base-text">
+                      {s.display_name}
+                    </span>
+                    <span className="block truncate text-xs text-base-text-muted">
+                      @{s.username}
+                    </span>
+                  </span>
+                  <Badge variant="default" className="shrink-0 ml-auto">
+                    {s.status.replace(/_/g, " ")}
+                  </Badge>
+                </span>
+              )}
+            />
           </div>
 
           {/* Category */}

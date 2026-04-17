@@ -12,11 +12,18 @@ import {
   penaltyRulesKey,
   type PenaltyRuleIn,
 } from "@/services/penaltyRules/penaltyRulesApi";
+import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 export function PenaltyRulesRoute() {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+
+  const { data: subs = [] } = useQuery({
+    queryKey: queryKeys.goddess.subs(),
+    queryFn: listGoddessSubsApi,
+  });
 
   const {
     data: rules = [],
@@ -72,6 +79,7 @@ export function PenaltyRulesRoute() {
           {showForm && (
             <div className="bg-base-surface border border-base-border rounded-lg p-4">
               <PenaltyRuleForm
+                subs={subs}
                 onSubmit={(values) => createMutation.mutate(values)}
                 onCancel={() => {
                   setShowForm(false);
@@ -92,7 +100,7 @@ export function PenaltyRulesRoute() {
             />
           )}
 
-          {!isLoading && !isError && <PenaltyRuleList rules={rules} />}
+          {!isLoading && !isError && <PenaltyRuleList rules={rules} subs={subs} />}
         </section>
       </div>
     </div>

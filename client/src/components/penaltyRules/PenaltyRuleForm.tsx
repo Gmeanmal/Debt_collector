@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { SearchableSelect } from "@/components/shared/SearchableSelect";
+import type { GoddessSub } from "@/services/payments/paymentsApi";
 import {
   PenaltyRuleInSchema,
   PenaltyTriggerSchema,
@@ -12,6 +14,7 @@ import {
 
 interface Props {
   initial?: Partial<PenaltyRule>;
+  subs?: GoddessSub[];
   onSubmit: (values: PenaltyRuleIn) => void;
   onCancel: () => void;
   isPending: boolean;
@@ -40,7 +43,14 @@ const inputCls =
 
 const labelCls = "text-xs font-semibold text-base-text-muted uppercase tracking-wide";
 
-export function PenaltyRuleForm({ initial, onSubmit, onCancel, isPending, error }: Props) {
+export function PenaltyRuleForm({
+  initial,
+  subs = [],
+  onSubmit,
+  onCancel,
+  isPending,
+  error,
+}: Props) {
   const [trigger, setTrigger] = useState<PenaltyTrigger>(initial?.trigger ?? "contract_missed");
   const [action, setAction] = useState<PenaltyAction>(initial?.action ?? "notify_only");
   const [pointsDelta, setPointsDelta] = useState(
@@ -51,8 +61,8 @@ export function PenaltyRuleForm({ initial, onSubmit, onCancel, isPending, error 
     initial?.cooldown_hours != null ? String(initial.cooldown_hours) : "24",
   );
   const [active, setActive] = useState(initial?.active ?? true);
-  // TODO: replace with a sub picker component
-  const [subId, setSubId] = useState(initial?.sub_id ?? "");
+  const initialSub = subs.find((s) => s.id === initial?.sub_id) ?? null;
+  const [selectedSub, setSelectedSub] = useState<GoddessSub | null>(initialSub);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const showFeeField = action === "apply_fee";
@@ -65,7 +75,7 @@ export function PenaltyRuleForm({ initial, onSubmit, onCancel, isPending, error 
       fee_amount: feeAmount === "" ? undefined : feeAmount,
       cooldown_hours: cooldownHours === "" ? 0 : Number(cooldownHours),
       active,
-      sub_id: subId === "" ? "" : subId,
+      sub_id: selectedSub?.id ?? "",
     });
     if (!result.success) {
       const map: Record<string, string> = {};
@@ -193,17 +203,26 @@ export function PenaltyRuleForm({ initial, onSubmit, onCancel, isPending, error 
       )}
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="pr-sub-id" className={labelCls}>
-          Sub UUID override{" "}
-          <span className="normal-case font-normal">(leave blank for all subs)</span>
-        </label>
-        <input
-          id="pr-sub-id"
-          type="text"
-          value={subId}
-          onChange={(e) => setSubId(e.target.value)}
-          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-          className={inputCls}
+        <span className={labelCls}>
+          Sub override <span className="normal-case font-normal">(leave blank for all subs)</span>
+        </span>
+        <SearchableSelect<GoddessSub>
+          options={subs}
+          value={selectedSub}
+          onChange={setSelectedSub}
+          getLabel={(s) => `${s.display_name} @${s.username}`}
+          getValue={(s) => s.id}
+          placeholder="All subs (no override)"
+          emptyMessage="No active subs"
+          nullable
+          renderOption={(s) => (
+            <span className="flex items-center gap-2 min-w-0">
+              <span className="flex-1 min-w-0">
+                <span className="block truncate font-medium text-base-text">{s.display_name}</span>
+                <span className="block truncate text-xs text-base-text-muted">@{s.username}</span>
+              </span>
+            </span>
+          )}
         />
         {fieldError(errors, "sub_id") && (
           <p className="text-xs text-status-danger">{fieldError(errors, "sub_id")}</p>

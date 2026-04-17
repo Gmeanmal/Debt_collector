@@ -11,9 +11,11 @@ import {
   type PenaltyRule,
   type PenaltyRuleIn,
 } from "@/services/penaltyRules/penaltyRulesApi";
+import type { GoddessSub } from "@/services/payments/paymentsApi";
 
 interface Props {
   rules: PenaltyRule[];
+  subs?: GoddessSub[];
 }
 
 interface EditState {
@@ -40,7 +42,7 @@ function ActionBadge({ action }: { action: string }) {
   return <Badge variant={variant}>{ACTION_LABELS[action] ?? action}</Badge>;
 }
 
-export function PenaltyRuleList({ rules }: Props) {
+export function PenaltyRuleList({ rules, subs = [] }: Props) {
   const qc = useQueryClient();
   const [editState, setEditState] = useState<EditState | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -107,6 +109,7 @@ export function PenaltyRuleList({ rules }: Props) {
                   <td colSpan={8} className="px-4 py-4">
                     <PenaltyRuleForm
                       initial={rule}
+                      subs={subs}
                       onSubmit={(values) => updateMutation.mutate({ id: rule.id, payload: values })}
                       onCancel={() => setEditState(null)}
                       isPending={updateMutation.isPending}

@@ -5,7 +5,8 @@ import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/button";
-import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
+import { listGoddessSubsApi, type GoddessSub } from "@/services/payments/paymentsApi";
+import { SearchableSelect } from "@/components/shared/SearchableSelect";
 import {
   goddessSubJournalKey,
   listSubJournalForGoddess,
@@ -18,7 +19,8 @@ const PAGE_LIMIT = 20;
 
 export function JournalReaderRoute() {
   const qc = useQueryClient();
-  const [selectedSubId, setSelectedSubId] = useState("");
+  const [selectedSub, setSelectedSub] = useState<GoddessSub | null>(null);
+  const selectedSubId = selectedSub?.id ?? "";
   const [cursor, setCursor] = useState<string | null>(null);
   const [pages, setPages] = useState<JournalEntry[][]>([]);
   const [commentErrors, setCommentErrors] = useState<Record<string, string>>({});
@@ -58,8 +60,8 @@ export function JournalReaderRoute() {
     },
   });
 
-  function handleSubChange(id: string) {
-    setSelectedSubId(id);
+  function handleSubChange(sub: GoddessSub | null) {
+    setSelectedSub(sub);
     setCursor(null);
     setPages([]);
   }
@@ -76,8 +78,6 @@ export function JournalReaderRoute() {
   const allEntries = pages.flat().concat(entries);
   const hasMore = entries.length === PAGE_LIMIT;
 
-  const selectedSub = subs.find((s) => s.id === selectedSubId);
-
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
@@ -89,26 +89,28 @@ export function JournalReaderRoute() {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label
-            htmlFor="sub-picker"
-            className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
-          >
+          <span className="text-xs font-semibold text-base-text-muted uppercase tracking-wide">
             Sub
-          </label>
-          <select
-            id="sub-picker"
-            value={selectedSubId}
-            onChange={(e) => handleSubChange(e.target.value)}
+          </span>
+          <SearchableSelect<GoddessSub>
+            options={subs}
+            value={selectedSub}
+            onChange={handleSubChange}
+            getLabel={(s) => `${s.display_name} @${s.username}`}
+            getValue={(s) => s.id}
+            placeholder={subsLoading ? "Loading subs…" : "Select a sub"}
             disabled={subsLoading}
-            className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
-          >
-            <option value="">{subsLoading ? "Loading subs…" : "Select a sub"}</option>
-            {subs.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.display_name} (@{s.username})
-              </option>
-            ))}
-          </select>
+            renderOption={(s) => (
+              <span className="flex items-center gap-2 min-w-0">
+                <span className="flex-1 min-w-0">
+                  <span className="block truncate font-medium text-base-text">
+                    {s.display_name}
+                  </span>
+                  <span className="block truncate text-xs text-base-text-muted">@{s.username}</span>
+                </span>
+              </span>
+            )}
+          />
         </div>
 
         {!selectedSubId && (
