@@ -78,7 +78,7 @@ export function SubManageRoute() {
             </TabsContent>
 
             <TabsContent value="late">
-              <SubLateTab />
+              <SubLateTab subId={sub.id} />
             </TabsContent>
 
             <TabsContent value="profile">

@@ -13,16 +13,17 @@ interface AvatarImageProps {
   avatarKey: AvatarKey;
   size?: "sm" | "md" | "default" | "lg" | "xl";
   className?: string;
+  displayName?: string;
 }
 
-export function AvatarImage({ avatarKey, size = "default", className = "" }: AvatarImageProps) {
+export function AvatarImage({ avatarKey, size = "default", className = "", displayName }: AvatarImageProps) {
   const entry = AVATAR_MAP[avatarKey] ?? AVATAR_MAP["default"];
   const sizeClass = SIZE_CLASSES[size] ?? SIZE_CLASSES["default"];
 
   return (
     <img
       src={entry.src}
-      alt={entry.label}
+      alt={displayName ?? ""}
       className={`rounded-full object-cover flex-shrink-0 ${sizeClass} ${className}`}
     />
   );

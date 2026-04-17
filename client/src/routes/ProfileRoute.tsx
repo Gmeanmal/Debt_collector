@@ -10,7 +10,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { AvatarImage } from "@/components/profile/AvatarImage";
+import { Avatar } from "@/components/profile/Avatar";
 import { AvatarPicker } from "@/components/profile/AvatarPicker";
 import { ChangeRequestDialog } from "@/components/profile/ChangeRequestDialog";
 import { ChangeRequestList } from "@/components/profile/ChangeRequestList";
@@ -98,7 +98,7 @@ export function ProfileRoute() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
-              <AvatarImage avatarKey={user?.avatar_key ?? "default"} size="lg" />
+              <Avatar user={user} size="lg" />
               <div>
                 <CardTitle className="text-lg">{user?.display_name}</CardTitle>
                 {user?.first_name || user?.last_name ? (

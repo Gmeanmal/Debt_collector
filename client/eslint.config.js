@@ -26,6 +26,14 @@ export default tseslint.config(
           selector: "JSXAttribute[name.name='style']",
           message: "No inline CSS — use Tailwind utilities or tokens.css.",
         },
+        // Catches literal alt text like alt="goddess" / alt="avatar" directly on <img> tags.
+        // Expressions (alt={variable}) are intentionally exempt — the rule targets copy-paste errors.
+        {
+          selector:
+            "JSXOpeningElement[name.name='img'] > JSXAttribute[name.name='alt'] > Literal[value=/avatar|user|goddess|sub/i]",
+          message:
+            "Do not hardcode user-identity words in img alt. Use <AvatarImage avatarKey={…} /> for user avatars — alt must derive from display_name, not a generic label.",
+        },
       ],
     },
   },

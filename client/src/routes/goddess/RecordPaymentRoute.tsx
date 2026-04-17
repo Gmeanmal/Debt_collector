@@ -12,11 +12,10 @@ import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
 import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
 import { Badge } from "@/components/ui/badge";
-import { AvatarImage } from "@/components/profile/AvatarImage";
+import { Avatar } from "@/components/profile/Avatar";
 import { SearchableSelect } from "@/components/shared/SearchableSelect";
 import { cn } from "@/lib/utils";
 import { queryKeys } from "@/lib/queryKeys";
-import type { AvatarKey } from "@/services/profile/avatarMap";
 
 const CATEGORIES: { value: PaymentCategory; label: string }[] = [
   { value: "entry", label: "Entry tribute" },
@@ -106,11 +105,7 @@ export function RecordPaymentRoute() {
               placeholder="Select a sub"
               renderOption={(s) => (
                 <span className="flex items-center gap-2 min-w-0">
-                  <AvatarImage
-                    avatarKey={(s.avatar_key ?? "default") as AvatarKey}
-                    size="sm"
-                    className="shrink-0"
-                  />
+                  <Avatar user={s} size="sm" className="shrink-0" />
                   <span className="flex-1 min-w-0">
                     <span className="block truncate font-medium text-base-text">
                       {s.display_name}

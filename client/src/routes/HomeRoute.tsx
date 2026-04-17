@@ -101,6 +101,7 @@ const ADMIN_ACTIONS: ActionCard[] = [
   },
 ];
 
+// TODO(KPI-1): highlight tile when pending_change_requests > 0
 function ActionGrid({ actions }: { actions: ActionCard[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

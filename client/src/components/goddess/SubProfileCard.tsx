@@ -1,5 +1,4 @@
-import { AvatarImage } from "@/components/profile/AvatarImage";
-import type { AvatarKey } from "@/services/profile/avatarMap";
+import { Avatar } from "@/components/profile/Avatar";
 
 // TODO(backend): no list-by-sub photos endpoint exists yet (GET /goddess/subs/{sub_id}/photos).
 // When B5 list-by-sub is shipped, fetch the most recent approved photo and render it here.
@@ -44,11 +43,10 @@ export function SubProfileCard({ sub, isLoading = false }: SubProfileCardProps) 
   }
 
   const statusClass = STATUS_CLASSES[sub.status] ?? "";
-  const avatarKey = (sub.avatar_key as AvatarKey | undefined) ?? "default";
 
   return (
     <div className="flex items-start gap-4">
-      <AvatarImage avatarKey={avatarKey} size="lg" />
+      <Avatar user={sub} size="lg" />
       <div className="flex flex-col gap-1.5 min-w-0">
         <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider truncate">
           {sub.display_name}
