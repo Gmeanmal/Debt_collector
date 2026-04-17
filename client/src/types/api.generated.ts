@@ -2211,6 +2211,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goddess/payments/weekly/{week_start}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List validated payments inside one ISO week
+         * @description Returns every `validated` payment declaration for the calling goddess's active subs whose `validated_at` falls inside the Europe/London week starting at `week_start` (inclusive Monday 00:00 local through Sunday 23:59:59 local). Rows are ordered by `validated_at` descending. Returns an empty list when no validated payments exist for that week.
+         */
+        get: operations["week_payments_goddess_payments_weekly__week_start__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/goddess/subs/late": {
         parameters: {
             query?: never;
@@ -18784,6 +18804,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WeeklyPaymentBucket"][];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller is not a goddess */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    week_payments_goddess_payments_weekly__week_start__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                /** @description Monday of the ISO week (Europe/London, yyyy-MM-dd) */
+                week_start: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentOut"][];
                 };
             };
             /** @description Unauthorized — missing or invalid access token */

@@ -16,7 +16,7 @@ export const GODDESS_NAV: NavItem[] = [
   { to: "/goddess/payments/record", label: "Record" },
   { to: "/goddess/payment-methods", label: "Methods" },
   { to: "/goddess/debts", label: "Contracts" },
-  { to: "/goddess/weekly", label: "Weekly" },
+  { to: "/goddess/payments/weekly", label: "Weekly" },
   { to: "/goddess/late", label: "Late" },
   { to: "/goddess/merits", label: "Rewards & Punishments" },
   { to: "/goddess/penalty-rules", label: "Penalty rules" },

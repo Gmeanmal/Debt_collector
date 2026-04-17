@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from datetime import date
+
+from fastapi import APIRouter, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.goddess_views_controller import GoddessViewsController
@@ -6,6 +8,7 @@ from core.db import get_session
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.goddess_views import LateSubItem, WeeklyPaymentBucket
+from schemas.payment import PaymentOut
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
 _E403 = {"description": "Forbidden — caller is not a goddess"}
@@ -37,6 +40,34 @@ async def weekly_payments(
     ctrl: GoddessViewsController = Depends(_ctrl),
 ) -> list[WeeklyPaymentBucket]:
     return await ctrl.weekly_payments(user)
+
+
+@router.get(
+    "/payments/weekly/{week_start}",
+    summary="List validated payments inside one ISO week",
+    description=(
+        "Returns every `validated` payment declaration for the calling goddess's "
+        "active subs whose `validated_at` falls inside the Europe/London week "
+        "starting at `week_start` (inclusive Monday 00:00 local through Sunday "
+        "23:59:59 local). "
+        "Rows are ordered by `validated_at` descending. "
+        "Returns an empty list when no validated payments exist for that week."
+    ),
+    response_model=list[PaymentOut],
+    status_code=200,
+    tags=["goddess-views"],
+    responses={401: _E401, 403: _E403, 500: _E500},
+)
+async def week_payments(
+    week_start: date = Path(
+        ...,
+        description="Monday of the ISO week (Europe/London, yyyy-MM-dd)",
+        examples=["2026-04-07"],
+    ),
+    user: User = Depends(require_role(UserRole.goddess)),
+    ctrl: GoddessViewsController = Depends(_ctrl),
+) -> list[PaymentOut]:
+    return await ctrl.week_payments(user, week_start)
 
 
 @router.get(

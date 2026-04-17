@@ -293,7 +293,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/goddess/weekly",
+    path: "/goddess/payments/weekly",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
@@ -302,6 +302,8 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  // Legacy redirect — preserve old bookmarks/emails pointing at /goddess/weekly
+  { path: "/goddess/weekly", element: <Navigate to="/goddess/payments/weekly" replace /> },
   {
     path: "/goddess/late",
     element: (

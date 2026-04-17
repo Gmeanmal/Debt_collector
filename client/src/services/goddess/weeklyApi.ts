@@ -3,6 +3,7 @@ import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { components } from "@/types/api.generated";
 
 export type WeeklyPaymentBucket = components["schemas"]["WeeklyPaymentBucket"];
+export type WeeklyPaymentDetail = components["schemas"]["PaymentOut"];
 
 function authHeaders(): Record<string, string> {
   const token = getAccessToken();
@@ -20,5 +21,15 @@ export async function getWeeklyPaymentsApi(): Promise<WeeklyPaymentBucket[]> {
     headers: authHeaders(),
   });
   if (error || !data) throw new Error(extractMessage(error, "Failed to load weekly payments"));
+  return data;
+}
+
+export async function getWeeklyPaymentDetailApi(weekStart: string): Promise<WeeklyPaymentDetail[]> {
+  const { data, error } = await apiClient.GET("/goddess/payments/weekly/{week_start}", {
+    params: { path: { week_start: weekStart } },
+    headers: authHeaders(),
+  });
+  if (error || !data)
+    throw new Error(extractMessage(error, "Failed to load weekly payment detail"));
   return data;
 }

@@ -1,8 +1,11 @@
+import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Separator } from "@/components/ui/separator";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { WeekRowButton } from "@/components/goddess/WeekRowButton";
+import { WeeklyDetailPanel } from "@/components/goddess/WeeklyDetailPanel";
 import { getWeeklyPaymentsApi, type WeeklyPaymentBucket } from "@/services/goddess/weeklyApi";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -11,6 +14,18 @@ export function WeeklyPaymentsRoute() {
     queryKey: queryKeys.goddess.weeklyPayments(),
     queryFn: getWeeklyPaymentsApi,
   });
+
+  const [openWeek, setOpenWeek] = useState<WeeklyPaymentBucket | null>(null);
+
+  const handleOpen = useCallback(
+    (weekStart: string) => {
+      const bucket = data?.find((b) => b.week_start === weekStart);
+      if (bucket) setOpenWeek(bucket);
+    },
+    [data],
+  );
+
+  const handleClose = useCallback(() => setOpenWeek(null), []);
 
   return (
     <div className="px-4 py-10 sm:px-8 md:py-16">
@@ -23,7 +38,7 @@ export function WeeklyPaymentsRoute() {
             Weekly intake.
           </h1>
           <p className="mt-3 text-sm text-base-text-muted max-w-md">
-            Last 8 weeks of validated tributes — current week first.
+            Last 8 weeks of validated tributes — current week first. Click a row to drill in.
           </p>
         </header>
 
@@ -38,17 +53,27 @@ export function WeeklyPaymentsRoute() {
           />
         )}
 
-        {!isLoading && !isError && data && <WeeklyChart buckets={data} />}
+        {!isLoading && !isError && data && <WeeklyChart buckets={data} onOpen={handleOpen} />}
       </div>
+
+      {openWeek && (
+        <WeeklyDetailPanel
+          weekStart={openWeek.week_start}
+          bucketTotal={openWeek.total}
+          bucketCount={openWeek.count}
+          onClose={handleClose}
+        />
+      )}
     </div>
   );
 }
 
 interface WeeklyChartProps {
   buckets: WeeklyPaymentBucket[];
+  onOpen: (weekStart: string) => void;
 }
 
-function WeeklyChart({ buckets }: WeeklyChartProps) {
+function WeeklyChart({ buckets, onOpen }: WeeklyChartProps) {
   const totalOverall = buckets.reduce((sum, b) => sum + Number(b.total), 0);
 
   if (totalOverall === 0 && buckets.every((b) => b.count === 0)) {
@@ -65,7 +90,7 @@ function WeeklyChart({ buckets }: WeeklyChartProps) {
   return (
     <div className="flex flex-col gap-3">
       {buckets.map((bucket) => (
-        <WeekRow key={bucket.week_start} bucket={bucket} max={max} />
+        <WeekRowButton key={bucket.week_start} bucket={bucket} max={max} onOpen={onOpen} />
       ))}
       <Separator />
       <div className="flex justify-between text-sm">
@@ -74,60 +99,4 @@ function WeeklyChart({ buckets }: WeeklyChartProps) {
       </div>
     </div>
   );
-}
-
-interface WeekRowProps {
-  bucket: WeeklyPaymentBucket;
-  max: number;
-}
-
-function WeekRow({ bucket, max }: WeekRowProps) {
-  const amount = Number(bucket.total);
-  const pct = max > 0 ? (amount / max) * 100 : 0;
-  const label = formatWeekLabel(bucket.week_start, bucket.week_end);
-
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center justify-between text-xs text-base-text-muted">
-        <span>{label}</span>
-        <span>
-          {bucket.count} {bucket.count === 1 ? "payment" : "payments"} ·{" "}
-          <span className="text-base-text font-medium">£{amount.toFixed(2)}</span>
-        </span>
-      </div>
-      <div className="h-2 w-full rounded-full bg-base-surface-raised overflow-hidden">
-        <BarFill pct={pct} />
-      </div>
-    </div>
-  );
-}
-
-interface BarFillProps {
-  pct: number;
-}
-
-function setBarPct(node: HTMLElement | null, pct: number) {
-  node?.style.setProperty("--bar-pct", `${pct}%`);
-}
-
-function BarFill({ pct }: BarFillProps) {
-  return (
-    <div
-      ref={(node) => setBarPct(node, pct)}
-      className="h-full rounded-full bg-pink-primary transition-all duration-300 w-[var(--bar-pct)]"
-      role="presentation"
-    />
-  );
-}
-
-function formatWeekLabel(weekStart: string, weekEnd: string): string {
-  const start = new Date(weekStart);
-  const end = new Date(weekEnd);
-  const startStr = start.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-  const endStr = end.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-  return `${startStr} – ${endStr}`;
 }

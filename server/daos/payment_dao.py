@@ -48,6 +48,29 @@ class PaymentDeclarationDao:
         )
         return list(result.scalars().all())
 
+    async def list_validated_for_goddess_in_window(
+        self,
+        goddess_id: UUID,
+        window_start_utc: datetime,
+        window_end_utc: datetime,
+    ) -> list[PaymentDeclaration]:
+        """Return validated declarations for this goddess whose validated_at
+        falls within [window_start_utc, window_end_utc], newest first.
+        Scoped by goddess_id (not active subs) so historical payments from
+        now-inactive subs still reconcile with the weekly aggregate.
+        """
+        result = await self._session.execute(
+            select(PaymentDeclaration)
+            .where(
+                col(PaymentDeclaration.goddess_id) == goddess_id,
+                col(PaymentDeclaration.status) == PaymentStatus.validated,
+                col(PaymentDeclaration.validated_at) >= window_start_utc,
+                col(PaymentDeclaration.validated_at) <= window_end_utc,
+            )
+            .order_by(col(PaymentDeclaration.validated_at).desc())
+        )
+        return list(result.scalars().all())
+
     async def update(self, decl: PaymentDeclaration, patch: dict[str, Any]) -> PaymentDeclaration:
         for field, value in patch.items():
             setattr(decl, field, value)
