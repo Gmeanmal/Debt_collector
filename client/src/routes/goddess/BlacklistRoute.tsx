@@ -5,6 +5,7 @@ import {
   listBlacklistApi,
   type BlacklistEntryOut,
 } from "@/services/blacklist/blacklistApi";
+import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
@@ -84,6 +85,7 @@ export function BlacklistRoute() {
   const [target, setTarget] = useState<BlacklistEntryOut | null>(null);
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
+
   const {
     data: entries = [],
     isLoading,
@@ -93,6 +95,17 @@ export function BlacklistRoute() {
     queryKey: queryKeys.blacklist.all(),
     queryFn: listBlacklistApi,
   });
+
+  const { data: subs = [] } = useQuery({
+    queryKey: queryKeys.goddess.subs(),
+    queryFn: listGoddessSubsApi,
+  });
+
+  function subLabel(subId: string): string {
+    const sub = subs.find((s) => s.id === subId);
+    if (sub) return `${sub.display_name} (@${sub.username})`;
+    return isAdmin ? subId : "Unknown sub";
+  }
 
   return (
     <div className="p-4 md:p-8">
@@ -130,15 +143,15 @@ export function BlacklistRoute() {
               >
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div>
-                    <p className="font-semibold text-base-text text-sm font-mono">
-                      {isAdmin ? e.sub_id : `${e.sub_id.slice(0, 6)}…`}
+                    <p className="font-semibold text-base-text text-sm">
+                      {subLabel(e.sub_id)} · {fmtGbp(e.balance_snapshot)}
+                      {e.reason && (
+                        <span className="text-base-text-muted font-normal"> · {e.reason}</span>
+                      )}
                     </p>
                     <p className="text-xs text-base-text-muted mt-0.5">
-                      Breached {fmtDate(e.breached_at)} · balance {fmtGbp(e.balance_snapshot)}
+                      Breached {fmtDate(e.breached_at)}
                     </p>
-                    {e.reason && (
-                      <p className="text-xs text-base-text-subtle italic mt-1">{e.reason}</p>
-                    )}
                     {forgiven && e.forgiven_at && (
                       <p className="text-xs text-status-success mt-1">
                         Forgiven {fmtDate(e.forgiven_at)}

@@ -37,6 +37,16 @@ def user_display_name(user: User) -> str:
     return user.email
 
 
+def sub_notification_label(user: User) -> str:
+    """Return ``Full Name (@username)`` for notification bodies, or ``@username`` if no name set."""
+    first = (user.first_name or "").strip()
+    last = (user.last_name or "").strip()
+    full = f"{first} {last}".strip()
+    if full:
+        return f"{full} (@{user.username})"
+    return f"@{user.username}"
+
+
 def clauses_out(contract: DebtContract) -> list[ContractClauseOut]:
     """Parse the stored ``clauses_json`` blob into ordered ``ContractClauseOut`` models."""
     raw = contract.clauses_json or []
@@ -118,6 +128,7 @@ def contract_out(
     )
     return DebtContractOut(
         id=contract.id,
+        slug=contract.slug,
         sub_id=contract.sub_id,
         goddess_id=contract.goddess_id,
         sub_initiated=contract.sub_initiated,

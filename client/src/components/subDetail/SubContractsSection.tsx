@@ -8,9 +8,10 @@ import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
   subId: string;
+  username: string;
 }
 
-export function SubContractsSection({ subId }: Props) {
+export function SubContractsSection({ subId, username }: Props) {
   const {
     data: all = [],
     isLoading,
@@ -28,7 +29,7 @@ export function SubContractsSection({ subId }: Props) {
       <div className="flex items-center justify-between">
         <h2 className="font-display text-lg text-pink-primary">Contracts</h2>
         <Link
-          to={`/goddess/subs/${subId}/debts/new`}
+          to={`/goddess/subs/${username}/debts/new`}
           className="text-xs text-pink-primary hover:text-pink-primary-hover underline focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
         >
           New contract
@@ -48,7 +49,7 @@ export function SubContractsSection({ subId }: Props) {
         {contracts.map((c) => (
           <Link
             key={c.id}
-            to={`/debts/${c.id}`}
+            to={`/debts/${c.slug ?? c.id}`}
             className="bg-base-surface border border-base-border rounded-lg p-3 flex items-center justify-between gap-3 flex-wrap hover:border-pink-primary transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
           >
             <div className="flex flex-col min-w-0">

@@ -1,23 +1,41 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { breachSubApi } from "@/services/blacklist/blacklistApi";
+import { getSubByUsernameApi } from "@/services/payments/paymentsApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 export function BreachSubRoute() {
-  const { subId } = useParams<{ subId: string }>();
+  const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const [reason, setReason] = useState("");
-  const safeId = subId ?? "";
+  const safeUsername = username ?? "";
+
+  const { data: sub, isLoading } = useQuery({
+    queryKey: queryKeys.goddess.subByUsername(safeUsername),
+    queryFn: () => getSubByUsernameApi(safeUsername),
+    enabled: safeUsername.length > 0,
+  });
 
   const mutation = useMutation({
-    mutationFn: () => breachSubApi(safeId, { reason: reason || undefined }),
+    mutationFn: () => {
+      if (!sub?.id) throw new Error("Sub not found");
+      return breachSubApi(sub.id, { reason: reason || undefined });
+    },
     onSuccess: () => navigate("/goddess/blacklist"),
   });
 
-  if (!safeId)
+  if (!safeUsername)
     return (
       <div className="p-4">
-        <p className="text-status-danger text-sm">No sub ID.</p>
+        <p className="text-status-danger text-sm">No username in route.</p>
+      </div>
+    );
+
+  if (isLoading)
+    return (
+      <div className="p-4">
+        <p className="text-base-text-muted text-sm">Loading…</p>
       </div>
     );
 
@@ -35,7 +53,10 @@ export function BreachSubRoute() {
         </div>
 
         <div className="bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-4">
-          <p className="text-xs text-base-text-muted font-mono">{safeId}</p>
+          <p className="text-sm font-semibold text-base-text">
+            {sub?.display_name ?? safeUsername}
+            <span className="text-base-text-muted font-normal ml-1">(@{safeUsername})</span>
+          </p>
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-base-text" htmlFor="reason">
               Reason <span className="text-base-text-subtle font-normal">(optional)</span>
@@ -54,19 +75,21 @@ export function BreachSubRoute() {
           )}
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             <button
+              type="button"
               onClick={() => navigate(-1)}
               className="w-full sm:w-auto px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
             >
               Cancel
             </button>
             <button
+              type="button"
               onClick={() => {
                 if (
                   window.confirm("Breach this sub? This cannot be undone without a reinstatement.")
                 )
                   mutation.mutate();
               }}
-              disabled={mutation.isPending}
+              disabled={mutation.isPending || !sub}
               className="w-full sm:w-auto px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors disabled:opacity-50"
             >
               {mutation.isPending ? "Breaching…" : "Breach sub"}

@@ -18,6 +18,15 @@ from services.panic.orchestrator import (
 )
 
 
+def _sub_label(user: User) -> str:
+    first = (user.first_name or "").strip()
+    last = (user.last_name or "").strip()
+    full = f"{first} {last}".strip()
+    if full:
+        return f"{full} (@{user.username})"
+    return f"@{user.username}"
+
+
 class PanicController:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
@@ -55,7 +64,7 @@ class PanicController:
                     NotificationType.sub_panic,
                     title="Panic triggered",
                     body=(
-                        f"Sub {sub.username} triggered emergency stop at "
+                        f"Sub {_sub_label(sub)} triggered emergency stop at "
                         f"{ts.isoformat()}. "
                         "Rituals paused, tasks cancelled, ownership released."
                     ),

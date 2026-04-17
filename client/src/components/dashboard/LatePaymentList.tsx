@@ -1,19 +1,42 @@
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Clock, AlertCircle } from "lucide-react";
 import type { LatePaymentItem } from "@/services/dashboards/dashboardsApi";
+import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
   items: LatePaymentItem[];
 }
 
-function linkFor(item: LatePaymentItem): string {
-  if (item.kind === "rolling") return `/goddess/subs/${item.sub_id}/rolling`;
-  return `/debts/${item.context_id}`;
+function useContractSlugMap(): Map<string, string> {
+  // TODO LATE-1 / KPI-1: backend should ship `contract_slug` on LatePaymentItem so this
+  // secondary fetch is unnecessary. Remove this lookup once the DTO includes the slug.
+  const { data: contracts = [] } = useQuery({
+    queryKey: queryKeys.goddess.contracts(),
+    queryFn: listGoddessDebtsApi,
+    staleTime: 60_000,
+  });
+  const map = new Map<string, string>();
+  for (const c of contracts) {
+    map.set(c.id, c.slug);
+  }
+  return map;
+}
+
+function linkFor(item: LatePaymentItem, slugMap: Map<string, string>): string | null {
+  const subKey = item.sub_username ?? item.sub_id;
+  if (item.kind === "rolling") return `/goddess/subs/${subKey}/rolling`;
+  const slug = slugMap.get(item.context_id);
+  if (!slug) return null;
+  return `/debts/${slug}`;
 }
 
 export function LatePaymentList({ items }: Props) {
+  const slugMap = useContractSlugMap();
+
   if (items.length === 0) {
     return (
       <div className="luxe-surface rounded-lg p-8 text-center">
@@ -29,6 +52,7 @@ export function LatePaymentList({ items }: Props) {
       {items.map((item) => {
         const isLate = item.days_late > 0;
         const amount = Number(item.amount_due).toFixed(2);
+        const href = linkFor(item, slugMap);
         return (
           <li
             key={`${item.kind}-${item.context_id}`}
@@ -46,13 +70,19 @@ export function LatePaymentList({ items }: Props) {
                 {isLate ? <AlertCircle className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
               </div>
               <div className="flex flex-col gap-0.5 min-w-0">
-                <Link
-                  to={linkFor(item)}
-                  className="font-display text-base text-base-text hover:text-pink-primary transition-colors truncate flex items-center gap-1"
-                >
-                  {item.sub_display_name ?? "Unknown sub"}
-                  <ArrowUpRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
-                </Link>
+                {href ? (
+                  <Link
+                    to={href}
+                    className="font-display text-base text-base-text hover:text-pink-primary transition-colors truncate flex items-center gap-1"
+                  >
+                    {item.sub_display_name ?? "Unknown sub"}
+                    <ArrowUpRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
+                  </Link>
+                ) : (
+                  <span className="font-display text-base text-base-text truncate">
+                    {item.sub_display_name ?? "Unknown sub"}
+                  </span>
+                )}
                 <Badge
                   variant={item.kind === "rolling" ? "info" : "primary"}
                   className="self-start"

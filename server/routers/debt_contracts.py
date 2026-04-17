@@ -377,6 +377,48 @@ async def get_contract_audit(
 
 
 @router.get(
+    "/goddess/contracts/by-slug/{slug}",
+    summary="Get a debt contract by slug as goddess",
+    description=(
+        "Returns the debt contract identified by the given slug. "
+        "Only accessible to the owning goddess. "
+        "Allows the frontend to build URLs with short slugs instead of raw UUIDs."
+    ),
+    response_model=DebtContractOut,
+    status_code=200,
+    tags=["debt-contracts"],
+    responses={401: _E401, 403: _E403, 404: _E404, 500: _E500},
+)
+async def get_contract_by_slug_goddess(
+    slug: str,
+    user: User = Depends(require_role(UserRole.goddess)),
+    ctrl: DebtController = Depends(_build_controller),
+) -> DebtContractOut:
+    return await ctrl.get_by_slug_as_goddess(user, slug)
+
+
+@router.get(
+    "/sub/contracts/by-slug/{slug}",
+    summary="Get a debt contract by slug as sub",
+    description=(
+        "Returns the debt contract identified by the given slug. "
+        "Only accessible to the sub who owns the contract. "
+        "Allows the frontend to build URLs with short slugs instead of raw UUIDs."
+    ),
+    response_model=DebtContractOut,
+    status_code=200,
+    tags=["debt-contracts"],
+    responses={401: _E401, 403: _E403, 404: _E404, 500: _E500},
+)
+async def get_contract_by_slug_sub(
+    slug: str,
+    user: User = Depends(require_role(UserRole.sub)),
+    ctrl: DebtController = Depends(_build_controller),
+) -> DebtContractOut:
+    return await ctrl.get_by_slug_as_sub(user, slug)
+
+
+@router.get(
     "/sub/debts",
     summary="List own debt contracts as sub",
     description="Returns all debt contracts belonging to the authenticated sub, newest first.",

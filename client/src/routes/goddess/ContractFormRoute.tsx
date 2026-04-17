@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ContractFormFields } from "@/components/contracts/ContractFormFields";
 import { SimulationChart } from "@/components/contracts/SimulationChart";
 import {
@@ -9,6 +9,8 @@ import {
   type DebtContractCreate,
   type DebtSimulationOut,
 } from "@/services/debtContracts/debtContractsApi";
+import { getSubByUsernameApi } from "@/services/payments/paymentsApi";
+import { queryKeys } from "@/lib/queryKeys";
 
 const DEFAULT_FORM: DebtContractCreate = {
   principal: 500,
@@ -25,7 +27,7 @@ const DEFAULT_FORM: DebtContractCreate = {
 };
 
 export function ContractFormRoute() {
-  const { subId } = useParams<{ subId: string }>();
+  const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const [form, setForm] = useState<DebtContractCreate>(DEFAULT_FORM);
   const [simulation, setSimulation] = useState<DebtSimulationOut | null>(null);
@@ -33,7 +35,13 @@ export function ContractFormRoute() {
   const [banner, setBanner] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const safeSubId = subId ?? "";
+  const safeUsername = username ?? "";
+
+  const { data: sub } = useQuery({
+    queryKey: queryKeys.goddess.subByUsername(safeUsername),
+    queryFn: () => getSubByUsernameApi(safeUsername),
+    enabled: safeUsername.length > 0,
+  });
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -53,9 +61,12 @@ export function ContractFormRoute() {
   }, [form]);
 
   const proposeMutation = useMutation({
-    mutationFn: () => proposeAsGoddessApi(safeSubId, form),
+    mutationFn: () => {
+      if (!sub?.id) throw new Error("Sub not resolved");
+      return proposeAsGoddessApi(sub.id, form);
+    },
     onSuccess: (contract) => {
-      navigate(`/debts/${contract.id}`);
+      navigate(`/debts/${contract.slug ?? contract.id}`);
     },
     onError: (err: Error) => {
       setBanner(err.message);
@@ -72,13 +83,15 @@ export function ContractFormRoute() {
     proposeMutation.mutate();
   }
 
-  if (!safeSubId) {
+  if (!safeUsername) {
     return (
       <div className="p-4 md:p-8">
-        <p className="text-status-danger text-sm">No sub ID in route.</p>
+        <p className="text-status-danger text-sm">No username in route.</p>
       </div>
     );
   }
+
+  const subLabel = sub ? `${sub.display_name} (@${sub.username})` : `@${safeUsername}`;
 
   return (
     <div className="p-4 md:p-8">
@@ -87,7 +100,7 @@ export function ContractFormRoute() {
           <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
             New Debt Contract
           </h1>
-          <p className="text-sm text-base-text-muted mt-1">Sub: {safeSubId}</p>
+          <p className="text-sm text-base-text-muted mt-1">Sub: {subLabel}</p>
         </div>
 
         {banner && (
@@ -107,7 +120,7 @@ export function ContractFormRoute() {
               <div className="mt-6">
                 <button
                   type="submit"
-                  disabled={proposeMutation.isPending}
+                  disabled={proposeMutation.isPending || !sub}
                   className="w-full px-4 py-2.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary"
                 >
                   {proposeMutation.isPending ? "Proposing…" : "Propose contract"}

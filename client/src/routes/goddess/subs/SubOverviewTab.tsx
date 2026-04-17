@@ -8,10 +8,11 @@ import { MedicalRevealPanel } from "@/components/goddess/MedicalRevealPanel";
 
 interface Props {
   subId: string;
+  username: string;
   status: string;
 }
 
-export function SubOverviewTab({ subId, status }: Props) {
+export function SubOverviewTab({ subId, username, status }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <TributeGauge subId={subId} />
@@ -19,7 +20,7 @@ export function SubOverviewTab({ subId, status }: Props) {
         <div className="flex items-center justify-end gap-3">
           <SessionCompleteToggle subId={subId} />
           <Link
-            to={`/goddess/subs/${subId}/breach`}
+            to={`/goddess/subs/${username}/breach`}
             className="px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-debt-primary"
           >
             Breach sub
@@ -27,8 +28,8 @@ export function SubOverviewTab({ subId, status }: Props) {
         </div>
       )}
       <MedicalRevealPanel subId={subId} />
-      <SubRollingSection subId={subId} />
-      <SubContractsSection subId={subId} />
+      <SubRollingSection subId={subId} username={username} />
+      <SubContractsSection subId={subId} username={username} />
       <SubPaymentsSection subId={subId} />
     </div>
   );

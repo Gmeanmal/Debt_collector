@@ -354,6 +354,16 @@ class ProfileController:
         rows = await self._status_event_dao.list_by_sub(sub_id, limit=limit)
         return [_status_event_to_out(row) for row in rows]
 
+    async def get_sub_by_username(self, goddess_user: User, username: str) -> User:
+        """Return a sub identified by username, enforcing that the sub belongs to this goddess."""
+        goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
+        sub = await self._user_dao.get_by_username(username)
+        if sub is None or sub.role != UserRole.sub:
+            raise NotFound("sub not found")
+        if sub.goddess_id != goddess_id:
+            raise Forbidden("sub does not belong to this goddess")
+        return sub
+
     async def _resolve_goddess_owns_sub(self, goddess_user: User, sub_id: UUID) -> UUID:
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
         sub = await self._user_dao.get_by_id(sub_id)

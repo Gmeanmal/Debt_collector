@@ -2,7 +2,10 @@ import { apiClient } from "@/api/client";
 import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { components } from "@/types/api.generated";
 
-export type LateSubItem = components["schemas"]["LateSubItem"];
+// Extend with sub_username once backend ships it; used to build slug-based URLs.
+export type LateSubItem = components["schemas"]["LateSubItem"] & {
+  sub_username?: string | null;
+};
 
 function authHeaders(): Record<string, string> {
   const token = getAccessToken();

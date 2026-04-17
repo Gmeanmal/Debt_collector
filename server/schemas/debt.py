@@ -292,6 +292,14 @@ class DebtContractVersionOut(BaseModel):
 
 class DebtContractOut(BaseModel):
     id: UUID = Field(..., description="Contract UUID")
+    slug: str = Field(
+        ...,
+        description=(
+            "Short URL-safe slug for this contract (format: c_<6 chars>). "
+            "Use this in frontend URLs instead of the raw UUID."
+        ),
+        examples=["c_a7k2mq"],
+    )
     sub_id: UUID = Field(..., description="Sub user UUID")
     goddess_id: UUID = Field(..., description="Goddess UUID")
     sub_initiated: bool = Field(..., description="True when the sub proposed the contract")

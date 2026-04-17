@@ -23,6 +23,13 @@ class DebtContractDao:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_slug(self, slug: str) -> DebtContract | None:
+        """Return the contract with the given slug, or None."""
+        result = await self._session.execute(
+            select(DebtContract).where(col(DebtContract.slug) == slug)
+        )
+        return result.scalar_one_or_none()
+
     async def list_for_sub(self, sub_id: UUID) -> list[DebtContract]:
         """Return all contracts for a sub, newest first."""
         result = await self._session.execute(

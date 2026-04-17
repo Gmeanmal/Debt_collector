@@ -46,6 +46,15 @@ log = structlog.get_logger()
 LONDON = ZoneInfo("Europe/London")
 
 
+def _sub_label(user: User) -> str:
+    first = (user.first_name or "").strip()
+    last = (user.last_name or "").strip()
+    full = f"{first} {last}".strip()
+    if full:
+        return f"{full} (@{user.username})"
+    return f"@{user.username}"
+
+
 def _review_window_utc(
     today_london: datetime.date,
 ) -> tuple[datetime.datetime, datetime.datetime]:
@@ -142,7 +151,7 @@ async def run_review_reminders(session: AsyncSession) -> int:
 
         sub_result = await session.execute(select(User).where(col(User.id) == contract.sub_id))
         sub = sub_result.scalar_one_or_none()
-        sub_username = sub.username if sub is not None else "unknown"
+        sub_label = _sub_label(sub) if sub is not None else "unknown"
 
         # review_at is filtered non-null by the WHERE clause above
         if contract.review_at is None:
@@ -157,7 +166,7 @@ async def run_review_reminders(session: AsyncSession) -> int:
             UUID(str(goddess_user.id)),
             NotificationType.review_reminder,
             title="Contract review coming up",
-            body=f"Contract {short_id} with {sub_username} reviews on {review_at_formatted}.",
+            body=f"Contract {short_id} with {sub_label} reviews on {review_at_formatted}.",
             link=f"/goddess/contracts/{contract_id_str}/preview",
             payload={
                 "contract_id": contract_id_str,

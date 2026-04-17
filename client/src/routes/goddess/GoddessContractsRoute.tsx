@@ -38,8 +38,8 @@ export function GoddessContractsRoute() {
 
   function subLabel(subId: string): string {
     const sub = subs.find((s) => s.id === subId);
-    if (sub) return sub.display_name || sub.username;
-    return isAdmin ? subId : `${subId.slice(0, 6)}…`;
+    if (sub) return `${sub.display_name} (@${sub.username})`;
+    return isAdmin ? subId : "Unknown sub";
   }
 
   return (
@@ -100,7 +100,7 @@ export function GoddessContractsRoute() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link
-                        to={`/debts/${c.id}`}
+                        to={`/debts/${c.slug ?? c.id}`}
                         className="text-xs font-semibold text-pink-primary hover:underline focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
                       >
                         View

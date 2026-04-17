@@ -94,7 +94,7 @@ export function PhotoReviewCard({ entry, onApprove, onReject }: Props) {
   const [rejectOpen, setRejectOpen] = useState(false);
   const [approveErr, setApproveErr] = useState<string | null>(null);
 
-  const subLabel = entry.sub_username ?? entry.sub_id;
+  const subLabel = entry.sub_username ? `@${entry.sub_username}` : "Unknown sub";
 
   async function handleApprove() {
     setApproving(true);

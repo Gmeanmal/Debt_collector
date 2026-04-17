@@ -13,6 +13,8 @@ import {
   downloadContractPdfApi,
   getContractApi,
   getContractAuditApi,
+  getContractBySlugGoddessApi,
+  getContractBySlugSubApi,
   simulateDraftApi,
   type DebtContractOut,
   type DebtSimulationOut,
@@ -102,14 +104,15 @@ function SimulationPanel({ contract }: { contract: DebtContractOut }) {
 }
 
 export function ContractDetailRoute() {
-  const { contractId } = useParams<{ contractId: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
   const [banner, setBanner] = useState<{ msg: string; kind: "success" | "error" } | null>(null);
   const [showSurprise, setShowSurprise] = useState(false);
   const [showAdjustment, setShowAdjustment] = useState(false);
   const [showBuyout, setShowBuyout] = useState(false);
 
-  const safeId = contractId ?? "";
+  const safeSlug = slug ?? "";
+  const role = user?.role ?? "sub";
 
   const {
     data: contract,
@@ -117,22 +120,28 @@ export function ContractDetailRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: queryKeys.contracts.detail(safeId),
-    queryFn: () => getContractApi(safeId),
-    enabled: safeId.length > 0,
+    queryKey: queryKeys.contracts.bySlug(safeSlug),
+    queryFn: () => {
+      if (role === "admin") return getContractApi(safeSlug);
+      if (role === "goddess") return getContractBySlugGoddessApi(safeSlug);
+      return getContractBySlugSubApi(safeSlug);
+    },
+    enabled: safeSlug.length > 0,
   });
+
+  const contractId = contract?.id ?? "";
 
   const { data: audit = [] } = useQuery({
-    queryKey: queryKeys.contracts.audit(safeId),
-    queryFn: () => getContractAuditApi(safeId),
-    enabled: safeId.length > 0,
+    queryKey: queryKeys.contracts.audit(contractId),
+    queryFn: () => getContractAuditApi(contractId),
+    enabled: contractId.length > 0,
   });
 
-  if (!safeId)
+  if (!safeSlug)
     return (
       <div className="p-4 md:p-8">
         <div className="max-w-5xl mx-auto">
-          <ErrorState title="No contract ID in the URL" />
+          <ErrorState title="No contract slug in the URL" />
         </div>
       </div>
     );
@@ -156,7 +165,6 @@ export function ContractDetailRoute() {
       </div>
     );
 
-  const role = user?.role ?? "sub";
   const canSubSign =
     role === "sub" &&
     (contract.status === "pending_sub" || contract.status === "pending_sub_signature");
@@ -218,7 +226,7 @@ export function ContractDetailRoute() {
         <div className="flex flex-wrap gap-3">
           {role === "goddess" && (
             <Link
-              to={`/goddess/contracts/${contract.id}/preview`}
+              to={`/goddess/contracts/${contract.slug ?? safeSlug}/preview`}
               className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
             >
               Preview contract
@@ -226,7 +234,7 @@ export function ContractDetailRoute() {
           )}
           {canSubSign && (
             <Link
-              to={`/sub/debts/${contract.id}/sign`}
+              to={`/sub/debts/${contract.slug ?? safeSlug}/sign`}
               className={`${btnBase} bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover focus-visible:ring-pink-primary`}
             >
               Sign contract

@@ -63,6 +63,34 @@ def _user_out(user: User) -> UserOut:
 
 
 @router.get(
+    "/subs/by-username/{username}",
+    summary="Get a sub by username as goddess",
+    description=(
+        "Returns the full user record for the sub identified by ``username``. "
+        "Only accessible to the owning goddess. "
+        "Use this endpoint instead of the UUID-based route to avoid exposing raw UUIDs in URLs."
+    ),
+    response_model=UserOut,
+    status_code=200,
+    tags=["profile"],
+    responses={
+        401: _E401,
+        403: _E403,
+        404: {"description": "Not found — no sub with that username belongs to this goddess"},
+    },
+)
+async def get_sub_by_username(
+    username: str,
+    goddess: User = Depends(require_role(UserRole.goddess)),
+    session: AsyncSession = Depends(get_session),
+) -> UserOut:
+    """Return a sub's user record looked up by username."""
+    ctrl = ProfileController(session)
+    sub = await ctrl.get_sub_by_username(goddess, username)
+    return _user_out(sub)
+
+
+@router.get(
     "/profile/change-requests",
     summary="List pending profile change requests",
     description=(

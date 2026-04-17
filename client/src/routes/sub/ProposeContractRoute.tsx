@@ -52,7 +52,7 @@ export function ProposeContractRoute() {
   const proposeMutation = useMutation({
     mutationFn: () => proposeAsSubApi(form),
     onSuccess: (contract) => {
-      navigate(`/debts/${contract.id}`);
+      navigate(`/debts/${contract.slug ?? contract.id}`);
     },
     onError: (err: Error) => {
       setBanner(err.message);

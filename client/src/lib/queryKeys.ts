@@ -22,6 +22,7 @@ export const queryKeys = {
     dashboard: () => ["goddessDashboard"] as const,
     dashboardCharts: () => ["goddessDashboardCharts"] as const,
     subs: () => ["goddessSubs"] as const,
+    subByUsername: (username: string) => ["goddessSubs", "byUsername", username] as const,
     contracts: () => ["goddessContracts"] as const,
     pendingPayments: () => ["pendingPayments"] as const,
     pendingValidations: () => ["goddessPendingPayments"] as const,
@@ -33,6 +34,7 @@ export const queryKeys = {
   contracts: {
     all: () => ["contract"] as const,
     detail: (contractId: string) => ["contract", contractId] as const,
+    bySlug: (slug: string) => ["contract", "bySlug", slug] as const,
     audit: (contractId: string) => ["contractAudit", contractId] as const,
     pendingAdjustments: () => ["pendingAdjustments"] as const,
     debtDetail: (contractId: string) => ["debt-contract", contractId] as const,

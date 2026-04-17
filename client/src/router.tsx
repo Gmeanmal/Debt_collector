@@ -139,11 +139,11 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/goddess/subs/:subId/rolling",
+    path: "/goddess/subs/:username/rolling",
     element: <Navigate to=".." replace relative="path" />,
   },
   {
-    path: "/goddess/subs/:subId/debts/new",
+    path: "/goddess/subs/:username/debts/new",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
@@ -183,7 +183,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/sub/debts/:contractId/sign",
+    path: "/sub/debts/:slug/sign",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="sub">
@@ -193,7 +193,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/debts/:contractId",
+    path: "/debts/:slug",
     element: (
       <ProtectedRoute>
         <ContractDetailRoute />
@@ -221,7 +221,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/goddess/subs/:subId/breach",
+    path: "/goddess/subs/:username/breach",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
@@ -281,7 +281,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/goddess/subs/:subId",
+    path: "/goddess/subs/:username",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
@@ -329,7 +329,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/goddess/contracts/:contractId/preview",
+    path: "/goddess/contracts/:slug/preview",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
@@ -399,7 +399,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/goddess/subs/:subId/journal",
+    path: "/goddess/subs/:username/journal",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
@@ -419,7 +419,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/goddess/subs/:subId/inventory",
+    path: "/goddess/subs/:username/inventory",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">

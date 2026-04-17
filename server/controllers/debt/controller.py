@@ -11,7 +11,7 @@ from controllers.debt.helpers import (
     apply_version_to_contract,
     contract_out,
     now_utc,
-    user_display_name,
+    sub_notification_label,
 )
 from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.adjustment_dao import AdjustmentDao
@@ -412,7 +412,7 @@ class DebtController:
         if contract.status not in valid_sign_statuses:
             raise Conflict("contract is not in a signable state")
 
-        sub_display = user_display_name(sub_user)
+        sub_display = sub_notification_label(sub_user)
         from_status = contract.status
         signed_at = now_utc()
         contract.status = DebtContractStatus.active
@@ -581,6 +581,29 @@ class DebtController:
         """Return a contract, enforcing visibility rules."""
         contract = await self._get_contract_or_404(contract_id)
         await self._assert_viewer_can_see(viewer, contract)
+        current_version = await self._load_current_version(contract)
+        stats = await self._stats_for(contract)
+        return contract_out(contract, current_version, stats)
+
+    async def get_by_slug_as_goddess(self, goddess_user: User, slug: str) -> DebtContractOut:
+        """Return a contract identified by slug, enforcing goddess ownership."""
+        contract = await self._dao.get_by_slug(slug)
+        if contract is None:
+            raise NotFound("debt contract not found")
+        goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
+        if contract.goddess_id != goddess_id:
+            raise Forbidden("contract does not belong to this goddess")
+        current_version = await self._load_current_version(contract)
+        stats = await self._stats_for(contract)
+        return contract_out(contract, current_version, stats)
+
+    async def get_by_slug_as_sub(self, sub_user: User, slug: str) -> DebtContractOut:
+        """Return a contract identified by slug, enforcing sub ownership."""
+        contract = await self._dao.get_by_slug(slug)
+        if contract is None:
+            raise NotFound("debt contract not found")
+        if contract.sub_id != sub_user.id:
+            raise Forbidden("contract does not belong to this sub")
         current_version = await self._load_current_version(contract)
         stats = await self._stats_for(contract)
         return contract_out(contract, current_version, stats)

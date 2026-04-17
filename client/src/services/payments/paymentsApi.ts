@@ -131,3 +131,13 @@ export async function listGoddessSubsApi(): Promise<GoddessSub[]> {
   if (error || !data) throw new Error("Failed to list subs");
   return data as GoddessSub[];
 }
+
+export async function getSubByUsernameApi(username: string): Promise<GoddessSub> {
+  const { data, error } = await apiClient.GET("/goddess/subs/by-username/{username}", {
+    params: { path: { username } },
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(`Sub @${username} not found`);
+  // UserOut does not carry username; inject it from the path parameter we already own.
+  return { ...data, username } as GoddessSub;
+}

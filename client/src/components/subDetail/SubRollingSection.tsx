@@ -6,9 +6,10 @@ import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
   subId: string;
+  username: string;
 }
 
-export function SubRollingSection({ subId }: Props) {
+export function SubRollingSection({ subId, username }: Props) {
   const {
     data: tribute,
     isLoading,
@@ -23,7 +24,7 @@ export function SubRollingSection({ subId }: Props) {
       <div className="flex items-center justify-between">
         <h2 className="font-display text-lg text-pink-primary">Rolling tribute</h2>
         <Link
-          to={`/goddess/subs/${subId}/rolling`}
+          to={`/goddess/subs/${username}/rolling`}
           className="text-xs text-pink-primary hover:text-pink-primary-hover underline focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
         >
           Edit

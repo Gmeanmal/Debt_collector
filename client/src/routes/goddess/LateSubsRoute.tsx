@@ -7,15 +7,32 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { getLateSubsApi, type LateSubItem } from "@/services/goddess/lateSubsApi";
+import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
 import { queryKeys } from "@/lib/queryKeys";
 
 type SortKey = "days_late" | "overdue_amount" | "display_name";
 type SortDir = "asc" | "desc";
 
 export function LateSubsRoute() {
-  const { data, isLoading, isError, error } = useQuery({
+  const {
+    data: rawData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: queryKeys.goddess.lateSubs(),
     queryFn: getLateSubsApi,
+  });
+
+  const { data: subs = [] } = useQuery({
+    queryKey: queryKeys.goddess.subs(),
+    queryFn: listGoddessSubsApi,
+    staleTime: 60_000,
+  });
+
+  const data = rawData?.map((item) => {
+    const sub = subs.find((s) => s.id === item.sub_id);
+    return sub ? { ...item, sub_username: sub.username } : item;
   });
 
   return (
@@ -173,15 +190,21 @@ function LateRow({ item }: LateRowProps) {
       })
     : "—";
 
+  const subKey = item.sub_username ?? null;
+
   return (
     <tr className="border-b border-base-border/50 hover:bg-base-surface-raised/50 transition-colors">
       <td className="px-4 py-3">
-        <Link
-          to={`/goddess/subs/${item.sub_id}`}
-          className="font-medium text-base-text hover:text-pink-primary transition-colors"
-        >
-          {item.display_name ?? item.sub_id}
-        </Link>
+        {subKey ? (
+          <Link
+            to={`/goddess/subs/${subKey}`}
+            className="font-medium text-base-text hover:text-pink-primary transition-colors"
+          >
+            {item.display_name ?? `@${subKey}`}
+          </Link>
+        ) : (
+          <span className="font-medium text-base-text">{item.display_name ?? "Unknown sub"}</span>
+        )}
       </td>
       <td className="px-4 py-3">
         <span className="font-semibold text-pink-primary">{item.days_late}d</span>

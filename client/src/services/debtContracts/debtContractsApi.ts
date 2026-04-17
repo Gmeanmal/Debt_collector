@@ -229,3 +229,21 @@ export async function simulateDraftApi(body: DebtContractCreate): Promise<DebtSi
   if (error || !data) throw new Error(extractMessage(error, "Failed to simulate contract"));
   return data;
 }
+
+export async function getContractBySlugGoddessApi(slug: string): Promise<DebtContractOut> {
+  const { data, error } = await apiClient.GET("/goddess/contracts/by-slug/{slug}", {
+    params: { path: { slug } },
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, `Contract ${slug} not found`));
+  return data;
+}
+
+export async function getContractBySlugSubApi(slug: string): Promise<DebtContractOut> {
+  const { data, error } = await apiClient.GET("/sub/contracts/by-slug/{slug}", {
+    params: { path: { slug } },
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, `Contract ${slug} not found`));
+  return data;
+}

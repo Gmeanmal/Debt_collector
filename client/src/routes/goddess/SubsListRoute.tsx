@@ -105,7 +105,7 @@ export function SubsListRoute() {
                 {subs.map((sub) => (
                   <tr
                     key={sub.id}
-                    onClick={() => void navigate(`/goddess/subs/${sub.id}`)}
+                    onClick={() => void navigate(`/goddess/subs/${sub.username}`)}
                     className="hover:bg-base-surface-raised transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-inset focus-within:ring-pink-ring"
                     tabIndex={0}
                     role="button"
@@ -113,7 +113,7 @@ export function SubsListRoute() {
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
-                        void navigate(`/goddess/subs/${sub.id}`);
+                        void navigate(`/goddess/subs/${sub.username}`);
                       }
                     }}
                   >

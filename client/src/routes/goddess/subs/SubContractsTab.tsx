@@ -8,6 +8,7 @@ import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
   subId: string;
+  username: string;
 }
 
 function fmtGbp(v: string): string {
@@ -21,7 +22,7 @@ function fmtDate(iso: string): string {
   return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
 }
 
-export function SubContractsTab({ subId }: Props) {
+export function SubContractsTab({ subId, username }: Props) {
   const {
     data: all = [],
     isLoading,
@@ -38,7 +39,7 @@ export function SubContractsTab({ subId }: Props) {
     <div className="flex flex-col gap-4">
       <div className="flex justify-end">
         <Link
-          to={`/goddess/subs/${subId}/debts/new`}
+          to={`/goddess/subs/${username}/debts/new`}
           className="px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
         >
           New contract
@@ -86,7 +87,7 @@ export function SubContractsTab({ subId }: Props) {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link
-                      to={`/debts/${c.id}`}
+                      to={`/debts/${c.slug ?? c.id}`}
                       className="text-xs font-semibold text-pink-primary hover:underline focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
                     >
                       View

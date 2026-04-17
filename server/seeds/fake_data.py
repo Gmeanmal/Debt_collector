@@ -28,6 +28,7 @@ from models.debt import (
     LatePenaltySeverity,
     MidContractAdditionMode,
     PaymentFrequency,
+    generate_contract_slug,
 )
 from models.debt_event import DebtEvent, EventType
 from models.invitation import Invitation
@@ -337,6 +338,7 @@ def _contract(
     exit_amt = principal * Decimal("1.25")
     return DebtContract(
         id=uuid4(),
+        slug=generate_contract_slug(),
         sub_id=sub_id,
         goddess_id=goddess_id,
         sub_initiated=False,

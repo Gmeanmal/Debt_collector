@@ -2,7 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SignaturePad } from "@/components/signature/SignaturePad";
-import { getContractApi, signContractApi } from "@/services/debtContracts/debtContractsApi";
+import {
+  getContractBySlugSubApi,
+  signContractApi,
+} from "@/services/debtContracts/debtContractsApi";
 import { useAuth } from "@/services/auth/useAuth";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -14,32 +17,34 @@ function stripPngPrefix(dataUrl: string): string {
 }
 
 export function ContractSignRoute() {
-  const { contractId } = useParams<{ contractId: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
-  const safeId = contractId ?? "";
+  const safeSlug = slug ?? "";
 
   const {
     data: contract,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: queryKeys.contracts.debtDetail(safeId),
-    queryFn: () => getContractApi(safeId),
-    enabled: safeId.length > 0,
+    queryKey: queryKeys.contracts.bySlug(safeSlug),
+    queryFn: () => getContractBySlugSubApi(safeSlug),
+    enabled: safeSlug.length > 0,
   });
 
+  const contractId = contract?.id ?? "";
+
   const signMutation = useMutation({
-    mutationFn: (signaturePngB64: string) => signContractApi(safeId, signaturePngB64),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.contracts.debtDetail(safeId) });
-      qc.invalidateQueries({ queryKey: queryKeys.contracts.detail(safeId) });
-      qc.invalidateQueries({ queryKey: queryKeys.contracts.audit(safeId) });
-      navigate(`/debts/${safeId}`);
+    mutationFn: (signaturePngB64: string) => signContractApi(contractId, signaturePngB64),
+    onSuccess: (signed) => {
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.bySlug(safeSlug) });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.detail(contractId) });
+      qc.invalidateQueries({ queryKey: queryKeys.contracts.audit(contractId) });
+      navigate(`/debts/${signed.slug ?? safeSlug}`);
     },
     onError: (err: Error) => setError(err.message),
   });
@@ -49,10 +54,10 @@ export function ContractSignRoute() {
     signMutation.mutate(stripPngPrefix(dataUrl));
   }
 
-  if (!safeId)
+  if (!safeSlug)
     return (
       <div className="p-4 md:p-8">
-        <p className="text-status-danger text-sm">No contract ID.</p>
+        <p className="text-status-danger text-sm">No contract slug.</p>
       </div>
     );
 
@@ -82,7 +87,10 @@ export function ContractSignRoute() {
           <p className="text-sm rounded-md px-4 py-2 bg-debt-muted text-status-danger border border-debt-ring">
             This contract is not awaiting your signature (status: {contract.status}).
           </p>
-          <Link to={`/debts/${contract.id}`} className="text-sm text-pink-primary hover:underline">
+          <Link
+            to={`/debts/${contract.slug ?? safeSlug}`}
+            className="text-sm text-pink-primary hover:underline"
+          >
             Back to contract
           </Link>
         </div>
@@ -100,7 +108,7 @@ export function ContractSignRoute() {
           <p className="text-sm text-base-text-muted mt-1">
             Draw your signature below to finalise the contract. This action is binding.
           </p>
-          {isAdmin && <p className="text-xs text-base-text-muted mt-1 font-mono">{contract.id}</p>}
+          {isAdmin && <p className="text-xs text-base-text-muted mt-1 font-mono">{contractId}</p>}
         </div>
 
         {error && (
@@ -120,7 +128,7 @@ export function ContractSignRoute() {
         </div>
 
         <Link
-          to={`/debts/${contract.id}`}
+          to={`/debts/${contract.slug ?? safeSlug}`}
           className="text-sm text-base-text-muted hover:text-pink-primary"
         >
           Cancel and go back

@@ -9,7 +9,7 @@ import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import {
-  getContractApi,
+  getContractBySlugGoddessApi,
   simulateDraftApi,
   type DebtSimulationOut,
 } from "@/services/debtContracts/debtContractsApi";
@@ -19,8 +19,8 @@ import { env } from "@/utils/env";
 import { getAccessToken } from "@/services/auth/tokenStorage";
 
 export function ContractPreviewRoute() {
-  const { contractId } = useParams<{ contractId: string }>();
-  const safeId = contractId ?? "";
+  const { slug } = useParams<{ slug: string }>();
+  const safeId = slug ?? "";
 
   const [simulation, setSimulation] = useState<DebtSimulationOut | null>(null);
 
@@ -30,8 +30,8 @@ export function ContractPreviewRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: queryKeys.contracts.detail(safeId),
-    queryFn: () => getContractApi(safeId),
+    queryKey: queryKeys.contracts.bySlug(safeId),
+    queryFn: () => getContractBySlugGoddessApi(safeId),
     enabled: safeId.length > 0,
   });
 
@@ -73,11 +73,11 @@ export function ContractPreviewRoute() {
   }
 
   function handleDraftPdf() {
-    if (!safeId) return;
+    if (!contract) return;
     const token = getAccessToken();
     const base = env.VITE_API_BASE_URL;
-    const url = `${base}/debts/${safeId}/pdf?draft=true`;
-    // Open with auth — use a fetch-based approach to create a blob URL
+    // Use the resolved contract UUID — never the slug — for the PDF endpoint
+    const url = `${base}/debts/${contract.id}/pdf?draft=true`;
     void fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
       .then((r) => r.blob())
       .then((blob) => {
@@ -145,6 +145,7 @@ export function ContractPreviewRoute() {
             <button
               type="button"
               onClick={handleDraftPdf}
+              disabled={!contract}
               className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
               aria-label="Download draft PDF with watermark"
             >

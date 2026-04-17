@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
+import { getSubByUsernameApi } from "@/services/payments/paymentsApi";
 import { queryKeys } from "@/lib/queryKeys";
 import { SubOverviewTab } from "./SubOverviewTab";
 import { SubRollingTab } from "./SubRollingTab";
@@ -12,20 +12,19 @@ import { SubProfileCard } from "@/components/goddess/SubProfileCard";
 import type { AvatarKey } from "@/services/profile/avatarMap";
 
 export function SubManageRoute() {
-  const { subId } = useParams<{ subId: string }>();
-  const safeSubId = subId ?? "";
+  const { username } = useParams<{ username: string }>();
+  const safeUsername = username ?? "";
 
-  const { data: subs = [], isLoading } = useQuery({
-    queryKey: queryKeys.goddess.subs(),
-    queryFn: listGoddessSubsApi,
+  const { data: sub, isLoading } = useQuery({
+    queryKey: queryKeys.goddess.subByUsername(safeUsername),
+    queryFn: () => getSubByUsernameApi(safeUsername),
+    enabled: safeUsername.length > 0,
   });
 
-  const sub = subs.find((s) => s.id === safeSubId);
-
-  if (!safeSubId) {
+  if (!safeUsername) {
     return (
       <div className="p-4 md:p-8">
-        <p className="text-status-danger text-sm">No sub ID in route.</p>
+        <p className="text-status-danger text-sm">No username in route.</p>
       </div>
     );
   }
@@ -46,7 +45,7 @@ export function SubManageRoute() {
             <SubProfileCard
               sub={{
                 display_name: isLoading ? "Loading…" : "Unknown sub",
-                username: "",
+                username: safeUsername,
                 status: "deleted",
               }}
               isLoading={isLoading}
@@ -54,42 +53,48 @@ export function SubManageRoute() {
           )}
         </div>
 
-        <Tabs defaultValue="overview">
-          <div className="overflow-x-auto">
-            <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="rolling">Rolling</TabsTrigger>
-              <TabsTrigger value="contracts">Contracts</TabsTrigger>
-              <TabsTrigger value="late">Late</TabsTrigger>
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-            </TabsList>
-          </div>
+        {sub?.id ? (
+          <Tabs defaultValue="overview">
+            <div className="overflow-x-auto">
+              <TabsList>
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="rolling">Rolling</TabsTrigger>
+                <TabsTrigger value="contracts">Contracts</TabsTrigger>
+                <TabsTrigger value="late">Late</TabsTrigger>
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+              </TabsList>
+            </div>
 
-          <TabsContent value="overview">
-            <SubOverviewTab subId={safeSubId} status={sub?.status ?? ""} />
-          </TabsContent>
+            <TabsContent value="overview">
+              <SubOverviewTab
+                subId={sub.id}
+                username={safeUsername}
+                status={sub.status ?? ""}
+              />
+            </TabsContent>
 
-          <TabsContent value="rolling">
-            <SubRollingTab subId={safeSubId} />
-          </TabsContent>
+            <TabsContent value="rolling">
+              <SubRollingTab subId={sub.id} />
+            </TabsContent>
 
-          <TabsContent value="contracts">
-            <SubContractsTab subId={safeSubId} />
-          </TabsContent>
+            <TabsContent value="contracts">
+              <SubContractsTab subId={sub.id} username={safeUsername} />
+            </TabsContent>
 
-          <TabsContent value="late">
-            <SubLateTab />
-          </TabsContent>
+            <TabsContent value="late">
+              <SubLateTab />
+            </TabsContent>
 
-          <TabsContent value="profile">
-            <SubProfileTab
-              subId={safeSubId}
-              currentFirstName={sub?.first_name}
-              currentLastName={sub?.last_name}
-              currentAvatarKey={(sub?.avatar_key as AvatarKey | undefined) ?? "default"}
-            />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="profile">
+              <SubProfileTab
+                subId={sub.id}
+                currentFirstName={sub.first_name}
+                currentLastName={sub.last_name}
+                currentAvatarKey={(sub.avatar_key as AvatarKey | undefined) ?? "default"}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : null}
       </div>
     </div>
   );

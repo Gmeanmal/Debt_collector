@@ -6,7 +6,10 @@ import type { DashboardChartsOut } from "@/types/dashboard";
 
 export type GoddessDashboardOut = components["schemas"]["GoddessDashboardOut"];
 export type SubDashboardOut = components["schemas"]["SubDashboardOut"];
-export type LatePaymentItem = components["schemas"]["LatePaymentItem"];
+// Extend with sub_username once backend ships it; used to build slug-based URLs.
+export type LatePaymentItem = components["schemas"]["LatePaymentItem"] & {
+  sub_username?: string | null;
+};
 export type ActiveContractSummary = components["schemas"]["ActiveContractSummary"];
 export type SubPlanningOut = components["schemas"]["SubPlanningOut"];
 export type UpcomingPaymentItem = components["schemas"]["UpcomingPaymentItem"];

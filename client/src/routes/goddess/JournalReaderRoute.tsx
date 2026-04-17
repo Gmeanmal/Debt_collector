@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
 import { GoddessCommentForm } from "@/components/journal/GoddessCommentForm";
 import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -18,6 +19,7 @@ import { queryKeys } from "@/lib/queryKeys";
 const PAGE_LIMIT = 20;
 
 export function JournalReaderRoute() {
+  const { username } = useParams<{ username?: string }>();
   const qc = useQueryClient();
   const [selectedSub, setSelectedSub] = useState<GoddessSub | null>(null);
   const selectedSubId = selectedSub?.id ?? "";
@@ -29,6 +31,13 @@ export function JournalReaderRoute() {
     queryKey: queryKeys.goddess.subs(),
     queryFn: listGoddessSubsApi,
   });
+
+  useEffect(() => {
+    if (username && subs.length > 0 && selectedSub === null) {
+      const found = subs.find((s) => s.username === username);
+      if (found) setSelectedSub(found);
+    }
+  }, [username, subs, selectedSub]);
 
   const {
     data: entries = [],

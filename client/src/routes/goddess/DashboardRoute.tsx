@@ -16,6 +16,7 @@ import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getGoddessDashboardApi } from "@/services/dashboards/dashboardsApi";
+import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
 import { useGoddessDashboardCharts } from "@/hooks/dashboard/useGoddessDashboardCharts";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -83,7 +84,17 @@ interface ContentProps {
 }
 
 function DashboardContent({ dash }: ContentProps) {
-  const late = dash.late_payments ?? [];
+  const { data: subs = [] } = useQuery({
+    queryKey: queryKeys.goddess.subs(),
+    queryFn: listGoddessSubsApi,
+    staleTime: 60_000,
+  });
+
+  const rawLate = dash.late_payments ?? [];
+  const late = rawLate.map((item) => {
+    const sub = subs.find((s) => s.id === item.sub_id);
+    return sub ? { ...item, sub_username: sub.username } : item;
+  });
   const everythingZero =
     dash.subs_total === 0 &&
     dash.rolling_count === 0 &&

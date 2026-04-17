@@ -9,7 +9,7 @@ import {
   goddessSubToysKey,
 } from "@/services/toys/toysApi";
 import type { ToyCreateInput, ToyItem, ToyUpdateInput } from "@/services/toys/toysApi";
-import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
+import { getSubByUsernameApi } from "@/services/payments/paymentsApi";
 import { InventoryGrid } from "@/components/toys/InventoryGrid";
 import { ToyForm } from "@/components/toys/ToyForm";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -24,20 +24,20 @@ interface FormState {
 }
 
 export function GoddessInventoryRoute() {
-  const { subId } = useParams<{ subId: string }>();
-  const safeSubId = subId ?? "";
+  const { username } = useParams<{ username: string }>();
+  const safeUsername = username ?? "";
   const qc = useQueryClient();
 
   const [formState, setFormState] = useState<FormState | null>(null);
   const [deleteErrorId, setDeleteErrorId] = useState<string | null>(null);
 
-  const { data: subs = [] } = useQuery({
-    queryKey: queryKeys.goddess.subs(),
-    queryFn: listGoddessSubsApi,
-    enabled: Boolean(safeSubId),
+  const { data: sub } = useQuery({
+    queryKey: queryKeys.goddess.subByUsername(safeUsername),
+    queryFn: () => getSubByUsernameApi(safeUsername),
+    enabled: Boolean(safeUsername),
   });
 
-  const sub = subs.find((s) => s.id === safeSubId);
+  const safeSubId = sub?.id ?? "";
 
   const toysKey = goddessSubToysKey(safeSubId);
 
@@ -102,10 +102,10 @@ export function GoddessInventoryRoute() {
 
   const pendingCount = toys.filter((t) => !t.approved).length;
 
-  if (!safeSubId) {
+  if (!safeUsername) {
     return (
       <div className="p-4 md:p-8">
-        <p className="text-status-danger text-sm">No sub ID in route.</p>
+        <p className="text-status-danger text-sm">No username in route.</p>
       </div>
     );
   }
@@ -115,7 +115,7 @@ export function GoddessInventoryRoute() {
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
         <div className="flex flex-col gap-1">
           <Link
-            to={`/goddess/subs/${safeSubId}`}
+            to={`/goddess/subs/${safeUsername}`}
             className="text-xs text-base-text-muted hover:text-base-text transition-colors focus-visible:ring-2 focus-visible:ring-pink-ring rounded w-fit"
           >
             ← Sub profile
@@ -176,7 +176,7 @@ export function GoddessInventoryRoute() {
           />
         )}
 
-        {!isLoading && !isError && (
+        {!isLoading && !isError && safeSubId && (
           <InventoryGrid
             toys={toys}
             goddessContext

@@ -1,3 +1,5 @@
+import secrets
+import string
 from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
@@ -6,6 +8,22 @@ from uuid import UUID, uuid4
 from sqlalchemy import Column, ForeignKey, Index, Numeric, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, SQLModel
+
+# Crockford base32 alphabet (lowercase): digits 0-9 + letters a-z minus i, l, o, u
+_SLUG_ALPHABET = string.digits + "abcdefghjkmnpqrstvwxyz"
+_SLUG_INNER_LEN = 6
+
+
+def generate_contract_slug() -> str:
+    """Return a unique URL-safe contract slug of the form ``c_<6-char base32>``.
+
+    Uses the Crockford base32 alphabet (0-9, a-z minus i/l/o/u) drawn from
+    ``secrets.choice`` for cryptographic randomness. The resulting 6-char
+    body has ~34 bits of entropy — sufficient for an append-only single-tenant
+    table with at most a few hundred rows.
+    """
+    body = "".join(secrets.choice(_SLUG_ALPHABET) for _ in range(_SLUG_INNER_LEN))
+    return f"c_{body}"
 
 
 class InterestPeriod(StrEnum):
@@ -68,9 +86,14 @@ class DebtContract(SQLModel, table=True):
     __table_args__ = (
         Index("ix_debt_contract_sub_status", "sub_id", "status"),
         Index("ix_debt_contract_goddess_status", "goddess_id", "status"),
+        UniqueConstraint("slug", name="uq_debt_contract_slug"),
     )
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
+    slug: str = Field(
+        default_factory=generate_contract_slug,
+        sa_column=Column(Text, nullable=False, index=True),
+    )
     sub_id: UUID = Field(
         sa_column=Column(
             ForeignKey("user.id", ondelete="RESTRICT"),
