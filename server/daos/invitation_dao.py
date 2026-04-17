@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
@@ -62,3 +63,28 @@ class InvitationDao:
             .order_by(col(Invitation.created_at).desc())
         )
         return list(result.scalars().all())
+
+    async def count_active(self, goddess_id: UUID, now: datetime) -> int:
+        """Return invitations that are unused and not yet expired."""
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(Invitation)
+            .where(
+                col(Invitation.goddess_id) == goddess_id,
+                col(Invitation.used_at).is_(None),
+                col(Invitation.expires_at) > now,
+            )
+        )
+        return int(result.scalar_one() or 0)
+
+    async def count_consumed(self, goddess_id: UUID) -> int:
+        """Return invitations that were consumed by a sub."""
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(Invitation)
+            .where(
+                col(Invitation.goddess_id) == goddess_id,
+                col(Invitation.used_by_user_id).isnot(None),
+            )
+        )
+        return int(result.scalar_one() or 0)

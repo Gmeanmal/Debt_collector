@@ -1,6 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
@@ -33,6 +34,20 @@ class ProfileChangeRequestDao:
             .order_by(col(ProfileChangeRequest.requested_at).desc())
         )
         return list(result.scalars().all())
+
+    async def count_pending(self, goddess_sub_ids: list[UUID]) -> int:
+        """Return the number of pending profile change requests for subs belonging to a goddess."""
+        if not goddess_sub_ids:
+            return 0
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(ProfileChangeRequest)
+            .where(
+                col(ProfileChangeRequest.sub_id).in_(goddess_sub_ids),
+                col(ProfileChangeRequest.status) == ProfileChangeRequestStatus.pending,
+            )
+        )
+        return int(result.scalar_one() or 0)
 
     async def list_pending_by_goddess(
         self, goddess_sub_ids: list[UUID]

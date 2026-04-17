@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col
 
@@ -117,6 +117,18 @@ class SubPhotoDao:
         photo.reviewed_by = reviewer_id
         self._session.add(photo)
         return photo
+
+    async def count_pending_review(self, goddess_id: UUID) -> int:
+        """Return the number of sub photos awaiting goddess review."""
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(SubPhoto)
+            .where(
+                col(SubPhoto.goddess_id) == goddess_id,
+                col(SubPhoto.status) == SubPhotoStatus.pending,
+            )
+        )
+        return int(result.scalar_one() or 0)
 
     async def reject(self, photo_id: UUID, reviewer_id: UUID, reason: str) -> SubPhoto:
         """Flip status to rejected, stamp review metadata, and store rejection reason.

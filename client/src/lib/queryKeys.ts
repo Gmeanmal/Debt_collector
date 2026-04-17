@@ -20,6 +20,7 @@ export const queryKeys = {
   goddess: {
     all: () => ["goddess"] as const,
     dashboard: () => ["goddessDashboard"] as const,
+    dashboardSummary: () => ["goddessDashboardSummary"] as const,
     dashboardCharts: () => ["goddessDashboardCharts"] as const,
     subs: () => ["goddessSubs"] as const,
     subByUsername: (username: string) => ["goddessSubs", "byUsername", username] as const,

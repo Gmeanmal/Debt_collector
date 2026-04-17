@@ -9,6 +9,89 @@ from models.debt import DebtContractStatus
 from schemas.payment import PaymentOut
 
 
+class DashboardSummary(BaseModel):
+    """Aggregated KPI counters for the goddess dashboard and welcome tiles."""
+
+    subs_active: int = Field(
+        ...,
+        description="Users with role=sub and status=active.",
+        examples=[3],
+    )
+    subs_paused: int = Field(
+        ...,
+        description=(
+            "Users with role=sub and status=paused. Always 0 in the current schema "
+            "because UserStatus has no paused value; reserved for future use."
+        ),
+        examples=[0],
+    )
+    contracts_active: int = Field(
+        ...,
+        description=(
+            "Debt contracts with status=active. Only active (signed + running) contracts "
+            "are counted; pending, closed, breached, completed, and cancelled ones are excluded."
+        ),
+        examples=[2],
+    )
+    contracts_closed: int = Field(
+        ...,
+        description="Debt contracts with status=closed.",
+        examples=[1],
+    )
+    invitations_active: int = Field(
+        ...,
+        description=(
+            "Invitations that have not been used and have not yet expired "
+            "(used_at IS NULL AND expires_at > now)."
+        ),
+        examples=[2],
+    )
+    invitations_consumed: int = Field(
+        ...,
+        description="Invitations that were consumed by a sub (used_by_user_id IS NOT NULL).",
+        examples=[4],
+    )
+    validations_pending: int = Field(
+        ...,
+        description="Payment declarations with status=pending (awaiting goddess validation).",
+        examples=[1],
+    )
+    validations_oldest_age_h: int = Field(
+        ...,
+        description=(
+            "Hours elapsed since the oldest pending-validation payment was declared, "
+            "floored to the nearest whole hour. 0 when no payments are pending validation."
+        ),
+        examples=[6],
+    )
+    late_rolling_count: int = Field(
+        ...,
+        description=(
+            "Number of active subs whose rolling tribute is currently late "
+            "(days_late > 0, tribute not paused, amount > 0)."
+        ),
+        examples=[1],
+    )
+    late_contract_count: int = Field(
+        ...,
+        description=(
+            "Number of active debt contracts where the current period payment has not been "
+            "applied and the period deadline has passed (on-track=false)."
+        ),
+        examples=[0],
+    )
+    photo_queue_count: int = Field(
+        ...,
+        description="Sub photos with status=pending (awaiting goddess review).",
+        examples=[3],
+    )
+    profile_change_requests_count: int = Field(
+        ...,
+        description="Profile change requests with status=pending.",
+        examples=[0],
+    )
+
+
 class LatePaymentItem(BaseModel):
     sub_id: UUID = Field(
         ...,

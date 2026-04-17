@@ -2039,6 +2039,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goddess/dashboard/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Aggregated dashboard counters for the goddess
+         * @description Returns a single DTO containing all KPI counters consumed by the goddess dashboard and welcome tiles.
+         *
+         *     **Active-only scoping:** `subs_active` counts only users with `role=sub` and `status=active` — pending-entry-tribute and blacklisted subs are excluded. `contracts_active` counts only debt contracts with `status=active`; pending, closed, breached, completed, and cancelled contracts are excluded.
+         *
+         *     **`validations_oldest_age_h`:** Hours elapsed (floor) since the oldest pending-validation payment was declared. Returns 0 when no payments are pending.
+         *
+         *     **`subs_paused`:** Always 0 — the current schema has no paused user status. The field is present for forward compatibility.
+         *
+         *     **`late_rolling_count`:** Uses the same predicate as the `/goddess/late-subs` endpoint: active subs with a non-paused, non-zero rolling tribute where `days_late > 0`.
+         *
+         *     **`late_contract_count`:** Active contracts whose current period payment has not been applied and the period deadline has passed, consistent with the late-payment logic in `/goddess/dashboard`.
+         */
+        get: operations["goddess_dashboard_summary_goddess_dashboard_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/goddess/dashboard": {
         parameters: {
             query?: never;
@@ -5376,6 +5406,84 @@ export interface components {
             daily_late_counts?: components["schemas"]["DailyLateCount"][];
             /** @description Current counts of active / completed / breached contracts. */
             contract_states: components["schemas"]["ContractStateCount"];
+        };
+        /**
+         * DashboardSummary
+         * @description Aggregated KPI counters for the goddess dashboard and welcome tiles.
+         */
+        DashboardSummary: {
+            /**
+             * Subs Active
+             * @description Users with role=sub and status=active.
+             * @example 3
+             */
+            subs_active: number;
+            /**
+             * Subs Paused
+             * @description Users with role=sub and status=paused. Always 0 in the current schema because UserStatus has no paused value; reserved for future use.
+             * @example 0
+             */
+            subs_paused: number;
+            /**
+             * Contracts Active
+             * @description Debt contracts with status=active. Only active (signed + running) contracts are counted; pending, closed, breached, completed, and cancelled ones are excluded.
+             * @example 2
+             */
+            contracts_active: number;
+            /**
+             * Contracts Closed
+             * @description Debt contracts with status=closed.
+             * @example 1
+             */
+            contracts_closed: number;
+            /**
+             * Invitations Active
+             * @description Invitations that have not been used and have not yet expired (used_at IS NULL AND expires_at > now).
+             * @example 2
+             */
+            invitations_active: number;
+            /**
+             * Invitations Consumed
+             * @description Invitations that were consumed by a sub (used_by_user_id IS NOT NULL).
+             * @example 4
+             */
+            invitations_consumed: number;
+            /**
+             * Validations Pending
+             * @description Payment declarations with status=pending (awaiting goddess validation).
+             * @example 1
+             */
+            validations_pending: number;
+            /**
+             * Validations Oldest Age H
+             * @description Hours elapsed since the oldest pending-validation payment was declared, floored to the nearest whole hour. 0 when no payments are pending validation.
+             * @example 6
+             */
+            validations_oldest_age_h: number;
+            /**
+             * Late Rolling Count
+             * @description Number of active subs whose rolling tribute is currently late (days_late > 0, tribute not paused, amount > 0).
+             * @example 1
+             */
+            late_rolling_count: number;
+            /**
+             * Late Contract Count
+             * @description Number of active debt contracts where the current period payment has not been applied and the period deadline has passed (on-track=false).
+             * @example 0
+             */
+            late_contract_count: number;
+            /**
+             * Photo Queue Count
+             * @description Sub photos with status=pending (awaiting goddess review).
+             * @example 3
+             */
+            photo_queue_count: number;
+            /**
+             * Profile Change Requests Count
+             * @description Profile change requests with status=pending.
+             * @example 0
+             */
+            profile_change_requests_count: number;
         };
         /**
          * DeadlineDay
@@ -18178,6 +18286,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DashboardChartsOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller role is not permitted for this dashboard */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    goddess_dashboard_summary_goddess_dashboard_summary_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardSummary"];
                 };
             };
             /** @description Unauthorized — missing or invalid access token */

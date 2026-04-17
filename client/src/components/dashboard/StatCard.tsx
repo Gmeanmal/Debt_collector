@@ -42,7 +42,7 @@ export function StatCard({ label, value, sublabel, trend, accent = "default" }: 
       </div>
       <span
         className={cn(
-          "relative z-10 font-display text-4xl tracking-tight truncate leading-none",
+          "relative z-10 font-display text-4xl tracking-tight truncate leading-none tabular-nums",
           ACCENT_VALUE[accent],
         )}
         role="status"

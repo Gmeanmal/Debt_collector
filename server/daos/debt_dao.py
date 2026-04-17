@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
@@ -65,6 +66,28 @@ class DebtContractDao:
         self._session.add(contract)
         await self._session.flush()
         return contract
+
+    async def count_by_status(self, goddess_id: UUID, status: DebtContractStatus) -> int:
+        """Return the number of contracts for this goddess with the given status."""
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(DebtContract)
+            .where(
+                col(DebtContract.goddess_id) == goddess_id,
+                col(DebtContract.status) == status,
+            )
+        )
+        return int(result.scalar_one() or 0)
+
+    async def list_active_for_goddess(self, goddess_id: UUID) -> list[DebtContract]:
+        """Return all active contracts for this goddess."""
+        result = await self._session.execute(
+            select(DebtContract).where(
+                col(DebtContract.goddess_id) == goddess_id,
+                col(DebtContract.status) == DebtContractStatus.active,
+            )
+        )
+        return list(result.scalars().all())
 
 
 class DebtContractVersionDao:

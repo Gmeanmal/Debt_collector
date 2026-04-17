@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
@@ -85,3 +86,33 @@ class PaymentDeclarationDao:
         self._session.add(decl)
         await self._session.flush()
         return decl
+
+    async def count_pending_validation(self, goddess_id: UUID) -> int:
+        """Return the number of payment declarations pending validation for this goddess."""
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(PaymentDeclaration)
+            .where(
+                col(PaymentDeclaration.goddess_id) == goddess_id,
+                col(PaymentDeclaration.status) == PaymentStatus.pending,
+            )
+        )
+        return int(result.scalar_one() or 0)
+
+    async def oldest_pending_validation_age_hours(self, goddess_id: UUID) -> int:
+        """Return hours since the oldest pending-validation payment was declared.
+
+        Returns 0 if no pending payments exist.
+        """
+        result = await self._session.execute(
+            select(func.min(PaymentDeclaration.declared_at)).where(
+                col(PaymentDeclaration.goddess_id) == goddess_id,
+                col(PaymentDeclaration.status) == PaymentStatus.pending,
+            )
+        )
+        oldest: datetime | None = result.scalar_one_or_none()
+        if oldest is None:
+            return 0
+        now = datetime.now(UTC).replace(tzinfo=None)
+        delta = now - oldest
+        return int(delta.total_seconds() // 3600)

@@ -15,6 +15,7 @@ export function useGoddessDashboardCharts(): UseGoddessDashboardChartsResult {
     queryKey: queryKeys.goddess.dashboardCharts(),
     queryFn: getGoddessDashboardChartsApi,
     staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   return {

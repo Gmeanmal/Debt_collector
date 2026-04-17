@@ -1,10 +1,11 @@
 from datetime import datetime
 from uuid import UUID
 
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
-from models.user import AvatarKey, User
+from models.user import AvatarKey, User, UserRole, UserStatus
 
 
 class UserDao:
@@ -62,3 +63,27 @@ class UserDao:
         user.payment_handle = handle
         self._session.add(user)
         return user
+
+    async def count_subs_by_status(self, goddess_id: UUID, status: UserStatus) -> int:
+        """Return the number of sub-role users linked to this goddess with the given status."""
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(User)
+            .where(
+                col(User.goddess_id) == goddess_id,
+                col(User.role) == UserRole.sub,
+                col(User.status) == status,
+            )
+        )
+        return int(result.scalar_one() or 0)
+
+    async def list_active_subs(self, goddess_id: UUID) -> list[User]:
+        """Return all active sub-role users linked to this goddess."""
+        result = await self._session.execute(
+            select(User).where(
+                col(User.goddess_id) == goddess_id,
+                col(User.role) == UserRole.sub,
+                col(User.status) == UserStatus.active,
+            )
+        )
+        return list(result.scalars().all())

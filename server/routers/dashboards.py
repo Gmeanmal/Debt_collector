@@ -3,10 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.dashboard_charts_controller import DashboardChartsController
 from controllers.dashboard_controller import DashboardController
+from controllers.dashboard_summary_controller import DashboardSummaryController
 from core.db import get_session
 from dependencies.auth import require_role
 from models.user import User, UserRole
-from schemas.dashboard import GoddessDashboardOut, SubDashboardOut, SubPlanningOut
+from schemas.dashboard import DashboardSummary, GoddessDashboardOut, SubDashboardOut, SubPlanningOut
 from schemas.dashboard_charts import DashboardChartsOut
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
@@ -23,6 +24,10 @@ def _ctrl(session: AsyncSession = Depends(get_session)) -> DashboardController:
 
 def _charts_ctrl(session: AsyncSession = Depends(get_session)) -> DashboardChartsController:
     return DashboardChartsController(session)
+
+
+def _summary_ctrl(session: AsyncSession = Depends(get_session)) -> DashboardSummaryController:
+    return DashboardSummaryController(session)
 
 
 @goddess_router.get(
@@ -45,6 +50,39 @@ async def goddess_dashboard_charts(
     ctrl: DashboardChartsController = Depends(_charts_ctrl),
 ) -> DashboardChartsOut:
     return await ctrl.goddess_charts(user)
+
+
+@goddess_router.get(
+    "/dashboard/summary",
+    summary="Aggregated dashboard counters for the goddess",
+    description=(
+        "Returns a single DTO containing all KPI counters consumed by the goddess dashboard "
+        "and welcome tiles.\n\n"
+        "**Active-only scoping:** `subs_active` counts only users with `role=sub` and "
+        "`status=active` — pending-entry-tribute and blacklisted subs are excluded. "
+        "`contracts_active` counts only debt contracts with `status=active`; pending, "
+        "closed, breached, completed, and cancelled contracts are excluded.\n\n"
+        "**`validations_oldest_age_h`:** Hours elapsed (floor) since the oldest "
+        "pending-validation payment was declared. Returns 0 when no payments are pending.\n\n"
+        "**`subs_paused`:** Always 0 — the current schema has no paused user status. "
+        "The field is present for forward compatibility.\n\n"
+        "**`late_rolling_count`:** Uses the same predicate as the `/goddess/late-subs` "
+        "endpoint: active subs with a non-paused, non-zero rolling tribute where "
+        "`days_late > 0`.\n\n"
+        "**`late_contract_count`:** Active contracts whose current period payment has not "
+        "been applied and the period deadline has passed, consistent with the late-payment "
+        "logic in `/goddess/dashboard`."
+    ),
+    response_model=DashboardSummary,
+    status_code=200,
+    tags=["dashboards"],
+    responses={401: _E401, 403: _E403, 500: _E500},
+)
+async def goddess_dashboard_summary(
+    user: User = Depends(require_role(UserRole.goddess)),
+    ctrl: DashboardSummaryController = Depends(_summary_ctrl),
+) -> DashboardSummary:
+    return await ctrl.goddess_summary(user)
 
 
 @goddess_router.get(

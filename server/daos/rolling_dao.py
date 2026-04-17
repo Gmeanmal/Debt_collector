@@ -19,6 +19,15 @@ class RollingTributeDao:
         )
         return result.scalar_one_or_none()
 
+    async def list_for_sub_ids(self, sub_ids: list[UUID]) -> list[RollingTribute]:
+        """Return all rolling tribute records for the given sub ids in one query."""
+        if not sub_ids:
+            return []
+        result = await self._session.execute(
+            select(RollingTribute).where(col(RollingTribute.sub_id).in_(sub_ids))
+        )
+        return list(result.scalars().all())
+
     async def upsert(
         self, sub_id: UUID, goddess_id: UUID, payload: RollingTributeIn
     ) -> RollingTribute:

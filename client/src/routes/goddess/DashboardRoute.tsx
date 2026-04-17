@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
-import { StatCard } from "@/components/dashboard/StatCard";
+import { DashboardSummaryGrid } from "@/components/dashboard/DashboardSummaryGrid";
 import { LatePaymentList } from "@/components/dashboard/LatePaymentList";
 import { MonthlyRevenueChart } from "@/components/dashboard/MonthlyRevenueChart";
 import { MethodBreakdownChart } from "@/components/dashboard/MethodBreakdownChart";
@@ -15,21 +15,30 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { getGoddessDashboardApi } from "@/services/dashboards/dashboardsApi";
 import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
+import { useGoddessDashboard } from "@/hooks/dashboard/useGoddessDashboard";
 import { useGoddessDashboardCharts } from "@/hooks/dashboard/useGoddessDashboardCharts";
+import { useGoddessDashboardSummary } from "@/hooks/dashboard/useGoddessDashboardSummary";
 import { queryKeys } from "@/lib/queryKeys";
+import type { GoddessDashboardOut } from "@/services/dashboards/dashboardsApi";
+import type { DashboardSummary } from "@/types/dashboard";
 
 export function DashboardRoute() {
   const {
     data: dash,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: queryKeys.goddess.dashboard(),
-    queryFn: getGoddessDashboardApi,
-  });
+    isLoading: dashLoading,
+    isError: dashError,
+    error: dashErr,
+  } = useGoddessDashboard();
+
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    isError: summaryError,
+    error: summaryErr,
+  } = useGoddessDashboardSummary();
+
+  const isLoading = dashLoading || summaryLoading;
 
   return (
     <div className="px-4 py-10 sm:px-8 md:py-16">
@@ -66,24 +75,34 @@ export function DashboardRoute() {
 
         {isLoading && <ListSkeleton rows={2} />}
 
-        {isError && (
+        {dashError && (
           <ErrorState
             title="Failed to load dashboard"
-            message={(error as Error | undefined)?.message ?? "Try refreshing the page."}
+            message={dashErr?.message ?? "Try refreshing the page."}
           />
         )}
 
-        {!isLoading && !isError && dash && <DashboardContent dash={dash} />}
+        {!dashError && summaryError && (
+          <ErrorState
+            title="Failed to load dashboard summary"
+            message={summaryErr?.message ?? "Try refreshing the page."}
+          />
+        )}
+
+        {!isLoading && !dashError && !summaryError && dash && summary && (
+          <DashboardContent dash={dash} summary={summary} />
+        )}
       </div>
     </div>
   );
 }
 
 interface ContentProps {
-  dash: NonNullable<Awaited<ReturnType<typeof getGoddessDashboardApi>>>;
+  dash: GoddessDashboardOut;
+  summary: DashboardSummary;
 }
 
-function DashboardContent({ dash }: ContentProps) {
+function DashboardContent({ dash, summary }: ContentProps) {
   const { data: subs = [] } = useQuery({
     queryKey: queryKeys.goddess.subs(),
     queryFn: listGoddessSubsApi,
@@ -95,11 +114,12 @@ function DashboardContent({ dash }: ContentProps) {
     const sub = subs.find((s) => s.id === item.sub_id);
     return sub ? { ...item, sub_username: sub.username } : item;
   });
+
   const everythingZero =
-    dash.subs_total === 0 &&
+    summary.subs_active === 0 &&
     dash.rolling_count === 0 &&
-    dash.contracts_active === 0 &&
-    dash.pending_validations === 0 &&
+    summary.contracts_active === 0 &&
+    summary.validations_pending === 0 &&
     dash.pending_contracts === 0 &&
     Number(dash.total_drained) === 0 &&
     late.length === 0;
@@ -115,30 +135,7 @@ function DashboardContent({ dash }: ContentProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard
-          label="Subs"
-          value={dash.subs_total}
-          sublabel={`${dash.subs_active} active · ${dash.subs_blacklisted} blacklisted`}
-        />
-        <StatCard label="Rolling" value={dash.rolling_count} sublabel="Active tributes" />
-        <StatCard label="Contracts" value={dash.contracts_active} sublabel="In repayment" />
-        <StatCard
-          label="To validate"
-          value={dash.pending_validations}
-          accent={dash.pending_validations > 0 ? "warning" : "default"}
-        />
-        <StatCard
-          label="Pending"
-          value={dash.pending_contracts}
-          accent={dash.pending_contracts > 0 ? "warning" : "default"}
-        />
-        <StatCard
-          label="Total drained"
-          value={`£${Number(dash.total_drained).toFixed(2)}`}
-          accent="success"
-        />
-      </div>
+      <DashboardSummaryGrid summary={summary} />
 
       <ChartGrid />
 
