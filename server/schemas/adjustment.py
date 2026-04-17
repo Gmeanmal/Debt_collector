@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from models.adjustment import AdjustmentStatus
+from models.adjustment import AdjustmentStatus, ContractAdjustmentKind
 
 
 class SurprisePenaltyIn(BaseModel):
@@ -43,6 +43,14 @@ class ContractAdjustmentOut(BaseModel):
     id: UUID = Field(..., description="Adjustment UUID")
     contract_id: UUID = Field(..., description="Parent contract UUID")
     proposed_by: UUID = Field(..., description="UUID of the user who proposed the adjustment")
+    kind: ContractAdjustmentKind | None = Field(
+        default=None,
+        description=(
+            "Adjustment kind: `surprise_penalty` or `adjustment`. "
+            "Null on rows created before the kind column was introduced."
+        ),
+        examples=["surprise_penalty"],
+    )
     amount: Decimal = Field(..., description="Adjustment amount (GBP)", examples=["50.00"])
     reason: str | None = Field(default=None, description="Optional reason note")
     status: AdjustmentStatus = Field(..., description="Adjustment lifecycle status")

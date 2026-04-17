@@ -3,7 +3,6 @@ from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import col, select
 
 from controllers._goddess import resolve_goddess_id
 from core.config import get_settings
@@ -13,10 +12,11 @@ from daos.debt_dao import DebtContractAuditDao, DebtContractDao
 from daos.token_dao import TokenDao
 from daos.user_dao import UserDao
 from models.blacklist import BlacklistEntry
-from models.debt import DebtContract, DebtContractAudit, DebtContractEventType, DebtContractStatus
+from models.debt import DebtContractAudit, DebtContractEventType, DebtContractStatus
 from models.notification import NotificationType
 from models.user import User, UserStatus
 from schemas.blacklist import BlacklistEntryOut
+from schemas.money_previews import BreachPreviewOut
 from services.notifications.notify import notify
 
 
@@ -67,13 +67,7 @@ class BlacklistController:
             raise Conflict("sub is already blacklisted")
 
         now = _now_utc()
-        result = await self._session.execute(
-            select(DebtContract).where(
-                col(DebtContract.sub_id) == sub_id,
-                col(DebtContract.status) == DebtContractStatus.active,
-            )
-        )
-        active_contracts = list(result.scalars().all())
+        active_contracts = await self._contract_dao.list_active_for_sub(sub_id)
 
         snapshot = Decimal("0.00")
         for contract in active_contracts:
@@ -121,6 +115,31 @@ class BlacklistController:
         )
 
         return _entry_out(entry)
+
+    async def breach_preview(
+        self, goddess_user: User, username: str, reason: str
+    ) -> BreachPreviewOut:
+        """Return a non-mutating preview of the breach action for a sub identified by username.
+
+        Computes how many active contracts would be cascaded, the total balance snapshot
+        that would be recorded, and whether the sub would be blacklisted.
+        Does not modify any database rows.
+        """
+        goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
+        sub = await self._user_dao.get_by_username(username)
+        if sub is None or sub.goddess_id != goddess_id:
+            raise NotFound("sub not found or not linked to this goddess")
+
+        active_contracts = await self._contract_dao.list_active_for_sub(sub.id)
+
+        rolling_balance = sum((Decimal(str(c.balance)) for c in active_contracts), Decimal("0.00"))
+        will_blacklist = sub.status != UserStatus.blacklisted
+
+        return BreachPreviewOut(
+            active_contracts_to_cascade=len(active_contracts),
+            rolling_balance_to_freeze=rolling_balance,
+            will_blacklist=will_blacklist,
+        )
 
     async def list(self, goddess_user: User) -> list[BlacklistEntryOut]:
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)

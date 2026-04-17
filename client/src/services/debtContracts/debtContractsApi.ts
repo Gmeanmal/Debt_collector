@@ -1,8 +1,10 @@
 import { apiClient } from "@/api/client";
 import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { components } from "@/types/api.generated";
-import { env } from "@/utils/env";
 
+export type SurprisePenaltyPreviewOut = components["schemas"]["SurprisePenaltyPreviewOut"];
+export type SurprisePenaltyCommitIn = components["schemas"]["SurprisePenaltyCommitIn"];
+export type BuyoutPreviewOut = components["schemas"]["BuyoutPreviewOut"];
 export type DebtContractCreate = components["schemas"]["DebtContractCreate"];
 export type DebtContractCounter = components["schemas"]["DebtContractCounter"];
 export type DebtContractSignIn = components["schemas"]["DebtContractSignIn"];
@@ -245,5 +247,43 @@ export async function getContractBySlugSubApi(slug: string): Promise<DebtContrac
     headers: authHeaders(),
   });
   if (error || !data) throw new Error(extractMessage(error, `Contract ${slug} not found`));
+  return data;
+}
+
+export async function surprisePenaltyPreviewApi(
+  slug: string,
+  amount_gbp: number | string,
+): Promise<SurprisePenaltyPreviewOut> {
+  const { data, error } = await apiClient.POST(
+    "/goddess/contracts/{slug}/surprise-penalty/preview",
+    {
+      params: { path: { slug } },
+      body: { amount_gbp },
+      headers: authHeaders(),
+    },
+  );
+  if (error || !data) throw new Error(extractMessage(error, "Failed to preview surprise penalty"));
+  return data;
+}
+
+export async function surprisePenaltyBySlugApi(
+  slug: string,
+  body: SurprisePenaltyCommitIn,
+): Promise<DebtContractOut> {
+  const { data, error } = await apiClient.POST("/goddess/contracts/{slug}/surprise-penalty", {
+    params: { path: { slug } },
+    body,
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to apply surprise penalty"));
+  return data;
+}
+
+export async function buyoutPreviewApi(slug: string): Promise<BuyoutPreviewOut> {
+  const { data, error } = await apiClient.POST("/sub/contracts/{slug}/buyout/preview", {
+    params: { path: { slug } },
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to preview buyout"));
   return data;
 }

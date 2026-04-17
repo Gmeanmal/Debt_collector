@@ -983,6 +983,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goddess/contracts/{slug}/surprise-penalty/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview a surprise penalty on a contract
+         * @description Returns the projected balance impact of applying a surprise penalty without mutating any state. Requires `dom_can_add_surprise_penalty = true` on the contract and status `active`. Use the returned figures to populate the confirmation modal before calling the commit endpoint.
+         */
+        post: operations["surprise_penalty_preview_goddess_contracts__slug__surprise_penalty_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/goddess/contracts/{slug}/surprise-penalty": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply a confirmed surprise penalty to a contract
+         * @description Applies a surprise penalty to the contract after the goddess has reviewed the preview and confirmed in the typed-confirmation modal. Creates a `ContractAdjustment` record (kind=`surprise_penalty`), emits a `surprise_penalty` ledger event that increases the balance, writes a `DebtContractAudit` row, and notifies the sub. Requires `dom_can_add_surprise_penalty = true` and status `active`. The `confirmed_at` timestamp proves the goddess saw the preview before submitting.
+         */
+        post: operations["surprise_penalty_commit_goddess_contracts__slug__surprise_penalty_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sub/contracts/{slug}/buyout/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview the buyout amount for a contract
+         * @description Computes the pro-rated exit amount the sub would owe to buy out the contract at the current moment in time, without mutating any state. Formula: `exit_amount * (elapsed_periods / duration_periods)`. Only available on `active` contracts owned by the calling sub. The actual buyout is committed by declaring a `buyout` payment and having the goddess validate it — the commit endpoint is not part of this slice.
+         */
+        post: operations["buyout_preview_sub_contracts__slug__buyout_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/goddess/subs/{username}/breach/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview the impact of breaching a sub
+         * @description Returns a read-only summary of what the breach action would do, without mutating any state. Intended to populate the Danger-zone typed-confirmation modal before the goddess commits the breach via `POST /goddess/subs/{sub_id}/breach`. Returns the number of active contracts that would cascade to `breached`, the combined balance that would be snapshotted on the blacklist entry, and whether the sub would be blacklisted (always true unless already blacklisted).
+         */
+        post: operations["breach_preview_goddess_subs__username__breach_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/cron/run-now": {
         parameters: {
             query?: never;
@@ -4847,6 +4927,36 @@ export interface components {
              */
             reason?: string | null;
         };
+        /** BreachPreviewIn */
+        BreachPreviewIn: {
+            /**
+             * Reason
+             * @description Reason for the breach — provided by the goddess in the confirmation modal.
+             * @example Sub disappeared without warning and stopped all contact.
+             */
+            reason: string;
+        };
+        /** BreachPreviewOut */
+        BreachPreviewOut: {
+            /**
+             * Active Contracts To Cascade
+             * @description Number of active debt contracts that would transition to `breached` if the breach is confirmed (includes the triggering contract and all others).
+             * @example 2
+             */
+            active_contracts_to_cascade: number;
+            /**
+             * Rolling Balance To Freeze
+             * @description Sum of balances across all active contracts that would be captured in the blacklist entry snapshot (GBP).
+             * @example 640.00
+             */
+            rolling_balance_to_freeze: string;
+            /**
+             * Will Blacklist
+             * @description Always true when the sub has at least one active contract. False only when the sub is already blacklisted (edge case guard).
+             * @example true
+             */
+            will_blacklist: boolean;
+        };
         /**
          * BulkAction
          * @enum {string}
@@ -4940,6 +5050,33 @@ export interface components {
              */
             payment_methods: components["schemas"]["PaymentMethodOut"][];
         };
+        /** BuyoutPreviewOut */
+        BuyoutPreviewOut: {
+            /**
+             * Contract Slug
+             * @description Slug of the target contract
+             * @example c_a7k2mq
+             */
+            contract_slug: string;
+            /**
+             * Current Balance
+             * @description Current outstanding contract balance (GBP)
+             * @example 480.00
+             */
+            current_balance: string;
+            /**
+             * Exit Amount
+             * @description Pro-rated buyout amount due at this point in the contract term (GBP)
+             * @example 350.00
+             */
+            exit_amount: string;
+            /**
+             * Payoff Delta
+             * @description Difference between current balance and exit amount (GBP). Positive means the buyout is cheaper than paying off the full balance.
+             * @example 130.00
+             */
+            payoff_delta: string;
+        };
         /** ConsentAcceptanceIn */
         ConsentAcceptanceIn: {
             /**
@@ -5012,6 +5149,11 @@ export interface components {
              */
             created_at: string;
         };
+        /**
+         * ContractAdjustmentKind
+         * @enum {string}
+         */
+        ContractAdjustmentKind: "surprise_penalty" | "adjustment";
         /** ContractAdjustmentOut */
         ContractAdjustmentOut: {
             /**
@@ -5032,6 +5174,11 @@ export interface components {
              * @description UUID of the user who proposed the adjustment
              */
             proposed_by: string;
+            /**
+             * @description Adjustment kind: `surprise_penalty` or `adjustment`. Null on rows created before the kind column was introduced.
+             * @example surprise_penalty
+             */
+            kind?: components["schemas"]["ContractAdjustmentKind"] | null;
             /**
              * Amount
              * @description Adjustment amount (GBP)
@@ -9076,6 +9223,28 @@ export interface components {
              */
             notes?: string | null;
         };
+        /** SurprisePenaltyCommitIn */
+        SurprisePenaltyCommitIn: {
+            /**
+             * Amount Gbp
+             * @description Flat penalty amount to apply (GBP). Must be > 0 and <= £100,000.
+             * @example 50.00
+             */
+            amount_gbp: number | string;
+            /**
+             * Reason
+             * @description Mandatory reason for the surprise penalty, recorded on the ledger event.
+             * @example Missed check-in protocol three times this week.
+             */
+            reason: string;
+            /**
+             * Confirmed At
+             * Format: date-time
+             * @description ISO-8601 UTC datetime from the confirmation modal, proving the goddess acknowledged the preview before submitting the commit. Stored in the ContractAdjustment record.
+             * @example 2026-04-17T14:30:00Z
+             */
+            confirmed_at: string;
+        };
         /** SurprisePenaltyIn */
         SurprisePenaltyIn: {
             /**
@@ -9090,6 +9259,42 @@ export interface components {
              * @example late to session
              */
             reason?: string | null;
+        };
+        /** SurprisePenaltyPreviewIn */
+        SurprisePenaltyPreviewIn: {
+            /**
+             * Amount Gbp
+             * @description Flat penalty amount to preview (GBP). Must be > 0 and <= £100,000.
+             * @example 50.00
+             */
+            amount_gbp: number | string;
+        };
+        /** SurprisePenaltyPreviewOut */
+        SurprisePenaltyPreviewOut: {
+            /**
+             * Contract Slug
+             * @description Slug of the target contract
+             * @example c_a7k2mq
+             */
+            contract_slug: string;
+            /**
+             * Current Outstanding
+             * @description Current contract balance before the penalty (GBP)
+             * @example 320.00
+             */
+            current_outstanding: string;
+            /**
+             * Delta
+             * @description Penalty amount that would be applied (GBP)
+             * @example 50.00
+             */
+            delta: string;
+            /**
+             * New Outstanding
+             * @description Projected balance after the penalty would be applied (GBP)
+             * @example 370.00
+             */
+            new_outstanding: string;
         };
         /** TaskCreateIn */
         TaskCreateIn: {
@@ -13018,6 +13223,279 @@ export interface operations {
             };
             /** @description Forbidden — role or ownership mismatch */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    surprise_penalty_preview_goddess_contracts__slug__surprise_penalty_preview_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SurprisePenaltyPreviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SurprisePenaltyPreviewOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — role or ownership mismatch, or feature flag disabled */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — contract or sub not visible to caller */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict — action not valid for the current contract or sub state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable entity — request body validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    surprise_penalty_commit_goddess_contracts__slug__surprise_penalty_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SurprisePenaltyCommitIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DebtContractOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — role or ownership mismatch, or feature flag disabled */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — contract or sub not visible to caller */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict — action not valid for the current contract or sub state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable entity — request body validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    buyout_preview_sub_contracts__slug__buyout_preview_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BuyoutPreviewOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — role or ownership mismatch, or feature flag disabled */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — contract or sub not visible to caller */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict — action not valid for the current contract or sub state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    breach_preview_goddess_subs__username__breach_preview_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BreachPreviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BreachPreviewOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — role or ownership mismatch, or feature flag disabled */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — contract or sub not visible to caller */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

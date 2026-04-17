@@ -3,7 +3,7 @@ from decimal import Decimal
 from enum import StrEnum
 from uuid import UUID, uuid4
 
-from sqlalchemy import Column, ForeignKey, Numeric
+from sqlalchemy import Column, ForeignKey, Numeric, Text
 from sqlmodel import Field, SQLModel
 
 
@@ -12,6 +12,13 @@ class AdjustmentStatus(StrEnum):
     pending_sub_approval = "pending_sub_approval"
     accepted = "accepted"
     refused = "refused"
+
+
+class ContractAdjustmentKind(StrEnum):
+    # Goddess-initiated ad-hoc surprise penalty (dom_can_add_surprise_penalty flag required).
+    surprise_penalty = "surprise_penalty"
+    # Balance adjustment (dom_controlled or sub_approval_required).
+    adjustment = "adjustment"
 
 
 class ContractAdjustment(SQLModel, table=True):
@@ -30,6 +37,11 @@ class ContractAdjustment(SQLModel, table=True):
             ForeignKey("user.id", ondelete="RESTRICT"),
             nullable=False,
         )
+    )
+    # kind is nullable so existing rows (pre-migration) remain valid.
+    kind: ContractAdjustmentKind | None = Field(
+        default=None,
+        sa_column=Column(Text, nullable=True, index=True),
     )
     amount: Decimal = Field(sa_column=Column(Numeric(12, 2), nullable=False))
     reason: str | None = Field(default=None, nullable=True)

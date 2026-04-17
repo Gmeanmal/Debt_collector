@@ -1,107 +1,28 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { ContractActions } from "@/components/contracts/ContractActions";
 import { ContractAuditLog } from "@/components/contracts/ContractAuditLog";
 import { ContractStats } from "@/components/contracts/ContractStats";
-import { SimulationChart } from "@/components/contracts/SimulationChart";
-import { SurprisePenaltyDialog } from "@/components/contracts/SurprisePenaltyDialog";
+import { SurprisePenaltyFlow } from "@/components/contracts/SurprisePenaltyFlow";
 import { AdjustmentDialog } from "@/components/contracts/AdjustmentDialog";
-import { BuyoutIntentPanel } from "@/components/contracts/BuyoutIntentPanel";
+import { BuyoutPreviewModal } from "@/components/contracts/BuyoutPreviewModal";
+import { ContractTerms, SimulationPanel } from "@/components/contracts/ContractDetailPanels";
 import {
   downloadContractPdfApi,
   getContractApi,
   getContractAuditApi,
   getContractBySlugGoddessApi,
   getContractBySlugSubApi,
-  simulateDraftApi,
-  type DebtContractOut,
-  type DebtSimulationOut,
 } from "@/services/debtContracts/debtContractsApi";
 import { useAuth } from "@/services/auth/useAuth";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { queryKeys } from "@/lib/queryKeys";
 
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
-}
-
-function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function fmtPct(fraction: string): string {
-  const n = parseFloat(fraction);
-  return isNaN(n) ? "—" : `${(n * 100).toFixed(2).replace(/\.?0+$/, "")}%`;
-}
-
-function TermRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-4 py-1.5 border-b border-base-border last:border-0">
-      <span className="text-sm text-base-text-muted">{label}</span>
-      <span className="text-sm font-semibold text-base-text text-right">{value}</span>
-    </div>
-  );
-}
-
-function ContractTerms({ contract }: { contract: DebtContractOut }) {
-  return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-5">
-      <h2 className="text-sm font-semibold text-base-text mb-3">Current terms</h2>
-      <TermRow label="Principal" value={fmtGbp(contract.principal)} />
-      <TermRow label="Interest rate" value={fmtPct(contract.interest_rate)} />
-      <TermRow label="Interest period" value={contract.interest_period} />
-      <TermRow label="Duration" value={`${contract.duration_periods} periods`} />
-      <TermRow label="Payment frequency" value={contract.payment_frequency} />
-      <TermRow label="Minimum payment" value={fmtGbp(contract.minimum_payment)} />
-      <TermRow label="Late penalty severity" value={contract.late_penalty_severity} />
-      <TermRow label="Late penalty" value={fmtPct(contract.late_penalty_percent)} />
-      <TermRow label="Exit amount" value={fmtGbp(contract.exit_amount)} />
-      <TermRow label="Balance" value={fmtGbp(contract.balance)} />
-      <TermRow label="Created" value={fmtDate(contract.created_at)} />
-      <TermRow label="Updated" value={fmtDate(contract.updated_at)} />
-    </div>
-  );
-}
-
-function SimulationPanel({ contract }: { contract: DebtContractOut }) {
-  const [simulation, setSimulation] = useState<DebtSimulationOut | null>(null);
-  const [simError, setSimError] = useState<string | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      simulateDraftApi({
-        principal: contract.principal,
-        interest_rate: contract.interest_rate,
-        interest_period: contract.interest_period,
-        duration_periods: contract.duration_periods,
-        payment_frequency: contract.payment_frequency,
-        minimum_payment: contract.minimum_payment,
-        late_penalty_severity: contract.late_penalty_severity,
-        late_penalty_percent: contract.late_penalty_percent,
-        dom_can_add_surprise_penalty: contract.dom_can_add_surprise_penalty,
-        mid_contract_addition_mode: contract.mid_contract_addition_mode,
-        exit_amount: contract.exit_amount,
-      })
-        .then((r) => {
-          setSimulation(r);
-          setSimError(null);
-        })
-        .catch((err: Error) => setSimError(err.message));
-    }, 300);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [contract]);
-
-  if (simError) return <p className="text-xs text-status-warning">{simError}</p>;
-  if (!simulation) return <p className="text-sm text-base-text-muted">Loading projection…</p>;
-  return <SimulationChart simulation={simulation} principal={contract.principal} />;
-}
+const btnBase =
+  "px-4 py-2 text-sm font-semibold rounded-md transition-colors disabled:opacity-50 focus-visible:ring-2";
 
 export function ContractDetailRoute() {
   const { slug } = useParams<{ slug: string }>();
@@ -185,9 +106,6 @@ export function ContractDetailRoute() {
       setBanner({ msg, kind: "error" });
     }
   }
-
-  const btnBase =
-    "px-4 py-2 text-sm font-semibold rounded-md transition-colors disabled:opacity-50 focus-visible:ring-2";
 
   return (
     <div className="p-4 md:p-8">
@@ -279,8 +197,8 @@ export function ContractDetailRoute() {
         </div>
 
         {showSurprise && (
-          <SurprisePenaltyDialog
-            contractId={contract.id}
+          <SurprisePenaltyFlow
+            subId={contract.sub_id}
             onClose={() => setShowSurprise(false)}
             onBanner={(msg, kind) => setBanner({ msg, kind })}
           />
@@ -293,7 +211,11 @@ export function ContractDetailRoute() {
           />
         )}
         {showBuyout && (
-          <BuyoutIntentPanel contractId={contract.id} onClose={() => setShowBuyout(false)} />
+          <BuyoutPreviewModal
+            contractSlug={contract.slug ?? safeSlug}
+            onClose={() => setShowBuyout(false)}
+            onBanner={(msg, kind) => setBanner({ msg, kind })}
+          />
         )}
 
         <ContractActions

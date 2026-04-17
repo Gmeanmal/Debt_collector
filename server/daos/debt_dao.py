@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
-from models.debt import DebtContract, DebtContractAudit, DebtContractVersion
+from models.debt import DebtContract, DebtContractAudit, DebtContractStatus, DebtContractVersion
 
 
 class DebtContractDao:
@@ -44,6 +44,18 @@ class DebtContractDao:
         result = await self._session.execute(
             select(DebtContract)
             .where(col(DebtContract.goddess_id) == goddess_id)
+            .order_by(col(DebtContract.created_at).desc())
+        )
+        return list(result.scalars().all())
+
+    async def list_active_for_sub(self, sub_id: UUID) -> list[DebtContract]:
+        """Return all active contracts for a sub, newest first."""
+        result = await self._session.execute(
+            select(DebtContract)
+            .where(
+                col(DebtContract.sub_id) == sub_id,
+                col(DebtContract.status) == DebtContractStatus.active,
+            )
             .order_by(col(DebtContract.created_at).desc())
         )
         return list(result.scalars().all())

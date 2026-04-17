@@ -25,14 +25,27 @@ export function AdminCronRoute() {
         </div>
 
         <div className="bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-4">
-          <button
-            type="button"
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending}
-            className="px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary self-start"
-          >
-            {mutation.isPending ? "Running…" : "Run cron now"}
-          </button>
+          <div className="flex flex-col gap-1.5">
+            <span className="relative inline-flex w-fit group" title="Dry-run coming in W7 CRON-1">
+              <button
+                type="button"
+                onClick={() => mutation.mutate()}
+                disabled={true}
+                title="Disabled pending admin safe-mode"
+                aria-label="Run cron now"
+                className="px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary self-start"
+              >
+                Run cron now
+              </button>
+              <span
+                role="tooltip"
+                className="pointer-events-none absolute bottom-full left-0 mb-2 w-max max-w-xs rounded bg-base-surface border border-base-border px-2 py-1 text-xs text-base-text-muted opacity-0 group-hover:opacity-100 transition-opacity shadow-[var(--shadow-card)]"
+              >
+                Dry-run coming in W7 CRON-1
+              </span>
+            </span>
+            <p className="text-xs text-base-text-muted">Dry-run mode coming in W7 CRON-1.</p>
+          </div>
 
           {mutation.isError && (
             <p className="text-sm text-status-danger">{mutation.error.message}</p>

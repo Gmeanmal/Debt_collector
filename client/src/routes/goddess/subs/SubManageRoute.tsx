@@ -66,11 +66,7 @@ export function SubManageRoute() {
             </div>
 
             <TabsContent value="overview">
-              <SubOverviewTab
-                subId={sub.id}
-                username={safeUsername}
-                status={sub.status ?? ""}
-              />
+              <SubOverviewTab subId={sub.id} username={safeUsername} status={sub.status ?? ""} />
             </TabsContent>
 
             <TabsContent value="rolling">

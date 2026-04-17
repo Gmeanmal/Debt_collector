@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from uuid import UUID, uuid4
 
@@ -19,7 +20,7 @@ from daos.allocation_dao import ContractPaymentStats, PaymentAllocationDao
 from daos.debt_dao import DebtContractAuditDao, DebtContractDao, DebtContractVersionDao
 from daos.payment_method_dao import PaymentMethodDao
 from daos.user_dao import UserDao
-from models.adjustment import AdjustmentStatus, ContractAdjustment
+from models.adjustment import AdjustmentStatus, ContractAdjustment, ContractAdjustmentKind
 from models.debt import (
     DebtContract,
     DebtContractAudit,
@@ -39,6 +40,7 @@ from schemas.debt import (
     DebtContractCreate,
     DebtContractOut,
 )
+from schemas.money_previews import BuyoutPreviewOut, SurprisePenaltyPreviewOut
 from services.notifications.notify import notify
 from services.pdf.generator import generate as generate_contract_pdf
 from utils.finance import exit_due
@@ -814,6 +816,132 @@ class DebtController:
     async def list_pending_adjustments(self, sub_user: User) -> list[ContractAdjustmentOut]:
         rows = await self._adjustment_dao.list_pending_for_sub(sub_user.id)
         return [adjustment_out(r) for r in rows]
+
+    async def surprise_penalty_preview(
+        self,
+        goddess_user: User,
+        slug: str,
+        amount_gbp: Decimal,
+    ) -> SurprisePenaltyPreviewOut:
+        """Return a non-mutating preview of what a surprise penalty would do to the balance."""
+        contract = await self._resolve_goddess_owns_contract_by_slug(goddess_user, slug)
+        if not contract.dom_can_add_surprise_penalty:
+            raise Forbidden("surprise penalty not enabled on this contract")
+        if contract.status != DebtContractStatus.active:
+            raise Conflict("surprise penalty only allowed on active contracts")
+
+        current = Decimal(str(contract.balance))
+        return SurprisePenaltyPreviewOut(
+            contract_slug=contract.slug,
+            current_outstanding=current,
+            delta=amount_gbp,
+            new_outstanding=(current + amount_gbp),
+        )
+
+    async def surprise_penalty_by_slug(
+        self,
+        goddess_user: User,
+        slug: str,
+        amount_gbp: Decimal,
+        reason: str,
+        confirmed_at: datetime,
+    ) -> DebtContractOut:
+        """Apply a surprise penalty confirmed via the preview modal.
+
+        Creates a DebtEvent (surprise_penalty) that updates the balance,
+        a ContractAdjustment audit record (kind=surprise_penalty), and notifies the sub.
+        """
+        contract = await self._resolve_goddess_owns_contract_by_slug(goddess_user, slug)
+        if not contract.dom_can_add_surprise_penalty:
+            raise Forbidden("surprise penalty not enabled on this contract")
+        if contract.status != DebtContractStatus.active:
+            raise Conflict("surprise penalty only allowed on active contracts")
+
+        event = DebtEvent(
+            contract_id=contract.id,
+            event_type=EventType.surprise_penalty,
+            amount=amount_gbp,
+            note=reason,
+        )
+        await apply_event_and_recompute(self._session, event)
+
+        now = now_utc()
+        adjustment = ContractAdjustment(
+            contract_id=contract.id,
+            proposed_by=goddess_user.id,
+            kind=ContractAdjustmentKind.surprise_penalty,
+            amount=amount_gbp,
+            reason=reason,
+            status=AdjustmentStatus.applied,
+            created_at=confirmed_at.replace(tzinfo=None) if confirmed_at.tzinfo else confirmed_at,
+            updated_at=now,
+            resolved_at=now,
+        )
+        await self._adjustment_dao.create(adjustment)
+
+        await self._audit_dao.append(
+            DebtContractAudit(
+                contract_id=contract.id,
+                event_type=DebtContractEventType.surprise_penalty,
+                actor_id=goddess_user.id,
+                from_status=contract.status,
+                to_status=contract.status,
+                note=f"surprise_penalty £{amount_gbp}: {reason}",
+            )
+        )
+
+        contract.updated_at = now
+        await self._dao.save(contract)
+        current_version = await self._load_current_version(contract)
+
+        await notify(
+            self._session,
+            contract.sub_id,
+            NotificationType.contract_surprise_penalty,
+            title="Surprise penalty applied",
+            body=f"A surprise penalty of £{amount_gbp} was added to your contract: {reason}",
+            link=f"/contracts/{contract.slug}",
+            payload={"contract_slug": contract.slug, "amount": str(amount_gbp)},
+        )
+
+        stats = await self._stats_for(contract)
+        return contract_out(contract, current_version, stats)
+
+    async def buyout_preview_by_slug(
+        self,
+        sub_user: User,
+        slug: str,
+    ) -> BuyoutPreviewOut:
+        """Return a non-mutating buyout preview for the sub's contract identified by slug."""
+        contract = await self._dao.get_by_slug(slug)
+        if contract is None:
+            raise NotFound("debt contract not found")
+        if contract.sub_id != sub_user.id:
+            raise Forbidden("contract does not belong to this sub")
+        if contract.status != DebtContractStatus.active:
+            raise Conflict("buyout only available on active contracts")
+
+        elapsed = current_period_index(contract, now_utc())
+        exit_amount = exit_due(contract, elapsed)
+        current_balance = Decimal(str(contract.balance))
+        return BuyoutPreviewOut(
+            contract_slug=contract.slug,
+            current_balance=current_balance,
+            exit_amount=exit_amount,
+            payoff_delta=(current_balance - exit_amount),
+        )
+
+    async def _resolve_goddess_owns_contract_by_slug(
+        self, goddess_user: User, slug: str
+    ) -> DebtContract:
+        """Fetch a contract by slug and assert the caller goddess owns it."""
+        contract = await self._dao.get_by_slug(slug)
+        if contract is None:
+            raise NotFound("debt contract not found")
+        goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
+        if contract.goddess_id != goddess_id:
+            raise Forbidden("contract does not belong to this goddess")
+        return contract
 
     async def _emit_adjustment_event(
         self, contract_id: UUID, amount: Decimal, reason: str | None

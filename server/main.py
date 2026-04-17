@@ -31,6 +31,7 @@ from routers import (
     limits,
     me_preferences,
     merits,
+    money_previews,
     notifications,
     panic,
     payment_methods,
@@ -126,6 +127,7 @@ app.include_router(rolling.router)
 app.include_router(debt_contracts.router)
 app.include_router(blacklist.router)
 app.include_router(adjustments.router)
+app.include_router(money_previews.router)
 app.include_router(admin_cron.router)
 app.include_router(admin.router)
 app.include_router(notifications.router)

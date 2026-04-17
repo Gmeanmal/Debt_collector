@@ -194,6 +194,7 @@ def adjustment_out(adjustment: ContractAdjustment) -> ContractAdjustmentOut:
         id=adjustment.id,
         contract_id=adjustment.contract_id,
         proposed_by=adjustment.proposed_by,
+        kind=adjustment.kind,
         amount=Decimal(str(adjustment.amount)),
         reason=adjustment.reason,
         status=adjustment.status,

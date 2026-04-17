@@ -2,6 +2,7 @@ import { apiClient } from "@/api/client";
 import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { components } from "@/types/api.generated";
 
+export type BreachPreviewOut = components["schemas"]["BreachPreviewOut"];
 export type BlacklistEntryOut = components["schemas"]["BlacklistEntryOut"];
 export type BreachIn = components["schemas"]["BreachIn"];
 export type ForgiveIn = components["schemas"]["ForgiveIn"];
@@ -32,6 +33,16 @@ export async function listBlacklistApi(): Promise<BlacklistEntryOut[]> {
     headers: authHeaders(),
   });
   if (error || !data) throw new Error(extractMessage(error, "Failed to list blacklist"));
+  return data;
+}
+
+export async function breachPreviewApi(username: string, reason = ""): Promise<BreachPreviewOut> {
+  const { data, error } = await apiClient.POST("/goddess/subs/{username}/breach/preview", {
+    params: { path: { username } },
+    body: { reason },
+    headers: authHeaders(),
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to preview breach"));
   return data;
 }
 

@@ -39,6 +39,13 @@ export const queryKeys = {
     pendingAdjustments: () => ["pendingAdjustments"] as const,
     debtDetail: (contractId: string) => ["debt-contract", contractId] as const,
     preview: (contractId: string) => ["contract", contractId, "preview"] as const,
+    surprisePenaltyPreview: (slug: string) => ["contract", "bySlug", slug, "sp-preview"] as const,
+    buyoutPreview: (slug: string) => ["contract", "bySlug", slug, "buyout-preview"] as const,
+  },
+
+  breachPreview: {
+    forSub: (username: string, reason: string) =>
+      ["breach-preview", username, reason] as const,
   },
 
   rolling: {
