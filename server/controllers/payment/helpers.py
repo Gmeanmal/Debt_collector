@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
+from core.config import get_settings
 from core.exceptions import BadRequest, Forbidden, NotFound
 from daos.payment_method_dao import PaymentMethodDao
 from models.payment import (
@@ -15,6 +16,7 @@ from models.payment import (
 from models.payment_method import PaymentMethod, PaymentMethodType
 from models.user import Goddess, User, UserStatus
 from schemas.payment import AllocationOut, PaymentOut
+from services.storage import object_store
 
 UNSUPPORTED_CATEGORIES: set[PaymentCategory] = set()
 
@@ -113,10 +115,23 @@ async def load_sub_display_name(session: AsyncSession, sub_id: UUID) -> str | No
     return " ".join(parts) if parts else None
 
 
+async def _proof_presigned_url(decl: PaymentDeclaration) -> str | None:
+    if decl.proof_key is None:
+        return None
+    settings = get_settings()
+    return await object_store.generate_presigned_url(
+        bucket=settings.s3_bucket_payment_proofs,
+        key=decl.proof_key,
+        ttl_seconds=600,
+        settings=settings,
+    )
+
+
 async def to_out(session: AsyncSession, decl: PaymentDeclaration) -> PaymentOut:
     allocation = await load_allocation(session, decl.id)
     method_name, method_type = await load_method_summary(session, decl.method_id)
     sub_display_name = await load_sub_display_name(session, decl.sub_id)
+    proof_url = await _proof_presigned_url(decl)
 
     alloc_out: AllocationOut | None = None
     if allocation is not None:
@@ -148,4 +163,5 @@ async def to_out(session: AsyncSession, decl: PaymentDeclaration) -> PaymentOut:
         rejection_reason=decl.rejection_reason,
         source=decl.source,
         allocation=alloc_out,
+        proof_presigned_url=proof_url,
     )

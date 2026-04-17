@@ -1,3 +1,4 @@
+import asyncio
 import datetime as dt
 from decimal import Decimal
 from uuid import UUID
@@ -15,6 +16,7 @@ from controllers.dashboard.helpers import (
     period_start,
     progress_percent,
 )
+from controllers.payment.helpers import to_out as payment_to_out
 from core.exceptions import BadRequest
 from daos.payment_dao import PaymentDeclarationDao
 from models.debt import (
@@ -23,8 +25,7 @@ from models.debt import (
     PaymentFrequency,
 )
 from models.debt_event import DebtEvent, EventType
-from models.payment import PaymentAllocation, PaymentDeclaration, PaymentStatus
-from models.payment_method import PaymentMethod
+from models.payment import PaymentDeclaration, PaymentStatus
 from models.rolling import RollingTribute
 from models.user import User, UserRole, UserStatus
 from schemas.dashboard import (
@@ -36,7 +37,7 @@ from schemas.dashboard import (
     UpcomingPaymentItem,
     WeeklyPaymentTotal,
 )
-from schemas.payment import AllocationOut, PaymentOut
+from schemas.payment import PaymentOut
 from utils.periods import current_period_index
 from utils.rolling import amount_due as rolling_amount_due
 from utils.rolling import current_cycle_deadline
@@ -134,9 +135,9 @@ class DashboardController:
         ]
 
         recent_decls = await self._payment_dao.list_for_sub(sub_user.id, limit=10)
-        recent: list[PaymentOut] = []
-        for d in recent_decls:
-            recent.append(await self._payment_to_out(d, sub_user))
+        recent: list[PaymentOut] = list(
+            await asyncio.gather(*(payment_to_out(self._session, d) for d in recent_decls))
+        )
 
         total_sent = await self._sum_validated_for_sub(sub_user.id)
 
@@ -364,52 +365,6 @@ class DashboardController:
             )
         )
         return Decimal(str(result.scalar_one() or 0))
-
-    async def _payment_to_out(self, decl: PaymentDeclaration, sub: User) -> PaymentOut:
-        alloc_result = await self._session.execute(
-            select(PaymentAllocation).where(col(PaymentAllocation.declaration_id) == decl.id)
-        )
-        allocation = alloc_result.scalar_one_or_none()
-        method_result = await self._session.execute(
-            select(col(PaymentMethod.name), col(PaymentMethod.type)).where(
-                col(PaymentMethod.id) == decl.method_id
-            )
-        )
-        method_row = method_result.one_or_none()
-        method_name = method_row[0] if method_row else None
-        method_type = method_row[1] if method_row else None
-
-        alloc_out: AllocationOut | None = None
-        if allocation is not None:
-            alloc_out = AllocationOut(
-                target_type=allocation.target_type,
-                target_id=allocation.target_id,
-                amount=Decimal(str(allocation.amount)),
-                allocated_at=allocation.allocated_at,
-            )
-
-        return PaymentOut(
-            id=decl.id,
-            sub_id=decl.sub_id,
-            sub_display_name=display_name(sub),
-            goddess_id=decl.goddess_id,
-            method_id=decl.method_id,
-            method_name=method_name,
-            method_type=method_type,
-            amount=Decimal(str(decl.amount)),
-            external_timestamp=decl.external_timestamp,
-            note=decl.note,
-            category=decl.category,
-            status=decl.status,
-            target_id=decl.target_id,
-            created_by=decl.created_by,
-            declared_at=decl.declared_at,
-            validated_at=decl.validated_at,
-            validated_by=decl.validated_by,
-            rejection_reason=decl.rejection_reason,
-            source=decl.source,
-            allocation=alloc_out,
-        )
 
     async def _compute_late_payments(
         self,

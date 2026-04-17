@@ -1,13 +1,18 @@
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from controllers.payment.proof import ALLOWED_PROOF_MIMES, MAX_PROOF_BYTES
 from controllers.payment_controller import PaymentController
 from core.db import get_session
+from core.exceptions import PayloadTooLarge, UnsupportedMediaType, Validation
 from decorators.audit import audit
 from dependencies.auth import require_role
+from models.payment import PaymentCategory
 from models.user import User, UserRole
 from schemas.payment import (
     DeclarePaymentIn,
@@ -24,6 +29,8 @@ _E403 = {"description": "Forbidden — role or ownership mismatch"}
 _E404 = {"description": "Not found — declaration or resource does not exist"}
 _E400 = {"description": "Bad request — invalid category or business rule violation"}
 _E409 = {"description": "Conflict — declaration is not in the expected status"}
+_E413 = {"description": "Payload too large — proof file exceeds the 5 MB limit"}
+_E415 = {"description": "Unsupported media type — proof must be jpeg, png, or webp"}
 _E422 = {"description": "Unprocessable entity — request body validation failed"}
 
 
@@ -44,7 +51,12 @@ goddess_subs_router = APIRouter(prefix="/goddess/subs", tags=["goddess-subs"])
     "",
     summary="Declare a payment",
     description=(
-        "Sub declares a payment they have made. Creates a pending declaration. "
+        "Sub declares a payment they have made via multipart/form-data. "
+        "A proof screenshot (jpeg, png, or webp, ≤ 5 MB) is mandatory; "
+        "the server validates MIME and size, strips EXIF from JPEGs, and stores "
+        "the object under `<goddess_id>/<sub_id>/<declaration_id>.<ext>` in the "
+        "`payment-proofs` bucket. The response includes a presigned GET URL valid "
+        "for 10 minutes. "
         "Category `entry` only allowed while sub status is `pending_entry_tribute`. "
         "Category `tribute` allowed for active subs. "
         "Categories `rolling`, `weekly_debt`, `debt_payment`, `buyout` are reserved "
@@ -53,15 +65,63 @@ goddess_subs_router = APIRouter(prefix="/goddess/subs", tags=["goddess-subs"])
     response_model=PaymentOut,
     status_code=201,
     tags=["payments-sub"],
-    responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 422: _E422},
+    responses={
+        400: _E400,
+        401: _E401,
+        403: _E403,
+        404: _E404,
+        413: _E413,
+        415: _E415,
+        422: _E422,
+    },
 )
 async def declare_payment(
-    body: DeclarePaymentIn,
+    proof: UploadFile = File(..., description="Payment proof screenshot (jpeg/png/webp, ≤ 5 MB)."),
+    category: PaymentCategory = Form(..., description="Payment category."),
+    amount: str = Form(..., description="Payment amount in GBP (≤ 2 decimal places)."),
+    method_id: UUID = Form(..., description="UUID of the payment method used."),
+    external_timestamp: datetime | None = Form(
+        default=None,
+        description="UTC datetime when the payment was actually made (sub-reported).",
+    ),
+    note: str | None = Form(default=None, description="Optional note from the sub."),
+    target_id: UUID | None = Form(
+        default=None,
+        description="Polymorphic target (contract or rolling cycle ID).",
+    ),
     session: AsyncSession = Depends(get_session),
     user: User = Depends(require_role(UserRole.sub)),
     ctrl: PaymentController = Depends(_ctrl),
 ) -> PaymentOut:
-    result = await ctrl.declare_as_sub(user, body)
+    """Declare a payment with a mandatory proof screenshot."""
+    mime = proof.content_type or ""
+    if mime not in ALLOWED_PROOF_MIMES:
+        raise UnsupportedMediaType(
+            f"unsupported proof MIME type '{mime}'; allowed: {sorted(ALLOWED_PROOF_MIMES)}"
+        )
+
+    raw = await proof.read()
+    if len(raw) > MAX_PROOF_BYTES:
+        raise PayloadTooLarge(f"proof file too large: {len(raw)} bytes (limit {MAX_PROOF_BYTES})")
+
+    try:
+        parsed_amount = Decimal(amount)
+    except (InvalidOperation, ValueError) as exc:
+        raise Validation(f"amount is not a valid decimal: {amount!r}") from exc
+
+    try:
+        body = DeclarePaymentIn(
+            amount=parsed_amount,
+            method_id=method_id,
+            category=category,
+            external_timestamp=external_timestamp,
+            note=note,
+            target_id=target_id,
+        )
+    except ValueError as exc:
+        raise Validation(str(exc)) from exc
+
+    result = await ctrl.declare_as_sub(user, body, proof_bytes=raw, proof_mime=mime)
     await session.commit()
     return result
 

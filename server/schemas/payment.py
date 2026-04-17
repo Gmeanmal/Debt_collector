@@ -179,5 +179,15 @@ class PaymentOut(BaseModel):
     allocation: AllocationOut | None = Field(
         default=None, description="Allocation record if validated"
     )
+    proof_presigned_url: str | None = Field(
+        default=None,
+        description=(
+            "Presigned GET URL to the payment proof object, valid for 10 minutes. "
+            "Null when the declaration has no attached proof (legacy rows or goddess-recorded)."
+        ),
+        examples=[
+            "https://minio.example.com/payment-proofs/abc/def/img.jpg?X-Amz-Signature=…",
+        ],
+    )
 
     model_config = {"from_attributes": True}

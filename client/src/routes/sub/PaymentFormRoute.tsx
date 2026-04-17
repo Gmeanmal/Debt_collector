@@ -1,25 +1,52 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/services/auth/useAuth";
 import {
-  declarePaymentApi,
+  DeclarePaymentHttpError,
+  declarePaymentMultipartApi,
   listSubPaymentMethodsApi,
   type PaymentCategory,
 } from "@/services/payments/paymentsApi";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
-import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
-import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
-import { cn } from "@/lib/utils";
+import { CategoryRadioGroup } from "@/components/payments/CategoryRadioGroup";
+import { MethodPicker } from "@/components/payments/MethodPicker";
+import { ProofUploadField } from "@/components/payments/ProofUploadField";
 import { queryKeys } from "@/lib/queryKeys";
 
-const ACTIVE_CATEGORIES: { value: PaymentCategory; label: string }[] = [
-  { value: "entry", label: "Entry tribute" },
-  { value: "tribute", label: "Tribute" },
-  { value: "rolling", label: "Rolling tribute" },
-];
-
 const AMOUNT_RE = /^\d+(\.\d{1,2})?$/;
+
+function nowLondonIsoNaive(): string {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+  const pick = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  const hour = pick("hour") === "24" ? "00" : pick("hour");
+  return `${pick("year")}-${pick("month")}-${pick("day")}T${hour}:${pick("minute")}`;
+}
+
+function normaliseNaiveIso(raw: string): string {
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) return `${raw}:00`;
+  return raw;
+}
+
+function toAmountDefault(raw: string | null | undefined): string {
+  if (raw == null) return "";
+  const n = Number(raw);
+  return Number.isFinite(n) ? n.toFixed(2) : "";
+}
+
+// TODO(DECLARE-2): surface the sub's own rolling amount via a dedicated `/sub/me/rolling`
+// read-model endpoint and prefill here. UserOut does not carry `rolling_amount` today.
+function rollingDefault(): string {
+  return "";
+}
 
 export function PaymentFormRoute() {
   const navigate = useNavigate();
@@ -28,25 +55,37 @@ export function PaymentFormRoute() {
   const [searchParams] = useSearchParams();
 
   const isActive = user?.status === "active";
-  // kind=entry_tribute in the query string locks the form to entry category
+  const pendingEntry = user?.status === "pending_entry_tribute";
   const forcedEntryTribute = searchParams.get("kind") === "entry_tribute";
 
-  const entryTributeDefault = (() => {
-    if (!forcedEntryTribute) return "";
-    const raw = user?.entry_tribute_amount;
-    if (raw == null) return "";
-    const n = Number(raw);
-    return Number.isFinite(n) ? n.toFixed(2) : "";
-  })();
+  const initialCategory: PaymentCategory =
+    isActive && !forcedEntryTribute ? "tribute" : "entry";
 
-  const [category, setCategory] = useState<PaymentCategory>(
-    isActive && !forcedEntryTribute ? "tribute" : "entry",
-  );
-  const [amount, setAmount] = useState(entryTributeDefault);
+  const [category, setCategory] = useState<PaymentCategory>(initialCategory);
+  const [amount, setAmount] = useState<string>(() => {
+    if (forcedEntryTribute || pendingEntry) return toAmountDefault(user?.entry_tribute_amount);
+    if (initialCategory === "rolling") return rollingDefault();
+    return "";
+  });
+  const [userEditedAmount, setUserEditedAmount] = useState(false);
   const [methodId, setMethodId] = useState("");
-  const [externalTs, setExternalTs] = useState("");
+  const [externalTs, setExternalTs] = useState<string>(() => nowLondonIsoNaive());
   const [note, setNote] = useState("");
+  const [proof, setProof] = useState<File | null>(null);
   const [amountErr, setAmountErr] = useState("");
+
+  useEffect(() => {
+    if (userEditedAmount) return;
+    if (category === "entry" && (forcedEntryTribute || pendingEntry)) {
+      setAmount(toAmountDefault(user?.entry_tribute_amount));
+      return;
+    }
+    if (category === "rolling") {
+      setAmount(rollingDefault());
+      return;
+    }
+    setAmount("");
+  }, [category, forcedEntryTribute, pendingEntry, user?.entry_tribute_amount, userEditedAmount]);
 
   const { data: methods = [], isLoading: methodsLoading } = useQuery({
     queryKey: queryKeys.sub.paymentMethods(),
@@ -54,12 +93,19 @@ export function PaymentFormRoute() {
   });
 
   const declareMutation = useMutation({
-    mutationFn: declarePaymentApi,
+    mutationFn: declarePaymentMultipartApi,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.sub.payments() });
       navigate(forcedEntryTribute ? "/porch" : "/sub/payments");
     },
   });
+
+  const submitError = useMemo(() => {
+    const err = declareMutation.error;
+    if (!err) return "";
+    if (err instanceof DeclarePaymentHttpError) return err.message;
+    return "Failed to submit. Please try again.";
+  }, [declareMutation.error]);
 
   function validateAmount(): boolean {
     if (!AMOUNT_RE.test(amount)) {
@@ -70,19 +116,32 @@ export function PaymentFormRoute() {
     return true;
   }
 
+  function handleAmountChange(next: string) {
+    setUserEditedAmount(true);
+    setAmount(next);
+  }
+
+  function handleCategoryChange(next: PaymentCategory) {
+    setCategory(next);
+    setUserEditedAmount(false);
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validateAmount()) return;
-    if (!methodId) return;
+    if (!methodId || !proof) return;
 
     declareMutation.mutate({
-      amount: Number(amount) as unknown as string & number,
+      amount,
       method_id: methodId,
       category,
-      external_timestamp: externalTs || undefined,
+      proof,
+      external_timestamp: externalTs ? normaliseNaiveIso(externalTs) : undefined,
       note: note || undefined,
     });
   }
+
+  const canSubmit = !!proof && !!methodId && !amountErr && !declareMutation.isPending;
 
   return (
     <div className="p-4 md:p-8">
@@ -95,44 +154,13 @@ export function PaymentFormRoute() {
           onSubmit={handleSubmit}
           className="bg-base-surface border border-base-border rounded-lg p-6 flex flex-col gap-5"
         >
-          {/* Category */}
-          <fieldset>
-            <legend className="text-sm font-semibold text-base-text mb-2">Category</legend>
-            <div className="flex flex-col gap-2">
-              {ACTIVE_CATEGORIES.map(({ value, label }) => {
-                const disabledByActive = value === "entry" && isActive;
-                const disabledByForced = forcedEntryTribute && value !== "entry";
-                const disabled = disabledByActive || disabledByForced;
-                return (
-                  <label
-                    key={value}
-                    className={cn(
-                      "flex items-center gap-2 text-sm",
-                      disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer",
-                    )}
-                    aria-disabled={disabled}
-                  >
-                    <input
-                      type="radio"
-                      name="category"
-                      value={value}
-                      checked={category === value}
-                      disabled={disabled}
-                      aria-disabled={disabled}
-                      onChange={() => setCategory(value)}
-                      className="accent-pink-primary"
-                    />
-                    <span className="text-base-text">{label}</span>
-                  </label>
-                );
-              })}
-              <p className="text-xs text-base-text-subtle mt-1">
-                Contract payments (weekly debt, buyout, …) are declared from the contract page.
-              </p>
-            </div>
-          </fieldset>
+          <CategoryRadioGroup
+            value={category}
+            onChange={handleCategoryChange}
+            isActive={!!isActive}
+            forcedEntryTribute={forcedEntryTribute}
+          />
 
-          {/* Amount */}
           <div className="flex flex-col gap-1">
             <label htmlFor="amount" className="text-sm font-semibold text-base-text">
               Amount (£)
@@ -143,61 +171,23 @@ export function PaymentFormRoute() {
               inputMode="decimal"
               placeholder="30.00"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => handleAmountChange(e.target.value)}
               onBlur={validateAmount}
               className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
             />
             {amountErr && <p className="text-xs text-status-danger">{amountErr}</p>}
           </div>
 
-          {/* Method */}
-          <fieldset>
-            <legend className="text-sm font-semibold text-base-text mb-2">Payment method</legend>
-            {methodsLoading ? (
-              <p className="text-xs text-base-text-muted">Loading methods…</p>
-            ) : methods.length === 0 ? (
-              <p className="text-xs text-base-text-muted">No payment methods available.</p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {methods.map((m) => {
-                  const selected = methodId === m.id;
-                  return (
-                    <label
-                      key={m.id}
-                      className={cn(
-                        "flex items-center gap-3 p-3 rounded-md border cursor-pointer transition-colors",
-                        selected
-                          ? "border-pink-primary bg-pink-primary/10"
-                          : "border-base-border hover:border-base-border/80 hover:bg-base-surface-raised",
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="method"
-                        value={m.id}
-                        checked={selected}
-                        onChange={() => setMethodId(m.id)}
-                        className="sr-only"
-                      />
-                      <MethodIcon type={m.type} size="md" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-base-text truncate">{m.name}</p>
-                        <p className="text-xs text-base-text-muted truncate">
-                          {METHOD_LABELS[m.type]}
-                        </p>
-                      </div>
-                    </label>
-                  );
-                })}
-              </div>
-            )}
-          </fieldset>
+          <MethodPicker
+            methods={methods}
+            value={methodId}
+            onChange={setMethodId}
+            loading={methodsLoading}
+          />
 
-          {/* External timestamp */}
           <div className="flex flex-col gap-1">
             <label htmlFor="externalTs" className="text-sm font-semibold text-base-text">
-              When did you pay?{" "}
-              <span className="text-base-text-subtle font-normal">(optional)</span>
+              When did you pay?
             </label>
             <DateTimePicker
               id="externalTs"
@@ -205,9 +195,15 @@ export function PaymentFormRoute() {
               onChange={setExternalTs}
               placeholder="Pick a date & time"
             />
+            <p className="text-xs text-base-text-subtle">Defaults to now in Europe/London.</p>
           </div>
 
-          {/* Note */}
+          <ProofUploadField
+            file={proof}
+            onChange={setProof}
+            disabled={declareMutation.isPending}
+          />
+
           <div className="flex flex-col gap-1">
             <label htmlFor="note" className="text-sm font-semibold text-base-text">
               Note <span className="text-base-text-subtle font-normal">(optional)</span>
@@ -217,29 +213,38 @@ export function PaymentFormRoute() {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={2}
-              placeholder="Any details you want Goddess to see"
+              placeholder="An offering note for your goddess (optional)."
               className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
             />
           </div>
 
-          {declareMutation.isError && (
-            <p className="text-xs text-status-danger">Failed to submit. Please try again.</p>
+          {submitError && (
+            <p className="text-xs text-status-danger" role="alert">
+              {submitError}
+            </p>
           )}
 
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={() => navigate(forcedEntryTribute ? "/porch" : "/sub/payments")}
-              className="w-full sm:w-auto px-4 py-2 text-sm text-base-text-muted border border-base-border rounded-md hover:text-base-text transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
+              disabled={declareMutation.isPending}
+              className="w-full sm:w-auto px-4 py-2 text-sm text-base-text-muted border border-base-border rounded-md hover:text-base-text transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={declareMutation.isPending}
-              className="w-full sm:w-auto px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary"
+              disabled={!canSubmit}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary"
             >
-              {declareMutation.isPending ? "Submitting…" : "Submit declaration"}
+              {declareMutation.isPending && (
+                <span
+                  aria-hidden="true"
+                  className="h-4 w-4 rounded-full border-2 border-pink-foreground/40 border-t-pink-foreground animate-spin"
+                />
+              )}
+              {declareMutation.isPending ? "Uploading…" : "Submit declaration"}
             </button>
           </div>
         </form>

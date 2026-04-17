@@ -1,6 +1,7 @@
 import { apiClient } from "@/api/client";
 import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { components } from "@/types/api.generated";
+import { env } from "@/utils/env";
 
 export type DeclarePaymentIn = components["schemas"]["DeclarePaymentIn"];
 export type RecordPaymentIn = components["schemas"]["RecordPaymentIn"];
@@ -24,13 +25,76 @@ function extractDetail(error: unknown, fallback: string): string {
   return typeof msg === "string" && msg.length > 0 ? msg : fallback;
 }
 
-export async function declarePaymentApi(body: DeclarePaymentIn): Promise<PaymentOut> {
-  const { data, error } = await apiClient.POST("/sub/payments", {
-    body,
-    headers: authHeaders(),
+export interface DeclarePaymentMultipartInput {
+  amount: string;
+  method_id: string;
+  category: PaymentCategory;
+  proof: File;
+  external_timestamp?: string;
+  note?: string;
+  target_id?: string;
+}
+
+export class DeclarePaymentHttpError extends Error {
+  readonly status: number;
+  readonly detail?: string;
+  constructor(status: number, message: string, detail?: string) {
+    super(message);
+    this.name = "DeclarePaymentHttpError";
+    this.status = status;
+    this.detail = detail;
+  }
+}
+
+function messageForStatus(status: number, detail?: string): string {
+  if (status === 413) return "File too large (5 MB max).";
+  if (status === 415) return "Unsupported file type.";
+  if (status === 400 && detail) return detail;
+  if (detail) return detail;
+  return "Failed to declare payment.";
+}
+
+async function parseErrorDetail(res: Response): Promise<string | undefined> {
+  try {
+    const body = (await res.clone().json()) as { detail?: unknown; message?: unknown };
+    if (typeof body.message === "string") return body.message;
+    if (typeof body.detail === "string") return body.detail;
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function declarePaymentMultipartApi(
+  input: DeclarePaymentMultipartInput,
+): Promise<PaymentOut> {
+  const token = getAccessToken();
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+
+  const form = new FormData();
+  form.append("proof", input.proof);
+  form.append("category", input.category);
+  form.append("amount", input.amount);
+  form.append("method_id", input.method_id);
+  if (input.external_timestamp) form.append("external_timestamp", input.external_timestamp);
+  if (input.note) form.append("note", input.note);
+  if (input.target_id) form.append("target_id", input.target_id);
+
+  const res = await fetch(`${env.VITE_API_BASE_URL}/sub/payments`, {
+    method: "POST",
+    credentials: "include",
+    headers,
+    body: form,
+    signal: AbortSignal.timeout(60_000),
   });
-  if (error || !data) throw new Error("Failed to declare payment");
-  return data;
+  if (!res.ok) {
+    const detail = await parseErrorDetail(res);
+    throw new DeclarePaymentHttpError(res.status, messageForStatus(res.status, detail), detail);
+  }
+  return (await res.json()) as PaymentOut;
 }
 
 export async function editDeclarationApi(

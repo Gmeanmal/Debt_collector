@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
@@ -15,6 +15,8 @@ from controllers.payment.helpers import (
     resolve_goddess_id,
     to_out,
 )
+from controllers.payment.proof import build_proof_key, strip_exif_if_jpeg
+from core.config import get_settings
 from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.allocation_dao import PaymentAllocationDao
 from daos.debt_dao import DebtContractAuditDao, DebtContractDao
@@ -40,6 +42,7 @@ from schemas.payment import (
     RecordPaymentIn,
 )
 from services.notifications.notify import notify
+from services.storage import object_store
 from utils.ledger import apply_event_and_recompute
 
 
@@ -59,7 +62,13 @@ class PaymentController:
         if record is None or Decimal(str(record.amount)) == Decimal("0") or record.paused:
             raise BadRequest("no active rolling tribute configured for this sub")
 
-    async def declare_as_sub(self, sub_user: User, payload: DeclarePaymentIn) -> PaymentOut:
+    async def declare_as_sub(
+        self,
+        sub_user: User,
+        payload: DeclarePaymentIn,
+        proof_bytes: bytes,
+        proof_mime: str,
+    ) -> PaymentOut:
         check_category_for_sub(sub_user, payload.category)
         if payload.category == PaymentCategory.rolling:
             await self._check_rolling_active(sub_user.id)
@@ -70,8 +79,24 @@ class PaymentController:
         goddess_id = sub_user.goddess_id
         await get_method_for_goddess(self._method_dao, goddess_id, payload.method_id)
 
+        clean_bytes = strip_exif_if_jpeg(proof_bytes, proof_mime)
+        declaration_uuid = uuid4()
+        proof_key = build_proof_key(goddess_id, sub_user.id, declaration_uuid, proof_mime)
+
+        settings = get_settings()
+        # TODO(DECLARE-follow-up): janitor cron for orphans
+        await object_store.upload_object(
+            bucket=settings.s3_bucket_payment_proofs,
+            key=proof_key,
+            body=clean_bytes,
+            content_type=proof_mime,
+            settings=settings,
+        )
+
+        # TODO(DECLARE-follow-up): handle upload/insert race
         decl = await self._decl_dao.create(
             {
+                "id": declaration_uuid,
                 "sub_id": sub_user.id,
                 "goddess_id": goddess_id,
                 "method_id": payload.method_id,
@@ -83,6 +108,7 @@ class PaymentController:
                 "target_id": payload.target_id,
                 "created_by": sub_user.id,
                 "source": DeclarationSource.sub_declared,
+                "proof_key": proof_key,
             }
         )
 

@@ -311,7 +311,7 @@ export interface paths {
         put?: never;
         /**
          * Declare a payment
-         * @description Sub declares a payment they have made. Creates a pending declaration. Category `entry` only allowed while sub status is `pending_entry_tribute`. Category `tribute` allowed for active subs. Categories `rolling`, `weekly_debt`, `debt_payment`, `buyout` are reserved for future phases.
+         * @description Sub declares a payment they have made via multipart/form-data. A proof screenshot (jpeg, png, or webp, ≤ 5 MB) is mandatory; the server validates MIME and size, strips EXIF from JPEGs, and stores the object under `<goddess_id>/<sub_id>/<declaration_id>.<ext>` in the `payment-proofs` bucket. The response includes a presigned GET URL valid for 10 minutes. Category `entry` only allowed while sub status is `pending_entry_tribute`. Category `tribute` allowed for active subs. Categories `rolling`, `weekly_debt`, `debt_payment`, `buyout` are reserved for future phases.
          */
         post: operations["declare_payment_sub_payments_post"];
         delete?: never;
@@ -1138,7 +1138,7 @@ export interface paths {
          *     - `q` — case-insensitive substring over `action` and `entity`.
          *     - `kind` — exact match on the `action` column (e.g. `invitation_created`).
          *     - `actor_id` — exact match on `admin_id` (the acting staff user).
-         *     - `date_from`, `date_to` — inclusive bounds on `created_at::date` (Europe/London wallclock is stored as UTC).
+         *     - `date_from`, `date_to` — inclusive bounds on `created_at::date` in UTC.
          *
          *     This endpoint is intentionally read-only — POST, PATCH, and DELETE are not registered to prevent mutation of the append-only audit log.
          */
@@ -5002,6 +5002,42 @@ export interface components {
              */
             created_at: string;
         };
+        /** Body_declare_payment_sub_payments_post */
+        Body_declare_payment_sub_payments_post: {
+            /**
+             * Proof
+             * @description Payment proof screenshot (jpeg/png/webp, ≤ 5 MB).
+             */
+            proof: string;
+            /** @description Payment category. */
+            category: components["schemas"]["PaymentCategory"];
+            /**
+             * Amount
+             * @description Payment amount in GBP (≤ 2 decimal places).
+             */
+            amount: string;
+            /**
+             * Method Id
+             * Format: uuid
+             * @description UUID of the payment method used.
+             */
+            method_id: string;
+            /**
+             * External Timestamp
+             * @description UTC datetime when the payment was actually made (sub-reported).
+             */
+            external_timestamp?: string | null;
+            /**
+             * Note
+             * @description Optional note from the sub.
+             */
+            note?: string | null;
+            /**
+             * Target Id
+             * @description Polymorphic target (contract or rolling cycle ID).
+             */
+            target_id?: string | null;
+        };
         /** Body_upload_profile_photo_profile_photos_post */
         Body_upload_profile_photo_profile_photos_post: {
             /**
@@ -6028,45 +6064,6 @@ export interface components {
          * @enum {string}
          */
         DeclarationSource: "sub_declared" | "goddess_recorded" | "ingested";
-        /** DeclarePaymentIn */
-        DeclarePaymentIn: {
-            /**
-             * Amount
-             * @description Payment amount in GBP
-             * @example 30.00
-             */
-            amount: number | string;
-            /**
-             * Method Id
-             * Format: uuid
-             * @description UUID of the payment method used
-             * @example 00000000-0000-0000-0000-000000000001
-             */
-            method_id: string;
-            /**
-             * @description Payment category — determines ledger routing
-             * @example entry
-             */
-            category: components["schemas"]["PaymentCategory"];
-            /**
-             * External Timestamp
-             * @description UTC datetime when the payment was actually made (sub-reported)
-             * @example 2026-04-13T12:00:00
-             */
-            external_timestamp?: string | null;
-            /**
-             * Note
-             * @description Optional note from the sub
-             * @example Sent via Throne
-             */
-            note?: string | null;
-            /**
-             * Target Id
-             * @description Polymorphic target — contract or rolling cycle ID (required for some categories)
-             * @example null
-             */
-            target_id?: string | null;
-        };
         /** EditDeclarationIn */
         EditDeclarationIn: {
             /**
@@ -7414,6 +7411,12 @@ export interface components {
             source: components["schemas"]["DeclarationSource"];
             /** @description Allocation record if validated */
             allocation?: components["schemas"]["AllocationOut"] | null;
+            /**
+             * Proof Presigned Url
+             * @description Presigned GET URL to the payment proof object, valid for 10 minutes. Null when the declaration has no attached proof (legacy rows or goddess-recorded).
+             * @example https://minio.example.com/payment-proofs/abc/def/img.jpg?X-Amz-Signature=…
+             */
+            proof_presigned_url?: string | null;
         };
         /**
          * PaymentStatus
@@ -11193,7 +11196,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["DeclarePaymentIn"];
+                "multipart/form-data": components["schemas"]["Body_declare_payment_sub_payments_post"];
             };
         };
         responses: {
@@ -11229,6 +11232,20 @@ export interface operations {
             };
             /** @description Not found — declaration or resource does not exist */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Payload too large — proof file exceeds the 5 MB limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unsupported media type — proof must be jpeg, png, or webp */
+            415: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -13918,9 +13935,9 @@ export interface operations {
                 kind?: string | null;
                 /** @description Exact match on `admin_id` */
                 actor_id?: string | null;
-                /** @description Inclusive lower bound on `created_at` (YYYY-MM-DD) */
+                /** @description UTC date (YYYY-MM-DD) — compared against `created_at::date` in UTC, not London */
                 date_from?: string | null;
-                /** @description Inclusive upper bound on `created_at` (YYYY-MM-DD) */
+                /** @description UTC date (YYYY-MM-DD) — compared against `created_at::date` in UTC, not London */
                 date_to?: string | null;
                 /** @description 1-based page number */
                 page?: number;

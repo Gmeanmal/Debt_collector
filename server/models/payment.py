@@ -97,6 +97,7 @@ class PaymentDeclaration(SQLModel, table=True):
         nullable=False,
         index=True,
     )
+    proof_key: str | None = Field(default=None, nullable=True)
 
 
 class PaymentAllocation(SQLModel, table=True):

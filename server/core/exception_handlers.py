@@ -8,7 +8,9 @@ from core.exceptions import (
     Forbidden,
     IllegalTransition,
     NotFound,
+    PayloadTooLarge,
     Unauthorized,
+    UnsupportedMediaType,
     Validation,
 )
 
@@ -47,6 +49,24 @@ def register(app: FastAPI) -> None:
         return JSONResponse(
             status_code=403,
             content={"error": "Forbidden", "message": exc.message, "context": exc.context},
+        )
+
+    @app.exception_handler(PayloadTooLarge)
+    async def _handle_payload_too_large(_: Request, exc: PayloadTooLarge) -> JSONResponse:
+        return JSONResponse(
+            status_code=413,
+            content={"error": "PayloadTooLarge", "message": exc.message, "context": exc.context},
+        )
+
+    @app.exception_handler(UnsupportedMediaType)
+    async def _handle_unsupported_media_type(_: Request, exc: UnsupportedMediaType) -> JSONResponse:
+        return JSONResponse(
+            status_code=415,
+            content={
+                "error": "UnsupportedMediaType",
+                "message": exc.message,
+                "context": exc.context,
+            },
         )
 
     @app.exception_handler(Validation)

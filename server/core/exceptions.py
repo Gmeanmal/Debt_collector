@@ -32,6 +32,14 @@ class BadRequest(AppError):
     status_code = 400
 
 
+class PayloadTooLarge(AppError):
+    status_code = 413
+
+
+class UnsupportedMediaType(AppError):
+    status_code = 415
+
+
 class Validation(AppError):
     status_code = 422
 
