@@ -4,6 +4,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Changed
+- **SEED-1 dev seed refonte** (ref `planning/todo.md` W0, single `chore(db)` commit):
+  - `server/seeds/fake_data.py` rewritten as a thin orchestrator wired around a frozen cast and deterministic timelines. All timestamps anchor to `FROZEN_TODAY = date(2026, 4, 17)` — no `datetime.now()` in seed code. Every re-run of `make feed-dbs` is guarded by a `sub_chris` existence check (idempotent), while `make init-dbs` continues to drop+recreate.
+  - New `server/seeds/cast.py` — frozen `CAST` dict of the 6-pack (`sub_chris`, `sub_dan`, `sub_ben` active; `sub_invite_alex` pending entry tribute; `sub_invite_jordan` invitation-only, no User row yet; `sub_eli` blacklisted).
+  - New `server/seeds/timeline.py` — pure date-series helpers: `chris_rolling_dates` (22 Mondays), `dan_rolling_dates` (14 irregular Fridays), `ben_rolling_dates` (8 irregular, last 7 d before `FROZEN_TODAY`), per-sub journal date generators, photo upload schedules, `frozen_dt` / `frozen_now` deterministic UTC helpers.
+  - New `server/seeds/content.py` — hand-written English content pools: `JournalSpec` dataclass, 3 showcase journal entries with emotional grain (fear / pride / overwhelm), 12 + 6 + 9 + 4 body pools for Chris / Dan / Ben / Eli, 5 realistic reject reasons, 3 review-queue motivations, 3 mantras — no Faker generic.
+  - KPI targets from `revue.md` §P0 verified live against the goddess UI (dashboard / subs / late / invitations / validations / photo queue / blacklist): `subs active = 3`, `invitations = 2`, `contracts = 3` (2 active + 1 closed), `late tonight = 1` (Ben, 7 d), `photo queue = 2` (Dan + Ben), `validations = 1` (Dan sub-declared), `blacklist = 1` (Eli). Ben's prior-dispute narrative is carried by Chris's existing pending `ContractAdjustment` (penalty waiver) — the stray `ProfileChangeRequest` seed from the first pass (which populated no valid column) was removed.
+  - `server/pyproject.toml` adds `E501` ignore for the four seed files (matches the existing `seeds/kinks.py` treatment).
+
 ### Added
 - **P1.5 J4 medical activation** (closes Phase J, ref `Docs/plan_post_wave7.md`):
   - Backend: `GET|PUT /profile/medical` (sub-only, gated by `require_consent("medical")`) and `GET /goddess/subs/{sub_id}/medical` (goddess-only, plaintext reveal). The 5 fields (`blood_type`, `allergies`, `medications`, `emergency_contact`, `medical_notes`) round-trip through `services/crypto/envelope.encrypt_for_goddess()` into the existing D6 `*_enc bytea` columns; AAD is `b"sub_medical:<sub_id>:<field>"` so any cross-field/cross-sub copy fails the AES-GCM tag. Sub `GET` returns `is_set` booleans only — plaintext never echoes back. Each goddess reveal records `admin_action(action="medical_reveal", entity="sub_medical", entity_id=<sub_id>)`. No new migration — `sub_medical` was created in wave-6 D6.
