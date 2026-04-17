@@ -983,6 +983,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sub/approvals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Deprecated alias for /sub/adjustments
+         * @description Permanent redirect (308) to `/sub/adjustments/pending`. This is a W3 compatibility alias and will be reconciled in W8 ROUTING-1. The 308 status preserves the HTTP method and request body so clients using non-GET verbs are not silently downgraded.
+         */
+        get: operations["approvals_alias_sub_approvals_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/goddess/contracts/{slug}/surprise-penalty/preview": {
         parameters: {
             query?: never;
@@ -2101,6 +2121,40 @@ export interface paths {
          * @description Returns aggregate metrics for the sub home view: amount due this week (rolling amount_due plus weekly contract minimum payments), whether the sub is currently late on any obligation, the list of active contracts with progress, the last 10 payment declarations, and the total amount sent (sum of all validated payments).
          */
         get: operations["sub_dashboard_sub_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sub/dashboard/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Live KPI counters for the sub welcome dashboard
+         * @description Returns a single DTO with eight live counters consumed by the sub welcome page.
+         *
+         *     **`pending_approvals_count`:** Number of contract adjustments in `pending_sub_approval` awaiting the sub's decision.
+         *
+         *     **`next_payment_amount` / `next_payment_due_at`:** Amount and UTC naive datetime of the earliest upcoming scheduled payment (rolling tribute deadline or contract instalment). Both are `null` when no future payment is scheduled.
+         *
+         *     **`late_rolling_amount`:** GBP overdue on the rolling tribute including the late penalty. `0.00` when not late, paused, or no rolling tribute exists.
+         *
+         *     **`late_contract_amount`:** GBP sum of `minimum_payment` across active contracts whose current period payment has not been applied. `0.00` when all contracts are on track.
+         *
+         *     **`today_rituals_count`:** Ritual occurrence rows for today (Europe/London date).
+         *
+         *     **`today_open_tasks_count`:** Tasks in `open` or `submitted` status for this sub.
+         *
+         *     **`journal_streak_days`:** Consecutive-day journal streak ending today (Europe/London). `0` if no entry exists for today.
+         */
+        get: operations["sub_dashboard_summary_sub_dashboard_summary_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -8699,6 +8753,60 @@ export interface components {
              */
             total_sent: string;
         };
+        /**
+         * SubDashboardSummary
+         * @description Live KPI counters for the sub welcome dashboard.
+         */
+        SubDashboardSummary: {
+            /**
+             * Pending Approvals Count
+             * @description Number of contract adjustments in pending_sub_approval awaiting the sub's decision.
+             * @example 2
+             */
+            pending_approvals_count: number;
+            /**
+             * Next Payment Amount
+             * @description Amount of the next upcoming scheduled payment (contract instalment or rolling tribute) in GBP. Null when no future payment is scheduled.
+             * @example 50.00
+             */
+            next_payment_amount: string | null;
+            /**
+             * Next Payment Due At
+             * @description UTC naive datetime of the next upcoming scheduled payment. Null when no future payment is scheduled.
+             * @example 2026-04-21T00:00:00
+             */
+            next_payment_due_at: string | null;
+            /**
+             * Late Rolling Amount
+             * @description GBP amount currently overdue on the rolling tribute (including late penalty). 0.00 when not late, paused, or no rolling tribute exists.
+             * @example 0.00
+             */
+            late_rolling_amount: string;
+            /**
+             * Late Contract Amount
+             * @description GBP sum of minimum_payment across active contracts where the current period payment has not been applied. 0.00 when all contracts are on track.
+             * @example 0.00
+             */
+            late_contract_amount: string;
+            /**
+             * Today Rituals Count
+             * @description Number of ritual occurrences scheduled for the sub for today (Europe/London date).
+             * @example 3
+             */
+            today_rituals_count: number;
+            /**
+             * Today Open Tasks Count
+             * @description Number of tasks in open or submitted status belonging to the sub.
+             * @example 1
+             */
+            today_open_tasks_count: number;
+            /**
+             * Journal Streak Days
+             * @description Current consecutive-day journal streak counted in Europe/London days. 0 if no journal entry exists for today.
+             * @example 5
+             */
+            journal_streak_days: number;
+        };
         /** SubKinkRatingIn */
         SubKinkRatingIn: {
             /**
@@ -13359,6 +13467,51 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    approvals_alias_sub_approvals_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            308: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — role or ownership mismatch */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };
@@ -18442,6 +18595,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SubDashboardOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller role is not permitted for this dashboard */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    sub_dashboard_summary_sub_dashboard_summary_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubDashboardSummary"];
                 };
             };
             /** @description Unauthorized — missing or invalid access token */

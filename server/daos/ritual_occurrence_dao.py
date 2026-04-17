@@ -1,7 +1,7 @@
 import datetime
 from uuid import UUID
 
-from sqlalchemy import update
+from sqlalchemy import func, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
@@ -49,6 +49,18 @@ class RitualOccurrenceDao:
         result = await self._session.execute(stmt)
         await self._session.flush()
         return result.rowcount  # type: ignore[return-value]
+
+    async def count_today_for_sub(self, sub_id: UUID, date: datetime.date) -> int:
+        """Return the count of occurrences for a sub on a given calendar date."""
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(RitualOccurrence)
+            .where(
+                col(RitualOccurrence.sub_id) == sub_id,
+                col(RitualOccurrence.date) == date,
+            )
+        )
+        return int(result.scalar_one() or 0)
 
     async def list_today_for_sub(self, sub_id: UUID, date: datetime.date) -> list[RitualOccurrence]:
         """Return all occurrences for a sub on a given calendar date, ordered by created_at."""

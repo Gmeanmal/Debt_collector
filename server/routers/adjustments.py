@@ -2,6 +2,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -172,3 +173,23 @@ async def list_pending(
     ctrl: DebtController = Depends(_build),
 ) -> list[ContractAdjustmentOut]:
     return await ctrl.list_pending_adjustments(user)
+
+
+@router.get(
+    "/sub/approvals",
+    summary="Deprecated alias for /sub/adjustments",
+    description=(
+        "Permanent redirect (308) to `/sub/adjustments/pending`. "
+        "This is a W3 compatibility alias and will be reconciled in W8 ROUTING-1. "
+        "The 308 status preserves the HTTP method and request body so clients using "
+        "non-GET verbs are not silently downgraded."
+    ),
+    status_code=308,
+    tags=["debt-contracts"],
+    response_model=None,
+    responses={401: _E401, 403: _E403},
+)
+async def approvals_alias(
+    user: User = Depends(require_role(UserRole.sub)),
+) -> RedirectResponse:
+    return RedirectResponse(url="/sub/adjustments/pending", status_code=308)

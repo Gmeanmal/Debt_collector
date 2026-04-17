@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
@@ -30,6 +31,19 @@ class AdjustmentDao:
             .order_by(col(ContractAdjustment.created_at).desc())
         )
         return list(result.scalars().all())
+
+    async def count_pending_for_sub(self, sub_id: UUID) -> int:
+        """Return the number of adjustments in pending_sub_approval for the given sub."""
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(ContractAdjustment)
+            .join(DebtContract, col(DebtContract.id) == col(ContractAdjustment.contract_id))
+            .where(
+                col(DebtContract.sub_id) == sub_id,
+                col(ContractAdjustment.status) == AdjustmentStatus.pending_sub_approval,
+            )
+        )
+        return int(result.scalar_one() or 0)
 
     async def save(self, adjustment: ContractAdjustment) -> ContractAdjustment:
         self._session.add(adjustment)

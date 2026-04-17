@@ -1,5 +1,7 @@
-from datetime import UTC, datetime
+import datetime as dt
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +9,9 @@ from sqlmodel import col
 
 from core.exceptions import Forbidden, NotFound
 from models.journal_entry import JournalEntry, JournalMood
+
+_LONDON = ZoneInfo("Europe/London")
+_STREAK_LOOKBACK_DAYS = 90
 
 
 class JournalDao:
@@ -143,6 +148,51 @@ class JournalDao:
             entry.goddess_comment_at = datetime.now(UTC).replace(tzinfo=None)
         self._session.add(entry)
         return entry
+
+    async def current_streak_days(self, sub_id: UUID) -> int:
+        """Return the consecutive-day journal streak ending today (Europe/London).
+
+        Walks entries newest-first (last 90 days only), stopping at the first gap.
+        Returns 0 if no entry exists for today. Streaks longer than 90 days are
+        truncated — acceptable for the MVP dashboard.
+        """
+        today_london = datetime.now(UTC).astimezone(_LONDON).date()
+        cutoff = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=_STREAK_LOOKBACK_DAYS)
+
+        result = await self._session.execute(
+            select(col(JournalEntry.created_at))
+            .where(
+                col(JournalEntry.sub_id) == sub_id,
+                col(JournalEntry.created_at) >= cutoff,
+            )
+            .order_by(col(JournalEntry.created_at).desc())
+        )
+        timestamps = [row[0] for row in result.all()]
+
+        if not timestamps:
+            return 0
+
+        # Deduplicate to one entry per London calendar date
+        seen_dates: set[dt.date] = set()
+        dates: list[dt.date] = []
+        for ts in timestamps:
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=UTC)
+            d = ts.astimezone(_LONDON).date()
+            if d not in seen_dates:
+                seen_dates.add(d)
+                dates.append(d)
+
+        if not dates or dates[0] != today_london:
+            return 0
+
+        streak = 1
+        for i in range(1, len(dates)):
+            if (dates[i - 1] - dates[i]).days == 1:
+                streak += 1
+            else:
+                break
+        return streak
 
     async def _get(self, entry_id: UUID) -> JournalEntry:
         row = await self._session.get(JournalEntry, entry_id)

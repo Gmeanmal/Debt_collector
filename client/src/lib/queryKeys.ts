@@ -11,6 +11,7 @@ export const queryKeys = {
   sub: {
     all: () => ["sub"] as const,
     dashboard: () => ["subDashboard"] as const,
+    dashboardSummary: () => ["subDashboardSummary"] as const,
     planning: () => ["subPlanning"] as const,
     contracts: () => ["subContracts"] as const,
     paymentMethods: () => ["subPaymentMethods"] as const,

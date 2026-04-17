@@ -4,11 +4,11 @@ from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import col, select
 
 from controllers._goddess import resolve_goddess_id
-from controllers.dashboard.helpers import period_start
+from controllers.dashboard.helpers import now_utc, period_start
 from daos.debt_dao import DebtContractDao
+from daos.debt_event_dao import DebtEventDao
 from daos.invitation_dao import InvitationDao
 from daos.payment_dao import PaymentDeclarationDao
 from daos.profile_change_request_dao import ProfileChangeRequestDao
@@ -16,15 +16,10 @@ from daos.rolling_dao import RollingTributeDao
 from daos.sub_photo_dao import SubPhotoDao
 from daos.user_dao import UserDao
 from models.debt import DebtContractStatus
-from models.debt_event import DebtEvent, EventType
 from models.user import User
 from schemas.dashboard import DashboardSummary
-from utils.periods import current_period_index
+from utils.periods import LONDON, current_period_index
 from utils.rolling import days_late as rolling_days_late
-
-
-def _now_utc() -> dt.datetime:
-    return dt.datetime.now(dt.UTC).replace(tzinfo=None)
 
 
 class DashboardSummaryController:
@@ -37,11 +32,12 @@ class DashboardSummaryController:
         self._photo_dao = SubPhotoDao(session)
         self._profile_req_dao = ProfileChangeRequestDao(session)
         self._rolling_dao = RollingTributeDao(session)
+        self._debt_event_dao = DebtEventDao(session)
 
     async def goddess_summary(self, goddess_user: User) -> DashboardSummary:
         """Return aggregated KPI counters for the goddess dashboard."""
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
-        now = _now_utc()
+        now = now_utc()
 
         active_subs = await self._user_dao.list_active_subs(goddess_id)
         active_sub_ids = [s.id for s in active_subs]
@@ -96,9 +92,7 @@ class DashboardSummaryController:
         return sum(
             1
             for r in rollings
-            if not r.paused
-            and Decimal(str(r.amount)) != 0
-            and rolling_days_late(r, now) > 0
+            if not r.paused and Decimal(str(r.amount)) != 0 and rolling_days_late(r, now) > 0
         )
 
     async def _count_late_contracts(
@@ -114,28 +108,20 @@ class DashboardSummaryController:
         if not relevant:
             return 0
 
-        contract_ids = [c.id for c in relevant]
-        result = await self._session.execute(
-            select(DebtEvent.contract_id, DebtEvent.period_index).where(
-                col(DebtEvent.contract_id).in_(contract_ids),
-                col(DebtEvent.event_type) == EventType.payment_applied,
-            )
+        paid_periods = await self._debt_event_dao.paid_period_indices_for_contracts(
+            [c.id for c in relevant]
         )
-        paid_periods: dict[UUID, set[int]] = {}
-        for contract_id, period_index in result.all():
-            if period_index is None:
-                continue
-            paid_periods.setdefault(contract_id, set()).add(period_index)
 
+        now_london = now.replace(tzinfo=dt.UTC).astimezone(LONDON).date()
         count = 0
         for c in relevant:
-            idx = current_period_index(c, now)
             p_start = period_start(c, now)
             if p_start is None:
                 continue
-            days_into_period = (now.date() - p_start.date()).days
-            if days_into_period <= 0:
+            p_start_london = p_start.replace(tzinfo=dt.UTC).astimezone(LONDON).date()
+            if (now_london - p_start_london).days <= 0:
                 continue
+            idx = current_period_index(c, now)
             if idx not in paid_periods.get(c.id, set()):
                 count += 1
         return count

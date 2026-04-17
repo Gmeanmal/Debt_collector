@@ -9,6 +9,71 @@ from models.debt import DebtContractStatus
 from schemas.payment import PaymentOut
 
 
+class SubDashboardSummary(BaseModel):
+    """Live KPI counters for the sub welcome dashboard."""
+
+    pending_approvals_count: int = Field(
+        ...,
+        description=(
+            "Number of contract adjustments in pending_sub_approval awaiting the sub's decision."
+        ),
+        examples=[2],
+    )
+    next_payment_amount: Decimal | None = Field(
+        ...,
+        description=(
+            "Amount of the next upcoming scheduled payment "
+            "(contract instalment or rolling tribute) in GBP. "
+            "Null when no future payment is scheduled."
+        ),
+        examples=["50.00"],
+    )
+    next_payment_due_at: datetime.datetime | None = Field(
+        ...,
+        description=(
+            "UTC naive datetime of the next upcoming scheduled payment. "
+            "Null when no future payment is scheduled."
+        ),
+        examples=["2026-04-21T00:00:00"],
+    )
+    late_rolling_amount: Decimal = Field(
+        ...,
+        description=(
+            "GBP amount currently overdue on the rolling tribute (including late penalty). "
+            "0.00 when not late, paused, or no rolling tribute exists."
+        ),
+        examples=["0.00"],
+    )
+    late_contract_amount: Decimal = Field(
+        ...,
+        description=(
+            "GBP sum of minimum_payment across active contracts where the current period "
+            "payment has not been applied. 0.00 when all contracts are on track."
+        ),
+        examples=["0.00"],
+    )
+    today_rituals_count: int = Field(
+        ...,
+        description=(
+            "Number of ritual occurrences scheduled for the sub for today (Europe/London date)."
+        ),
+        examples=[3],
+    )
+    today_open_tasks_count: int = Field(
+        ...,
+        description="Number of tasks in open or submitted status belonging to the sub.",
+        examples=[1],
+    )
+    journal_streak_days: int = Field(
+        ...,
+        description=(
+            "Current consecutive-day journal streak counted in Europe/London days. "
+            "0 if no journal entry exists for today."
+        ),
+        examples=[5],
+    )
+
+
 class DashboardSummary(BaseModel):
     """Aggregated KPI counters for the goddess dashboard and welcome tiles."""
 

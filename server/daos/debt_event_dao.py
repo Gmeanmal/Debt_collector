@@ -35,6 +35,25 @@ class DebtEventDao:
         )
         return result.first() is not None
 
+    async def paid_period_indices_for_contracts(
+        self, contract_ids: list[UUID]
+    ) -> dict[UUID, set[int]]:
+        """Return the set of period_index values with a payment_applied event, per contract."""
+        if not contract_ids:
+            return {}
+        result = await self._session.execute(
+            select(DebtEvent.contract_id, DebtEvent.period_index).where(
+                col(DebtEvent.contract_id).in_(contract_ids),
+                col(DebtEvent.event_type) == EventType.payment_applied,
+            )
+        )
+        paid: dict[UUID, set[int]] = {}
+        for contract_id, period_index in result.all():
+            if period_index is None:
+                continue
+            paid.setdefault(contract_id, set()).add(period_index)
+        return paid
+
     async def last_period_interest_index(self, contract_id: UUID) -> int | None:
         result = await self._session.execute(
             select(DebtEvent)

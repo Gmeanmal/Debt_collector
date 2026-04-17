@@ -4,10 +4,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from controllers.dashboard_charts_controller import DashboardChartsController
 from controllers.dashboard_controller import DashboardController
 from controllers.dashboard_summary_controller import DashboardSummaryController
+from controllers.sub_dashboard_summary_controller import SubDashboardSummaryController
 from core.db import get_session
 from dependencies.auth import require_role
 from models.user import User, UserRole
-from schemas.dashboard import DashboardSummary, GoddessDashboardOut, SubDashboardOut, SubPlanningOut
+from schemas.dashboard import (
+    DashboardSummary,
+    GoddessDashboardOut,
+    SubDashboardOut,
+    SubDashboardSummary,
+    SubPlanningOut,
+)
 from schemas.dashboard_charts import DashboardChartsOut
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
@@ -28,6 +35,12 @@ def _charts_ctrl(session: AsyncSession = Depends(get_session)) -> DashboardChart
 
 def _summary_ctrl(session: AsyncSession = Depends(get_session)) -> DashboardSummaryController:
     return DashboardSummaryController(session)
+
+
+def _sub_summary_ctrl(
+    session: AsyncSession = Depends(get_session),
+) -> SubDashboardSummaryController:
+    return SubDashboardSummaryController(session)
 
 
 @goddess_router.get(
@@ -126,6 +139,37 @@ async def sub_dashboard(
     ctrl: DashboardController = Depends(_ctrl),
 ) -> SubDashboardOut:
     return await ctrl.sub_overview(user)
+
+
+@sub_router.get(
+    "/dashboard/summary",
+    summary="Live KPI counters for the sub welcome dashboard",
+    description=(
+        "Returns a single DTO with eight live counters consumed by the sub welcome page.\n\n"
+        "**`pending_approvals_count`:** Number of contract adjustments in `pending_sub_approval` "
+        "awaiting the sub's decision.\n\n"
+        "**`next_payment_amount` / `next_payment_due_at`:** Amount and UTC naive datetime of the "
+        "earliest upcoming scheduled payment (rolling tribute deadline or contract instalment). "
+        "Both are `null` when no future payment is scheduled.\n\n"
+        "**`late_rolling_amount`:** GBP overdue on the rolling tribute including the late penalty. "
+        "`0.00` when not late, paused, or no rolling tribute exists.\n\n"
+        "**`late_contract_amount`:** GBP sum of `minimum_payment` across active contracts whose "
+        "current period payment has not been applied. `0.00` when all contracts are on track.\n\n"
+        "**`today_rituals_count`:** Ritual occurrence rows for today (Europe/London date).\n\n"
+        "**`today_open_tasks_count`:** Tasks in `open` or `submitted` status for this sub.\n\n"
+        "**`journal_streak_days`:** Consecutive-day journal streak ending today (Europe/London). "
+        "`0` if no entry exists for today."
+    ),
+    response_model=SubDashboardSummary,
+    status_code=200,
+    tags=["dashboards"],
+    responses={401: _E401, 403: _E403, 500: _E500},
+)
+async def sub_dashboard_summary(
+    user: User = Depends(require_role(UserRole.sub)),
+    ctrl: SubDashboardSummaryController = Depends(_sub_summary_ctrl),
+) -> SubDashboardSummary:
+    return await ctrl.sub_summary(user)
 
 
 @sub_router.get(

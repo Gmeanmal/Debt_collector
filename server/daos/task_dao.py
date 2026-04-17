@@ -1,6 +1,7 @@
 import datetime
 from uuid import UUID
 
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, or_, select
 
@@ -31,6 +32,21 @@ class TaskDao:
             select(Task).where(col(Task.sub_id) == sub_id).order_by(col(Task.created_at).desc())
         )
         return list(result.scalars().all())
+
+    async def count_open_or_submitted_for_sub(self, sub_id: UUID) -> int:
+        """Return the count of open or submitted tasks for a sub."""
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(Task)
+            .where(
+                col(Task.sub_id) == sub_id,
+                or_(
+                    col(Task.status) == TaskStatus.open,
+                    col(Task.status) == TaskStatus.submitted,
+                ),
+            )
+        )
+        return int(result.scalar_one() or 0)
 
     async def list_open_or_submitted_for_sub(self, sub_id: UUID) -> list[Task]:
         """Return open and submitted tasks for a sub, newest first."""

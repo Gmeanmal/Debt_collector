@@ -63,8 +63,7 @@ export function TodayRoute() {
 
           {!ritualsQuery.isLoading && !ritualsQuery.isError && occurrences.length === 0 && (
             <EmptyState
-              title="No rituals today"
-              message="Your goddess has not assigned any rituals scheduled for today."
+              title="No ritual tonight — rest. Tomorrow she remembers."
             />
           )}
 

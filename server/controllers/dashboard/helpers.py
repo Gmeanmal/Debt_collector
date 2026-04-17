@@ -8,6 +8,11 @@ from utils.periods import current_period_index
 _LONDON = None  # imported locally where needed — ZoneInfo is not serialisable here
 
 
+def now_utc() -> dt.datetime:
+    """Return the current UTC timestamp as a tz-naive datetime (DB storage convention)."""
+    return dt.datetime.now(dt.UTC).replace(tzinfo=None)
+
+
 def display_name(user: User) -> str | None:
     parts = [p for p in (user.first_name, user.last_name) if p]
     if parts:

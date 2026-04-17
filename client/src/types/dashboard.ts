@@ -8,3 +8,4 @@ export type TopSubRevenue = components["schemas"]["TopSubRevenue"];
 export type DailyLateCount = components["schemas"]["DailyLateCount"];
 export type ContractStateCount = components["schemas"]["ContractStateCount"];
 export type DashboardChartsOut = components["schemas"]["DashboardChartsOut"];
+export type SubDashboardSummary = components["schemas"]["SubDashboardSummary"];
