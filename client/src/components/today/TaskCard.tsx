@@ -146,6 +146,10 @@ export function TaskCard({ task }: Props) {
       {task.status === "submitted" && (
         <p className="text-xs text-status-info">Awaiting goddess review.</p>
       )}
+
+      {task.status === "rejected" && task.rejection_reason && (
+        <p className="text-xs text-status-danger">{task.rejection_reason}</p>
+      )}
     </article>
   );
 }

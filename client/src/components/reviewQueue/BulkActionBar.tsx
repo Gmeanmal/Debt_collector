@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { RejectModal } from "@/components/shared/RejectModal";
 
 interface Props {
   selectedCount: number;
@@ -9,29 +10,6 @@ interface Props {
 
 export function BulkActionBar({ selectedCount, isPending, onApprove, onReject }: Props) {
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [reason, setReason] = useState("");
-  const [reasonError, setReasonError] = useState("");
-
-  function handleRejectSubmit() {
-    if (!reason.trim()) {
-      setReasonError("Reason is required");
-      return;
-    }
-    if (reason.length > 500) {
-      setReasonError("Reason must be 500 characters or fewer");
-      return;
-    }
-    onReject(reason.trim());
-    setReason("");
-    setReasonError("");
-    setRejectOpen(false);
-  }
-
-  function handleOpenReject() {
-    setRejectOpen(true);
-    setReason("");
-    setReasonError("");
-  }
 
   if (selectedCount === 0) return null;
 
@@ -50,7 +28,7 @@ export function BulkActionBar({ selectedCount, isPending, onApprove, onReject }:
           </button>
           <button
             type="button"
-            onClick={handleOpenReject}
+            onClick={() => setRejectOpen(true)}
             disabled={isPending}
             className="px-3 py-1.5 text-sm bg-debt-muted text-status-danger border border-debt-ring rounded font-semibold hover:bg-debt-primary/20 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-debt-primary"
           >
@@ -60,41 +38,16 @@ export function BulkActionBar({ selectedCount, isPending, onApprove, onReject }:
       </div>
 
       {rejectOpen && (
-        <div className="flex flex-col gap-2 border-t border-base-border pt-3">
-          <label className="text-sm font-medium text-base-text" htmlFor="bulk-reject-reason">
-            Rejection reason <span className="text-status-danger">*</span>
-          </label>
-          <textarea
-            id="bulk-reject-reason"
-            value={reason}
-            onChange={(e) => {
-              setReason(e.target.value);
-              setReasonError("");
-            }}
-            maxLength={500}
-            rows={3}
-            className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-debt-primary"
-            placeholder="Explain why these items are being rejected…"
-          />
-          {reasonError && <p className="text-xs text-status-danger">{reasonError}</p>}
-          <div className="flex gap-2 justify-end">
-            <button
-              type="button"
-              onClick={() => setRejectOpen(false)}
-              className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleRejectSubmit}
-              disabled={isPending}
-              className="px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors disabled:opacity-50"
-            >
-              Confirm reject
-            </button>
-          </div>
-        </div>
+        <RejectModal
+          title="Reject selected"
+          description={`Reject ${selectedCount} selected item${selectedCount === 1 ? "" : "s"}`}
+          placeholder="Explain why these items are being rejected…"
+          onClose={() => setRejectOpen(false)}
+          onConfirm={async (reason) => {
+            onReject(reason);
+            setRejectOpen(false);
+          }}
+        />
       )}
     </div>
   );

@@ -227,7 +227,7 @@ class PaymentController:
         return await to_out(self._session, decl)
 
     async def reject(
-        self, goddess_user: User, declaration_id: UUID, reason: str | None
+        self, goddess_user: User, declaration_id: UUID, reason: str
     ) -> PaymentOut:
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
         decl = await self._get_declaration_or_404(declaration_id)
@@ -244,7 +244,7 @@ class PaymentController:
             decl.sub_id,
             NotificationType.payment_rejected,
             title="Payment rejected",
-            body=reason or f"Your payment of £{Decimal(str(decl.amount))} was rejected.",
+            body=f"Your payment of £{decl.amount} was rejected: {reason}",
             link="/sub/payments",
             payload={"declaration_id": str(decl.id)},
         )

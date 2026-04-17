@@ -2,7 +2,7 @@ import datetime
 from enum import StrEnum
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class ReviewItemKind(StrEnum):
@@ -64,11 +64,20 @@ class BulkActionIn(BaseModel):
     )
     reason: str | None = Field(
         default=None,
-        min_length=1,
         max_length=500,
-        description="Rejection reason — required when action=reject",
+        description=(
+            "Rejection reason shown to the sub — required when action=reject (min 5 chars)."
+        ),
         examples=["Evidence not acceptable"],
     )
+
+    @model_validator(mode="after")
+    def _reason_required_on_reject(self) -> "BulkActionIn":
+        if self.action == BulkAction.reject and (
+            self.reason is None or len(self.reason.strip()) < 5
+        ):
+            raise ValueError("reason must be at least 5 characters when action is reject")
+        return self
 
 
 class BulkItemResult(BaseModel):

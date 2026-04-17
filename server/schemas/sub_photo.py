@@ -123,8 +123,8 @@ class SubPhotoRejectIn(BaseModel):
 
     reason: str = Field(
         ...,
-        min_length=1,
+        min_length=5,
         max_length=500,
-        description="Reason for rejecting the photo. Shown to the sub.",
+        description="Reason for rejecting the photo. Shown to the sub (min 5 chars).",
         examples=["Image is blurry and does not meet the required quality."],
     )

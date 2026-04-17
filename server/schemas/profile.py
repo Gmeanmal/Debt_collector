@@ -123,11 +123,12 @@ class GoddessSetFeeIn(BaseModel):
 class GoddessRejectIn(BaseModel):
     """Payload for a goddess to reject a change request."""
 
-    note: str | None = Field(
-        default=None,
-        description="Optional rejection reason shown to the sub.",
-        examples=["Not approved at this time."],
+    reason: str = Field(
+        ...,
+        min_length=5,
         max_length=500,
+        description="Rejection reason shown to the sub (min 5 chars).",
+        examples=["Not approved at this time."],
     )
 
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal } from "@/components/ui/Modal";
+import { RejectModal } from "@/components/shared/RejectModal";
 import type { SubPhotoQueueEntry } from "@/services/goddessPhotos/goddessPhotosApi";
 
 interface Props {
@@ -16,77 +16,6 @@ function formatBytes(bytes: number): string {
 
 function formatUploadedAt(iso: string): string {
   return new Date(iso).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
-}
-
-interface RejectModalProps {
-  onClose: () => void;
-  onConfirm: (reason: string) => Promise<void>;
-}
-
-function RejectModal({ onClose, onConfirm }: RejectModalProps) {
-  const [reason, setReason] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-
-  async function handleConfirm() {
-    const trimmed = reason.trim();
-    if (trimmed.length < 1) {
-      setErr("A rejection reason is required.");
-      return;
-    }
-    if (trimmed.length > 500) {
-      setErr("Reason must be 500 characters or fewer.");
-      return;
-    }
-    setBusy(true);
-    setErr(null);
-    try {
-      await onConfirm(trimmed);
-      onClose();
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "Rejection failed.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <Modal title="Reject photo" onClose={onClose}>
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-base-text" htmlFor="reject-reason">
-          Reason{" "}
-          <span className="text-base-text-subtle font-normal">(required, max 500 chars)</span>
-        </label>
-        <textarea
-          id="reject-reason"
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          maxLength={500}
-          rows={3}
-          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-debt-primary"
-        />
-        {err && <p className="text-status-danger text-xs">{err}</p>}
-      </div>
-      <div className="flex gap-2 justify-end">
-        <button
-          type="button"
-          onClick={onClose}
-          disabled={busy}
-          className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors disabled:opacity-50"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          onClick={() => void handleConfirm()}
-          disabled={busy}
-          className="px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors disabled:opacity-50"
-        >
-          {busy ? "Rejecting…" : "Reject"}
-        </button>
-      </div>
-    </Modal>
-  );
 }
 
 export function PhotoReviewCard({ entry, onApprove, onReject }: Props) {
@@ -156,7 +85,17 @@ export function PhotoReviewCard({ entry, onApprove, onReject }: Props) {
         </div>
       </div>
 
-      {rejectOpen && <RejectModal onClose={() => setRejectOpen(false)} onConfirm={onReject} />}
+      {rejectOpen && (
+        <RejectModal
+          title="Reject photo"
+          description={`Photo from ${subLabel}`}
+          onClose={() => setRejectOpen(false)}
+          onConfirm={async (reason) => {
+            await onReject(reason);
+            setRejectOpen(false);
+          }}
+        />
+      )}
     </article>
   );
 }

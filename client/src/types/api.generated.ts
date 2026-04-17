@@ -415,7 +415,7 @@ export interface paths {
         put?: never;
         /**
          * Reject a pending declaration
-         * @description Marks a pending declaration as rejected with an optional reason. Raises 409 if declaration is not pending.
+         * @description Marks a pending declaration as rejected. `reason` is required (min 5 chars) and is shown to the sub. Raises 409 if declaration is not pending.
          */
         post: operations["reject_declaration_goddess_payments__declaration_id__reject_post"];
         delete?: never;
@@ -1930,7 +1930,7 @@ export interface paths {
         put?: never;
         /**
          * Reject a profile change request
-         * @description Goddess rejects a pending or awaiting-fee profile change request. An optional note is stored and visible to the sub.
+         * @description Goddess rejects a pending or awaiting-fee profile change request. `reason` is required (min 5 chars) and is stored and visible to the sub.
          */
         post: operations["reject_request_goddess_profile_change_requests__request_id__reject_post"];
         delete?: never;
@@ -4931,8 +4931,9 @@ export interface components {
         BreachPreviewIn: {
             /**
              * Reason
-             * @description Reason for the breach — provided by the goddess in the confirmation modal.
+             * @description Reason for the breach. May be empty string on preview requests (frontend sends an empty value before the goddess has typed anything). A non-empty value is required only when the commit step fires.
              * @example Sub disappeared without warning and stopped all contact.
+             * @example
              */
             reason: string;
         };
@@ -4976,7 +4977,7 @@ export interface components {
             items: components["schemas"]["BulkItemRef"][];
             /**
              * Reason
-             * @description Rejection reason — required when action=reject
+             * @description Rejection reason shown to the sub — required when action=reject (min 5 chars).
              * @example Evidence not acceptable
              */
             reason?: string | null;
@@ -5553,7 +5554,7 @@ export interface components {
          * DebtContractEventType
          * @enum {string}
          */
-        DebtContractEventType: "proposed" | "countered" | "accepted_counter" | "rejected_counter" | "signed" | "cancelled" | "closed" | "breached" | "completed" | "clauses_changed" | "contract_renewed";
+        DebtContractEventType: "proposed" | "countered" | "accepted_counter" | "rejected_counter" | "signed" | "cancelled" | "closed" | "breached" | "completed" | "clauses_changed" | "contract_renewed" | "surprise_penalty";
         /** DebtContractOut */
         DebtContractOut: {
             /**
@@ -6033,11 +6034,11 @@ export interface components {
          */
         GoddessRejectIn: {
             /**
-             * Note
-             * @description Optional rejection reason shown to the sub.
+             * Reason
+             * @description Rejection reason shown to the sub (min 5 chars).
              * @example Not approved at this time.
              */
-            note?: string | null;
+            reason: string;
         };
         /**
          * GoddessSetFeeIn
@@ -7852,10 +7853,10 @@ export interface components {
         RejectIn: {
             /**
              * Reason
-             * @description Optional rejection reason shown to the sub
+             * @description Rejection reason shown to the sub (min 5 chars).
              * @example Wrong amount — expected £30.00
              */
-            reason?: string | null;
+            reason: string;
         };
         /** ReorderRequest */
         ReorderRequest: {
@@ -8966,7 +8967,7 @@ export interface components {
         SubPhotoRejectIn: {
             /**
              * Reason
-             * @description Reason for rejecting the photo. Shown to the sub.
+             * @description Reason for rejecting the photo. Shown to the sub (min 5 chars).
              * @example Image is blurry and does not meet the required quality.
              */
             reason: string;
@@ -17903,14 +17904,12 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Unprocessable entity — request body validation failed */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
+                content?: never;
             };
         };
     };

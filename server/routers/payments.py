@@ -205,7 +205,8 @@ async def validate_declaration(
     "/{declaration_id}/reject",
     summary="Reject a pending declaration",
     description=(
-        "Marks a pending declaration as rejected with an optional reason. "
+        "Marks a pending declaration as rejected. "
+        "`reason` is required (min 5 chars) and is shown to the sub. "
         "Raises 409 if declaration is not pending."
     ),
     response_model=PaymentOut,

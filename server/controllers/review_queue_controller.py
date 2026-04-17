@@ -97,11 +97,6 @@ class ReviewQueueController:
         and added to the failed list; already-processed items are not rolled back.
         A single commit is issued after all items are processed.
         """
-        if body.action == BulkAction.reject and not body.reason:
-            from fastapi import HTTPException
-
-            raise HTTPException(status_code=422, detail="reason is required when action=reject")
-
         succeeded: list[BulkItemResult] = []
         failed: list[BulkItemFailure] = []
 

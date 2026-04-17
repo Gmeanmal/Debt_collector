@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
-import { Modal } from "@/components/ui/Modal";
+import { RejectModal } from "@/components/shared/RejectModal";
 import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -36,59 +36,31 @@ function formatDate(dt: string) {
   return new Date(dt).toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" });
 }
 
-interface RejectModalProps {
+interface RejectPanelProps {
   decl: PaymentOut;
   onClose: () => void;
 }
 
-function RejectModal({ decl, onClose }: RejectModalProps) {
+function RejectPanel({ decl, onClose }: RejectPanelProps) {
   const qc = useQueryClient();
-  const [reason, setReason] = useState("");
 
   const rejectMutation = useMutation({
-    mutationFn: () => rejectDeclarationApi(decl.id, { reason: reason || undefined }),
+    mutationFn: (reason: string) => rejectDeclarationApi(decl.id, { reason }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.goddess.pendingPayments() });
       onClose();
     },
   });
 
+  const description = `£${Number(decl.amount).toFixed(2)} — ${decl.sub_display_name ?? "sub"}`;
+
   return (
-    <Modal title="Reject declaration" onClose={onClose}>
-      <p className="text-sm text-base-text-muted">
-        £{Number(decl.amount).toFixed(2)} — {decl.sub_display_name ?? "sub"}
-      </p>
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-base-text" htmlFor="reject-reason">
-          Reason <span className="text-base-text-subtle font-normal">(optional)</span>
-        </label>
-        <textarea
-          id="reject-reason"
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          maxLength={500}
-          rows={3}
-          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-debt-primary"
-        />
-      </div>
-      <div className="flex gap-2 justify-end">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          onClick={() => rejectMutation.mutate()}
-          disabled={rejectMutation.isPending}
-          className="px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors disabled:opacity-50"
-        >
-          Reject
-        </button>
-      </div>
-    </Modal>
+    <RejectModal
+      title="Reject declaration"
+      description={description}
+      onClose={onClose}
+      onConfirm={(reason) => rejectMutation.mutateAsync(reason)}
+    />
   );
 }
 
@@ -218,7 +190,7 @@ export function PendingValidationsRoute() {
         </div>
       </div>
 
-      {rejectTarget && <RejectModal decl={rejectTarget} onClose={() => setRejectTarget(null)} />}
+      {rejectTarget && <RejectPanel decl={rejectTarget} onClose={() => setRejectTarget(null)} />}
     </div>
   );
 }

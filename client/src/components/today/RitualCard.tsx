@@ -171,6 +171,10 @@ export function RitualCard({ data }: Props) {
       {occurrence.note && !isPending && (
         <p className="text-xs text-base-text-muted italic">"{occurrence.note}"</p>
       )}
+
+      {occurrence.status === "rejected" && occurrence.rejection_reason && (
+        <p className="text-xs text-status-danger">{occurrence.rejection_reason}</p>
+      )}
     </article>
   );
 }

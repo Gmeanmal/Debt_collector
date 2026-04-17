@@ -5,6 +5,24 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Fixed
+- **REJECT-1 reject reason min length + stylish reject modal** (ref `planning/todo.md` W2, single `fix(ui)` commit):
+  - **Backend validation.** Four goddess reject surfaces now require a reason of ≥5 chars and ≤500 chars:
+    - `RejectIn.reason` (payment reject, `POST /goddess/payments/{id}/reject`) — was `str | None, default=None`, now required `str, min_length=5, max_length=500`. `PaymentController.reject` signature narrows to `str`.
+    - `SubPhotoRejectIn.reason` (photo reject) — `min_length=1` → `5`.
+    - `GoddessRejectIn` (profile change request reject) — field renamed `note` → `reason`, required, min 5. Router + controller updated; DB column name unchanged (`resolution_note`).
+    - `BulkActionIn` (review queue bulk) — new `@model_validator(mode="after")` enforces reason present and `len(.strip()) ≥ 5` when `action=reject`. Dead controller-level `HTTPException(422)` fallback removed (schema now owns the check, restoring router→controller→DAO discipline).
+  - **OpenAPI hygiene.** `reject_request` (`goddess_profile.py`) had a stale `400` entry in `responses={}` — no code path emits 400 — removed. `reject_declaration` adds `422: _E422`. Every reject route still enumerates its full non-2xx set.
+  - **Notification body regression fix.** Payment reject notifier now sends `"Your payment of £{amount} was rejected: {reason}"` instead of dumping the raw reason as the body (surfaced by reviewer during the must-fix pass).
+  - **Frontend.** New shared `client/src/components/shared/RejectModal.tsx` (focus on mount, inline min-5 validation, `{len}/500` counter, submit-error surface, `role="dialog"` + `aria-modal` inherited from `Modal`, Esc closes, named export, no `as` assertions). Migrated four call sites behind the shared modal:
+    - `PendingValidationsRoute` — local ad-hoc modal deleted; payload now always passes `{ reason }` (required server-side).
+    - `PhotoReviewCard` — local ad-hoc modal deleted.
+    - `RejectRequestDialog` — shadcn `Dialog` implementation replaced; payload uses `{ reason }` (matches rename).
+    - `BulkActionBar` — inline expand-panel replaced by the shared modal overlay.
+  - **Sub-side feed visibility.** `rejection_reason` now renders on rejected items in `RitualCard` and `TaskCard` (new render) and was already shown in `PaymentHistoryRoute` and `ChangeRequestList`. `services/today/todayApi.ts` schemas widen `RitualOccurrenceSchema` + `OpenTaskSchema` with `rejection_reason`.
+  - **Known follow-ups (non-blocking).** Sub does not yet have a profile-photo review-history surface, so photo rejection reasons are backend-captured but never shown to the addressed sub. Candidate for a dedicated `SubPhotoHistoryRoute` in a future slice. `api.generated.ts` for reject routes no longer exposes a typed `HTTPValidationError` body for 422 (consequence of `_E422` carrying only a description, not a schema) — nit, not a regression of behaviour.
+  - Playwright walk verified on http://localhost:4010: goddess reject payment (£120 Dan declaration) — modal opens with `role="dialog"`, Reject disabled at 0 and 3 chars, inline error "Reason must be at least 5 characters." shown at 3 chars, enables at 28 chars, submit dismisses; photo reject modal on `/goddess/photo-queue` shares the same shell (disabled empty, counter `0/500`); sub `/sub/payments` shows `Rejected: Amount wrong — expected £100` on the card and notification popover reads `Your payment of £120.00 was rejected: Amount wrong — expected £100`. Review queue + profile change requests empty in seed — not walked through, but the shared-component migration alone was verified via code review.
+
+### Fixed
 - **MONEY-1 confirm + preview modals on destructive money actions** (ref `planning/todo.md` W2, single `fix(payments)` commit):
   - **Backend.** Four new preview endpoints in `server/routers/money_previews.py`:
     - `POST /goddess/contracts/{slug}/surprise-penalty/preview` — non-mutating balance projection.

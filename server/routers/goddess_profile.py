@@ -25,6 +25,7 @@ _E401 = {"description": "Unauthorized — missing or invalid access token"}
 _E403 = {"description": "Forbidden — caller is not a goddess or does not own this resource"}
 _E404 = {"description": "Not found — request or sub not found"}
 _E409 = {"description": "Conflict — request is not in an actionable state"}
+_E422 = {"description": "Unprocessable entity — request body validation failed"}
 _E422_TRANSITION = {
     "description": (
         "Illegal ownership status transition — body is "
@@ -138,11 +139,11 @@ async def approve_request(
     summary="Reject a profile change request",
     description=(
         "Goddess rejects a pending or awaiting-fee profile change request. "
-        "An optional note is stored and visible to the sub."
+        "`reason` is required (min 5 chars) and is stored and visible to the sub."
     ),
     response_model=ProfileChangeRequestOut,
     status_code=200,
-    responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 409: _E409},
+    responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422},
 )
 async def reject_request(
     request_id: UUID,
@@ -150,7 +151,7 @@ async def reject_request(
     goddess: User = Depends(require_role(UserRole.goddess)),
     session: AsyncSession = Depends(get_session),
 ) -> ProfileChangeRequestOut:
-    """Reject a profile change request with an optional reason."""
+    """Reject a profile change request with a required reason."""
     ctrl = ProfileController(session)
     result = await ctrl.reject(request_id, goddess, body)
     await session.commit()

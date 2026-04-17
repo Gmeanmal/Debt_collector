@@ -196,7 +196,7 @@ class ProfileController:
         await self._req_dao.set_status(
             req,
             ProfileChangeRequestStatus.rejected,
-            note=payload.note,
+            note=payload.reason,
             resolved_at=_now(),
         )
         return _to_out(req)

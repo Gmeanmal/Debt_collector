@@ -37,6 +37,7 @@ export const RitualOccurrenceSchema = z.object({
   evidence_r2_key: z.string().nullable(),
   completed_at: z.string().nullable(),
   reviewed_at: z.string().nullable(),
+  rejection_reason: z.string().nullable().optional(),
   created_at: z.string(),
 });
 
@@ -65,6 +66,7 @@ export const OpenTaskSchema = z.object({
   status: z.enum(taskStatusValues),
   note: z.string().nullable(),
   evidence_r2_key: z.string().nullable(),
+  rejection_reason: z.string().nullable().optional(),
   created_at: z.string(),
 });
 

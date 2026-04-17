@@ -101,10 +101,11 @@ class ValidateIn(BaseModel):
 
 
 class RejectIn(BaseModel):
-    reason: str | None = Field(
-        default=None,
+    reason: str = Field(
+        ...,
+        min_length=5,
         max_length=500,
-        description="Optional rejection reason shown to the sub",
+        description="Rejection reason shown to the sub (min 5 chars).",
         examples=["Wrong amount — expected £30.00"],
     )
 
