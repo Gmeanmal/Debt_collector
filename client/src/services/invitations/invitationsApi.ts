@@ -46,6 +46,36 @@ export async function getPublicInvitationApi(token: string): Promise<PublicInvit
   return data;
 }
 
+export async function resendInvitationApi(invitationId: string, email: string): Promise<void> {
+  const { error, response } = await apiClient.POST(
+    "/goddess/invitations/{invitation_id}/resend",
+    {
+      params: { path: { invitation_id: invitationId } },
+      body: { email },
+      headers: authHeaders(),
+    },
+  );
+  if (error) {
+    const status = response?.status;
+    if (status === 409) throw Object.assign(new Error("Invitation is no longer active"), { status: 409 });
+    throw Object.assign(new Error("Failed to send email"), { status: status ?? 0 });
+  }
+}
+
+export async function previewInvitationApi(
+  invitationId: string,
+): Promise<{ subject: string; html: string }> {
+  const { data, error } = await apiClient.GET(
+    "/goddess/invitations/{invitation_id}/preview",
+    {
+      params: { path: { invitation_id: invitationId } },
+      headers: authHeaders(),
+    },
+  );
+  if (error || !data) throw new Error("Failed to load email preview");
+  return data;
+}
+
 export async function signupViaInviteApi(token: string, body: SignupRequest): Promise<TokenPair> {
   const { data, error, response } = await apiClient.POST("/invite/{token}/signup", {
     params: { path: { token } },

@@ -77,6 +77,13 @@ class UserDao:
         )
         return int(result.scalar_one() or 0)
 
+    async def get_many_by_ids(self, user_ids: list[UUID]) -> dict[UUID, User]:
+        """Return a mapping of user_id → User for the given IDs (single query)."""
+        if not user_ids:
+            return {}
+        result = await self._session.execute(select(User).where(col(User.id).in_(user_ids)))
+        return {u.id: u for u in result.scalars().all()}
+
     async def list_active_subs(self, goddess_id: UUID) -> list[User]:
         """Return all active sub-role users linked to this goddess."""
         result = await self._session.execute(

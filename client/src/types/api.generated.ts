@@ -188,6 +188,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goddess/invitations/{invitation_id}/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resend invitation email
+         * @description Sends the invitation email to the provided address on behalf of the calling Goddess. The invitation must be in `active` status (unused and not expired). Returns 204 No Content on success. Returns 404 if the invitation does not belong to the calling Goddess. Returns 409 if the invitation is not active.
+         */
+        post: operations["resend_invitation_goddess_invitations__invitation_id__resend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/goddess/invitations/{invitation_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview invitation email HTML
+         * @description Returns the exact subject and HTML body that would be sent to a sub for this invitation. No email is sent and no side effects occur. Returns 404 if the invitation does not belong to the calling Goddess.
+         */
+        get: operations["preview_invitation_goddess_invitations__invitation_id__preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/goddess/payment-methods/": {
         parameters: {
             query?: never;
@@ -6344,7 +6384,42 @@ export interface components {
              * @description UTC datetime when the invitation was created
              */
             created_at: string;
+            /**
+             * @description Derived status: 'active' (unused, not expired), 'expired' (unused, past expiry), 'pending_entry_tribute_paid' (used but sub has not yet paid entry tribute), 'consumed' (used and sub is active)
+             * @example active
+             */
+            status: components["schemas"]["InvitationStatus"];
         };
+        /** InvitationPreviewOut */
+        InvitationPreviewOut: {
+            /**
+             * Subject
+             * @description Email subject line
+             * @example You have been invited
+             */
+            subject: string;
+            /**
+             * Html
+             * @description Rendered HTML body of the invitation email
+             * @example <html>...</html>
+             */
+            html: string;
+        };
+        /** InvitationResendRequest */
+        InvitationResendRequest: {
+            /**
+             * Email
+             * Format: email
+             * @description Recipient email address to send the invitation to
+             * @example slave@example.com
+             */
+            email: string;
+        };
+        /**
+         * InvitationStatus
+         * @enum {string}
+         */
+        InvitationStatus: "active" | "pending_entry_tribute_paid" | "consumed" | "expired";
         /** InvokeIn */
         InvokeIn: {
             /**
@@ -10727,6 +10802,133 @@ export interface operations {
             };
             /** @description Forbidden — caller is not a goddess or has no goddess profile */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable entity — request body validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    resend_invitation_goddess_invitations__invitation_id__resend_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvitationResendRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller is not a goddess or has no goddess profile */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — invitation does not exist or does not belong to caller */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict — invitation is not in the required state for this action */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable entity — request body validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    preview_invitation_goddess_invitations__invitation_id__preview_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationPreviewOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller is not a goddess or has no goddess profile */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — invitation does not exist or does not belong to caller */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

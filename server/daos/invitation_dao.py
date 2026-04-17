@@ -77,6 +77,18 @@ class InvitationDao:
         )
         return int(result.scalar_one() or 0)
 
+    async def get_by_id_for_goddess(
+        self, invitation_id: UUID, goddess_id: UUID
+    ) -> Invitation | None:
+        """Return the invitation if it belongs to this goddess, else None."""
+        result = await self._session.execute(
+            select(Invitation).where(
+                col(Invitation.id) == invitation_id,
+                col(Invitation.goddess_id) == goddess_id,
+            )
+        )
+        return result.scalar_one_or_none()
+
     async def count_consumed(self, goddess_id: UUID) -> int:
         """Return invitations that were consumed by a sub."""
         result = await self._session.execute(

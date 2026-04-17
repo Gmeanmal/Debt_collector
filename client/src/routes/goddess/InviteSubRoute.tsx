@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { z } from "zod";
 import { createInvitationApi } from "@/services/invitations/invitationsApi";
 import type { components } from "@/types/api.generated";
@@ -51,9 +52,13 @@ export function InviteSubRoute() {
   }
 
   async function copyUrl(url: string) {
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Copy failed");
+    }
   }
 
   return (
@@ -68,16 +73,19 @@ export function InviteSubRoute() {
                 htmlFor="entry_tribute_amount"
                 className="text-sm font-medium text-base-text-muted"
               >
-                Entry tribute (£) <span className="text-status-danger">*</span>
+                Entry tribute <span className="text-status-danger">*</span>
               </label>
-              <input
-                id="entry_tribute_amount"
-                type="text"
-                inputMode="decimal"
-                placeholder="£ amount"
-                className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
-                {...register("entry_tribute_amount")}
-              />
+              <div className="flex items-center bg-base-surface-raised border border-base-border rounded-md focus-within:ring-2 focus-within:ring-pink-primary">
+                <span className="pl-3 text-base-text-muted select-none">£</span>
+                <input
+                  id="entry_tribute_amount"
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  className="flex-1 bg-transparent outline-none px-2 py-2 text-base-text placeholder:text-base-text-subtle"
+                  {...register("entry_tribute_amount")}
+                />
+              </div>
               {errors.entry_tribute_amount && (
                 <p className="text-sm text-status-danger">{errors.entry_tribute_amount.message}</p>
               )}
@@ -120,8 +128,11 @@ export function InviteSubRoute() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-pink-primary text-white font-semibold py-2 px-4 rounded-md hover:bg-pink-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-pink-primary focus:ring-offset-2 focus:ring-offset-base-surface disabled:opacity-50"
+              className="w-full bg-pink-primary text-pink-foreground font-semibold py-2 px-4 rounded-md hover:bg-pink-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-pink-primary focus:ring-offset-2 focus:ring-offset-base-surface disabled:opacity-50 flex items-center justify-center gap-2"
             >
+              {isSubmitting && (
+                <span className="inline-block w-3 h-3 border-2 border-pink-foreground/30 border-t-pink-foreground rounded-full animate-spin" />
+              )}
               {isSubmitting ? "Creating…" : "Create invitation"}
             </button>
           </form>

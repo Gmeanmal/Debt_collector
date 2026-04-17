@@ -65,6 +65,7 @@ export const queryKeys = {
     all: () => ["invitations"] as const,
     goddess: () => ["invitations", "goddess"] as const,
     public: (token: string) => ["invitation", "public", token] as const,
+    preview: (id: string) => ["invitations", "preview", id] as const,
   },
 
   notifications: {

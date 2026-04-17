@@ -15,16 +15,39 @@ from daos.user_dao import UserDao
 from models.invitation import Invitation
 from models.user import Goddess, User, UserRole, UserStatus
 from schemas.auth import TokenPair
-from schemas.invitation import InvitationCreate, InvitationOut, PublicInvitationOut, SignupRequest
+from schemas.invitation import (
+    InvitationCreate,
+    InvitationOut,
+    InvitationPreviewOut,
+    InvitationStatus,
+    PublicInvitationOut,
+    SignupRequest,
+)
+from services.email.base import EmailService
+from services.email.render import render_template
 
 _settings = get_settings()
+
+
+_INVITE_EMAIL_SUBJECT = "You have been invited"
 
 
 def _build_url(token: str) -> str:
     return f"{_settings.public_base_url}/invite/{token}"
 
 
-def _invitation_out(invitation: Invitation) -> InvitationOut:
+def _derive_status(
+    invitation: Invitation, linked_user_status: UserStatus | None
+) -> InvitationStatus:
+    now = datetime.now(UTC).replace(tzinfo=None)
+    if invitation.used_at is None:
+        return InvitationStatus.active if invitation.expires_at > now else InvitationStatus.expired
+    if linked_user_status == UserStatus.pending_entry_tribute:
+        return InvitationStatus.pending_entry_tribute_paid
+    return InvitationStatus.consumed
+
+
+def _invitation_out(invitation: Invitation, linked_user_status: UserStatus | None) -> InvitationOut:
     return InvitationOut(
         id=invitation.id,
         token=invitation.token,
@@ -34,6 +57,7 @@ def _invitation_out(invitation: Invitation) -> InvitationOut:
         expires_at=invitation.expires_at,
         used_at=invitation.used_at,
         created_at=invitation.created_at,
+        status=_derive_status(invitation, linked_user_status),
     )
 
 
@@ -68,7 +92,7 @@ class InvitationController:
             expires_at=expires_at,
             token=token,
         )
-        return _invitation_out(invitation)
+        return _invitation_out(invitation, None)
 
     async def get_public(self, token: str) -> PublicInvitationOut:
         row = await self._dao.get_by_token(token)
@@ -149,4 +173,66 @@ class InvitationController:
     async def list_for_goddess(self, goddess_user_id: UUID) -> list[InvitationOut]:
         goddess = await self._get_goddess_profile(goddess_user_id)
         invitations = await self._dao.list_by_goddess(goddess.id)
-        return [_invitation_out(inv) for inv in invitations]
+
+        used_by_ids = [
+            inv.used_by_user_id for inv in invitations if inv.used_by_user_id is not None
+        ]
+        users_by_id = await self._users.get_many_by_ids(used_by_ids)
+
+        def _linked_status(inv: Invitation) -> UserStatus | None:
+            uid = inv.used_by_user_id
+            if uid is None:
+                return None
+            linked = users_by_id.get(uid)
+            return linked.status if linked is not None else None
+
+        return [_invitation_out(inv, _linked_status(inv)) for inv in invitations]
+
+    async def resend(
+        self,
+        goddess_user_id: UUID,
+        invitation_id: UUID,
+        recipient_email: str,
+        email_service: EmailService,
+    ) -> None:
+        """Resend the invitation email to the given address.
+
+        Raises NotFound if the invitation does not belong to the calling goddess.
+        Raises Conflict if the invitation is not in active status.
+        """
+        goddess = await self._get_goddess_profile(goddess_user_id)
+        invitation = await self._dao.get_by_id_for_goddess(invitation_id, goddess.id)
+        if invitation is None:
+            raise NotFound("invitation not found")
+
+        status = _derive_status(invitation, None)
+        if status != InvitationStatus.active:
+            raise Conflict(f"invitation is not active (current status: {status.value})")
+
+        html = render_template(
+            "invite.html",
+            goddess_name=goddess.display_name,
+            invite_url=_build_url(invitation.token),
+        )
+        await email_service.send(
+            to=recipient_email,
+            subject=_INVITE_EMAIL_SUBJECT,
+            html=html,
+        )
+
+    async def preview(self, goddess_user_id: UUID, invitation_id: UUID) -> InvitationPreviewOut:
+        """Return the rendered HTML of the invitation email without sending it.
+
+        Raises NotFound if the invitation does not belong to the calling goddess.
+        """
+        goddess = await self._get_goddess_profile(goddess_user_id)
+        invitation = await self._dao.get_by_id_for_goddess(invitation_id, goddess.id)
+        if invitation is None:
+            raise NotFound("invitation not found")
+
+        html = render_template(
+            "invite.html",
+            goddess_name=goddess.display_name,
+            invite_url=_build_url(invitation.token),
+        )
+        return InvitationPreviewOut(subject=_INVITE_EMAIL_SUBJECT, html=html)

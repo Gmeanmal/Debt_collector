@@ -1,8 +1,16 @@
 from datetime import date, datetime
 from decimal import Decimal
+from enum import StrEnum
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
+
+class InvitationStatus(StrEnum):
+    active = "active"
+    pending_entry_tribute_paid = "pending_entry_tribute_paid"
+    consumed = "consumed"
+    expired = "expired"
 
 
 class InvitationCreate(BaseModel):
@@ -53,8 +61,38 @@ class InvitationOut(BaseModel):
         default=None, description="UTC datetime when the invitation was consumed"
     )
     created_at: datetime = Field(..., description="UTC datetime when the invitation was created")
+    status: InvitationStatus = Field(
+        ...,
+        description=(
+            "Derived status: 'active' (unused, not expired), 'expired' (unused, past expiry), "
+            "'pending_entry_tribute_paid' (used but sub has not yet paid entry tribute), "
+            "'consumed' (used and sub is active)"
+        ),
+        examples=["active"],
+    )
 
     model_config = {"from_attributes": True}
+
+
+class InvitationResendRequest(BaseModel):
+    email: EmailStr = Field(
+        ...,
+        description="Recipient email address to send the invitation to",
+        examples=["slave@example.com"],
+    )
+
+
+class InvitationPreviewOut(BaseModel):
+    subject: str = Field(
+        ...,
+        description="Email subject line",
+        examples=["You have been invited"],
+    )
+    html: str = Field(
+        ...,
+        description="Rendered HTML body of the invitation email",
+        examples=["<html>...</html>"],
+    )
 
 
 class PublicInvitationOut(BaseModel):
