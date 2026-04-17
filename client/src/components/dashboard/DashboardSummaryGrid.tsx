@@ -34,9 +34,7 @@ function SummaryTile({ label, value, sublabel, accent = false, alertBorder = fal
       >
         {value}
       </span>
-      {sublabel && (
-        <span className="text-xs text-base-text-muted">{sublabel}</span>
-      )}
+      {sublabel && <span className="text-xs text-base-text-muted">{sublabel}</span>}
     </div>
   );
 }
@@ -66,9 +64,7 @@ export function DashboardSummaryGrid({ summary }: Props) {
         label="Invitations"
         value={summary.invitations_active}
         sublabel={
-          summary.invitations_consumed > 0
-            ? `${summary.invitations_consumed} consumed`
-            : undefined
+          summary.invitations_consumed > 0 ? `${summary.invitations_consumed} consumed` : undefined
         }
       />
       <SummaryTile

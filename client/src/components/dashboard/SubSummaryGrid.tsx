@@ -36,9 +36,7 @@ function SubTile({ label, value, sublabel, to, dangerBorder = false }: TileProps
       >
         {value}
       </span>
-      {sublabel && (
-        <span className="text-xs text-base-text-muted">{sublabel}</span>
-      )}
+      {sublabel && <span className="text-xs text-base-text-muted">{sublabel}</span>}
     </div>
   );
 
@@ -71,27 +69,20 @@ function buildStreakSublabel(days: number): string {
 }
 
 export function SubSummaryGrid({ summary }: Props) {
-  const lateTotal = addGBPDecimalStrings(
-    summary.late_rolling_amount,
-    summary.late_contract_amount,
-  );
+  const lateTotal = addGBPDecimalStrings(summary.late_rolling_amount, summary.late_contract_amount);
   const isLate = parseFloat(lateTotal) > 0;
   const lateSublabel = isLate
     ? buildLateSublabel(summary.late_rolling_amount, summary.late_contract_amount)
     : "all caught up";
 
   const { next_payment_amount, next_payment_due_at } = summary;
-  const hasNextPayment =
-    next_payment_amount !== null && next_payment_due_at !== null;
-  const nextPaymentValue = hasNextPayment
-    ? formatGBP(next_payment_amount)
-    : "None scheduled";
+  const hasNextPayment = next_payment_amount !== null && next_payment_due_at !== null;
+  const nextPaymentValue = hasNextPayment ? formatGBP(next_payment_amount) : "None scheduled";
   const nextPaymentSublabel = hasNextPayment
     ? (formatNextPaymentDue(next_payment_due_at) ?? undefined)
     : undefined;
 
-  const pendingSublabel =
-    summary.pending_approvals_count > 0 ? "awaiting goddess" : undefined;
+  const pendingSublabel = summary.pending_approvals_count > 0 ? "awaiting goddess" : undefined;
 
   const streakSublabel = buildStreakSublabel(summary.journal_streak_days);
 
@@ -103,11 +94,7 @@ export function SubSummaryGrid({ summary }: Props) {
         sublabel={pendingSublabel}
         to="/sub/adjustments"
       />
-      <SubTile
-        label="Next payment"
-        value={nextPaymentValue}
-        sublabel={nextPaymentSublabel}
-      />
+      <SubTile label="Next payment" value={nextPaymentValue} sublabel={nextPaymentSublabel} />
       <SubTile
         label="Streak"
         value={String(summary.journal_streak_days)}

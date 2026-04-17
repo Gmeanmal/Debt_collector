@@ -61,7 +61,6 @@ const GODDESS_ACTIONS: ActionCard[] = [
   },
 ];
 
-
 const ADMIN_ACTIONS: ActionCard[] = [
   {
     to: "/admin/cron",

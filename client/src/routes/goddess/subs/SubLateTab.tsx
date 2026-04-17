@@ -70,19 +70,14 @@ export function SubLateTab({ subId }: Props) {
       sinceDate: c.last_payment_at ?? null,
     }));
 
-  const rows: LateRow[] = [
-    ...(rollingRow ? [rollingRow] : []),
-    ...contractRows,
-  ];
+  const rows: LateRow[] = [...(rollingRow ? [rollingRow] : []), ...contractRows];
 
   if (isLoading) {
     return <p className="text-base-text-muted text-sm py-4">Loading…</p>;
   }
 
   if (rows.length === 0) {
-    return (
-      <p className="text-base-text-muted text-sm py-4 italic">No late items for this sub.</p>
-    );
+    return <p className="text-base-text-muted text-sm py-4 italic">No late items for this sub.</p>;
   }
 
   return <LateTable rows={rows} />;

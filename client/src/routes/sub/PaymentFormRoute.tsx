@@ -58,8 +58,7 @@ export function PaymentFormRoute() {
   const pendingEntry = user?.status === "pending_entry_tribute";
   const forcedEntryTribute = searchParams.get("kind") === "entry_tribute";
 
-  const initialCategory: PaymentCategory =
-    isActive && !forcedEntryTribute ? "tribute" : "entry";
+  const initialCategory: PaymentCategory = isActive && !forcedEntryTribute ? "tribute" : "entry";
 
   const [category, setCategory] = useState<PaymentCategory>(initialCategory);
   const [amount, setAmount] = useState<string>(() => {
@@ -198,11 +197,7 @@ export function PaymentFormRoute() {
             <p className="text-xs text-base-text-subtle">Defaults to now in Europe/London.</p>
           </div>
 
-          <ProofUploadField
-            file={proof}
-            onChange={setProof}
-            disabled={declareMutation.isPending}
-          />
+          <ProofUploadField file={proof} onChange={setProof} disabled={declareMutation.isPending} />
 
           <div className="flex flex-col gap-1">
             <label htmlFor="note" className="text-sm font-semibold text-base-text">

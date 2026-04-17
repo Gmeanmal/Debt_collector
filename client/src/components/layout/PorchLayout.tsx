@@ -37,13 +37,11 @@ export function PorchLayout({ entryTributeAmount }: PorchLayoutProps) {
             </h1>
             {formattedAmount != null ? (
               <p className="text-base-text-muted text-base">
-                <span className="text-pink-primary font-semibold text-lg">{formattedAmount}</span>
-                {" "}to enter Mean Mal&apos;s house
-              </p>
-            ) : (
-              <p className="text-base-text-muted text-base">
+                <span className="text-pink-primary font-semibold text-lg">{formattedAmount}</span>{" "}
                 to enter Mean Mal&apos;s house
               </p>
+            ) : (
+              <p className="text-base-text-muted text-base">to enter Mean Mal&apos;s house</p>
             )}
             {user && (
               <p className="text-base-text-subtle text-sm">

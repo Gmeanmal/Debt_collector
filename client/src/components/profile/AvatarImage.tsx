@@ -16,7 +16,12 @@ interface AvatarImageProps {
   displayName?: string;
 }
 
-export function AvatarImage({ avatarKey, size = "default", className = "", displayName }: AvatarImageProps) {
+export function AvatarImage({
+  avatarKey,
+  size = "default",
+  className = "",
+  displayName,
+}: AvatarImageProps) {
   const entry = AVATAR_MAP[avatarKey] ?? AVATAR_MAP["default"];
   const sizeClass = SIZE_CLASSES[size] ?? SIZE_CLASSES["default"];
 

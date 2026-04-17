@@ -62,9 +62,7 @@ export function TodayRoute() {
           )}
 
           {!ritualsQuery.isLoading && !ritualsQuery.isError && occurrences.length === 0 && (
-            <EmptyState
-              title="No ritual tonight — rest. Tomorrow she remembers."
-            />
+            <EmptyState title="No ritual tonight — rest. Tomorrow she remembers." />
           )}
 
           {occurrences.length > 0 && (
