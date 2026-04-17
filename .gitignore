@@ -176,3 +176,14 @@ backend/generated_pdfs/
 .plannotator/
 .playwright-mcp/
 .claude/scheduled_tasks.lock
+
+# ─────────────────────────────────────────────────────────────
+# Local planning (todo, conventions, task tracking — not shared)
+# ─────────────────────────────────────────────────────────────
+planning/
+
+# ─────────────────────────────────────────────────────────────
+# Review session artifacts (raw notes + screenshots)
+# ─────────────────────────────────────────────────────────────
+.review-notes.md
+.review-screenshots/

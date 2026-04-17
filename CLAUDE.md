@@ -1,25 +1,6 @@
-# Project rules for all subagents
+# Project rules (auto-loaded for every session and every subagent)
 
-Spec: `Docs/specs.md`
-History: `CHANGELOG.md`
-
-## Orchestration workflow (main session)
-
-The main Claude session runs on **Opus** and acts as the orchestrator. Dev work is delegated:
-
-1. **Opus = brain.** Plans, reviews, decides. Never writes feature code directly when a subagent can do it.
-2. **Dispatch Sonnet subagents for dev tasks** via the `Agent` tool (pass `model: "sonnet"`).
-   - One subagent per self-contained task (one DAO, one route, one React page, one migration, etc.).
-   - **Parallelise** when tasks are independent — send multiple `Agent` tool calls in a single message.
-   - Each subagent prompt must be self-contained: goal, files to touch, constraints (English only, layered architecture, 300-line React cap, no inline CSS, Conventional Commits scope). Point them at `CLAUDE.md`, `server/CLAUDE.md`, `client/CLAUDE.md`.
-3. **Opus verifies after every feature slice:**
-   - Start/restart `make server` + `make client`, open the feature in Playwright (`mcp__plugin_playwright_playwright__*`), walk the golden path + edge cases.
-   - Run `make check` (ruff + pyright strict + eslint + tsc + vite build). Fix or dispatch fix-agents until green.
-   - Check `/docs` Swagger for new routes if server changed.
-4. **Only Opus commits.** When CI-equivalent is green and feature works in browser, create a Conventional Commit (`feat|fix|chore|…(<scope>): …`), English, imperative, lowercase summary, no Claude co-author trailer.
-5. **Update `CHANGELOG.md`** `[Unreleased]` section with notable changes before committing.
-
-Never let a subagent commit. Never skip the Playwright + `make check` gate before committing.
+Spec: `Docs/specs.md` — History: `CHANGELOG.md` — Orchestration playbook (Opus-only): `planning/conventions.md` (gitignored).
 
 ## Hard rules (override all defaults)
 
@@ -67,12 +48,14 @@ Dashboard/aggregation views that don't map to a single CRUD resource (e.g. weekl
 - No root `package.json`, no root `pyproject.toml`, no monorepo workspace tooling.
 
 ### Docker
-- Docker hosts infra only: Postgres + Mailhog.
+- Docker hosts infra only: Postgres + Mailhog + MinIO.
 - Server and client always run locally (`make server`, `make client`) for hot-reload and LSP.
 
 ### Git commits
 - Author = repo owner only. Never add Claude co-authorship trailers.
 - Conventional Commits format: `<type>(<scope>): <summary>`
   - type: `feat|fix|chore|docs|refactor|test|ci`
-  - scope: `server|client|infra|docs|db|auth|contracts|rollings|payments|admin|notif|ui`
+  - scope: `server|client|infra|docs|db|auth|contracts|rollings|payments|admin|notif|ui|profile|kinks|limits|rituals|journal|toys|crypto`
   - Imperative mood, lowercase summary, 72-char max.
+
+Subagents: never commit. Only the Opus orchestrator commits — see `planning/conventions.md`.

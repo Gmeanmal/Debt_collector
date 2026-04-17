@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-16
 **Status:** Draft v2 — scope expanded to cover full sub-profile / lifestyle domain
-**Companion docs:** `use_cases.md` (user journeys), `roadmap.md` (executable task list), `diagrams.html` (Mermaid flows)
+**Companion docs:** `use_cases.md` (user journeys), `diagrams.html` (Mermaid flows). Live task list lives in the gitignored `planning/todo.md`.
 
 ---
 
@@ -21,7 +21,7 @@ Spec is split in parts:
 | **V — Integrations** | §24 | Payment ingestion (Throne, PayPal, Revolut, CashApp, YouPay) |
 | **VI — Security & Privacy additions** | §25 | Encryption envelope, consent framework, retention |
 
-`roadmap.md` breaks every gap in this doc into 61 concrete tasks with dependencies.
+Live task tracking is in the gitignored `planning/` folder.
 
 ---
 
@@ -449,7 +449,7 @@ rolling_due    : due = amount * (1 + max(0, days_late) * late_multiplier_per_day
 
 ## 15. Build Sequence (pointer)
 
-`roadmap.md` is the executable plan. High-level phase order:
+Phases A–J shipped (waves 1–7 + P0 cuts + P1.1–P1.5). Phases K, L, M cut. Live work tracked in `planning/todo.md`. High-level historical phase order:
 
 A. Residual core gaps (ingestion, YouPay, photos) — finishes Part I.
 B. §16 Identity extension.
@@ -1018,22 +1018,22 @@ Every component respects 300-line cap, named exports, no inline styles. UUIDs hi
 
 ---
 
-## 29. Build Sequence — mapping to roadmap.md
+## 29. Build Sequence (historical phase map)
 
-| Roadmap phase | Covers | Gated? |
+| Phase | Covers | Status |
 |---|---|---|
-| A — Residual core | §7 ingestion toggles, §11.2 photos, §16.5 wishlist plumbing | No |
-| B — Identity ext | §16.1 – §16.4 | No |
-| C — Kinks | §17 | No |
-| D — Limits & safety | §18 (except medical encryption) | No |
-| E — Rituals & tasks | §19 | No |
-| F — Journal / merits / aftercare | §20 | No |
-| G — Toys inventory | §21 | No |
-| H — Contract clauses + renewal | §6.8, §6.9 | No |
-| I — Wishlist + tribute minimum + penalty rules | §16.5 | No |
-| J — Crypto envelope + consent framework | §25 | No (prerequisite) |
-| K — Blackmail vault | §22 | **Yes — legal review first** |
-| L — TechDom / devices | §23 | **Yes — secrets vault + per-vendor legal terms** |
-| M — Payment ingestion | §24 | No |
+| A — Residual core | §7 ingestion toggles, §11.2 photos, §16.5 wishlist plumbing | Shipped (A6 only; rest cut) |
+| B — Identity ext | §16.1 – §16.4 | Shipped |
+| C — Kinks | §17 | Shipped |
+| D — Limits & safety | §18 (except medical encryption) | Shipped |
+| E — Rituals & tasks | §19 | Shipped |
+| F — Journal / merits / aftercare | §20 | Shipped |
+| G — Toys inventory | §21 | Shipped |
+| H — Contract clauses + renewal | §6.8, §6.9 | Shipped |
+| I — Tribute minimum + penalty rules | §16.5 | Shipped (I1–I3 cut) |
+| J — Crypto envelope + consent framework | §25 | Shipped |
+| K — Blackmail vault | §22 | **Cut 2026-04-17** |
+| L — TechDom / devices | §23 | **Cut 2026-04-17** |
+| M — Payment ingestion | §24 | **Cut 2026-04-16** |
 
 End of design.
