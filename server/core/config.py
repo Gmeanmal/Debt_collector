@@ -76,6 +76,8 @@ class Settings(BaseSettings):
     root_kek_b64: str = ""
     root_kek_version: int = 1
 
+    medical_feature_enabled: bool = False
+
     @property
     def is_prod(self) -> bool:
         return self.app_env == AppEnv.prod

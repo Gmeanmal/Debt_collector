@@ -4,6 +4,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Changed
+- **CONSENT-1 feature-flag the medical module** (ref `planning/todo.md` W2, single `chore(profile)` commit):
+  - **Backend.** New `MEDICAL_FEATURE_ENABLED` setting in `core.config.Settings` (default `False`). New `dependencies/feature_flags.py::require_medical_feature` raises 404 when flag is off. Wired at router level (`dependencies=[Depends(require_medical_feature)]`) on both `sub_router` (`/profile/medical` GET + PUT) and `goddess_router` (`GET /goddess/subs/{id}/medical`) in `routers/sub_medical.py`. Router-level placement guarantees the 404 fires before any role / consent / DAO work, satisfying the "no data ever decrypted or stored when disabled" intent.
+  - **Frontend.** New `services/featureFlags.ts` exports `MEDICAL_FEATURE_ENABLED`, fed by the Zod-validated env schema in `utils/env.ts` (added `VITE_MEDICAL_FEATURE_ENABLED: z.enum(["true","false"]).default("false")`). `MedicalRoute` renders a neutral placeholder page ("Medical module coming soon — your data has not been collected.") when the flag is off. Medical entry is stripped from `SUB_NAV` and the goddess `MedicalRevealPanel` is hidden on `SubOverviewTab`.
+  - **Layout refactor follow-up.** `components/layout/AppLayout.tsx` exceeded the 300-line ceiling after the flag wiring — nav arrays extracted to `components/layout/navItems.ts` (now 260 lines).
+  - **Env defaults.** `VITE_MEDICAL_FEATURE_ENABLED=false` in `client/.env.example`; `MEDICAL_FEATURE_ENABLED=false` in `server/.env.example`.
+  - **Copy deferred.** Per Q10-bis, legal medical-consent copy is deferred to backlog slice `NTH-medical-copy`; flag flipping to `true` is the trigger.
+  - **Known follow-ups (non-blocking).** Router-level `dependencies=[Depends(...)]` adds an implicit 404 to the OpenAPI doc for those routes — explicit `404: _E404` entries in the per-endpoint `responses={}` are now slightly redundant but kept for discoverability. Prettier/ruff also reformatted two untouched lines (`client/src/lib/queryKeys.ts`, `server/controllers/payment/controller.py`) as part of the `make fmt` pass — carried in the same commit for tidiness.
+
 ### Fixed
 - **REJECT-1 reject reason min length + stylish reject modal** (ref `planning/todo.md` W2, single `fix(ui)` commit):
   - **Backend validation.** Four goddess reject surfaces now require a reason of ≥5 chars and ≤500 chars:

@@ -8,6 +8,7 @@ import { NotificationBell } from "@/components/layout/NotificationBell";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useTheme, type ThemePref } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { GODDESS_NAV, SUB_NAV, ADMIN_NAV } from "@/components/layout/navItems";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,48 +23,6 @@ import { cn } from "@/lib/utils";
 interface AppLayoutProps {
   children: ReactNode;
 }
-
-interface NavItem {
-  to: string;
-  label: string;
-}
-
-const GODDESS_NAV: NavItem[] = [
-  { to: "/", label: "Dashboard" },
-  { to: "/goddess/subs", label: "Subs" },
-  { to: "/goddess/invitations", label: "Invitations" },
-  { to: "/goddess/validations", label: "Validations" },
-  { to: "/goddess/review-queue", label: "Review queue" },
-  { to: "/goddess/photo-queue", label: "Photo queue" },
-  { to: "/goddess/kinks", label: "Kinks" },
-  { to: "/goddess/payments/record", label: "Record" },
-  { to: "/goddess/payment-methods", label: "Methods" },
-  { to: "/goddess/debts", label: "Contracts" },
-  { to: "/goddess/weekly", label: "Weekly" },
-  { to: "/goddess/late", label: "Late" },
-  { to: "/goddess/merits", label: "Rewards & Punishments" },
-  { to: "/goddess/penalty-rules", label: "Penalty rules" },
-];
-
-const SUB_NAV: NavItem[] = [
-  { to: "/today", label: "Today" },
-  { to: "/", label: "Dashboard" },
-  { to: "/sub/payments", label: "My payments" },
-  { to: "/sub/payments/new", label: "Declare" },
-  { to: "/sub/debts", label: "Contracts" },
-  { to: "/profile/kinks", label: "Kinks" },
-  { to: "/profile/limits", label: "Limits" },
-  { to: "/sub/journal", label: "Journal" },
-  { to: "/sub/profile/inventory", label: "Inventory" },
-  { to: "/profile/aftercare", label: "Aftercare" },
-  { to: "/profile/medical", label: "Medical" },
-];
-
-const ADMIN_NAV: NavItem[] = [
-  { to: "/", label: "Dashboard" },
-  { to: "/admin", label: "Console" },
-  { to: "/admin/cron", label: "Cron" },
-];
 
 function isThemePref(value: string | null | undefined): value is ThemePref {
   return value === "system" || value === "dark" || value === "light";

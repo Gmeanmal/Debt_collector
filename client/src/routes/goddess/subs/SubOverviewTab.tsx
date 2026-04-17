@@ -8,6 +8,7 @@ import { MedicalRevealPanel } from "@/components/goddess/MedicalRevealPanel";
 import { DangerZonePanel } from "@/components/goddess/DangerZonePanel";
 import { SurprisePenaltyFlow } from "@/components/contracts/SurprisePenaltyFlow";
 import { Button } from "@/components/ui/button";
+import { MEDICAL_FEATURE_ENABLED } from "@/services/featureFlags";
 
 interface Props {
   subId: string;
@@ -53,7 +54,7 @@ export function SubOverviewTab({ subId, username, status }: Props) {
         </p>
       )}
 
-      <MedicalRevealPanel subId={subId} />
+      {MEDICAL_FEATURE_ENABLED && <MedicalRevealPanel subId={subId} />}
       <SubRollingSection subId={subId} username={username} />
       <SubContractsSection subId={subId} username={username} />
       <SubPaymentsSection subId={subId} />

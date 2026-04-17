@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from controllers.sub_medical_controller import SubMedicalController
 from core.db import get_session
 from dependencies.auth import require_role
+from dependencies.feature_flags import require_medical_feature
 from models.user import User, UserRole
 from schemas.sub_medical import SubMedicalRevealOut, SubMedicalSelfOut, SubMedicalUpdate
 from services.consent.gate import require_consent
@@ -18,8 +19,16 @@ _E404 = {"description": "Not found — the medical record does not exist"}
 _E409 = {"description": "Conflict — the sub has no assigned goddess"}
 _E428 = {"description": "Precondition required — medical consent not yet accepted"}
 
-sub_router = APIRouter(prefix="/profile", tags=["medical"])
-goddess_router = APIRouter(prefix="/goddess/subs", tags=["medical-reveal"])
+sub_router = APIRouter(
+    prefix="/profile",
+    tags=["medical"],
+    dependencies=[Depends(require_medical_feature)],
+)
+goddess_router = APIRouter(
+    prefix="/goddess/subs",
+    tags=["medical-reveal"],
+    dependencies=[Depends(require_medical_feature)],
+)
 
 
 def _ctrl(session: AsyncSession = Depends(get_session)) -> SubMedicalController:
@@ -33,7 +42,8 @@ def _ctrl(session: AsyncSession = Depends(get_session)) -> SubMedicalController:
         "Returns a boolean presence flag for each encrypted medical field. "
         "No plaintext is ever returned to the sub. "
         "If no record exists yet, all flags are false. "
-        "Requires the sub to have accepted the current `medical` consent version."
+        "Requires the sub to have accepted the current `medical` consent version. "
+        "Returns 404 when the medical module feature flag is disabled."
     ),
     response_model=SubMedicalSelfOut,
     status_code=200,
@@ -41,6 +51,7 @@ def _ctrl(session: AsyncSession = Depends(get_session)) -> SubMedicalController:
     responses={
         401: _E401,
         403: _E403,
+        404: _E404,
         428: _E428,
     },
 )
@@ -63,7 +74,8 @@ async def get_own_medical_status(
         "Pass `null` or an empty string for any field to clear it. "
         "Returns is-set booleans — plaintext is never echoed back. "
         "Requires the sub to have accepted the current `medical` consent version. "
-        "The sub must have an assigned goddess."
+        "The sub must have an assigned goddess. "
+        "Returns 404 when the medical module feature flag is disabled."
     ),
     response_model=SubMedicalSelfOut,
     status_code=200,
@@ -71,6 +83,7 @@ async def get_own_medical_status(
     responses={
         401: _E401,
         403: _E403,
+        404: _E404,
         409: _E409,
         428: _E428,
     },
@@ -95,7 +108,8 @@ async def upsert_own_medical(
         "Decrypts and returns the full medical record for the given sub. "
         "The sub must belong to the authenticated goddess; any mismatch returns 403. "
         "Every successful reveal is logged to the audit trail as `medical_reveal`. "
-        "Returns 404 if the sub has not yet saved any medical information."
+        "Returns 404 if the sub has not yet saved any medical information. "
+        "Returns 404 when the medical module feature flag is disabled."
     ),
     response_model=SubMedicalRevealOut,
     status_code=200,

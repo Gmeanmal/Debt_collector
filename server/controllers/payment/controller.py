@@ -226,9 +226,7 @@ class PaymentController:
 
         return await to_out(self._session, decl)
 
-    async def reject(
-        self, goddess_user: User, declaration_id: UUID, reason: str
-    ) -> PaymentOut:
+    async def reject(self, goddess_user: User, declaration_id: UUID, reason: str) -> PaymentOut:
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
         decl = await self._get_declaration_or_404(declaration_id)
         if decl.goddess_id != goddess_id:

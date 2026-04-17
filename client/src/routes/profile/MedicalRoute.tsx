@@ -7,6 +7,7 @@ import { MedicalConsentGate } from "@/components/medical/MedicalConsentGate";
 import { MedicalEditForm } from "@/components/medical/MedicalEditForm";
 import { getOwnMedical, medicalKey } from "@/services/medical/medicalApi";
 import { ConsentRequiredError } from "@/api/medical";
+import { MEDICAL_FEATURE_ENABLED } from "@/services/featureFlags";
 
 interface ConsentState {
   bodyMd: string;
@@ -14,6 +15,32 @@ interface ConsentState {
 }
 
 export function MedicalRoute() {
+  if (!MEDICAL_FEATURE_ENABLED) {
+    return <MedicalPlaceholder />;
+  }
+  return <MedicalRouteBody />;
+}
+
+function MedicalPlaceholder() {
+  return (
+    <div className="p-4 md:p-8">
+      <div className="max-w-2xl mx-auto flex flex-col gap-6">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
+            Medical information
+          </h1>
+        </div>
+        <div className="bg-base-surface-raised border border-base-border rounded p-6">
+          <p className="text-base-text">
+            Medical module coming soon — your data has not been collected.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MedicalRouteBody() {
   const [consentState, setConsentState] = useState<ConsentState | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
 

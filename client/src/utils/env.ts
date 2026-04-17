@@ -3,6 +3,7 @@ import { z } from "zod";
 const envSchema = z.object({
   VITE_API_BASE_URL: z.string().url(),
   VITE_WS_BASE_URL: z.string().url(),
+  VITE_MEDICAL_FEATURE_ENABLED: z.enum(["true", "false"]).default("false"),
 });
 
 const parsed = envSchema.safeParse(import.meta.env);

@@ -44,8 +44,7 @@ export const queryKeys = {
   },
 
   breachPreview: {
-    forSub: (username: string, reason: string) =>
-      ["breach-preview", username, reason] as const,
+    forSub: (username: string, reason: string) => ["breach-preview", username, reason] as const,
   },
 
   rolling: {
