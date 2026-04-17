@@ -17,7 +17,7 @@ import { SubsListRoute } from "./routes/goddess/SubsListRoute";
 import { SubManageRoute } from "./routes/goddess/subs/SubManageRoute";
 import { InviteLandingRoute } from "./routes/public/InviteLandingRoute";
 import { SignupRoute } from "./routes/public/SignupRoute";
-import { PendingEntryTributeRoute } from "./routes/sub/PendingEntryTributeRoute";
+import { PorchRoute } from "./routes/sub/PorchRoute";
 import { PaymentFormRoute } from "./routes/sub/PaymentFormRoute";
 import { PaymentHistoryRoute } from "./routes/sub/PaymentHistoryRoute";
 import { SubContractsRoute } from "./routes/sub/SubContractsRoute";
@@ -91,13 +91,15 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/pending-entry-tribute",
+    path: "/porch",
     element: (
-      <ProtectedRoute>
-        <PendingEntryTributeRoute />
+      <ProtectedRoute noLayout>
+        <PorchRoute />
       </ProtectedRoute>
     ),
   },
+  // Legacy redirect — keep in case old emails/bookmarks reference the old path
+  { path: "/pending-entry-tribute", element: <Navigate to="/porch" replace /> },
   {
     path: "/sub/payments",
     element: (

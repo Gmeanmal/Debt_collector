@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -10,6 +10,7 @@ from core.db import engine
 from core.exception_handlers import register as register_exception_handlers
 from core.logging import configure_logging
 from core.rate_limit import limiter, rate_limit_exceeded_handler
+from dependencies.porch_gate import porch_gate
 from middleware.request_id import RequestIdMiddleware
 from middleware.security_headers import SecurityHeadersMiddleware
 from routers import (
@@ -88,6 +89,7 @@ app = FastAPI(
     openapi_url=None if _settings.is_prod else "/openapi.json",
     docs_url=None if _settings.is_prod else "/docs",
     redoc_url=None if _settings.is_prod else "/redoc",
+    dependencies=[Depends(porch_gate)],
 )
 
 app.state.limiter = limiter
@@ -107,6 +109,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-CSRF-Token", "X-Confirm-Password"],
+    expose_headers=["X-Access-State"],
 )
 # Added last so it runs first on ingress — request_id is available to all inner middleware.
 app.add_middleware(RequestIdMiddleware)

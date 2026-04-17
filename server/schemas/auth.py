@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Literal
 from uuid import UUID
 
@@ -106,6 +107,15 @@ class UserOut(BaseModel):
         None,
         description="Display name of the impersonating admin, when applicable.",
         examples=[None],
+    )
+    entry_tribute_amount: Decimal | None = Field(
+        None,
+        description=(
+            "Amount of the entry tribute owed, in GBP. "
+            "Populated from the sub's invitation row only when `status == pending_entry_tribute`. "
+            "Null for all other statuses or non-sub accounts."
+        ),
+        examples=["30.00", None],
     )
 
 

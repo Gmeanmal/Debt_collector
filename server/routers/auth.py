@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -5,10 +7,11 @@ from controllers.auth_controller import AuthController
 from core.config import Settings, get_settings
 from core.db import get_session
 from core.rate_limit import limiter
+from daos.invitation_dao import InvitationDao
 from daos.token_dao import TokenDao
 from daos.user_dao import UserDao
 from dependencies.auth import AuthContext, get_auth_context
-from models.user import User
+from models.user import User, UserStatus
 from schemas.auth import (
     LoginRequest,
     PasswordResetConfirm,
@@ -40,6 +43,7 @@ def _build_controller(session: AsyncSession = Depends(get_session)) -> AuthContr
             reset_ttl_minutes=settings.password_reset_ttl_minutes,
         ),
         email_service=get_email_service(settings),
+        invitation_dao=InvitationDao(session),
     )
 
 
@@ -48,7 +52,11 @@ def _display_name(user: User) -> str:
     return " ".join(parts) if parts else user.username
 
 
-def _user_out(user: User, impersonator: User | None = None) -> UserOut:
+def _user_out(
+    user: User,
+    impersonator: User | None = None,
+    entry_tribute_amount: Decimal | None = None,
+) -> UserOut:
     return UserOut(
         id=user.id,
         email=user.email,
@@ -70,6 +78,7 @@ def _user_out(user: User, impersonator: User | None = None) -> UserOut:
         created_at=user.created_at,
         impersonator_id=impersonator.id if impersonator else None,
         impersonator_display_name=_display_name(impersonator) if impersonator else None,
+        entry_tribute_amount=entry_tribute_amount,
     )
 
 
@@ -274,7 +283,11 @@ async def password_reset_confirm(
 @router.get(
     "/me",
     summary="Return the authenticated user's profile",
-    description="Decodes the Bearer access token and returns the caller's profile.",
+    description=(
+        "Decodes the Bearer access token and returns the caller's profile. "
+        "When the authenticated sub has `status == pending_entry_tribute`, the response "
+        "includes `entry_tribute_amount` populated from their invitation row."
+    ),
     response_model=UserOut,
     status_code=200,
     responses={
@@ -282,5 +295,13 @@ async def password_reset_confirm(
         500: _ERROR_500,
     },
 )
-async def me(ctx: AuthContext = Depends(get_auth_context)) -> UserOut:
-    return _user_out(ctx.user, ctx.impersonator)
+async def me(
+    ctx: AuthContext = Depends(get_auth_context),
+    ctrl: AuthController = Depends(_build_controller),
+) -> UserOut:
+    entry_tribute_amount = (
+        await ctrl.get_entry_tribute_amount(ctx.user.id)
+        if ctx.user.status == UserStatus.pending_entry_tribute
+        else None
+    )
+    return _user_out(ctx.user, ctx.impersonator, entry_tribute_amount)

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/services/auth/useAuth";
 import {
@@ -25,11 +25,24 @@ export function PaymentFormRoute() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
 
   const isActive = user?.status === "active";
+  // kind=entry_tribute in the query string locks the form to entry category
+  const forcedEntryTribute = searchParams.get("kind") === "entry_tribute";
 
-  const [category, setCategory] = useState<PaymentCategory>(isActive ? "tribute" : "entry");
-  const [amount, setAmount] = useState("");
+  const entryTributeDefault = (() => {
+    if (!forcedEntryTribute) return "";
+    const raw = user?.entry_tribute_amount;
+    if (raw == null) return "";
+    const n = Number(raw);
+    return Number.isFinite(n) ? n.toFixed(2) : "";
+  })();
+
+  const [category, setCategory] = useState<PaymentCategory>(
+    isActive && !forcedEntryTribute ? "tribute" : "entry",
+  );
+  const [amount, setAmount] = useState(entryTributeDefault);
   const [methodId, setMethodId] = useState("");
   const [externalTs, setExternalTs] = useState("");
   const [note, setNote] = useState("");
@@ -44,7 +57,7 @@ export function PaymentFormRoute() {
     mutationFn: declarePaymentApi,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.sub.payments() });
-      navigate("/sub/payments");
+      navigate(forcedEntryTribute ? "/porch" : "/sub/payments");
     },
   });
 
@@ -87,11 +100,17 @@ export function PaymentFormRoute() {
             <legend className="text-sm font-semibold text-base-text mb-2">Category</legend>
             <div className="flex flex-col gap-2">
               {ACTIVE_CATEGORIES.map(({ value, label }) => {
-                const disabled = value === "entry" && isActive;
+                const disabledByActive = value === "entry" && isActive;
+                const disabledByForced = forcedEntryTribute && value !== "entry";
+                const disabled = disabledByActive || disabledByForced;
                 return (
                   <label
                     key={value}
-                    className={`flex items-center gap-2 text-sm cursor-pointer ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
+                    className={cn(
+                      "flex items-center gap-2 text-sm",
+                      disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer",
+                    )}
+                    aria-disabled={disabled}
                   >
                     <input
                       type="radio"
@@ -99,6 +118,7 @@ export function PaymentFormRoute() {
                       value={value}
                       checked={category === value}
                       disabled={disabled}
+                      aria-disabled={disabled}
                       onChange={() => setCategory(value)}
                       className="accent-pink-primary"
                     />
@@ -209,7 +229,7 @@ export function PaymentFormRoute() {
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"
-              onClick={() => navigate("/sub/payments")}
+              onClick={() => navigate(forcedEntryTribute ? "/porch" : "/sub/payments")}
               className="w-full sm:w-auto px-4 py-2 text-sm text-base-text-muted border border-base-border rounded-md hover:text-base-text transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
             >
               Cancel

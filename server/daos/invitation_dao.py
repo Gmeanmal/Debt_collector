@@ -48,6 +48,13 @@ class InvitationDao:
         invitation.used_by_user_id = user_id
         self._session.add(invitation)
 
+    async def get_by_used_by_user_id(self, user_id: UUID) -> Invitation | None:
+        """Return the invitation that was consumed by this user, or None."""
+        result = await self._session.execute(
+            select(Invitation).where(col(Invitation.used_by_user_id) == user_id)
+        )
+        return result.scalar_one_or_none()
+
     async def list_by_goddess(self, goddess_id: UUID) -> list[Invitation]:
         result = await self._session.execute(
             select(Invitation)

@@ -153,7 +153,7 @@ export interface paths {
         };
         /**
          * Return the authenticated user's profile
-         * @description Decodes the Bearer access token and returns the caller's profile.
+         * @description Decodes the Bearer access token and returns the caller's profile. When the authenticated sub has `status == pending_entry_tribute`, the response includes `entry_tribute_amount` populated from their invitation row.
          */
         get: operations["me_auth_me_get"];
         put?: never;
@@ -3538,12 +3538,12 @@ export interface paths {
         };
         /**
          * Get own medical status
-         * @description Returns a boolean presence flag for each encrypted medical field. No plaintext is ever returned to the sub. If no record exists yet, all flags are false. Requires the sub to have accepted the current `medical` consent version.
+         * @description Returns a boolean presence flag for each encrypted medical field. No plaintext is ever returned to the sub. If no record exists yet, all flags are false. Requires the sub to have accepted the current `medical` consent version. Returns 404 when the medical module feature flag is disabled.
          */
         get: operations["get_own_medical_status_profile_medical_get"];
         /**
          * Save own medical information
-         * @description Creates or updates the calling sub's encrypted medical record. Each field is individually encrypted with AES-256-GCM under the goddess's DEK and bound by an AAD of `sub_medical:<sub_id>:<field_name>`. Pass `null` or an empty string for any field to clear it. Returns is-set booleans — plaintext is never echoed back. Requires the sub to have accepted the current `medical` consent version. The sub must have an assigned goddess.
+         * @description Creates or updates the calling sub's encrypted medical record. Each field is individually encrypted with AES-256-GCM under the goddess's DEK and bound by an AAD of `sub_medical:<sub_id>:<field_name>`. Pass `null` or an empty string for any field to clear it. Returns is-set booleans — plaintext is never echoed back. Requires the sub to have accepted the current `medical` consent version. The sub must have an assigned goddess. Returns 404 when the medical module feature flag is disabled.
          */
         put: operations["upsert_own_medical_profile_medical_put"];
         post?: never;
@@ -3562,7 +3562,7 @@ export interface paths {
         };
         /**
          * Reveal a sub's medical information
-         * @description Decrypts and returns the full medical record for the given sub. The sub must belong to the authenticated goddess; any mismatch returns 403. Every successful reveal is logged to the audit trail as `medical_reveal`. Returns 404 if the sub has not yet saved any medical information.
+         * @description Decrypts and returns the full medical record for the given sub. The sub must belong to the authenticated goddess; any mismatch returns 403. Every successful reveal is logged to the audit trail as `medical_reveal`. Returns 404 if the sub has not yet saved any medical information. Returns 404 when the medical module feature flag is disabled.
          */
         get: operations["reveal_sub_medical_goddess_subs__sub_id__medical_get"];
         put?: never;
@@ -9971,6 +9971,13 @@ export interface components {
              * @example null
              */
             impersonator_display_name?: string | null;
+            /**
+             * Entry Tribute Amount
+             * @description Amount of the entry tribute owed, in GBP. Populated from the sub's invitation row only when `status == pending_entry_tribute`. Null for all other statuses or non-sub accounts.
+             * @example 30.00
+             * @example null
+             */
+            entry_tribute_amount?: string | null;
         };
         /**
          * UserRole
@@ -17869,13 +17876,6 @@ export interface operations {
                     "application/json": components["schemas"]["ProfileChangeRequestOut"];
                 };
             };
-            /** @description Bad request — validation failed or no fields provided */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
             /** @description Unauthorized — missing or invalid access token */
             401: {
                 headers: {
@@ -23377,6 +23377,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Not found — the medical record does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -23428,6 +23435,13 @@ export interface operations {
             };
             /** @description Forbidden — caller does not have the required role or the sub is not theirs */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — the medical record does not exist */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

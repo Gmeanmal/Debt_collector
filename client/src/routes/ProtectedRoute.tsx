@@ -1,13 +1,16 @@
 import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { PorchGuard } from "@/components/layout/PorchGuard";
 import { useAuth } from "@/services/auth/useAuth";
 
 interface ProtectedRouteProps {
   children: ReactNode;
+  /** Skip AppLayout — use for routes that supply their own full-screen shell. */
+  noLayout?: boolean;
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, noLayout = false }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -22,5 +25,13 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
-  return <AppLayout>{children}</AppLayout>;
+  if (noLayout) {
+    return <PorchGuard>{children}</PorchGuard>;
+  }
+
+  return (
+    <PorchGuard>
+      <AppLayout>{children}</AppLayout>
+    </PorchGuard>
+  );
 }

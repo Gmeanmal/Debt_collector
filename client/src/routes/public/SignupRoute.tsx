@@ -80,7 +80,7 @@ export function SignupRoute() {
       });
       setTokens({ access: pair.access_token });
       await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
-      navigate("/pending-entry-tribute", { replace: true });
+      navigate("/porch", { replace: true });
     } catch (err) {
       const status = (err as { status?: number } | null)?.status;
       const message = (err as { message?: string } | null)?.message;

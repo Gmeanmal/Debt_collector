@@ -1,4 +1,6 @@
 from datetime import UTC, datetime
+from decimal import Decimal
+from uuid import UUID
 
 from core.config import get_settings
 from core.exceptions import BadRequest, Forbidden, Unauthorized
@@ -9,6 +11,7 @@ from core.security import (
     hash_token,
     verify_password_with_rehash,
 )
+from daos.invitation_dao import InvitationDao
 from daos.token_dao import TokenDao
 from daos.user_dao import UserDao
 from models.user import UserStatus
@@ -20,10 +23,23 @@ _settings = get_settings()
 
 
 class AuthController:
-    def __init__(self, user_dao: UserDao, token_dao: TokenDao, email_service: EmailService) -> None:
+    def __init__(
+        self,
+        user_dao: UserDao,
+        token_dao: TokenDao,
+        email_service: EmailService,
+        invitation_dao: InvitationDao | None = None,
+    ) -> None:
         self._users = user_dao
         self._tokens = token_dao
         self._email = email_service
+        self._invitations = invitation_dao
+
+    async def get_entry_tribute_amount(self, user_id: UUID) -> Decimal | None:
+        if self._invitations is None:
+            return None
+        inv = await self._invitations.get_by_used_by_user_id(user_id)
+        return inv.entry_tribute_amount if inv is not None else None
 
     async def login(self, email: str, password: str, ua: str | None, ip: str | None) -> TokenPair:
         user = await self._users.get_by_email(email)

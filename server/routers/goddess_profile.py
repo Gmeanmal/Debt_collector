@@ -60,6 +60,7 @@ def _user_out(user: User) -> UserOut:
         created_at=user.created_at,
         impersonator_id=None,
         impersonator_display_name=None,
+        entry_tribute_amount=None,
     )
 
 
