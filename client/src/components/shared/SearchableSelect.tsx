@@ -6,6 +6,7 @@ import {
   useState,
   type KeyboardEvent,
   type ReactNode,
+  type RefObject,
 } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDown, X } from "lucide-react";
@@ -21,6 +22,8 @@ interface SearchableSelectProps<T> {
   emptyMessage?: string;
   renderOption?: (o: T) => ReactNode;
   nullable?: boolean;
+  triggerRef?: RefObject<HTMLButtonElement | null>;
+  ariaLabel?: string;
 }
 
 export function SearchableSelect<T>({
@@ -34,6 +37,8 @@ export function SearchableSelect<T>({
   emptyMessage = "No options",
   renderOption,
   nullable = false,
+  triggerRef,
+  ariaLabel,
 }: SearchableSelectProps<T>) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -135,12 +140,14 @@ export function SearchableSelect<T>({
     <div ref={rootRef} className="relative w-full">
       {/* Trigger / combobox button */}
       <button
+        ref={triggerRef}
         type="button"
         role="combobox"
         aria-expanded={open}
         aria-controls={listboxId}
         aria-activedescendant={activeDescendant}
         aria-haspopup="listbox"
+        aria-label={ariaLabel}
         disabled={disabled}
         onClick={openDropdown}
         className={cn(

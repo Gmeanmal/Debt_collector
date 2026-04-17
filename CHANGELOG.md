@@ -5,6 +5,13 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **RECORD-1 record payment cash-night batch UX** (ref `planning/todo.md` W4, single `feat(goddess)` commit):
+  - **Success toast with source badge.** `routes/goddess/RecordPaymentRoute.tsx` now fires a `sonner` `toast.success(<JSX>, { duration: 5000 })` after `recordPaymentApi` resolves. Toast content: `"Recorded £<amount> for <sub_display_name>"` + inline `<Badge variant="debt">Goddess-recorded</Badge>` on the right. No emoji. `toast.error("Failed to record payment. Check the form and retry.")` replaces the previous inline `<p>` error; the client-side amount-format `amountErr` inline message stays.
+  - **Cash-night batch flow.** Submit now has two primary actions: `"Record & add another"` (primary, keeps the form open — clears `amount`, `externalTs`, `note`, `amountErr`; preserves `selectedSub`, `methodId`, `category`; focuses the sub picker trigger via `requestAnimationFrame`) and `"Record & close"` (secondary, preserves the pre-RECORD-1 navigate-to-`/goddess/validations` behaviour). `Cancel` still navigates away. Both primary actions share a single `submitWithMode("reopen" | "close")` dispatcher so the success branch picks the right follow-up.
+  - **SearchableSelect ref plumbing.** `components/shared/SearchableSelect.tsx` grew two optional props (`triggerRef?: RefObject<HTMLButtonElement | null>`, `ariaLabel?: string`) and forwards them onto the `<button role="combobox">`. All five pre-existing callers unchanged — the new props are `undefined` by default.
+  - **Type cleanup.** The pre-existing `Number(amount) as unknown as string & number` hack was removed — regenerated `RecordPaymentIn.amount` is typed as `number | string`, so `Number(amount)` now satisfies the union without any assertion. Zero new `as` casts in the slice.
+
+### Added
 - **VALID-1 goddess pending validations UX** (ref `planning/todo.md` W4, single `feat(ui)` commit):
   - **Inline proof thumbnail per row.** `components/payments/PendingValidationRow.tsx` renders a 72×72 `<img loading="lazy" decoding="async">` wrapped in an accessible `<button aria-label="View proof for <sub>'s £<amount> declaration">`. When `PaymentOut.proof_presigned_url` is null (legacy rows pre-DECLARE-1), a neutral dashed-border placeholder (`"no proof"`, `aria-label="No proof attached"`) renders in the same 72×72 footprint.
   - **Lightbox modal.** New `components/payments/ProofLightbox.tsx` (22 lines) wraps the existing `Modal` primitive (`size="xl"`) so Esc + overlay click + focus trap are inherited. Image constrained by `max-w-[90vw] max-h-[85vh] object-contain`. No download button; right-click is sufficient.

@@ -1,20 +1,21 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   listGoddessSubsApi,
   recordPaymentApi,
   type GoddessSub,
   type PaymentCategory,
+  type PaymentOut,
+  type RecordPaymentIn,
 } from "@/services/payments/paymentsApi";
 import { listPaymentMethodsApi } from "@/services/paymentMethods/paymentMethodsApi";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
-import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
-import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
+import { MethodPicker } from "@/components/payments/MethodPicker";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/profile/Avatar";
 import { SearchableSelect } from "@/components/shared/SearchableSelect";
-import { cn } from "@/lib/utils";
 import { queryKeys } from "@/lib/queryKeys";
 
 const CATEGORIES: { value: PaymentCategory; label: string }[] = [
@@ -23,6 +24,8 @@ const CATEGORIES: { value: PaymentCategory; label: string }[] = [
 ];
 
 const AMOUNT_RE = /^\d+(\.\d{1,2})?$/;
+
+type SubmitMode = "keep-open" | "close";
 
 export function RecordPaymentRoute() {
   const navigate = useNavigate();
@@ -36,6 +39,10 @@ export function RecordPaymentRoute() {
   const [note, setNote] = useState("");
   const [amountErr, setAmountErr] = useState("");
 
+  const submitModeRef = useRef<SubmitMode>("keep-open");
+  const toastCtxRef = useRef<{ subDisplayName: string; amountLabel: string } | null>(null);
+  const subTriggerRef = useRef<HTMLButtonElement | null>(null);
+
   const { data: subs = [] } = useQuery({
     queryKey: queryKeys.goddess.subs(),
     queryFn: listGoddessSubsApi,
@@ -46,12 +53,35 @@ export function RecordPaymentRoute() {
     queryFn: () => listPaymentMethodsApi(true),
   });
 
-  const recordMutation = useMutation({
+  const recordMutation = useMutation<PaymentOut, Error, RecordPaymentIn>({
     mutationFn: recordPaymentApi,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.goddess.pendingPayments() });
-      navigate("/goddess/validations");
+      const ctx = toastCtxRef.current;
+      if (ctx) {
+        toast.success(
+          <span className="flex items-center gap-3 w-full">
+            <span className="flex-1 min-w-0 truncate">
+              Recorded {ctx.amountLabel} for {ctx.subDisplayName}
+            </span>
+            <Badge variant="debt" className="shrink-0">
+              Goddess-recorded
+            </Badge>
+          </span>,
+          { duration: 5000 },
+        );
+      }
+      if (submitModeRef.current === "close") {
+        navigate("/goddess/validations");
+        return;
+      }
+      setAmount("");
+      setExternalTs("");
+      setNote("");
+      setAmountErr("");
+      requestAnimationFrame(() => subTriggerRef.current?.focus());
     },
+    onError: () => toast.error("Failed to record payment. Check the form and retry."),
   });
 
   function validateAmount(): boolean {
@@ -63,19 +93,28 @@ export function RecordPaymentRoute() {
     return true;
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function submitWithMode(mode: SubmitMode) {
     if (!validateAmount()) return;
     if (!selectedSub || !methodId) return;
-
+    submitModeRef.current = mode;
+    const numericAmount = Number(amount);
+    toastCtxRef.current = {
+      subDisplayName: selectedSub.display_name,
+      amountLabel: `£${numericAmount.toFixed(2)}`,
+    };
     recordMutation.mutate({
       sub_id: selectedSub.id,
-      amount: Number(amount) as unknown as string & number,
+      amount: numericAmount,
       method_id: methodId,
       category,
       external_timestamp: externalTs || undefined,
       note: note || undefined,
     });
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    submitWithMode("keep-open");
   }
 
   return (
@@ -103,6 +142,8 @@ export function RecordPaymentRoute() {
               getLabel={(s) => `${s.display_name} @${s.username}`}
               getValue={(s) => s.id}
               placeholder="Select a sub"
+              triggerRef={subTriggerRef}
+              ariaLabel="Select a sub"
               renderOption={(s) => (
                 <span className="flex items-center gap-2 min-w-0">
                   <Avatar user={s} size="sm" className="shrink-0" />
@@ -160,45 +201,7 @@ export function RecordPaymentRoute() {
           </div>
 
           {/* Method */}
-          <fieldset>
-            <legend className="text-sm font-semibold text-base-text mb-2">Payment method</legend>
-            {methods.length === 0 ? (
-              <p className="text-xs text-base-text-muted">No enabled payment methods.</p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {methods.map((m) => {
-                  const selected = methodId === m.id;
-                  return (
-                    <label
-                      key={m.id}
-                      className={cn(
-                        "flex items-center gap-3 p-3 rounded-md border cursor-pointer transition-colors",
-                        selected
-                          ? "border-pink-primary bg-pink-primary/10"
-                          : "border-base-border hover:border-base-border/80 hover:bg-base-surface-raised",
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="method"
-                        value={m.id}
-                        checked={selected}
-                        onChange={() => setMethodId(m.id)}
-                        className="sr-only"
-                      />
-                      <MethodIcon type={m.type} size="md" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-base-text truncate">{m.name}</p>
-                        <p className="text-xs text-base-text-muted truncate">
-                          {METHOD_LABELS[m.type]}
-                        </p>
-                      </div>
-                    </label>
-                  );
-                })}
-              </div>
-            )}
-          </fieldset>
+          <MethodPicker methods={methods} value={methodId} onChange={setMethodId} loading={false} />
 
           {/* External timestamp */}
           <div className="flex flex-col gap-1">
@@ -227,10 +230,6 @@ export function RecordPaymentRoute() {
             />
           </div>
 
-          {recordMutation.isError && (
-            <p className="text-xs text-status-danger">Failed to record. Please try again.</p>
-          )}
-
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"
@@ -240,11 +239,20 @@ export function RecordPaymentRoute() {
               Cancel
             </button>
             <button
+              type="button"
+              onClick={() => submitWithMode("close")}
+              disabled={recordMutation.isPending}
+              className="w-full sm:w-auto px-4 py-2 text-sm text-base-text border border-base-border rounded-md hover:bg-base-surface-raised transition-colors disabled:opacity-50"
+            >
+              Record & close
+            </button>
+            <button
               type="submit"
               disabled={recordMutation.isPending}
+              aria-label="Record payment and keep form open to add another"
               className="w-full sm:w-auto px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50"
             >
-              {recordMutation.isPending ? "Recording…" : "Record payment"}
+              {recordMutation.isPending ? "Recording…" : "Record & add another"}
             </button>
           </div>
         </form>
