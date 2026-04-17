@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.debt_controller import DebtController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.adjustment import AdjustmentCreateIn, ContractAdjustmentOut, SurprisePenaltyIn
@@ -75,6 +76,7 @@ async def buyout_intent(
     tags=["debt-contracts"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422, 500: _E500},
 )
+@audit(kind="surprise_penalty_applied", entity="debt_contract")
 async def surprise_penalty(
     contract_id: UUID,
     body: SurprisePenaltyIn,
@@ -101,6 +103,7 @@ async def surprise_penalty(
     tags=["debt-contracts"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422, 500: _E500},
 )
+@audit(kind="adjustment_created", entity="contract_adjustment")
 async def create_adjustment(
     contract_id: UUID,
     body: AdjustmentCreateIn,

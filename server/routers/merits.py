@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.merits_controller import MeritsController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.merits import (
@@ -123,6 +124,7 @@ async def list_reward_tiers(
     tags=["merits"],
     responses={401: _E401, 403: _E403, 422: _E422},
 )
+@audit(kind="reward_tier_created", entity="reward_tier")
 async def create_reward_tier(
     body: RewardTierIn,
     session: AsyncSession = Depends(get_session),
@@ -147,6 +149,7 @@ async def create_reward_tier(
     tags=["merits"],
     responses={401: _E401, 403: _E403, 404: _E404, 422: _E422},
 )
+@audit(kind="reward_tier_updated", entity="reward_tier")
 async def update_reward_tier(
     reward_id: UUID,
     body: RewardTierPatchIn,
@@ -172,6 +175,7 @@ async def update_reward_tier(
     tags=["merits"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409},
 )
+@audit(kind="reward_tier_deleted", entity="reward_tier")
 async def delete_reward_tier(
     reward_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -220,6 +224,7 @@ async def list_punishment_tiers(
     tags=["merits"],
     responses={401: _E401, 403: _E403, 422: _E422},
 )
+@audit(kind="punishment_tier_created", entity="punishment_tier")
 async def create_punishment_tier(
     body: PunishmentTierIn,
     session: AsyncSession = Depends(get_session),
@@ -244,6 +249,7 @@ async def create_punishment_tier(
     tags=["merits"],
     responses={401: _E401, 403: _E403, 404: _E404, 422: _E422},
 )
+@audit(kind="punishment_tier_updated", entity="punishment_tier")
 async def update_punishment_tier(
     punishment_id: UUID,
     body: PunishmentTierPatchIn,
@@ -268,6 +274,7 @@ async def update_punishment_tier(
     tags=["merits"],
     responses={401: _E401, 403: _E403, 404: _E404},
 )
+@audit(kind="punishment_tier_deleted", entity="punishment_tier")
 async def delete_punishment_tier(
     punishment_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -349,6 +356,7 @@ async def redeem_reward(
     tags=["merits"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422},
 )
+@audit(kind="punishment_invoked", entity="task")
 async def invoke_punishment(
     punishment_id: UUID,
     body: InvokeIn,

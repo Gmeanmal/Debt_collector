@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.payment_method_controller import PaymentMethodController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.payment_method import (
@@ -71,6 +72,7 @@ async def list_payment_methods(
         500: _ERROR_500,
     },
 )
+@audit(kind="payment_method_created", entity="payment_method")
 async def create_payment_method(
     body: PaymentMethodCreate,
     session: AsyncSession = Depends(get_session),
@@ -100,6 +102,7 @@ async def create_payment_method(
         500: _ERROR_500,
     },
 )
+@audit(kind="payment_method_updated", entity="payment_method")
 async def update_payment_method(
     method_id: UUID,
     body: PaymentMethodUpdate,
@@ -129,6 +132,7 @@ async def update_payment_method(
         500: _ERROR_500,
     },
 )
+@audit(kind="payment_method_deleted", entity="payment_method")
 async def delete_payment_method(
     method_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -157,6 +161,7 @@ async def delete_payment_method(
         500: _ERROR_500,
     },
 )
+@audit(kind="payment_methods_reordered", entity="payment_method")
 async def reorder_payment_methods(
     body: ReorderRequest,
     session: AsyncSession = Depends(get_session),

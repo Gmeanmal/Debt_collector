@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, time
 from typing import Any
 from uuid import UUID
 
@@ -366,8 +366,12 @@ _AdminActionListOut = AdminListOut[AdminRowAdminAction]  # type: ignore[valid-ty
     "/admin_actions",
     summary="List admin audit log entries",
     description=(
-        "Returns a paginated list of `admin_action` rows in reverse-chronological order. "
-        "Supports free-text search across `action` and `entity`. "
+        "Returns a paginated list of `admin_action` rows in reverse-chronological order.\n\n"
+        "Filters (all optional, all AND-combined):\n"
+        "- `q` — case-insensitive substring over `action` and `entity`.\n"
+        "- `kind` — exact match on the `action` column (e.g. `invitation_created`).\n"
+        "- `actor_id` — exact match on `admin_id` (the acting staff user).\n"
+        "- `date_from`, `date_to` — inclusive bounds on `created_at::date` in UTC.\n\n"
         "This endpoint is intentionally read-only — POST, PATCH, and DELETE are not registered "
         "to prevent mutation of the append-only audit log."
     ),
@@ -379,6 +383,20 @@ _AdminActionListOut = AdminListOut[AdminRowAdminAction]  # type: ignore[valid-ty
 async def list_admin_actions(
     q: str | None = Query(
         default=None, description="Case-insensitive substring filter on action or entity"
+    ),
+    kind: str | None = Query(default=None, description="Exact match on the `action` column"),
+    actor_id: UUID | None = Query(default=None, description="Exact match on `admin_id`"),
+    date_from: date | None = Query(
+        default=None,
+        description=(
+            "UTC date (YYYY-MM-DD) — compared against `created_at::date` in UTC, not London"
+        ),
+    ),
+    date_to: date | None = Query(
+        default=None,
+        description=(
+            "UTC date (YYYY-MM-DD) — compared against `created_at::date` in UTC, not London"
+        ),
     ),
     page: int = Query(default=1, ge=1, description="1-based page number"),
     page_size: int = Query(default=50, ge=1, le=200, description="Rows per page (max 200)"),
@@ -396,6 +414,20 @@ async def list_admin_actions(
         where = or_(*clauses)
         stmt = stmt.where(where)
         count_stmt = count_stmt.where(where)
+    if kind:
+        stmt = stmt.where(AdminAction.action == kind)
+        count_stmt = count_stmt.where(AdminAction.action == kind)
+    if actor_id is not None:
+        stmt = stmt.where(AdminAction.admin_id == actor_id)
+        count_stmt = count_stmt.where(AdminAction.admin_id == actor_id)
+    if date_from is not None:
+        lower = datetime.combine(date_from, time.min)
+        stmt = stmt.where(AdminAction.created_at >= lower)
+        count_stmt = count_stmt.where(AdminAction.created_at >= lower)
+    if date_to is not None:
+        upper = datetime.combine(date_to, time.max)
+        stmt = stmt.where(AdminAction.created_at <= upper)
+        count_stmt = count_stmt.where(AdminAction.created_at <= upper)
     stmt = (
         stmt.order_by(desc(AdminAction.created_at))  # type: ignore[arg-type]
         .offset((page - 1) * page_size)

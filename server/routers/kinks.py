@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.kinks_controller import KinksController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.kinks import (
@@ -249,6 +250,7 @@ async def list_goddess_kink_proposals(
         500: _ERROR_500,
     },
 )
+@audit(kind="kink_proposal_approved", entity="kink_item")
 async def approve_kink_proposal(
     item_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -278,6 +280,7 @@ async def approve_kink_proposal(
         500: _ERROR_500,
     },
 )
+@audit(kind="kink_proposal_rejected", entity="kink_item")
 async def reject_kink_proposal(
     item_id: UUID,
     session: AsyncSession = Depends(get_session),

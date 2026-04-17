@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.photo_controller import SubPhotoController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.sub_photo import SubPhotoQueueOut, SubPhotoRejectIn, SubPhotoReviewOut
@@ -72,6 +73,7 @@ async def list_photo_queue(
     tags=["goddess-photos"],
     responses={401: _E401, 403: _E403, 404: _E404},
 )
+@audit(kind="photo_approved", entity="sub_photo")
 async def approve_photo(
     photo_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -103,6 +105,7 @@ async def approve_photo(
     tags=["goddess-photos"],
     responses={401: _E401, 403: _E403, 404: _E404},
 )
+@audit(kind="photo_rejected", entity="sub_photo")
 async def reject_photo(
     photo_id: UUID,
     body: SubPhotoRejectIn,

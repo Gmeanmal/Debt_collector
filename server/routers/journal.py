@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.journal_controller import JournalController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.journal import JournalCommentIn, JournalEntryIn, JournalEntryOut
@@ -141,6 +142,7 @@ async def list_sub_journal_for_goddess(
         500: _ERROR_500,
     },
 )
+@audit(kind="journal_commented", entity="journal_entry")
 async def upsert_journal_comment(
     entry_id: UUID,
     body: JournalCommentIn,

@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.debt_controller import DebtController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import get_current_user, require_role
 from models.debt import DebtContract, DebtContractStatus
 from models.user import User, UserRole
@@ -95,6 +96,7 @@ async def simulate_draft(
     tags=["debt-contracts"],
     responses={401: _E401, 403: _E403, 404: _E404, 422: _E422, 500: _E500},
 )
+@audit(kind="contract_created", entity="debt_contract")
 async def propose_as_goddess(
     sub_id: UUID,
     body: DebtContractCreate,
@@ -146,6 +148,7 @@ async def propose_as_sub(
     tags=["debt-contracts"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422, 500: _E500},
 )
+@audit(kind="contract_counter_proposed", entity="debt_contract")
 async def counter_propose(
     contract_id: UUID,
     body: DebtContractCounter,
@@ -171,6 +174,7 @@ async def counter_propose(
     tags=["debt-contracts"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 500: _E500},
 )
+@audit(kind="contract_counter_accepted", entity="debt_contract")
 async def accept_counter(
     contract_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -197,6 +201,7 @@ async def accept_counter(
     tags=["debt-contracts"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 500: _E500},
 )
+@audit(kind="contract_counter_rejected", entity="debt_contract")
 async def reject_counter(
     contract_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -290,6 +295,7 @@ async def download_contract_pdf(
     tags=["debt-contracts"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 500: _E500},
 )
+@audit(kind="contract_closed", entity="debt_contract")
 async def close_as_goddess(
     contract_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -323,6 +329,7 @@ async def close_as_goddess(
     tags=["debt-contracts"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422, 500: _E500},
 )
+@audit(kind="contract_clauses_updated", entity="debt_contract")
 async def update_clauses(
     contract_id: UUID,
     body: ContractClausesUpdateIn,

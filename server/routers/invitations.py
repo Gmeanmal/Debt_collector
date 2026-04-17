@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.invitation_controller import InvitationController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.invitation import InvitationCreate, InvitationOut
@@ -36,6 +37,7 @@ def _build_controller(session: AsyncSession = Depends(get_session)) -> Invitatio
         500: _ERROR_500,
     },
 )
+@audit(kind="invitation_created", entity="invitation")
 async def create_invitation(
     body: InvitationCreate,
     session: AsyncSession = Depends(get_session),

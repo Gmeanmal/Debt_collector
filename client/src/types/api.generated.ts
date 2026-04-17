@@ -1132,7 +1132,15 @@ export interface paths {
         };
         /**
          * List admin audit log entries
-         * @description Returns a paginated list of `admin_action` rows in reverse-chronological order. Supports free-text search across `action` and `entity`. This endpoint is intentionally read-only — POST, PATCH, and DELETE are not registered to prevent mutation of the append-only audit log.
+         * @description Returns a paginated list of `admin_action` rows in reverse-chronological order.
+         *
+         *     Filters (all optional, all AND-combined):
+         *     - `q` — case-insensitive substring over `action` and `entity`.
+         *     - `kind` — exact match on the `action` column (e.g. `invitation_created`).
+         *     - `actor_id` — exact match on `admin_id` (the acting staff user).
+         *     - `date_from`, `date_to` — inclusive bounds on `created_at::date` (Europe/London wallclock is stored as UTC).
+         *
+         *     This endpoint is intentionally read-only — POST, PATCH, and DELETE are not registered to prevent mutation of the append-only audit log.
          */
         get: operations["list_admin_actions_admin_admin_actions_get"];
         put?: never;
@@ -13906,6 +13914,14 @@ export interface operations {
             query?: {
                 /** @description Case-insensitive substring filter on action or entity */
                 q?: string | null;
+                /** @description Exact match on the `action` column */
+                kind?: string | null;
+                /** @description Exact match on `admin_id` */
+                actor_id?: string | null;
+                /** @description Inclusive lower bound on `created_at` (YYYY-MM-DD) */
+                date_from?: string | null;
+                /** @description Inclusive upper bound on `created_at` (YYYY-MM-DD) */
+                date_to?: string | null;
                 /** @description 1-based page number */
                 page?: number;
                 /** @description Rows per page (max 200) */

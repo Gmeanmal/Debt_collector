@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.limits_controller import LimitsController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.limits import (
@@ -313,6 +314,7 @@ async def list_sub_triggers_for_goddess(
         500: _ERROR_500,
     },
 )
+@audit(kind="limit_acknowledged", entity="sub_limit")
 async def acknowledge_limit(
     sub_id: UUID,
     limit_id: UUID,

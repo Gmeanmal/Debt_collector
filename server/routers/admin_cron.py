@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.cron_controller import CronController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 
@@ -36,10 +37,13 @@ class CronRunOut(BaseModel):
     tags=["admin-cron"],
     responses={401: _E401, 403: _E403, 500: _E500},
 )
+@audit(kind="cron_run", entity="cron")
 async def run_cron_now(
     session: AsyncSession = Depends(get_session),
-    _user: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin)),
 ) -> CronRunOut:
+    # kwarg consumed by @audit via runtime kwarg introspection — keep alive
+    _ = admin
     ctrl = CronController(session)
     result = await ctrl.run_daily()
     await session.commit()

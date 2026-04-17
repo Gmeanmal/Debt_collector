@@ -17,6 +17,7 @@ from sqlmodel import col, select
 from core.db import SessionMaker
 from core.security import hash_password
 from models.adjustment import AdjustmentStatus, ContractAdjustment
+from models.admin_action import AdminAction
 from models.blacklist import BlacklistEntry
 from models.debt import (
     DebtContract,
@@ -487,6 +488,7 @@ def _limit(
     body: str,
     severity: LimitSeverity,
     created_at: datetime,
+    acknowledged_at: datetime | None = None,
 ) -> SubLimit:
     return SubLimit(
         id=uuid4(),
@@ -497,6 +499,7 @@ def _limit(
         severity=severity,
         created_at=created_at,
         updated_at=created_at,
+        acknowledged_by_goddess_at=acknowledged_at,
     )
 
 
@@ -829,16 +832,26 @@ async def _seed_chris(
                 )
             )
 
-    # Limits: 4 (hard + soft mix)
+    # Limits: 4 (hard + soft mix); Chris's first hard limit acknowledged by goddess
     limit_t = kink_t
-    for kind, body, severity in [
+    chris_limits: list[tuple[LimitKind, str, LimitSeverity]] = [
         (LimitKind.hard, "No blood play of any kind.", LimitSeverity.high),
         (LimitKind.hard, "No permanent marks or scarring.", LimitSeverity.high),
         (LimitKind.soft, "Suspension bondage only with prior discussion.", LimitSeverity.medium),
         (LimitKind.soft, "Public humiliation limited to online contexts.", LimitSeverity.low),
-    ]:
+    ]
+    for idx, (kind, body, severity) in enumerate(chris_limits):
+        ack = _ago(5) if idx == 0 else None
         s.add(
-            _limit(sub.id, goddess_id, kind=kind, body=body, severity=severity, created_at=limit_t)
+            _limit(
+                sub.id,
+                goddess_id,
+                kind=kind,
+                body=body,
+                severity=severity,
+                created_at=limit_t,
+                acknowledged_at=ack,
+            )
         )
 
     # Ritual: daily morning collar selfie
@@ -1236,9 +1249,18 @@ async def _seed_ben(
             LimitSeverity.low,
         ),
     ]
-    for kind, body, severity in limits:
+    for idx, (kind, body, severity) in enumerate(limits):
+        ack = _ago(10) if idx == 1 else (_ago(2) if idx == 3 else None)
         s.add(
-            _limit(sub.id, goddess_id, kind=kind, body=body, severity=severity, created_at=kink_t)
+            _limit(
+                sub.id,
+                goddess_id,
+                kind=kind,
+                body=body,
+                severity=severity,
+                created_at=kink_t,
+                acknowledged_at=ack,
+            )
         )
 
     # Rituals: 2
@@ -1404,6 +1426,225 @@ async def _seed_eli(
 # ---------------------------------------------------------------------------
 
 
+def _admin_action(
+    *,
+    admin_id: UUID,
+    kind: str,
+    entity: str,
+    entity_id: UUID | None,
+    payload: dict[str, object] | None,
+    created_at: datetime,
+) -> AdminAction:
+    return AdminAction(
+        admin_id=admin_id,
+        action=kind,
+        entity=entity,
+        entity_id=entity_id,
+        payload_json=payload,
+        created_at=created_at,
+    )
+
+
+async def _seed_admin_actions(session: AsyncSession, goddess_user_id: UUID) -> int:
+    """Backfill audit-log entries for seeded fake data.
+
+    Called after all _seed_* helpers have run and flushed their rows. Emits one
+    `admin_action` per goddess mutation we fake so the admin audit screen shows a
+    realistic timeline without needing a real-user click path.
+    """
+    rows: list[AdminAction] = []
+
+    invitations = (await session.execute(select(Invitation))).scalars().all()
+    for inv in invitations:
+        rows.append(
+            _admin_action(
+                admin_id=goddess_user_id,
+                kind="invitation_created",
+                entity="invitation",
+                entity_id=inv.id,
+                payload={"note": inv.note, "entry_tribute_amount": str(inv.entry_tribute_amount)},
+                created_at=inv.created_at,
+            )
+        )
+
+    validated_payments = (
+        (
+            await session.execute(
+                select(PaymentDeclaration).where(
+                    PaymentDeclaration.status == PaymentStatus.validated
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for pay in validated_payments:
+        if pay.source == DeclarationSource.goddess_recorded:
+            kind = "payment_recorded"
+        else:
+            kind = "payment_validated"
+        stamp = pay.validated_at or pay.declared_at
+        rows.append(
+            _admin_action(
+                admin_id=goddess_user_id,
+                kind=kind,
+                entity="payment_declaration",
+                entity_id=pay.id,
+                payload={"amount": str(pay.amount), "category": pay.category.value},
+                created_at=stamp,
+            )
+        )
+
+    rejected_payments = (
+        (
+            await session.execute(
+                select(PaymentDeclaration).where(
+                    PaymentDeclaration.status == PaymentStatus.rejected
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for pay in rejected_payments:
+        stamp = pay.validated_at or pay.declared_at
+        rows.append(
+            _admin_action(
+                admin_id=goddess_user_id,
+                kind="payment_rejected",
+                entity="payment_declaration",
+                entity_id=pay.id,
+                payload={"amount": str(pay.amount), "reason": pay.rejection_reason},
+                created_at=stamp,
+            )
+        )
+
+    contracts = (await session.execute(select(DebtContract))).scalars().all()
+    for contract in contracts:
+        rows.append(
+            _admin_action(
+                admin_id=goddess_user_id,
+                kind="contract_created",
+                entity="debt_contract",
+                entity_id=contract.id,
+                payload={
+                    "principal": str(contract.principal),
+                    "duration_periods": contract.duration_periods,
+                    "status": contract.status.value,
+                },
+                created_at=contract.created_at,
+            )
+        )
+        if contract.status == DebtContractStatus.closed:
+            rows.append(
+                _admin_action(
+                    admin_id=goddess_user_id,
+                    kind="contract_closed",
+                    entity="debt_contract",
+                    entity_id=contract.id,
+                    payload={"balance": str(contract.balance)},
+                    created_at=contract.updated_at,
+                )
+            )
+
+    blacklist = (await session.execute(select(BlacklistEntry))).scalars().all()
+    for entry in blacklist:
+        rows.append(
+            _admin_action(
+                admin_id=goddess_user_id,
+                kind="breach_applied",
+                entity="blacklist_entry",
+                entity_id=entry.id,
+                payload={
+                    "reason": entry.reason,
+                    "balance_snapshot": str(entry.balance_snapshot),
+                },
+                created_at=entry.breached_at,
+            )
+        )
+
+    adjustments = (await session.execute(select(ContractAdjustment))).scalars().all()
+    for adj in adjustments:
+        rows.append(
+            _admin_action(
+                admin_id=goddess_user_id,
+                kind="adjustment_created",
+                entity="contract_adjustment",
+                entity_id=adj.id,
+                payload={"amount": str(adj.amount), "reason": adj.reason},
+                created_at=adj.created_at,
+            )
+        )
+
+    rollings = (await session.execute(select(RollingTribute))).scalars().all()
+    for roll in rollings:
+        rows.append(
+            _admin_action(
+                admin_id=goddess_user_id,
+                kind="rolling_upserted",
+                entity="rolling_tribute",
+                entity_id=roll.id,
+                payload={
+                    "amount": str(roll.amount),
+                    "deadline_day": roll.deadline_day.value,
+                },
+                created_at=roll.created_at,
+            )
+        )
+
+    rituals = (await session.execute(select(Ritual))).scalars().all()
+    for ritual in rituals:
+        rows.append(
+            _admin_action(
+                admin_id=goddess_user_id,
+                kind="ritual_created",
+                entity="ritual",
+                entity_id=ritual.id,
+                payload={"title": ritual.title, "frequency": ritual.frequency.value},
+                created_at=ritual.created_at,
+            )
+        )
+
+    acknowledged_limits = (
+        (
+            await session.execute(
+                select(SubLimit).where(SubLimit.acknowledged_by_goddess_at.is_not(None))  # type: ignore[union-attr]
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for lim in acknowledged_limits:
+        stamp = lim.acknowledged_by_goddess_at or lim.created_at
+        rows.append(
+            _admin_action(
+                admin_id=goddess_user_id,
+                kind="limit_acknowledged",
+                entity="sub_limit",
+                entity_id=lim.id,
+                payload={"kind": lim.kind.value, "severity": lim.severity.value},
+                created_at=stamp,
+            )
+        )
+
+    for pm in (await session.execute(select(PaymentMethod))).scalars().all():
+        rows.append(
+            _admin_action(
+                admin_id=goddess_user_id,
+                kind="payment_method_created",
+                entity="payment_method",
+                entity_id=pm.id,
+                payload={"type": pm.type.value, "name": pm.name},
+                created_at=pm.created_at,
+            )
+        )
+
+    for row in rows:
+        session.add(row)
+    await session.flush()
+    return len(rows)
+
+
 async def seed_fake_data() -> None:
     async with SessionMaker() as session:
         if await _existing(session):
@@ -1434,9 +1675,11 @@ async def seed_fake_data() -> None:
         await _seed_eli(session, goddess.id, goddess_user.id, methods, kinks)
         await session.flush()
 
+        audit_rows = await _seed_admin_actions(session, goddess_user.id)
+
         await session.commit()
 
-    print("seed_fake_data: 6-sub cast + payment methods seeded.")
+    print(f"seed_fake_data: 6-sub cast + payment methods seeded; admin_action rows: {audit_rows}.")
 
 
 if __name__ == "__main__":

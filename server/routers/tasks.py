@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.task_controller import TaskController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.tasks import (
@@ -48,6 +49,7 @@ def _ctrl(session: AsyncSession = Depends(get_session)) -> TaskController:
     tags=["tasks"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 422: _E422},
 )
+@audit(kind="task_created", entity="task")
 async def create_task(
     sub_id: UUID,
     body: TaskCreateIn,
@@ -92,6 +94,7 @@ async def list_tasks_for_sub(
     tags=["tasks"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422},
 )
+@audit(kind="task_updated", entity="task")
 async def update_task(
     task_id: UUID,
     body: TaskUpdateIn,
@@ -116,6 +119,7 @@ async def update_task(
     tags=["tasks"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409},
 )
+@audit(kind="task_cancelled", entity="task")
 async def cancel_task(
     task_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -139,6 +143,7 @@ async def cancel_task(
     tags=["tasks"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409},
 )
+@audit(kind="task_approved", entity="task")
 async def approve_task(
     task_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -163,6 +168,7 @@ async def approve_task(
     tags=["tasks"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422},
 )
+@audit(kind="task_rejected", entity="task")
 async def reject_task(
     task_id: UUID,
     body: TaskRejectIn,

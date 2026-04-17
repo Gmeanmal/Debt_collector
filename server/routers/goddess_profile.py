@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.profile_controller import ProfileController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.auth import UserOut
@@ -123,6 +124,7 @@ async def list_pending_requests(
     status_code=200,
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409},
 )
+@audit(kind="profile_change_approved", entity="profile_change_request")
 async def approve_request(
     request_id: UUID,
     goddess: User = Depends(require_role(UserRole.goddess)),
@@ -146,6 +148,7 @@ async def approve_request(
     status_code=200,
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422},
 )
+@audit(kind="profile_change_rejected", entity="profile_change_request")
 async def reject_request(
     request_id: UUID,
     body: GoddessRejectIn,
@@ -170,6 +173,7 @@ async def reject_request(
     status_code=200,
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 409: _E409},
 )
+@audit(kind="profile_change_fee_set", entity="profile_change_request")
 async def set_fee(
     request_id: UUID,
     body: GoddessSetFeeIn,
@@ -195,6 +199,7 @@ async def set_fee(
     status_code=200,
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404},
 )
+@audit(kind="sub_profile_edited", entity="user")
 async def edit_sub_profile(
     sub_id: UUID,
     body: GoddessEditSubProfileIn,
@@ -226,6 +231,7 @@ async def edit_sub_profile(
         422: _E422_TRANSITION,
     },
 )
+@audit(kind="sub_ownership_changed", entity="user")
 async def change_sub_ownership_status(
     sub_id: UUID,
     body: OwnershipStatusChangeIn,

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.rolling_controller import RollingController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.rolling import RollingTributeIn, RollingTributeOut
@@ -67,6 +68,7 @@ async def get_rolling_tribute(
         500: _ERROR_500,
     },
 )
+@audit(kind="rolling_upserted", entity="rolling_tribute")
 async def upsert_rolling_tribute(
     sub_id: UUID,
     body: RollingTributeIn,
@@ -97,6 +99,7 @@ async def upsert_rolling_tribute(
         500: _ERROR_500,
     },
 )
+@audit(kind="rolling_cleared", entity="rolling_tribute")
 async def clear_rolling_tribute(
     sub_id: UUID,
     session: AsyncSession = Depends(get_session),

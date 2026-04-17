@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.penalty_rule_controller import PenaltyRuleController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.penalty_rule import PenaltyRuleIn, PenaltyRuleOut, PenaltyRuleUpdate
@@ -59,6 +60,7 @@ async def list_penalty_rules(
     tags=["penalty-rules"],
     responses={400: _E400, 401: _E401, 403: _E403, 422: _E422},
 )
+@audit(kind="penalty_rule_created", entity="penalty_rule")
 async def create_penalty_rule(
     body: PenaltyRuleIn,
     session: AsyncSession = Depends(get_session),
@@ -84,6 +86,7 @@ async def create_penalty_rule(
     tags=["penalty-rules"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 422: _E422},
 )
+@audit(kind="penalty_rule_updated", entity="penalty_rule")
 async def update_penalty_rule(
     rule_id: UUID,
     body: PenaltyRuleUpdate,
@@ -110,6 +113,7 @@ async def update_penalty_rule(
     tags=["penalty-rules"],
     responses={401: _E401, 403: _E403, 404: _E404},
 )
+@audit(kind="penalty_rule_deleted", entity="penalty_rule")
 async def delete_penalty_rule(
     rule_id: UUID,
     session: AsyncSession = Depends(get_session),

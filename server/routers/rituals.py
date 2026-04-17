@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.ritual_controller import RitualController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.rituals import (
@@ -50,6 +51,7 @@ def _ctrl(session: AsyncSession = Depends(get_session)) -> RitualController:
     tags=["rituals"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 422: _E422},
 )
+@audit(kind="ritual_created", entity="ritual")
 async def create_ritual(
     sub_id: UUID,
     body: RitualCreateIn,
@@ -94,6 +96,7 @@ async def list_rituals_for_sub(
     tags=["rituals"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 422: _E422},
 )
+@audit(kind="ritual_updated", entity="ritual")
 async def update_ritual(
     ritual_id: UUID,
     body: RitualUpdateIn,
@@ -118,6 +121,7 @@ async def update_ritual(
     tags=["rituals"],
     responses={401: _E401, 403: _E403, 404: _E404},
 )
+@audit(kind="ritual_deleted", entity="ritual")
 async def delete_ritual(
     ritual_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -146,6 +150,7 @@ async def delete_ritual(
     tags=["rituals"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409},
 )
+@audit(kind="ritual_occurrence_approved", entity="ritual_occurrence")
 async def approve_occurrence(
     occurrence_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -170,6 +175,7 @@ async def approve_occurrence(
     tags=["rituals"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422},
 )
+@audit(kind="ritual_occurrence_rejected", entity="ritual_occurrence")
 async def reject_occurrence(
     occurrence_id: UUID,
     body: OccurrenceRejectIn,

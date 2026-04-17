@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.payment_controller import PaymentController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.payment import (
@@ -189,6 +190,7 @@ async def list_pending_payments(
     tags=["payments-goddess"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422},
 )
+@audit(kind="payment_validated", entity="payment_declaration")
 async def validate_declaration(
     declaration_id: UUID,
     body: ValidateIn,
@@ -214,6 +216,7 @@ async def validate_declaration(
     tags=["payments-goddess"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422},
 )
+@audit(kind="payment_rejected", entity="payment_declaration")
 async def reject_declaration(
     declaration_id: UUID,
     body: RejectIn,
@@ -238,6 +241,7 @@ async def reject_declaration(
     tags=["payments-goddess"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 422: _E422},
 )
+@audit(kind="payment_recorded", entity="payment_declaration")
 async def record_payment(
     body: RecordPaymentIn,
     session: AsyncSession = Depends(get_session),

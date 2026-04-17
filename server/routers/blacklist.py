@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.blacklist_controller import BlacklistController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.blacklist import BlacklistEntryOut, BreachIn, ForgiveIn
@@ -36,6 +37,7 @@ def _build(session: AsyncSession = Depends(get_session)) -> BlacklistController:
     tags=["blacklist"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422, 500: _E500},
 )
+@audit(kind="breach_applied", entity="blacklist_entry")
 async def breach_sub(
     sub_id: UUID,
     body: BreachIn,
@@ -79,6 +81,7 @@ async def list_entries(
     tags=["blacklist"],
     responses={401: _E401, 403: _E403, 404: _E404, 409: _E409, 422: _E422, 500: _E500},
 )
+@audit(kind="breach_forgiven", entity="blacklist_entry")
 async def forgive(
     entry_id: UUID,
     body: ForgiveIn,

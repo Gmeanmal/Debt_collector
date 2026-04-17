@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.review_queue_controller import ReviewQueueController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.review_queue import BulkActionIn, BulkActionOut, ReviewQueueItemOut
@@ -64,6 +65,7 @@ async def get_review_queue(
     tags=["review-queue"],
     responses={401: _E401, 403: _E403, 422: _E422},
 )
+@audit(kind="review_queue_bulk_action", entity="review_queue")
 async def bulk_action(
     body: BulkActionIn,
     session: AsyncSession = Depends(get_session),

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.tribute_minimum_controller import TributeMinimumController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.tribute_minimum import TributeGaugeOut, TributeMinimumOut, TributeMinimumUpsertIn
@@ -39,6 +40,7 @@ def _ctrl(session: AsyncSession = Depends(get_session)) -> TributeMinimumControl
         422: _E422,
     },
 )
+@audit(kind="tribute_minimum_upserted", entity="tribute_minimum")
 async def upsert_tribute_minimum(
     sub_id: UUID,
     body: TributeMinimumUpsertIn,
@@ -90,6 +92,7 @@ async def get_tribute_minimum(
     tags=["tribute-minimum"],
     responses={401: _E401, 403: _E403, 404: _E404},
 )
+@audit(kind="tribute_minimum_deleted", entity="tribute_minimum")
 async def delete_tribute_minimum(
     sub_id: UUID,
     session: AsyncSession = Depends(get_session),

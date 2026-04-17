@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.toys_controller import ToysController
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.toys import (
@@ -63,6 +64,7 @@ async def list_toys_for_sub(
     tags=["toys"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 422: _E422},
 )
+@audit(kind="toy_created", entity="toy_item")
 async def create_toy_for_sub(
     sub_id: UUID,
     body: ToyItemCreateIn,
@@ -88,6 +90,7 @@ async def create_toy_for_sub(
     tags=["toys"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 422: _E422},
 )
+@audit(kind="toy_updated", entity="toy_item")
 async def update_toy(
     toy_id: UUID,
     body: ToyItemUpdateIn,
@@ -113,6 +116,7 @@ async def update_toy(
     tags=["toys"],
     responses={401: _E401, 403: _E403, 404: _E404},
 )
+@audit(kind="toy_deleted", entity="toy_item")
 async def delete_toy(
     toy_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -137,6 +141,7 @@ async def delete_toy(
     tags=["toys"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404},
 )
+@audit(kind="toy_approved", entity="toy_item")
 async def approve_toy(
     toy_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -161,6 +166,7 @@ async def approve_toy(
     tags=["toys"],
     responses={400: _E400, 401: _E401, 403: _E403, 404: _E404, 409: _E409},
 )
+@audit(kind="toy_rejected", entity="toy_item")
 async def reject_toy(
     toy_id: UUID,
     session: AsyncSession = Depends(get_session),
