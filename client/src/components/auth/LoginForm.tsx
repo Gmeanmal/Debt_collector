@@ -60,7 +60,7 @@ export function LoginForm() {
           <Label htmlFor="password">Passphrase</Label>
           <Link
             to="/forgot-password"
-            className="text-xs text-base-text-subtle hover:text-pink-primary transition-colors"
+            className="text-xs text-base-text-muted underline underline-offset-2 hover:text-pink-primary transition-colors"
           >
             Forgotten?
           </Link>
@@ -85,10 +85,6 @@ export function LoginForm() {
         {isSubmitting ? "Entering…" : "Enter"}
         <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
       </Button>
-
-      <p className="text-center text-xs uppercase tracking-[0.2em] text-base-text-subtle">
-        By signing in you accept the rules of the house
-      </p>
     </form>
   );
 }
