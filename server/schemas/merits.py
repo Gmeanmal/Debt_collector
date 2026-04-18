@@ -169,6 +169,24 @@ class RedeemOut(BaseModel):
     )
 
 
+class MeritEventOut(BaseModel):
+    id: UUID = Field(..., description="Merit event UUID")
+    source_kind: str = Field(
+        ...,
+        description="Origin of this event (ritual_complete, task_miss, manual, etc.)",
+        examples=["ritual_complete"],
+    )
+    delta: int = Field(
+        ...,
+        description="Points change: positive for credit, negative for debit",
+        examples=[2],
+    )
+    note: str | None = Field(default=None, description="Optional descriptive note")
+    created_at: datetime.datetime = Field(..., description="UTC timestamp of the event")
+
+    model_config = {"from_attributes": True}
+
+
 class InvokeIn(BaseModel):
     sub_id: UUID = Field(
         ...,

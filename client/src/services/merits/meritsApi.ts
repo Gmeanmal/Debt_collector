@@ -12,6 +12,7 @@ import {
   updateGoddessPunishmentApi,
   deleteGoddessPunishmentApi,
   invokeGoddessPunishmentApi,
+  listGoddessSubMeritEventsApi,
 } from "@/api/merits";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -213,5 +214,24 @@ export async function invokeGoddessPunishment(
     return await invokeGoddessPunishmentApi(punishmentId, subId);
   } catch (err) {
     throw normaliseError(err, "Failed to invoke punishment");
+  }
+}
+
+export const MeritEventSchema = z.object({
+  id: z.string().uuid(),
+  source_kind: z.string(),
+  delta: z.number().int(),
+  note: z.string().nullable(),
+  created_at: z.string(),
+});
+
+export type MeritEvent = z.infer<typeof MeritEventSchema>;
+
+export async function listSubMeritEvents(subId: string): Promise<MeritEvent[]> {
+  try {
+    const raw = await listGoddessSubMeritEventsApi(subId);
+    return z.array(MeritEventSchema).parse(raw);
+  } catch (err) {
+    throw normaliseError(err, "Failed to load merit events");
   }
 }

@@ -47,3 +47,18 @@ class MeritEventDao:
         )
         row = result.one()
         return int(row.balance), row.last_event_at, int(row.event_count)
+
+    async def list_for_sub(
+        self, sub_id: UUID, goddess_id: UUID, limit: int = 100
+    ) -> list[MeritEvent]:
+        """Return merit events for a sub scoped to a goddess, newest first."""
+        result = await self._session.execute(
+            select(MeritEvent)
+            .where(
+                col(MeritEvent.sub_id) == sub_id,
+                col(MeritEvent.goddess_id) == goddess_id,
+            )
+            .order_by(col(MeritEvent.created_at).desc())
+            .limit(limit)
+        )
+        return list(result.scalars().all())

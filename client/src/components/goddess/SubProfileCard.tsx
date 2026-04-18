@@ -1,7 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@/components/profile/Avatar";
-
-// TODO(backend): no list-by-sub photos endpoint exists yet (GET /goddess/subs/{sub_id}/photos).
-// When B5 list-by-sub is shipped, fetch the most recent approved photo and render it here.
+import { queryKeys } from "@/lib/queryKeys";
+import { getSubTopApprovedPhoto } from "@/services/goddessSubDetail/goddessSubDetailApi";
 
 // TODO(backend): GoddessSub from listGoddessSubsApi does not expose real_name.
 // When the backend exposes it, add it to the identity strip below (goddess-only mask).
@@ -19,6 +19,7 @@ function statusLabel(status: string): string {
 
 interface SubProfileCardProps {
   sub: {
+    id?: string;
     display_name: string;
     username: string;
     status: string;
@@ -27,6 +28,36 @@ interface SubProfileCardProps {
     last_name?: string | null;
   };
   isLoading?: boolean;
+}
+
+interface PhotoAvatarProps {
+  subId: string;
+  displayName: string;
+  fallback: React.ReactNode;
+}
+
+function PhotoAvatar({ subId, displayName, fallback }: PhotoAvatarProps) {
+  const { data: photo } = useQuery({
+    queryKey: queryKeys.subPhotos.topApproved(subId),
+    queryFn: () => getSubTopApprovedPhoto(subId),
+    enabled: subId.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  if (photo) {
+    return (
+      <div className="relative h-16 w-16 shrink-0">
+        <img
+          src={photo.presigned_get_url}
+          alt={displayName}
+          loading="lazy"
+          className="h-16 w-16 rounded-full object-cover border-2 border-pink-primary/30"
+        />
+      </div>
+    );
+  }
+
+  return <>{fallback}</>;
 }
 
 export function SubProfileCard({ sub, isLoading = false }: SubProfileCardProps) {
@@ -43,10 +74,15 @@ export function SubProfileCard({ sub, isLoading = false }: SubProfileCardProps) 
   }
 
   const statusClass = STATUS_CLASSES[sub.status] ?? "";
+  const avatarFallback = <Avatar user={sub} size="lg" />;
 
   return (
     <div className="flex items-start gap-4">
-      <Avatar user={sub} size="lg" />
+      {sub.id ? (
+        <PhotoAvatar subId={sub.id} displayName={sub.display_name} fallback={avatarFallback} />
+      ) : (
+        avatarFallback
+      )}
       <div className="flex flex-col gap-1.5 min-w-0">
         <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider truncate">
           {sub.display_name}

@@ -9,7 +9,7 @@ from core.db import get_session
 from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
-from schemas.sub_photo import SubPhotoQueueOut, SubPhotoRejectIn, SubPhotoReviewOut
+from schemas.sub_photo import SubPhotoQueueOut, SubPhotoRejectIn, SubPhotoReviewOut, SubPhotoTopOut
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
 _E403 = {"description": "Forbidden — caller is not a goddess or does not own this photo"}
@@ -57,6 +57,34 @@ async def list_photo_queue(
 ) -> list[SubPhotoQueueOut]:
     """Return the pending photo review queue for the authenticated goddess."""
     return await ctrl.list_pending_queue(caller=caller, limit=limit, before=before)
+
+
+@router.get(
+    "/subs/{sub_id}/photos/top",
+    summary="Get the top approved photo for a sub",
+    description=(
+        "Returns the most recently approved profile photo for the given sub, "
+        "together with a presigned GET URL valid for 10 minutes. "
+        "The sub must belong to the authenticated goddess. "
+        "Returns 204 (no content) when the sub has no approved photos."
+    ),
+    response_model=SubPhotoTopOut | None,
+    status_code=200,
+    tags=["goddess-photos"],
+    responses={
+        204: {"description": "No approved photo exists for this sub"},
+        401: _E401,
+        403: _E403,
+        404: _E404,
+    },
+)
+async def get_top_approved_photo(
+    sub_id: UUID,
+    caller: User = Depends(require_role(UserRole.goddess)),
+    ctrl: SubPhotoController = Depends(_ctrl),
+) -> SubPhotoTopOut | None:
+    """Return the top approved photo for the given sub."""
+    return await ctrl.top_approved_photo(sub_id=sub_id, goddess_user_id=caller.id)
 
 
 @router.post(

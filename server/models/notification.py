@@ -36,6 +36,7 @@ class NotificationType(StrEnum):
     sub_panic = "sub_panic"
     review_reminder = "review_reminder"
     contract_renewed = "contract_renewed"
+    goddess_message = "goddess_message"
 
 
 class Notification(SQLModel, table=True):

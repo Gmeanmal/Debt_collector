@@ -167,3 +167,15 @@ export async function invokeGoddessPunishmentApi(
     body: JSON.stringify({ sub_id: subId }),
   });
 }
+
+export interface RawMeritEvent {
+  id: string;
+  source_kind: string;
+  delta: number;
+  note: string | null;
+  created_at: string;
+}
+
+export async function listGoddessSubMeritEventsApi(subId: string): Promise<RawMeritEvent[]> {
+  return fetchJson<RawMeritEvent[]>(`/goddess/subs/${subId}/merit-events`);
+}

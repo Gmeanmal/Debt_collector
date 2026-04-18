@@ -11,7 +11,7 @@ from core.exceptions import BadRequest, Forbidden
 from daos.sub_photo_dao import SubPhotoDao
 from models.sub_photo import SubPhoto
 from models.user import User
-from schemas.sub_photo import SubPhotoQueueOut
+from schemas.sub_photo import SubPhotoQueueOut, SubPhotoTopOut
 from services.storage import object_store
 
 _ALLOWED_MIME = {"image/jpeg", "image/png", "image/webp"}
@@ -177,6 +177,31 @@ class SubPhotoController:
             settings=settings,
         )
         return updated, url
+
+    async def top_approved_photo(
+        self,
+        sub_id: UUID,
+        goddess_user_id: UUID,
+    ) -> SubPhotoTopOut | None:
+        """Return the most recently approved photo for a sub under the given goddess.
+
+        Returns None when the sub has no approved photos.
+        Raises Forbidden when the sub does not belong to the calling goddess.
+        """
+        goddess_id = await resolve_goddess_id(self._session, goddess_user_id)
+        photo = await self._dao.top_approved_for_sub(sub_id)
+        if photo is None:
+            return None
+        if photo.goddess_id != goddess_id:
+            raise Forbidden("photo does not belong to your sub")
+        settings = get_settings()
+        url = await object_store.generate_presigned_url(
+            bucket=settings.s3_bucket_sub_photos,
+            key=photo.r2_key,
+            ttl_seconds=600,
+            settings=settings,
+        )
+        return SubPhotoTopOut(id=photo.id, presigned_get_url=url, reviewed_at=photo.reviewed_at)
 
     async def reject_photo(
         self,

@@ -127,6 +127,10 @@ export async function submitTask(id: string, body: OccurrenceActionBody): Promis
   });
 }
 
+export async function fetchGoddessSubRituals(subId: string): Promise<RawRitualOut[]> {
+  return fetchJson<RawRitualOut[]>(`/goddess/subs/${subId}/rituals`);
+}
+
 export async function uploadEvidencePhoto(file: File): Promise<RawPhotoUploadOut> {
   const token = getAccessToken();
   const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};

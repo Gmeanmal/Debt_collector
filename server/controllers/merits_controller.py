@@ -19,6 +19,7 @@ from models.task import Task, TaskStatus
 from models.user import User, UserRole
 from schemas.merits import (
     InvokeIn,
+    MeritEventOut,
     PointsBalanceOut,
     PunishmentTierIn,
     PunishmentTierOut,
@@ -266,6 +267,23 @@ class MeritsController:
         await self._dao.insert_idempotent(event)
 
         return TaskOut.model_validate(created_task)
+
+    # ------------------------------------------------------------------
+    # Goddess — per-sub merit event ledger
+    # ------------------------------------------------------------------
+
+    async def list_events_for_sub(
+        self, goddess_user: User, sub_id: UUID
+    ) -> list[MeritEventOut]:
+        """Return merit events for a sub scoped to the authenticated goddess."""
+        goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
+        sub = await self._user_dao.get_by_id(sub_id)
+        if sub is None or sub.role != UserRole.sub:
+            raise NotFound("sub not found")
+        if sub.goddess_id != goddess_id:
+            raise Forbidden("sub does not belong to this goddess")
+        events = await self._dao.list_for_sub(sub_id, goddess_id)
+        return [MeritEventOut.model_validate(e) for e in events]
 
     # ------------------------------------------------------------------
     # Private helpers

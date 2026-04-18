@@ -3313,6 +3313,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goddess/subs/{sub_id}/merit-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List merit events for a sub
+         * @description Returns up to 100 merit events for the given sub, scoped to the authenticated goddess, ordered newest first. Only subs belonging to the caller's goddess profile are accessible.
+         */
+        get: operations["list_merit_events_for_sub_goddess_subs__sub_id__merit_events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/goddess/rewards": {
         parameters: {
             query?: never;
@@ -3617,6 +3637,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goddess/subs/{sub_id}/photos/top": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the top approved photo for a sub
+         * @description Returns the most recently approved profile photo for the given sub, together with a presigned GET URL valid for 10 minutes. The sub must belong to the authenticated goddess. Returns 204 (no content) when the sub has no approved photos.
+         */
+        get: operations["get_top_approved_photo_goddess_subs__sub_id__photos_top_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/goddess/photos/{photo_id}/approve": {
         parameters: {
             query?: never;
@@ -3651,6 +3691,26 @@ export interface paths {
          * @description Marks the photo as rejected and stores the goddess-supplied reason. The object-store key is **not** deleted — a 30-day GC job handles purging. Idempotent: if the photo is already rejected the response is returned unchanged. The photo must belong to a sub linked to the authenticated goddess.
          */
         post: operations["reject_photo_goddess_photos__photo_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/goddess/subs/{username}/message": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a direct message to a sub
+         * @description Goddess sends a short message to one of her subs. The message is delivered as a `goddess_message` notification which appears in the sub's notification drawer and over the WebSocket channel. The sub must belong to the calling goddess.
+         */
+        post: operations["send_message_to_sub_goddess_subs__username__message_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6421,6 +6481,23 @@ export interface components {
              */
             avatar_key?: components["schemas"]["AvatarKey"] | null;
         };
+        /** GoddessMessageIn */
+        GoddessMessageIn: {
+            /**
+             * Body
+             * @description Message body text sent to the sub (5–500 chars).
+             * @example Don't forget your tribute is due tomorrow.
+             */
+            body: string;
+        };
+        /** GoddessMessageOut */
+        GoddessMessageOut: {
+            /**
+             * Sent
+             * @description True when the message was delivered successfully.
+             */
+            sent: boolean;
+        };
         /**
          * GoddessRejectIn
          * @description Payload for a goddess to reject a change request.
@@ -7116,6 +7193,38 @@ export interface components {
              */
             password: string;
         };
+        /** MeritEventOut */
+        MeritEventOut: {
+            /**
+             * Id
+             * Format: uuid
+             * @description Merit event UUID
+             */
+            id: string;
+            /**
+             * Source Kind
+             * @description Origin of this event (ritual_complete, task_miss, manual, etc.)
+             * @example ritual_complete
+             */
+            source_kind: string;
+            /**
+             * Delta
+             * @description Points change: positive for credit, negative for debit
+             * @example 2
+             */
+            delta: number;
+            /**
+             * Note
+             * @description Optional descriptive note
+             */
+            note?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             * @description UTC timestamp of the event
+             */
+            created_at: string;
+        };
         /** MethodBreakdownItem */
         MethodBreakdownItem: {
             /**
@@ -7265,7 +7374,7 @@ export interface components {
          * NotificationType
          * @enum {string}
          */
-        NotificationType: "invitation_claimed" | "payment_pending" | "payment_validated" | "payment_rejected" | "rolling_reminder" | "rolling_late" | "contract_proposed" | "contract_countered" | "contract_counter_accepted" | "contract_counter_rejected" | "contract_signed" | "contract_needs_resignature" | "contract_period_interest" | "contract_late_penalty" | "contract_surprise_penalty" | "contract_adjustment_proposed" | "contract_adjustment_accepted" | "contract_adjustment_refused" | "contract_buyout_requested" | "contract_buyout_paid" | "contract_breached" | "contract_forgiven" | "journal_comment" | "wishlist_fulfilled" | "sub_panic" | "review_reminder" | "contract_renewed";
+        NotificationType: "invitation_claimed" | "payment_pending" | "payment_validated" | "payment_rejected" | "rolling_reminder" | "rolling_late" | "contract_proposed" | "contract_countered" | "contract_counter_accepted" | "contract_counter_rejected" | "contract_signed" | "contract_needs_resignature" | "contract_period_interest" | "contract_late_penalty" | "contract_surprise_penalty" | "contract_adjustment_proposed" | "contract_adjustment_accepted" | "contract_adjustment_refused" | "contract_buyout_requested" | "contract_buyout_paid" | "contract_breached" | "contract_forgiven" | "journal_comment" | "wishlist_fulfilled" | "sub_panic" | "review_reminder" | "contract_renewed" | "goddess_message";
         /** OccurrenceCompleteIn */
         OccurrenceCompleteIn: {
             /**
@@ -9580,6 +9689,30 @@ export interface components {
          * @enum {string}
          */
         SubPhotoStatus: "pending" | "approved" | "rejected";
+        /**
+         * SubPhotoTopOut
+         * @description Most recently approved photo for a sub, with a presigned URL.
+         */
+        SubPhotoTopOut: {
+            /**
+             * Id
+             * Format: uuid
+             * @description Unique identifier for the photo.
+             * @example 3fa85f64-5717-4562-b3fc-2c963f66afa6
+             */
+            id: string;
+            /**
+             * Presigned Get Url
+             * @description Presigned GET URL valid for 10 minutes.
+             * @example https://minio.example.com/sub-photos/abc/def/img.jpg?X-Amz-Signature=…
+             */
+            presigned_get_url: string;
+            /**
+             * Reviewed At
+             * @description UTC timestamp when the photo was approved.
+             */
+            reviewed_at?: string | null;
+        };
         /** SubPlanningOut */
         SubPlanningOut: {
             /**
@@ -23020,6 +23153,60 @@ export interface operations {
             };
         };
     };
+    list_merit_events_for_sub_goddess_subs__sub_id__merit_events_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                sub_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeritEventOut"][];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — role or ownership mismatch */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — resource does not exist or is not under this goddess */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_reward_tiers_goddess_rewards_get: {
         parameters: {
             query?: never;
@@ -24097,6 +24284,67 @@ export interface operations {
             };
         };
     };
+    get_top_approved_photo_goddess_subs__sub_id__photos_top_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                sub_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubPhotoTopOut"] | null;
+                };
+            };
+            /** @description No approved photo exists for this sub */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller is not a goddess or does not own this photo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — photo does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     approve_photo_goddess_photos__photo_id__approve_post: {
         parameters: {
             query?: never;
@@ -24206,6 +24454,62 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+        };
+    };
+    send_message_to_sub_goddess_subs__username__message_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoddessMessageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoddessMessageOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller is not a goddess or does not own this sub */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — no sub with that username belongs to this goddess */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable entity — request body validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

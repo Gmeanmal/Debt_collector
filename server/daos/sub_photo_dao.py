@@ -130,6 +130,19 @@ class SubPhotoDao:
         )
         return int(result.scalar_one() or 0)
 
+    async def top_approved_for_sub(self, sub_id: UUID) -> SubPhoto | None:
+        """Return the most recently approved photo for the given sub, or None."""
+        result = await self._session.execute(
+            select(SubPhoto)
+            .where(
+                col(SubPhoto.sub_id) == sub_id,
+                col(SubPhoto.status) == SubPhotoStatus.approved,
+            )
+            .order_by(col(SubPhoto.reviewed_at).desc())
+            .limit(1)
+        )
+        return result.scalar_one_or_none()
+
     async def reject(self, photo_id: UUID, reviewer_id: UUID, reason: str) -> SubPhoto:
         """Flip status to rejected, stamp review metadata, and store rejection reason.
 

@@ -24,6 +24,7 @@ from routers import (
     debt_contracts,
     goddess_photos,
     goddess_profile,
+    goddess_subs_message,
     goddess_views,
     health,
     invitations,
@@ -158,6 +159,7 @@ app.include_router(consent.router)
 app.include_router(penalty_rules.router)
 app.include_router(photo.router)
 app.include_router(goddess_photos.router)
+app.include_router(goddess_subs_message.router)
 app.include_router(review_queue.router)
 app.include_router(sub_aftercare.router)
 app.include_router(sub_medical.sub_router)

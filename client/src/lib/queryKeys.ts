@@ -119,6 +119,14 @@ export const queryKeys = {
     ritualsList: () => ["sub", "rituals", "list"] as const,
   },
 
+  rituals: {
+    forSub: (subId: string) => ["goddess", "subs", subId, "rituals"] as const,
+  },
+
+  meritEvents: {
+    forSub: (subId: string) => ["goddess", "subs", subId, "merit-events"] as const,
+  },
+
   journal: {
     own: () => ["sub", "journal"] as const,
     forSub: (subId: string) => ["goddess", "subs", subId, "journal"] as const,
@@ -163,5 +171,19 @@ export const queryKeys = {
 
   reference: {
     genders: () => ["reference", "genders"] as const,
+  },
+
+  subPhotos: {
+    topApproved: (subId: string) => ["goddess", "subs", subId, "photos", "top"] as const,
+  },
+
+  subKinks: {
+    forSub: (subId: string) => ["goddess", "subs", subId, "kinks"] as const,
+  },
+
+  subLimits: {
+    forSub: (subId: string) => ["goddess", "subs", subId, "limits"] as const,
+    triggersForSub: (subId: string) => ["goddess", "subs", subId, "triggers"] as const,
+    safewordForSub: (subId: string) => ["goddess", "subs", subId, "safeword"] as const,
   },
 };

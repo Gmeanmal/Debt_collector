@@ -10,6 +10,7 @@ from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.merits import (
     InvokeIn,
+    MeritEventOut,
     PointsBalanceOut,
     PunishmentTierIn,
     PunishmentTierOut,
@@ -85,6 +86,30 @@ async def get_sub_points_balance(
     ctrl: MeritsController = Depends(_ctrl),
 ) -> PointsBalanceOut:
     return await ctrl.get_balance_for_goddess_scoped(user, sub_id)
+
+
+@router.get(
+    "/goddess/subs/{sub_id}/merit-events",
+    summary="List merit events for a sub",
+    description=(
+        "Returns up to 100 merit events for the given sub, scoped to the authenticated goddess, "
+        "ordered newest first. Only subs belonging to the caller's goddess profile are accessible."
+    ),
+    response_model=list[MeritEventOut],
+    status_code=200,
+    tags=["merits"],
+    responses={
+        401: _E401,
+        403: _E403,
+        404: _E404,
+    },
+)
+async def list_merit_events_for_sub(
+    sub_id: UUID,
+    user: User = Depends(require_role(UserRole.goddess)),
+    ctrl: MeritsController = Depends(_ctrl),
+) -> list[MeritEventOut]:
+    return await ctrl.list_events_for_sub(user, sub_id)
 
 
 # ---------------------------------------------------------------------------

@@ -118,6 +118,27 @@ class SubPhotoReviewOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class SubPhotoTopOut(BaseModel):
+    """Most recently approved photo for a sub, with a presigned URL."""
+
+    id: UUID = Field(
+        ...,
+        description="Unique identifier for the photo.",
+        examples=["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
+    )
+    presigned_get_url: str = Field(
+        ...,
+        description="Presigned GET URL valid for 10 minutes.",
+        examples=["https://minio.example.com/sub-photos/abc/def/img.jpg?X-Amz-Signature=…"],
+    )
+    reviewed_at: datetime | None = Field(
+        default=None,
+        description="UTC timestamp when the photo was approved.",
+    )
+
+    model_config = {"from_attributes": True}
+
+
 class SubPhotoRejectIn(BaseModel):
     """Request body for the goddess reject endpoint."""
 
