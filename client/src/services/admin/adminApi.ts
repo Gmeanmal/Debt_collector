@@ -87,5 +87,18 @@ export async function adminDelete(entity: string, id: string): Promise<void> {
     method: "DELETE",
     headers: authHeaders(),
   });
-  if (!response.ok) throw new Error(await parseError(response, "Failed to delete"));
+  if (!response.ok) {
+    const msg = await parseError(response, "Failed to delete");
+    const err = new Error(msg);
+    (err as Error & { status?: number }).status = response.status;
+    throw err;
+  }
+}
+
+export async function adminExportCsv(entity: string): Promise<Blob> {
+  const response = await fetch(`${baseUrl()}/admin/${entity}.csv`, {
+    headers: { Accept: "text/csv", ...authHeaders() },
+  });
+  if (!response.ok) throw new Error(await parseError(response, "Export failed"));
+  return response.blob();
 }

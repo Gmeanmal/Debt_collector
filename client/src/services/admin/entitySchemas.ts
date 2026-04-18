@@ -1,8 +1,12 @@
 export type FieldKind = "text" | "number" | "boolean" | "json" | "password";
+export type ColumnFormat = "currency";
 
 export interface ColumnDef {
   key: string;
   label: string;
+  sortable?: boolean;
+  format?: ColumnFormat;
+  isStatus?: boolean;
 }
 
 export interface FieldDef {
@@ -20,6 +24,7 @@ export interface EntitySchema {
   columns: ColumnDef[];
   fields: FieldDef[];
   readonly?: boolean;
+  canCreate?: boolean;
 }
 
 const commonText = (key: string, label: string): FieldDef => ({ key, label, kind: "text" });
@@ -28,12 +33,13 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "users",
     label: "Users",
+    canCreate: true,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "username", label: "Username" },
-      { key: "email", label: "Email" },
-      { key: "role", label: "Role" },
-      { key: "status", label: "Status" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "username", label: "Username", sortable: true },
+      { key: "email", label: "Email", sortable: true },
+      { key: "role", label: "Role", sortable: true },
+      { key: "status", label: "Status", sortable: true, isStatus: true },
     ],
     fields: [
       commonText("username", "Username"),
@@ -49,10 +55,11 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "goddesses",
     label: "Goddesses",
+    canCreate: true,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "display_name", label: "Display name" },
-      { key: "email", label: "Email" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "display_name", label: "Display name", sortable: true },
+      { key: "email", label: "Email", sortable: true },
     ],
     fields: [
       commonText("display_name", "Display name"),
@@ -63,11 +70,12 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "invitations",
     label: "Invitations",
+    canCreate: true,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "token", label: "Token" },
-      { key: "entry_tribute_amount", label: "Entry tribute" },
-      { key: "expires_at", label: "Expires" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "token", label: "Token", sortable: true },
+      { key: "entry_tribute_amount", label: "Entry tribute", sortable: true, format: "currency" },
+      { key: "expires_at", label: "Expires", sortable: true },
     ],
     fields: [
       commonText("token", "Token"),
@@ -80,11 +88,12 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "payment_methods",
     label: "Payment methods",
+    canCreate: true,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "name", label: "Name" },
-      { key: "type", label: "Type" },
-      { key: "enabled", label: "Enabled" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "name", label: "Name", sortable: true },
+      { key: "type", label: "Type", sortable: true },
+      { key: "enabled", label: "Enabled", sortable: true },
     ],
     fields: [
       commonText("goddess_id", "Goddess ID"),
@@ -98,12 +107,13 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "payment_declarations",
     label: "Payment declarations",
+    canCreate: true,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "sub_id", label: "Sub" },
-      { key: "amount", label: "Amount" },
-      { key: "category", label: "Category" },
-      { key: "status", label: "Status" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "sub_id", label: "Sub", sortable: true },
+      { key: "amount", label: "Amount", sortable: true, format: "currency" },
+      { key: "category", label: "Category", sortable: true },
+      { key: "status", label: "Status", sortable: true, isStatus: true },
     ],
     fields: [
       commonText("sub_id", "Sub ID"),
@@ -118,12 +128,13 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "rolling_tributes",
     label: "Rolling tributes",
+    canCreate: true,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "sub_id", label: "Sub" },
-      { key: "amount", label: "Amount" },
-      { key: "deadline_day", label: "Day" },
-      { key: "paused", label: "Paused" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "sub_id", label: "Sub", sortable: true },
+      { key: "amount", label: "Amount", sortable: true, format: "currency" },
+      { key: "deadline_day", label: "Day", sortable: true },
+      { key: "paused", label: "Paused", sortable: true },
     ],
     fields: [
       commonText("sub_id", "Sub ID"),
@@ -137,12 +148,14 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "debt_contracts",
     label: "Debt contracts",
+    // Debt contracts are goddess-authored via /goddess/contracts; admin console is read/patch only.
+    canCreate: false,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "sub_id", label: "Sub" },
-      { key: "principal", label: "Principal" },
-      { key: "balance", label: "Balance" },
-      { key: "status", label: "Status" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "sub_id", label: "Sub", sortable: true },
+      { key: "principal", label: "Principal", sortable: true, format: "currency" },
+      { key: "balance", label: "Balance", sortable: true, format: "currency" },
+      { key: "status", label: "Status", sortable: true, isStatus: true },
     ],
     fields: [
       { key: "balance", label: "Balance", kind: "number" },
@@ -153,12 +166,13 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "blacklist_entries",
     label: "Blacklist",
+    canCreate: true,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "sub_id", label: "Sub" },
-      { key: "balance_snapshot", label: "Balance snapshot" },
-      { key: "reason", label: "Reason" },
-      { key: "forgiven_at", label: "Forgiven" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "sub_id", label: "Sub", sortable: true },
+      { key: "balance_snapshot", label: "Balance snapshot", sortable: true, format: "currency" },
+      { key: "reason", label: "Reason", sortable: true },
+      { key: "forgiven_at", label: "Forgiven", sortable: true },
     ],
     fields: [
       commonText("sub_id", "Sub ID"),
@@ -171,12 +185,13 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "notifications",
     label: "Notifications",
+    canCreate: true,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "user_id", label: "User" },
-      { key: "type", label: "Type" },
-      { key: "title", label: "Title" },
-      { key: "read_at", label: "Read at" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "user_id", label: "User", sortable: true },
+      { key: "type", label: "Type", sortable: true },
+      { key: "title", label: "Title", sortable: true },
+      { key: "read_at", label: "Read at", sortable: true },
     ],
     fields: [
       commonText("user_id", "User ID"),
@@ -189,12 +204,13 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "debt_events",
     label: "Debt events",
+    canCreate: true,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "contract_id", label: "Contract" },
-      { key: "event_type", label: "Event" },
-      { key: "amount", label: "Amount" },
-      { key: "period_index", label: "Period" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "contract_id", label: "Contract", sortable: true },
+      { key: "event_type", label: "Event", sortable: true },
+      { key: "amount", label: "Amount", sortable: true, format: "currency" },
+      { key: "period_index", label: "Period", sortable: true },
     ],
     fields: [
       commonText("contract_id", "Contract ID"),
@@ -207,11 +223,12 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
   {
     entity: "contract_adjustments",
     label: "Contract adjustments",
+    canCreate: true,
     columns: [
-      { key: "id", label: "ID" },
-      { key: "contract_id", label: "Contract" },
-      { key: "amount", label: "Amount" },
-      { key: "status", label: "Status" },
+      { key: "id", label: "ID", sortable: true },
+      { key: "contract_id", label: "Contract", sortable: true },
+      { key: "amount", label: "Amount", sortable: true, format: "currency" },
+      { key: "status", label: "Status", sortable: true, isStatus: true },
     ],
     fields: [
       commonText("contract_id", "Contract ID"),
@@ -225,13 +242,14 @@ export const ENTITY_SCHEMAS: EntitySchema[] = [
     entity: "admin_actions",
     label: "Audit log",
     readonly: true,
+    canCreate: false,
     columns: [
-      { key: "created_at", label: "Created at" },
-      { key: "action", label: "Action" },
-      { key: "entity", label: "Entity" },
-      { key: "entity_id", label: "Entity ID" },
-      { key: "admin_id", label: "Admin ID" },
-      { key: "acting_as_user_id", label: "Acting as" },
+      { key: "created_at", label: "Created at", sortable: true },
+      { key: "action", label: "Action", sortable: true },
+      { key: "entity", label: "Entity", sortable: true },
+      { key: "entity_id", label: "Entity ID", sortable: false },
+      { key: "admin_id", label: "Admin ID", sortable: false },
+      { key: "acting_as_user_id", label: "Acting as", sortable: false },
     ],
     fields: [{ key: "payload_json", label: "Payload", kind: "json" }],
   },

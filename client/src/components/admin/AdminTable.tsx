@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminList, adminDelete } from "@/services/admin/adminApi";
+import { toast } from "sonner";
+import { adminList, adminDelete, adminExportCsv } from "@/services/admin/adminApi";
 import type { EntitySchema } from "@/services/admin/entitySchemas";
+import { ImpersonateConfirmModal } from "@/components/admin/ImpersonateConfirmModal";
+import { DeleteConfirmModal } from "@/components/admin/DeleteConfirmModal";
+import { AdminTableBody } from "@/components/admin/AdminTableBody";
+import { AdminTableToolbar } from "@/components/admin/AdminTableToolbar";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { useAuth } from "@/services/auth/useAuth";
 import { queryKeys } from "@/lib/queryKeys";
@@ -10,21 +15,17 @@ interface AdminTableProps {
   schema: EntitySchema;
 }
 
+type SortDir = "asc" | "desc" | null;
+
 const PAGE_SIZE = 25;
 
-const USER_ROLES = ["all", "sub", "goddess", "admin"] as const;
-const USER_STATUSES = ["all", "active", "pending_entry_tribute", "blacklisted", "deleted"] as const;
-
-function formatCell(value: unknown): string {
-  if (value == null) return "—";
-  if (typeof value === "boolean") return value ? "true" : "false";
-  if (typeof value === "object") return JSON.stringify(value);
-  const str = String(value);
-  return str.length > 60 ? `${str.slice(0, 57)}…` : str;
+function compareValues(a: unknown, b: unknown): number {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  return String(a).localeCompare(String(b), "en-GB");
 }
-
-const selectClass =
-  "px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text focus-visible:ring-2 focus-visible:ring-violet-primary";
 
 export function AdminTable({ schema }: AdminTableProps) {
   const [q, setQ] = useState("");
@@ -32,31 +33,51 @@ export function AdminTable({ schema }: AdminTableProps) {
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
   const [creating, setCreating] = useState(false);
-  const [roleFilter, setRoleFilter] = useState<(typeof USER_ROLES)[number]>("all");
-  const [statusFilter, setStatusFilter] = useState<(typeof USER_STATUSES)[number]>("all");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>(null);
+  const [impersonateTarget, setImpersonateTarget] = useState<Record<string, unknown> | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [isImpersonating, setIsImpersonating] = useState(false);
 
   const queryClient = useQueryClient();
   const { impersonate } = useAuth();
   const queryKey = queryKeys.admin.list(schema.entity, q, page);
   const isUsers = schema.entity === "users";
   const isReadonly = schema.readonly === true;
+  const canCreate = schema.canCreate !== false && !isReadonly;
 
   const query = useQuery({
     queryKey,
     queryFn: () => adminList(schema.entity, { q: q || undefined, page, page_size: PAGE_SIZE }),
   });
 
-  const filteredItems = (query.data?.items ?? []).filter((row) => {
+  const rawItems = (query.data?.items ?? []).filter((row) => {
     if (!isUsers) return true;
-    const roleOk = roleFilter === "all" || row.role === roleFilter;
-    const statusOk = statusFilter === "all" || row.status === statusFilter;
-    return roleOk && statusOk;
+    return (
+      (roleFilter === "all" || row.role === roleFilter) &&
+      (statusFilter === "all" || row.status === statusFilter)
+    );
   });
+
+  const filteredItems =
+    sortKey && sortDir
+      ? rawItems.toSorted((a, b) => {
+          const cmp = compareValues(a[sortKey], b[sortKey]);
+          return sortDir === "asc" ? cmp : -cmp;
+        })
+      : rawItems;
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => adminDelete(schema.entity, id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.entity(schema.entity) }),
+    onSuccess: () => {
+      setDeleteTarget(null);
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.entity(schema.entity) });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
   });
 
   const total = query.data?.total ?? 0;
@@ -68,72 +89,64 @@ export function AdminTable({ schema }: AdminTableProps) {
     setQ(qDraft.trim());
   }
 
-  function handleDelete(id: string) {
-    if (!window.confirm("Delete this row?")) return;
-    deleteMutation.mutate(id);
+  function handleSortClick(key: string) {
+    if (sortKey !== key) {
+      setSortKey(key);
+      setSortDir("asc");
+    } else if (sortDir === "asc") {
+      setSortDir("desc");
+    } else {
+      setSortKey(null);
+      setSortDir(null);
+    }
+  }
+
+  async function handleImpersonateConfirm() {
+    if (!impersonateTarget) return;
+    setIsImpersonating(true);
+    try {
+      await impersonate(String(impersonateTarget.id ?? ""));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Impersonation failed");
+    } finally {
+      setIsImpersonating(false);
+      setImpersonateTarget(null);
+    }
+  }
+
+  async function handleExportCsv() {
+    try {
+      const blob = await adminExportCsv(schema.entity);
+      const date = new Date().toISOString().slice(0, 10);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${schema.entity}-${date}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Export ready");
+    } catch {
+      toast.error("Export failed");
+    }
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
-        <h2 className="font-display text-xl font-bold text-violet-primary tracking-wider">
-          {schema.label}
-        </h2>
-        <span className="text-xs text-base-text-subtle">{total} total</span>
-        <form onSubmit={submitSearch} className="flex items-center gap-2 sm:ml-auto flex-wrap">
-          <input
-            type="search"
-            placeholder="Search…"
-            value={qDraft}
-            onChange={(e) => setQDraft(e.target.value)}
-            className="flex-1 min-w-0 px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text focus-visible:ring-2 focus-visible:ring-violet-primary"
-          />
-          <button
-            type="submit"
-            className="px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text hover:bg-base-surface"
-          >
-            Search
-          </button>
-          {!isReadonly && (
-            <button
-              type="button"
-              onClick={() => setCreating(true)}
-              className="px-3 py-1.5 text-sm bg-violet-primary text-violet-foreground font-semibold rounded-md hover:bg-violet-primary-hover"
-            >
-              + New
-            </button>
-          )}
-        </form>
-      </div>
-
-      {isUsers && (
-        <div className="flex items-center gap-3 flex-wrap">
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value as (typeof USER_ROLES)[number])}
-            aria-label="Filter by role"
-            className={selectClass}
-          >
-            {USER_ROLES.map((r) => (
-              <option key={r} value={r}>
-                {r === "all" ? "All roles" : r}
-              </option>
-            ))}
-          </select>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as (typeof USER_STATUSES)[number])}
-            aria-label="Filter by status"
-            className={selectClass}
-          >
-            {USER_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s === "all" ? "All statuses" : s.replace(/_/g, " ")}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+      <AdminTableToolbar
+        label={schema.label}
+        total={total}
+        qDraft={qDraft}
+        onQDraftChange={setQDraft}
+        onSearch={submitSearch}
+        onExportCsv={() => void handleExportCsv()}
+        canCreate={canCreate}
+        onNew={() => setCreating(true)}
+        isUsers={isUsers}
+        roleFilter={roleFilter}
+        onRoleFilter={setRoleFilter}
+        statusFilter={statusFilter}
+        onStatusFilter={setStatusFilter}
+      />
 
       {query.isError && (
         <p className="text-sm text-status-danger">{(query.error as Error).message}</p>
@@ -148,80 +161,36 @@ export function AdminTable({ schema }: AdminTableProps) {
                   key={col.key}
                   className="text-left px-3 py-2 font-semibold text-base-text-muted border-b border-base-border"
                 >
-                  {col.label}
+                  {col.sortable !== false ? (
+                    <button
+                      type="button"
+                      onClick={() => handleSortClick(col.key)}
+                      aria-label={`Sort by ${col.label}`}
+                      className="flex items-center gap-1 hover:text-base-text focus-visible:ring-1 focus-visible:ring-violet-primary rounded"
+                    >
+                      {col.label}
+                      <span className="text-xs w-3 inline-block text-center">
+                        {sortKey === col.key ? (sortDir === "asc" ? "↑" : "↓") : ""}
+                      </span>
+                    </button>
+                  ) : (
+                    col.label
+                  )}
                 </th>
               ))}
               <th className="px-3 py-2 border-b border-base-border w-40"></th>
             </tr>
           </thead>
-          <tbody>
-            {query.isLoading && (
-              <tr>
-                <td
-                  colSpan={schema.columns.length + 1}
-                  className="px-3 py-4 text-center text-base-text-subtle"
-                >
-                  Loading…
-                </td>
-              </tr>
-            )}
-            {filteredItems.map((row) => {
-              const id = String(row.id ?? "");
-              return (
-                <tr
-                  key={id}
-                  className={`border-b border-base-border hover:bg-base-surface-raised ${isReadonly ? "" : "cursor-pointer"}`}
-                  onClick={() => {
-                    if (!isReadonly) setEditing(row);
-                  }}
-                >
-                  {schema.columns.map((col) => (
-                    <td key={col.key} className="px-3 py-2 text-base-text align-top">
-                      {formatCell(row[col.key])}
-                    </td>
-                  ))}
-                  <td className="px-3 py-2 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      {isUsers && row.role !== "admin" && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            void impersonate(id);
-                          }}
-                          className="text-xs text-pink-primary hover:underline"
-                        >
-                          Impersonate
-                        </button>
-                      )}
-                      {!isReadonly && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(id);
-                          }}
-                          className="text-xs text-status-danger hover:underline"
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-            {query.data && filteredItems.length === 0 && (
-              <tr>
-                <td
-                  colSpan={schema.columns.length + 1}
-                  className="px-3 py-4 text-center text-base-text-subtle"
-                >
-                  No rows.
-                </td>
-              </tr>
-            )}
-          </tbody>
+          <AdminTableBody
+            columns={schema.columns}
+            items={filteredItems}
+            isLoading={query.isLoading}
+            isReadonly={isReadonly}
+            isUsers={isUsers}
+            onRowClick={setEditing}
+            onImpersonate={setImpersonateTarget}
+            onDelete={setDeleteTarget}
+          />
         </table>
       </div>
 
@@ -247,6 +216,25 @@ export function AdminTable({ schema }: AdminTableProps) {
         </button>
       </div>
 
+      {impersonateTarget && (
+        <ImpersonateConfirmModal
+          displayName={String(
+            impersonateTarget.display_name ?? impersonateTarget.username ?? "user",
+          )}
+          onConfirm={() => void handleImpersonateConfirm()}
+          onCancel={() => setImpersonateTarget(null)}
+          isPending={isImpersonating}
+        />
+      )}
+
+      {deleteTarget && (
+        <DeleteConfirmModal
+          onConfirm={() => deleteMutation.mutate(deleteTarget)}
+          onCancel={() => setDeleteTarget(null)}
+          isPending={deleteMutation.isPending}
+        />
+      )}
+
       {!isReadonly && editing && (
         <AdminForm
           schema={schema}
@@ -259,7 +247,7 @@ export function AdminTable({ schema }: AdminTableProps) {
           }}
         />
       )}
-      {!isReadonly && creating && (
+      {canCreate && creating && (
         <AdminForm
           schema={schema}
           mode="create"

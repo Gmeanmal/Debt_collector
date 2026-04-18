@@ -10,7 +10,7 @@ export function AdminRoute() {
     <div className="p-4 md:p-8">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-6">
         <aside className="md:w-56 flex-shrink-0">
-          <h1 className="font-display text-2xl font-bold text-violet-primary tracking-wider mb-4">
+          <h1 className="font-display text-2xl font-bold text-accent tracking-wider mb-4">
             Admin
           </h1>
           <nav className="flex flex-col gap-1">
@@ -21,7 +21,7 @@ export function AdminRoute() {
                 onClick={() => setActive(s.entity)}
                 className={`text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   active === s.entity
-                    ? "bg-violet-primary text-violet-foreground"
+                    ? "bg-accent text-accent-foreground"
                     : "text-base-text-muted hover:bg-base-surface-raised hover:text-base-text"
                 }`}
               >

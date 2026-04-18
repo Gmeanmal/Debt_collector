@@ -1,8 +1,11 @@
+import csv
+import io
 from datetime import UTC, date, datetime, time
 from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, Query, Response
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import desc, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +13,7 @@ from sqlmodel import SQLModel, select
 
 from core.config import get_settings
 from core.db import get_session
-from core.exceptions import BadRequest, Forbidden, NotFound
+from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from core.security import create_access_token, hash_password
 from daos.admin_action_dao import AdminActionDao
 from dependencies.auth import get_current_user, require_role
@@ -337,10 +340,20 @@ def _register_crud(
     @router.delete(
         item_path,
         summary=f"Delete a {entity_name} row",
-        description=f"Admin generic hard-delete for `{entity_name}`.",
+        description=(
+            f"Admin generic hard-delete for `{entity_name}`. "
+            "For `users`, two guards apply: cannot delete the last admin, "
+            "and cannot delete a user who has active debt contracts."
+        ),
         status_code=204,
         name=f"{entity_name}_delete",
-        responses={401: _E401, 403: _E403, 404: _E404, 500: _E500},
+        responses={
+            401: _E401,
+            403: _E403,
+            404: _E404,
+            409: {"description": "Conflict — last admin or user has active contracts"},
+            500: _E500,
+        },
     )
     async def delete_item(
         item_id: UUID,
@@ -350,6 +363,35 @@ def _register_crud(
         row = await session.get(model, item_id)
         if row is None:
             raise NotFound(f"{entity_name} not found")
+        if model is User:
+            instance: User = row  # type: ignore[assignment]
+            if instance.role == UserRole.admin:
+                count_result = await session.execute(
+                    select(func.count()).select_from(User).where(User.role == UserRole.admin)
+                )
+                admin_count = int(count_result.scalar_one())
+                if admin_count <= 1:
+                    raise Conflict("Cannot delete the last admin.")
+            active_statuses = (
+                "active",
+                "pending_sub",
+                "pending_dom",
+                "pending_dom_counter",
+                "pending_sub_signature",
+            )
+            contract_result = await session.execute(
+                select(func.count())
+                .select_from(DebtContract)
+                .where(
+                    DebtContract.sub_id == instance.id,
+                    DebtContract.status.in_(active_statuses),  # type: ignore[attr-defined]
+                )
+            )
+            contract_count = int(contract_result.scalar_one())
+            if contract_count > 0:
+                raise Conflict(
+                    f"User has {contract_count} active contract(s). Close them first."
+                )
         audit = AdminActionDao(session)
         await audit.record(
             admin_id=admin.id,
@@ -360,6 +402,65 @@ def _register_crud(
         await session.delete(row)
         await session.commit()
         return Response(status_code=204)
+
+    csv_path = f"/{entity_name}.csv"
+    _EXCLUDE_FIELDS: frozenset[str] = frozenset({"password_hash"})
+
+    @router.get(
+        csv_path,
+        summary=f"Export {entity_name} as CSV",
+        description=(
+            f"Streams all `{entity_name}` rows as a CSV file. "
+            "Sensitive fields (e.g. `password_hash`) are excluded. "
+            "The response is streamed in batches of 500 rows."
+        ),
+        status_code=200,
+        name=f"{entity_name}_csv",
+        response_class=StreamingResponse,
+        responses={
+            401: _E401,
+            403: _E403,
+            500: _E500,
+        },
+    )
+    async def export_csv(
+        session: AsyncSession = Depends(get_session),
+    ) -> StreamingResponse:
+        all_fields = list(model.model_fields.keys())
+        headers = [f for f in all_fields if f not in _EXCLUDE_FIELDS]
+        today = datetime.now(UTC).strftime("%Y-%m-%d")
+
+        async def generate():  # type: ignore[return]
+            buf = io.StringIO()
+            writer = csv.writer(buf)
+            writer.writerow(headers)
+            yield buf.getvalue()
+            buf.seek(0)
+            buf.truncate()
+
+            batch_size = 500
+            offset = 0
+            while True:
+                stmt = select(model).offset(offset).limit(batch_size)
+                result = await session.execute(stmt)
+                rows = list(result.scalars().all())
+                if not rows:
+                    break
+                for r in rows:
+                    data = _jsonable(r)
+                    writer.writerow([data.get(h, "") for h in headers])
+                yield buf.getvalue()
+                buf.seek(0)
+                buf.truncate()
+                if len(rows) < batch_size:
+                    break
+                offset += batch_size
+
+        return StreamingResponse(
+            generate(),
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="{entity_name}-{today}.csv"'},
+        )
 
 
 _AdminActionListOut = AdminListOut[AdminRowAdminAction]  # type: ignore[valid-type]
