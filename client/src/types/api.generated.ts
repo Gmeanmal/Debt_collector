@@ -7904,6 +7904,24 @@ export interface components {
              */
             fee_amount?: number | string | null;
             /**
+             * Name
+             * @description Short identifier for the rule (e.g. 'late_2d_notify'). Nullable for ad-hoc rules.
+             * @example late_2d_notify
+             */
+            name?: string | null;
+            /**
+             * Fee Percent
+             * @description Percentage of the sub's minimum payment charged when action=apply_fee. Must be in [0, 100]. The engine computes the GBP amount at fire time.
+             * @example 5.00
+             */
+            fee_percent?: number | string | null;
+            /**
+             * Min Days Late
+             * @description Minimum days a rolling payment must be overdue before this rule fires. The engine selects the rule with the highest min_days_late <= current days late.
+             * @example 2
+             */
+            min_days_late?: number | null;
+            /**
              * Cooldown Hours
              * @description Minimum number of hours between two fires of this rule for the same (sub, source_kind, source_id) tuple. Second fire within the window is suppressed.
              * @default 24
@@ -7952,6 +7970,23 @@ export interface components {
              * @example 10.00
              */
             fee_amount?: string | null;
+            /**
+             * Name
+             * @description Short identifier for the rule; null for ad-hoc rules
+             */
+            name?: string | null;
+            /**
+             * Fee Percent
+             * @description Percentage of minimum payment charged on apply_fee; null when not applicable
+             * @example 5.00
+             */
+            fee_percent?: string | null;
+            /**
+             * Min Days Late
+             * @description Minimum days overdue before this rolling_late rule fires; null means no threshold
+             * @example 2
+             */
+            min_days_late?: number | null;
             /**
              * Cooldown Hours
              * @description Cooldown window in hours
@@ -8006,6 +8041,24 @@ export interface components {
              * @example 15.00
              */
             fee_amount?: number | string | null;
+            /**
+             * Name
+             * @description Updated rule identifier; null clears it
+             * @example late_7d_5pct_fee
+             */
+            name?: string | null;
+            /**
+             * Fee Percent
+             * @description Updated fee percentage; must be in [0, 100]; null clears it
+             * @example 10.00
+             */
+            fee_percent?: number | string | null;
+            /**
+             * Min Days Late
+             * @description Updated minimum days late threshold; null clears it
+             * @example 7
+             */
+            min_days_late?: number | null;
             /**
              * Cooldown Hours
              * @description Updated cooldown window in hours

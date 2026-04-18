@@ -137,11 +137,21 @@ async def _seed_goddess_kek(session: AsyncSession) -> str:
 async def seed_admin_and_goddess() -> None:
     from seeds.consents import seed_consent_text
     from seeds.kinks import seed_kinks
+    from services.penalty.defaults import seed_defaults_for_goddess
 
     async with SessionMaker() as session:
         admin_status = await _seed_admin(session)
         goddess_status = await _seed_goddess(session)
         kek_status = await _seed_goddess_kek(session)
+
+        # Seed default penalty rules + reward tiers for the dev goddess if she exists.
+        goddess_result = await session.execute(
+            select(Goddess).where(col(Goddess.email) == DEV_GODDESS_EMAIL)
+        )
+        dev_goddess = goddess_result.scalar_one_or_none()
+        if dev_goddess is not None:
+            await seed_defaults_for_goddess(session, dev_goddess.id)
+
         await seed_kinks(session)
         await seed_consent_text(session)
         await session.commit()

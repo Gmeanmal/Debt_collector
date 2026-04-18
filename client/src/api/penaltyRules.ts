@@ -33,6 +33,9 @@ export interface RawPenaltyRule {
   action: string;
   points_delta: number;
   fee_amount: string | null;
+  fee_percent: string | null;
+  min_days_late: number | null;
+  name: string | null;
   cooldown_hours: number;
   active: boolean;
   created_at: string;
@@ -44,6 +47,9 @@ export interface RawPenaltyRuleIn {
   action: string;
   points_delta: number;
   fee_amount?: string | null;
+  fee_percent?: string | null;
+  min_days_late?: number | null;
+  name?: string | null;
   cooldown_hours: number;
   active: boolean;
   sub_id?: string | null;
@@ -54,6 +60,9 @@ export interface RawPenaltyRuleUpdate {
   action?: string | null;
   points_delta?: number | null;
   fee_amount?: string | null;
+  fee_percent?: string | null;
+  min_days_late?: number | null;
+  name?: string | null;
   cooldown_hours?: number | null;
   active?: boolean | null;
   sub_id?: string | null;

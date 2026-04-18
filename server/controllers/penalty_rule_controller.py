@@ -1,10 +1,11 @@
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers._goddess import resolve_goddess_id
-from core.exceptions import BadRequest, Forbidden
+from core.exceptions import BadRequest, Forbidden, Validation
 from daos.penalty_rule_dao import PenaltyRuleDao
 from daos.user_dao import UserDao
 from models.penalty_rule import PenaltyRule
@@ -14,6 +15,11 @@ from schemas.penalty_rule import PenaltyRuleIn, PenaltyRuleOut, PenaltyRuleUpdat
 
 def _to_out(rule: PenaltyRule) -> PenaltyRuleOut:
     return PenaltyRuleOut.model_validate(rule)
+
+
+def _validate_fee_percent(value: Decimal | None) -> None:
+    if value is not None and not (Decimal("0") <= value <= Decimal("100")):
+        raise Validation("fee_percent must be between 0 and 100")
 
 
 class PenaltyRuleController:
@@ -33,6 +39,7 @@ class PenaltyRuleController:
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
         if payload.sub_id is not None:
             await self._require_sub_under_goddess(goddess_id, payload.sub_id)
+        _validate_fee_percent(payload.fee_percent)
 
         rule = await self._dao.create(
             goddess_id=goddess_id,
@@ -41,6 +48,9 @@ class PenaltyRuleController:
             action=payload.action,
             points_delta=payload.points_delta,
             fee_amount=payload.fee_amount,
+            name=payload.name,
+            fee_percent=payload.fee_percent,
+            min_days_late=payload.min_days_late,
             cooldown_hours=payload.cooldown_hours,
             active=payload.active,
         )
@@ -57,6 +67,8 @@ class PenaltyRuleController:
 
         if "sub_id" in patch_dict and patch_dict["sub_id"] is not None:
             await self._require_sub_under_goddess(goddess_id, patch_dict["sub_id"])
+        if "fee_percent" in patch_dict:
+            _validate_fee_percent(patch_dict["fee_percent"])
 
         if not patch_dict:
             return _to_out(rule)

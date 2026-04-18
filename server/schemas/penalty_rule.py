@@ -50,6 +50,33 @@ class PenaltyRuleIn(BaseModel):
         ),
         examples=["10.00"],
     )
+    name: str | None = Field(
+        default=None,
+        description=(
+            "Short identifier for the rule (e.g. 'late_2d_notify'). "
+            "Nullable for ad-hoc rules."
+        ),
+        examples=["late_2d_notify"],
+    )
+    fee_percent: Decimal | None = Field(
+        default=None,
+        max_digits=5,
+        decimal_places=2,
+        description=(
+            "Percentage of the sub's minimum payment charged when action=apply_fee. "
+            "Must be in [0, 100]. The engine computes the GBP amount at fire time."
+        ),
+        examples=["5.00"],
+    )
+    min_days_late: int | None = Field(
+        default=None,
+        ge=0,
+        description=(
+            "Minimum days a rolling payment must be overdue before this rule fires. "
+            "The engine selects the rule with the highest min_days_late <= current days late."
+        ),
+        examples=[2],
+    )
     cooldown_hours: int = Field(
         default=24,
         ge=0,
@@ -94,6 +121,24 @@ class PenaltyRuleUpdate(BaseModel):
         description="Updated fee amount; null clears it",
         examples=["15.00"],
     )
+    name: str | None = Field(
+        default=None,
+        description="Updated rule identifier; null clears it",
+        examples=["late_7d_5pct_fee"],
+    )
+    fee_percent: Decimal | None = Field(
+        default=None,
+        max_digits=5,
+        decimal_places=2,
+        description="Updated fee percentage; must be in [0, 100]; null clears it",
+        examples=["10.00"],
+    )
+    min_days_late: int | None = Field(
+        default=None,
+        ge=0,
+        description="Updated minimum days late threshold; null clears it",
+        examples=[7],
+    )
     cooldown_hours: int | None = Field(
         default=None,
         ge=0,
@@ -121,6 +166,23 @@ class PenaltyRuleOut(BaseModel):
         default=None,
         description="GBP fee stored for action=apply_fee; null otherwise",
         examples=["10.00"],
+    )
+    name: str | None = Field(
+        default=None,
+        description="Short identifier for the rule; null for ad-hoc rules",
+    )
+    fee_percent: Decimal | None = Field(
+        default=None,
+        description="Percentage of minimum payment charged on apply_fee; null when not applicable",
+        examples=["5.00"],
+    )
+    min_days_late: int | None = Field(
+        default=None,
+        description=(
+            "Minimum days overdue before this rolling_late rule fires; "
+            "null means no threshold"
+        ),
+        examples=[2],
     )
     cooldown_hours: int = Field(..., description="Cooldown window in hours", examples=[24])
     active: bool = Field(..., description="Whether the engine considers this rule")

@@ -1,16 +1,19 @@
 import { useState } from "react";
+import { z } from "zod";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { SearchableSelect } from "@/components/shared/SearchableSelect";
 import type { GoddessSub } from "@/services/payments/paymentsApi";
 import {
-  PenaltyRuleInSchema,
-  PenaltyTriggerSchema,
-  PenaltyActionSchema,
+  type PenaltyAction,
   type PenaltyRule,
   type PenaltyRuleIn,
   type PenaltyTrigger,
-  type PenaltyAction,
 } from "@/services/penaltyRules/penaltyRulesApi";
+import { Step1Trigger } from "./wizard/Step1Trigger";
+import { Step2Condition } from "./wizard/Step2Condition";
+import { Step3Action } from "./wizard/Step3Action";
+import { Step4Amount } from "./wizard/Step4Amount";
+import type { WizardErrors, WizardState } from "./wizard/types";
 
 interface Props {
   initial?: Partial<PenaltyRule>;
@@ -21,234 +24,265 @@ interface Props {
   error?: string | null;
 }
 
-const TRIGGER_LABELS: Record<string, string> = {
-  contract_missed: "Contract missed",
-  ritual_missed: "Ritual missed",
-  rolling_late: "Rolling late",
-  task_missed: "Task missed",
-};
+const STEP_HEADERS = [
+  "1 / 4 · Trigger",
+  "2 / 4 · Condition",
+  "3 / 4 · Action",
+  "4 / 4 · Amount",
+];
 
-const ACTION_LABELS: Record<string, string> = {
-  notify_only: "Notify only",
-  apply_points: "Apply points",
-  apply_fee: "Apply fee",
-};
-
-function fieldError(errors: Record<string, string>, field: string): string | undefined {
-  return errors[field];
+function initialFeeMode(rule?: Partial<PenaltyRule>): "flat" | "percent" {
+  if (rule?.fee_percent != null) return "percent";
+  return "flat";
 }
 
-const inputCls =
-  "bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary w-full";
+function buildInitialState(initial: Partial<PenaltyRule> | undefined, subs: GoddessSub[]): WizardState {
+  const sub = subs.find((s) => s.id === initial?.sub_id) ?? null;
+  return {
+    trigger: (initial?.trigger as PenaltyTrigger | undefined) ?? "contract_missed",
+    minDaysLate: initial?.min_days_late != null ? String(initial.min_days_late) : "",
+    selectedSub: sub,
+    action: (initial?.action as PenaltyAction | undefined) ?? "notify_only",
+    feeMode: initialFeeMode(initial),
+    pointsDelta: initial?.points_delta != null ? String(initial.points_delta) : "0",
+    feeAmount: initial?.fee_amount ?? "",
+    feePercent: initial?.fee_percent != null ? String(initial.fee_percent) : "",
+    name: initial?.name ?? "",
+    cooldownHours: initial?.cooldown_hours != null ? String(initial.cooldown_hours) : "24",
+    active: initial?.active ?? true,
+  };
+}
 
-const labelCls = "text-xs font-semibold text-base-text-muted uppercase tracking-wide";
+const step1Schema = z.object({
+  trigger: z.enum(["contract_missed", "ritual_missed", "rolling_late", "task_missed"]),
+});
 
-export function PenaltyRuleForm({
-  initial,
-  subs = [],
-  onSubmit,
-  onCancel,
-  isPending,
-  error,
-}: Props) {
-  const [trigger, setTrigger] = useState<PenaltyTrigger>(initial?.trigger ?? "contract_missed");
-  const [action, setAction] = useState<PenaltyAction>(initial?.action ?? "notify_only");
-  const [pointsDelta, setPointsDelta] = useState(
-    initial?.points_delta != null ? String(initial.points_delta) : "0",
-  );
-  const [feeAmount, setFeeAmount] = useState(initial?.fee_amount ?? "");
-  const [cooldownHours, setCooldownHours] = useState(
-    initial?.cooldown_hours != null ? String(initial.cooldown_hours) : "24",
-  );
-  const [active, setActive] = useState(initial?.active ?? true);
-  const initialSub = subs.find((s) => s.id === initial?.sub_id) ?? null;
-  const [selectedSub, setSelectedSub] = useState<GoddessSub | null>(initialSub);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+const step2Schema = z
+  .object({
+    trigger: z.enum(["contract_missed", "ritual_missed", "rolling_late", "task_missed"]),
+    minDaysLate: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.trigger === "rolling_late") {
+      const n = parseInt(data.minDaysLate, 10);
+      if (Number.isNaN(n) || n < 1 || n > 90) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Must be between 1 and 90",
+          path: ["minDaysLate"],
+        });
+      }
+    }
+  });
 
-  const showFeeField = action === "apply_fee";
+const step3Schema = z.object({
+  action: z.enum(["notify_only", "apply_points", "apply_fee"]),
+});
 
-  function validate(): PenaltyRuleIn | null {
-    const result = PenaltyRuleInSchema.safeParse({
-      trigger,
-      action,
-      points_delta: pointsDelta === "" ? 0 : Number(pointsDelta),
-      fee_amount: feeAmount === "" ? undefined : feeAmount,
-      cooldown_hours: cooldownHours === "" ? 0 : Number(cooldownHours),
-      active,
-      sub_id: selectedSub?.id ?? "",
-    });
-    if (!result.success) {
-      const map: Record<string, string> = {};
+const step4Schema = z
+  .object({
+    action: z.enum(["notify_only", "apply_points", "apply_fee"]),
+    feeMode: z.enum(["flat", "percent"]),
+    pointsDelta: z.string(),
+    feeAmount: z.string(),
+    feePercent: z.string(),
+    cooldownHours: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    const pts = parseInt(data.pointsDelta, 10);
+    if (Number.isNaN(pts)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Must be a whole number",
+        path: ["pointsDelta"],
+      });
+    }
+    if (data.action === "apply_points" && (Number.isNaN(pts) || pts > 0)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Must be 0 or negative for a penalty",
+        path: ["pointsDelta"],
+      });
+    }
+    if (data.action === "apply_fee") {
+      if (data.feeMode === "flat") {
+        if (!/^\d+(\.\d{1,2})?$/.test(data.feeAmount)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Must be a valid GBP amount e.g. 10.00",
+            path: ["feeAmount"],
+          });
+        }
+      } else {
+        const pct = parseFloat(data.feePercent);
+        if (Number.isNaN(pct) || pct < 0 || pct > 100) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Must be between 0 and 100",
+            path: ["feePercent"],
+          });
+        }
+      }
+    }
+    const cd = parseInt(data.cooldownHours, 10);
+    if (Number.isNaN(cd) || cd < 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Must be 0 or more",
+        path: ["cooldownHours"],
+      });
+    }
+  });
+
+function buildPayload(state: WizardState): PenaltyRuleIn {
+  const isRollingLate = state.trigger === "rolling_late";
+  const payload: PenaltyRuleIn = {
+    trigger: state.trigger,
+    action: state.action,
+    points_delta: parseInt(state.pointsDelta, 10) || 0,
+    cooldown_hours: parseInt(state.cooldownHours, 10) || 0,
+    active: state.active,
+    sub_id: state.selectedSub?.id ?? "",
+    name: state.name.trim() || undefined,
+  };
+
+  if (isRollingLate && state.minDaysLate !== "") {
+    payload.min_days_late = parseInt(state.minDaysLate, 10);
+  }
+
+  if (state.action === "apply_fee") {
+    if (state.feeMode === "flat") {
+      payload.fee_amount = state.feeAmount;
+    } else {
+      payload.fee_percent = parseFloat(state.feePercent);
+    }
+  }
+
+  return payload;
+}
+
+export function PenaltyRuleForm({ initial, subs = [], onSubmit, onCancel, isPending, error }: Props) {
+  const [step, setStep] = useState(0);
+  const [wizState, setWizState] = useState<WizardState>(() => buildInitialState(initial, subs));
+  const [errors, setErrors] = useState<WizardErrors>({});
+
+  function patchState(patch: Partial<WizardState>) {
+    setWizState((s) => ({ ...s, ...patch }));
+  }
+
+  function validateStep(): boolean {
+    setErrors({});
+    const map: WizardErrors = {};
+
+    let result: { success: boolean; error?: z.ZodError };
+    if (step === 0) {
+      result = step1Schema.safeParse({ trigger: wizState.trigger });
+    } else if (step === 1) {
+      result = step2Schema.safeParse({ trigger: wizState.trigger, minDaysLate: wizState.minDaysLate });
+    } else if (step === 2) {
+      result = step3Schema.safeParse({ action: wizState.action });
+    } else {
+      result = step4Schema.safeParse({
+        action: wizState.action,
+        feeMode: wizState.feeMode,
+        pointsDelta: wizState.pointsDelta,
+        feeAmount: wizState.feeAmount,
+        feePercent: wizState.feePercent,
+        cooldownHours: wizState.cooldownHours,
+      });
+    }
+
+    if (!result.success && result.error) {
       for (const issue of result.error.issues) {
         const key = String(issue.path[0] ?? "form");
         map[key] = issue.message;
       }
       setErrors(map);
-      return null;
+      return false;
     }
+    return true;
+  }
+
+  function handleNext() {
+    if (!validateStep()) return;
+    setStep((s) => s + 1);
+  }
+
+  function handleBack() {
     setErrors({});
-    return result.data;
+    setStep((s) => s - 1);
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const values = validate();
-    if (!values) return;
-    onSubmit(values);
+    if (!validateStep()) return;
+    onSubmit(buildPayload(wizState));
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="pr-trigger" className={labelCls}>
-            Trigger
-          </label>
-          <select
-            id="pr-trigger"
-            value={trigger}
-            onChange={(e) => setTrigger(e.target.value as PenaltyTrigger)}
-            className={inputCls}
-          >
-            {PenaltyTriggerSchema.options.map((t) => (
-              <option key={t} value={t}>
-                {TRIGGER_LABELS[t] ?? t}
-              </option>
-            ))}
-          </select>
-          {fieldError(errors, "trigger") && (
-            <p className="text-xs text-status-danger">{fieldError(errors, "trigger")}</p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="pr-action" className={labelCls}>
-            Action
-          </label>
-          <select
-            id="pr-action"
-            value={action}
-            onChange={(e) => setAction(e.target.value as PenaltyAction)}
-            className={inputCls}
-          >
-            {PenaltyActionSchema.options.map((a) => (
-              <option key={a} value={a}>
-                {ACTION_LABELS[a] ?? a}
-              </option>
-            ))}
-          </select>
-          {fieldError(errors, "action") && (
-            <p className="text-xs text-status-danger">{fieldError(errors, "action")}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="pr-points" className={labelCls}>
-            Points delta <span className="normal-case font-normal">(must be ≤ 0)</span>
-          </label>
-          <input
-            id="pr-points"
-            type="number"
-            step={1}
-            value={pointsDelta}
-            onChange={(e) => setPointsDelta(e.target.value)}
-            placeholder="-5"
-            className={inputCls}
-          />
-          {fieldError(errors, "points_delta") && (
-            <p className="text-xs text-status-danger">{fieldError(errors, "points_delta")}</p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="pr-cooldown" className={labelCls}>
-            Cooldown (hours)
-          </label>
-          <input
-            id="pr-cooldown"
-            type="number"
-            min={0}
-            step={1}
-            value={cooldownHours}
-            onChange={(e) => setCooldownHours(e.target.value)}
-            placeholder="24"
-            className={inputCls}
-          />
-          {fieldError(errors, "cooldown_hours") && (
-            <p className="text-xs text-status-danger">{fieldError(errors, "cooldown_hours")}</p>
-          )}
-        </div>
-      </div>
-
-      {showFeeField && (
-        <div className="flex flex-col gap-1">
-          <label htmlFor="pr-fee" className={labelCls}>
-            Fee amount (£ GBP)
-          </label>
-          <input
-            id="pr-fee"
-            type="text"
-            inputMode="decimal"
-            value={feeAmount}
-            onChange={(e) => setFeeAmount(e.target.value)}
-            placeholder="10.00"
-            className={inputCls}
-          />
-          {fieldError(errors, "fee_amount") && (
-            <p className="text-xs text-status-danger">{fieldError(errors, "fee_amount")}</p>
-          )}
-        </div>
-      )}
-
-      <div className="flex flex-col gap-1">
-        <span className={labelCls}>
-          Sub override <span className="normal-case font-normal">(leave blank for all subs)</span>
-        </span>
-        <SearchableSelect<GoddessSub>
-          options={subs}
-          value={selectedSub}
-          onChange={setSelectedSub}
-          getLabel={(s) => `${s.display_name} @${s.username}`}
-          getValue={(s) => s.id}
-          placeholder="All subs (no override)"
-          emptyMessage="No active subs"
-          nullable
-          renderOption={(s) => (
-            <span className="flex items-center gap-2 min-w-0">
-              <span className="flex-1 min-w-0">
-                <span className="block truncate font-medium text-base-text">{s.display_name}</span>
-                <span className="block truncate text-xs text-base-text-muted">@{s.username}</span>
-              </span>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <div className="flex items-center gap-3">
+        {STEP_HEADERS.map((label, idx) => (
+          <div key={label} className="flex items-center gap-2">
+            <span
+              className={cn(
+                "text-xs font-semibold",
+                idx === step ? "text-pink-primary" : "text-base-text-muted",
+              )}
+            >
+              {label}
             </span>
-          )}
-        />
-        {fieldError(errors, "sub_id") && (
-          <p className="text-xs text-status-danger">{fieldError(errors, "sub_id")}</p>
+            {idx < STEP_HEADERS.length - 1 && (
+              <span className="text-base-text-muted/40 text-xs">›</span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div>
+        {step === 0 && (
+          <Step1Trigger
+            state={wizState}
+            errors={errors}
+            onChange={(trigger) => patchState({ trigger })}
+          />
+        )}
+        {step === 1 && (
+          <Step2Condition
+            state={wizState}
+            subs={subs}
+            errors={errors}
+            onMinDaysChange={(v) => patchState({ minDaysLate: v })}
+            onSubChange={(sub) => patchState({ selectedSub: sub })}
+          />
+        )}
+        {step === 2 && (
+          <Step3Action
+            state={wizState}
+            errors={errors}
+            onChange={(action) => patchState({ action })}
+          />
+        )}
+        {step === 3 && (
+          <Step4Amount state={wizState} errors={errors} onChange={patchState} />
         )}
       </div>
 
-      <label className="flex items-center gap-2 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={active}
-          onChange={(e) => setActive(e.target.checked)}
-          className="accent-pink-primary"
-          aria-label="Active"
-        />
-        <span className="text-sm text-base-text">Active (cron will consult this rule)</span>
-      </label>
-
       {error && <p className="text-xs text-status-danger">{error}</p>}
 
-      <div className="flex gap-2 justify-end">
-        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
-          Cancel
+      <div className="flex items-center justify-between">
+        <Button type="button" variant="ghost" size="sm" onClick={step === 0 ? onCancel : handleBack}>
+          {step === 0 ? "Cancel" : "Back"}
         </Button>
-        <Button type="submit" size="sm" disabled={isPending}>
-          {isPending ? "Saving…" : "Save"}
-        </Button>
+        {step < 3 ? (
+          <Button type="button" size="sm" onClick={handleNext}>
+            Next
+          </Button>
+        ) : (
+          <Button type="submit" size="sm" disabled={isPending}>
+            {isPending ? "Saving…" : "Save rule"}
+          </Button>
+        )}
       </div>
     </form>
   );

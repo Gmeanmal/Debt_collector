@@ -45,6 +45,7 @@ async def apply_penalty(
     source_kind: str,
     source_id: UUID | None,
     default_delta: int,
+    days_late: int | None = None,
 ) -> int:
     """Consult the penalty engine and apply the matching rule.
 
@@ -66,7 +67,8 @@ async def apply_penalty(
     and behaves like ``notify_only`` with respect to the merit ledger.
     """
     rule_dao = PenaltyRuleDao(session)
-    rule = await rule_dao.find_matching_rule(goddess_id, sub_id, trigger)
+    # Pass days_late so rolling_late rules are gated by their min_days_late threshold.
+    rule = await rule_dao.find_matching_rule(goddess_id, sub_id, trigger, days_late=days_late)
 
     if rule is None:
         if default_delta == 0:

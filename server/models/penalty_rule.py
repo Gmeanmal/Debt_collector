@@ -3,7 +3,7 @@ from decimal import Decimal
 from enum import StrEnum
 from uuid import UUID, uuid4
 
-from sqlalchemy import Column, ForeignKey, Numeric, Text
+from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, Numeric, Text
 from sqlmodel import Field, SQLModel
 
 
@@ -22,6 +22,12 @@ class PenaltyAction(StrEnum):
 
 class PenaltyRule(SQLModel, table=True):
     __tablename__ = "penalty_rule"
+    __table_args__ = (
+        CheckConstraint(
+            "fee_percent >= 0 AND fee_percent <= 100",
+            name="ck_penalty_rule_fee_percent_range",
+        ),
+    )
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     goddess_id: UUID = Field(
@@ -45,6 +51,15 @@ class PenaltyRule(SQLModel, table=True):
     fee_amount: Decimal | None = Field(
         default=None,
         sa_column=Column(Numeric(12, 2), nullable=True),
+    )
+    name: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
+    fee_percent: Decimal | None = Field(
+        default=None,
+        sa_column=Column(Numeric(5, 2), nullable=True),
+    )
+    min_days_late: int | None = Field(
+        default=None,
+        sa_column=Column(Integer, nullable=True),
     )
     cooldown_hours: int = Field(default=24, nullable=False)
     active: bool = Field(default=True, nullable=False)

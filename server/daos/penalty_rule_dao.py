@@ -44,6 +44,9 @@ class PenaltyRuleDao:
         action: PenaltyAction,
         points_delta: int,
         fee_amount: Decimal | None,
+        name: str | None = None,
+        fee_percent: Decimal | None = None,
+        min_days_late: int | None = None,
         cooldown_hours: int,
         active: bool,
     ) -> PenaltyRule:
@@ -55,6 +58,9 @@ class PenaltyRuleDao:
             action=action,
             points_delta=points_delta,
             fee_amount=fee_amount,
+            name=name,
+            fee_percent=fee_percent,
+            min_days_late=min_days_late,
             cooldown_hours=cooldown_hours,
             active=active,
         )
@@ -81,40 +87,66 @@ class PenaltyRuleDao:
         goddess_id: UUID,
         sub_id: UUID,
         trigger: PenaltyTrigger,
+        *,
+        days_late: int | None = None,
     ) -> PenaltyRule | None:
         """Return the active rule that best matches the (goddess, sub, trigger) tuple.
 
         Resolution order: sub-specific first, then goddess-wide (sub_id NULL).
         Only rules with ``active=true`` are considered. Returns ``None`` when no
         active rule matches.
+
+        For ``rolling_late`` triggers, ``days_late`` gates eligibility: a rule fires
+        only when ``min_days_late IS NULL OR min_days_late <= days_late``. Among
+        eligible rules the one with the highest ``min_days_late`` wins (most specific
+        threshold). Sub-specific rules still take precedence over goddess-wide ones at
+        the same specificity tier.
         """
-        specific_result = await self._session.execute(
-            select(PenaltyRule)
-            .where(
-                col(PenaltyRule.goddess_id) == goddess_id,
-                col(PenaltyRule.sub_id) == sub_id,
-                col(PenaltyRule.trigger) == trigger,
-                col(PenaltyRule.active).is_(True),
-            )
-            .order_by(col(PenaltyRule.created_at).desc())
-            .limit(1)
+        specific = await self._find_best(
+            goddess_id, sub_id, trigger, days_late=days_late, sub_scoped=True
         )
-        specific = specific_result.scalar_one_or_none()
         if specific is not None:
             return specific
-
-        generic_result = await self._session.execute(
-            select(PenaltyRule)
-            .where(
-                col(PenaltyRule.goddess_id) == goddess_id,
-                col(PenaltyRule.sub_id).is_(None),
-                col(PenaltyRule.trigger) == trigger,
-                col(PenaltyRule.active).is_(True),
-            )
-            .order_by(col(PenaltyRule.created_at).desc())
-            .limit(1)
+        return await self._find_best(
+            goddess_id, sub_id, trigger, days_late=days_late, sub_scoped=False
         )
-        return generic_result.scalar_one_or_none()
+
+    async def _find_best(
+        self,
+        goddess_id: UUID,
+        sub_id: UUID,
+        trigger: PenaltyTrigger,
+        *,
+        days_late: int | None,
+        sub_scoped: bool,
+    ) -> PenaltyRule | None:
+        stmt = select(PenaltyRule).where(
+            col(PenaltyRule.goddess_id) == goddess_id,
+            col(PenaltyRule.trigger) == trigger,
+            col(PenaltyRule.active).is_(True),
+        )
+        if sub_scoped:
+            stmt = stmt.where(col(PenaltyRule.sub_id) == sub_id)
+        else:
+            stmt = stmt.where(col(PenaltyRule.sub_id).is_(None))
+
+        # Gate on min_days_late when a days_late value is provided.
+        if days_late is not None:
+            from sqlalchemy import or_
+
+            stmt = stmt.where(
+                or_(
+                    col(PenaltyRule.min_days_late).is_(None),
+                    col(PenaltyRule.min_days_late) <= days_late,
+                )
+            )
+            # Prefer the rule with the highest min_days_late (most specific threshold).
+            stmt = stmt.order_by(col(PenaltyRule.min_days_late).desc().nulls_last())
+        else:
+            stmt = stmt.order_by(col(PenaltyRule.created_at).desc())
+
+        result = await self._session.execute(stmt.limit(1))
+        return result.scalar_one_or_none()
 
     async def fired_within_cooldown(
         self,

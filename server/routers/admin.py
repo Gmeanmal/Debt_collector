@@ -41,6 +41,7 @@ from schemas.admin import (
     AdminRowUser,
 )
 from schemas.auth import ImpersonationAccess
+from services.penalty.defaults import seed_defaults_for_goddess
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
 _E403 = {"description": "Forbidden — admin role required"}
@@ -319,6 +320,8 @@ def _register_crud(
         # row.id is a UUID on all registered models — getattr is the only way to access it
         # through the SQLModel base type without pyright complaining.
         row_id: UUID | None = getattr(row, "id", None)
+        if model is Goddess and row_id is not None:
+            await seed_defaults_for_goddess(session, row_id)
         audit = AdminActionDao(session)
         await audit.record(
             admin_id=admin.id,
