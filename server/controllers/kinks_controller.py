@@ -27,7 +27,7 @@ from schemas.kinks import (
 )
 
 _CONFIRMATION_RATINGS: frozenset[KinkRating] = frozenset(
-    {KinkRating.curious, KinkRating.loves, KinkRating.fetish_need}
+    {KinkRating.loves, KinkRating.fetish_need}
 )
 
 

@@ -117,9 +117,9 @@ class SubKinkRatingOut(BaseModel):
     needs_confirmation: bool = Field(
         ...,
         description=(
-            "True when the underlying kink_item is safety-flagged AND the rating is one of "
-            "`curious`, `loves`, or `fetish_need`. The client must surface a confirmation "
-            "prompt before persisting or acting on ratings for which this is True."
+            "True when the underlying kink_item is safety-flagged AND the rating is `loves` "
+            "or `fetish_need`. The client must surface an explicit consent acknowledgement "
+            "before persisting ratings for which this is True."
         ),
         examples=[True],
     )
@@ -173,8 +173,8 @@ class KinkItemOut(BaseModel):
     needs_confirmation: bool = Field(
         ...,
         description=(
-            "True when the item is safety-flagged AND the current rating is `curious`, "
-            "`loves`, or `fetish_need`. Drives the client-side confirmation cue."
+            "True when the item is safety-flagged AND the current rating is `loves` or "
+            "`fetish_need`. Drives the client-side consent-acknowledgement cue."
         ),
         examples=[False],
     )

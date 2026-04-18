@@ -14,6 +14,7 @@ class KinkRating(StrEnum):
     loves = "loves"
     fetish_need = "fetish_need"
     not_set = "not_set"
+    prefer_not_to_say = "prefer_not_to_say"
 
 
 class SubKinkRating(SQLModel, table=True):

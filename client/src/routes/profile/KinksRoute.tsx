@@ -11,6 +11,8 @@ import type { KinkMatrix as KinkMatrixType, KinkRating } from "@/services/kinks/
 export function KinksRoute() {
   const queryClient = useQueryClient();
   const [pendingItemIds, setPendingItemIds] = useState<Set<string>>(new Set());
+  const [recentlyUpdatedAt, setRecentlyUpdatedAt] = useState<Map<string, number>>(new Map());
+  const [showOnlyUnrated, setShowOnlyUnrated] = useState(false);
 
   const {
     data: matrix,
@@ -66,6 +68,7 @@ export function KinksRoute() {
           })),
         };
       });
+      setRecentlyUpdatedAt((prev) => new Map(prev).set(result.item_id, Date.now()));
     },
 
     onSettled: (_data, _err, vars) => {
@@ -94,6 +97,17 @@ export function KinksRoute() {
           </p>
         </div>
 
+        <label className="flex items-center gap-2 cursor-pointer select-none w-fit">
+          <input
+            type="checkbox"
+            checked={showOnlyUnrated}
+            onChange={(e) => setShowOnlyUnrated(e.target.checked)}
+            className="accent-pink-primary h-4 w-4"
+            aria-label="Show only unrated"
+          />
+          <span className="text-sm text-base-text">Show only unrated</span>
+        </label>
+
         {isLoading && <ListSkeleton rows={5} />}
 
         {isError && (
@@ -113,6 +127,8 @@ export function KinksRoute() {
             matrix={matrix}
             onRatingChange={handleRatingChange}
             pendingItemIds={pendingItemIds}
+            recentlyUpdatedAt={recentlyUpdatedAt}
+            showOnlyUnrated={showOnlyUnrated}
           />
         )}
       </div>

@@ -4,26 +4,38 @@ import { cn } from "@/lib/utils";
 import { KinkRow } from "@/components/kinks/KinkRow";
 import type {
   KinkCategory,
+  KinkItem,
   KinkMatrix as KinkMatrixType,
   KinkRating,
 } from "@/services/kinks/kinksApi";
 
-// TODO virtualise once item count >= 100
 interface CategorySectionProps {
   category: KinkCategory;
+  visibleItems: KinkItem[];
+  totalItems: number;
   onRatingChange: (itemId: string, rating: KinkRating) => void;
   pendingItemIds: Set<string>;
+  recentlyUpdatedAt: Map<string, number>;
 }
 
-function CategorySection({ category, onRatingChange, pendingItemIds }: CategorySectionProps) {
-  const [expanded, setExpanded] = useState(true);
+function CategorySection({
+  category,
+  visibleItems,
+  totalItems,
+  onRatingChange,
+  pendingItemIds,
+  recentlyUpdatedAt,
+}: CategorySectionProps) {
+  const [expanded, setExpanded] = useState(false);
 
   const ratedCount = category.items.filter((i) => i.rating !== "not_set").length;
+  const isFiltered = visibleItems.length < totalItems;
 
   return (
     <div className="border border-base-border rounded-lg overflow-hidden">
       <button
         type="button"
+        id={`category-header-${category.id}`}
         onClick={() => setExpanded((v) => !v)}
         className={cn(
           "w-full flex items-center justify-between px-4 py-3 text-left",
@@ -31,7 +43,7 @@ function CategorySection({ category, onRatingChange, pendingItemIds }: CategoryS
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary focus-visible:ring-inset",
         )}
         aria-expanded={expanded}
-        aria-controls={`category-${category.id}`}
+        aria-controls={`category-body-${category.id}`}
       >
         <div className="flex items-center gap-2">
           {expanded ? (
@@ -49,18 +61,26 @@ function CategorySection({ category, onRatingChange, pendingItemIds }: CategoryS
           )}
         </div>
         <span className="text-xs text-base-text-subtle">
-          {ratedCount}/{category.items.length}
+          {isFiltered
+            ? `${visibleItems.length}/${totalItems} items · ${ratedCount} rated`
+            : `${totalItems} items · ${ratedCount} rated`}
         </span>
       </button>
 
       {expanded && (
-        <div id={`category-${category.id}`} className="px-4 bg-base-surface">
-          {category.items.map((item) => (
+        <div
+          id={`category-body-${category.id}`}
+          role="region"
+          aria-labelledby={`category-header-${category.id}`}
+          className="px-4 bg-base-surface"
+        >
+          {visibleItems.map((item) => (
             <KinkRow
               key={item.id}
               item={item}
               onRatingChange={onRatingChange}
               isPending={pendingItemIds.has(item.id)}
+              lastSavedAt={recentlyUpdatedAt.get(item.id)}
             />
           ))}
         </div>
@@ -73,9 +93,17 @@ interface Props {
   matrix: KinkMatrixType;
   onRatingChange: (itemId: string, rating: KinkRating) => void;
   pendingItemIds: Set<string>;
+  recentlyUpdatedAt: Map<string, number>;
+  showOnlyUnrated: boolean;
 }
 
-export function KinkMatrix({ matrix, onRatingChange, pendingItemIds }: Props) {
+export function KinkMatrix({
+  matrix,
+  onRatingChange,
+  pendingItemIds,
+  recentlyUpdatedAt,
+  showOnlyUnrated,
+}: Props) {
   if (matrix.categories.length === 0) {
     return (
       <p className="text-sm text-base-text-muted text-center py-10">
@@ -84,14 +112,35 @@ export function KinkMatrix({ matrix, onRatingChange, pendingItemIds }: Props) {
     );
   }
 
+  const categoriesToRender = matrix.categories
+    .map((cat) => ({
+      category: cat,
+      visibleItems: showOnlyUnrated
+        ? cat.items.filter((i) => i.rating === "not_set")
+        : cat.items,
+      totalItems: cat.items.length,
+    }))
+    .filter(({ visibleItems }) => visibleItems.length > 0);
+
+  if (categoriesToRender.length === 0) {
+    return (
+      <p className="text-sm text-base-text-muted text-center py-10">
+        All items have been rated.
+      </p>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      {matrix.categories.map((category) => (
+      {categoriesToRender.map(({ category, visibleItems, totalItems }) => (
         <CategorySection
           key={category.id}
           category={category}
+          visibleItems={visibleItems}
+          totalItems={totalItems}
           onRatingChange={onRatingChange}
           pendingItemIds={pendingItemIds}
+          recentlyUpdatedAt={recentlyUpdatedAt}
         />
       ))}
     </div>

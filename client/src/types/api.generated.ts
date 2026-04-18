@@ -6635,7 +6635,7 @@ export interface components {
             note?: string | null;
             /**
              * Needs Confirmation
-             * @description True when the item is safety-flagged AND the current rating is `curious`, `loves`, or `fetish_need`. Drives the client-side confirmation cue.
+             * @description True when the item is safety-flagged AND the current rating is `loves` or `fetish_need`. Drives the client-side consent-acknowledgement cue.
              * @example false
              */
             needs_confirmation: boolean;
@@ -6815,7 +6815,7 @@ export interface components {
          * KinkRating
          * @enum {string}
          */
-        KinkRating: "hard_limit" | "soft_limit" | "curious" | "loves" | "fetish_need" | "not_set";
+        KinkRating: "hard_limit" | "soft_limit" | "curious" | "loves" | "fetish_need" | "not_set" | "prefer_not_to_say";
         /** LateContractItem */
         LateContractItem: {
             /**
@@ -9028,7 +9028,7 @@ export interface components {
             note?: string | null;
             /**
              * Needs Confirmation
-             * @description True when the underlying kink_item is safety-flagged AND the rating is one of `curious`, `loves`, or `fetish_need`. The client must surface a confirmation prompt before persisting or acting on ratings for which this is True.
+             * @description True when the underlying kink_item is safety-flagged AND the rating is `loves` or `fetish_need`. The client must surface an explicit consent acknowledgement before persisting ratings for which this is True.
              * @example true
              */
             needs_confirmation: boolean;

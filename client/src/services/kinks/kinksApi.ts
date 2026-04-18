@@ -9,6 +9,7 @@ export const KinkRatingSchema = z.enum([
   "loves",
   "fetish_need",
   "not_set",
+  "prefer_not_to_say",
 ]);
 
 export type KinkRating = z.infer<typeof KinkRatingSchema>;
