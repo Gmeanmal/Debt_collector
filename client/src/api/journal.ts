@@ -5,10 +5,10 @@ function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+const BASE_URL: string = (import.meta.env["VITE_API_BASE_URL"] as string | undefined) ?? "";
+
 async function fetchJson<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const { VITE_API_BASE_URL } = import.meta.env as Record<string, string>;
-  const base = VITE_API_BASE_URL ?? "";
-  const res = await fetch(`${base}${path}`, {
+  const res = await fetch(`${BASE_URL}${path}`, {
     ...init,
     credentials: "include",
     headers: {
@@ -24,6 +24,20 @@ async function fetchJson<T>(path: string, init: RequestInit = {}): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+async function fetchMultipart<T>(path: string, formData: FormData): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    credentials: "include",
+    headers: authHeaders(),
+    body: formData,
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(body || `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
 export interface RawJournalEntry {
   id: string;
   sub_id: string;
@@ -31,6 +45,10 @@ export interface RawJournalEntry {
   body: string;
   mood: string;
   photo_r2_key: string | null;
+  attachment_key: string | null;
+  attachment_mime: string | null;
+  attachment_presigned_url: string | null;
+  is_private: boolean;
   created_at: string;
   read_by_goddess_at: string | null;
   goddess_comment: string | null;
@@ -40,6 +58,7 @@ export interface RawJournalEntry {
 export interface RawCreateJournalEntryIn {
   body: string;
   mood: string;
+  is_private?: boolean;
   photo_r2_key?: string | null;
 }
 
@@ -48,12 +67,19 @@ export interface RawJournalCommentIn {
 }
 
 export async function createJournalEntryApi(
-  payload: RawCreateJournalEntryIn,
+  body: string,
+  mood: string,
+  isPrivate: boolean,
+  attachment: File | null,
 ): Promise<RawJournalEntry> {
-  return fetchJson<RawJournalEntry>("/sub/journal", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+  const form = new FormData();
+  form.append("body", body);
+  form.append("mood", mood);
+  form.append("is_private", String(isPrivate));
+  if (attachment) {
+    form.append("attachment", attachment);
+  }
+  return fetchMultipart<RawJournalEntry>("/sub/journal", form);
 }
 
 export async function listOwnJournalApi(params: {
@@ -85,5 +111,14 @@ export async function upsertJournalCommentApi(
   return fetchJson<RawJournalEntry>(`/goddess/journal/${entryId}/comment`, {
     method: "PATCH",
     body: JSON.stringify({ comment } satisfies RawJournalCommentIn),
+  });
+}
+
+export async function markJournalEntryReadApi(
+  username: string,
+  entryId: string,
+): Promise<RawJournalEntry> {
+  return fetchJson<RawJournalEntry>(`/goddess/subs/${username}/journal/${entryId}/read`, {
+    method: "POST",
   });
 }

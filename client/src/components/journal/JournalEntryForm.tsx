@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { JournalMoodSchema, type JournalMood } from "@/services/journal/journalApi";
 
+const ACCEPTED_MIMES = "image/jpeg,image/png,image/webp,audio/mpeg,audio/ogg,audio/webm";
+const MAX_BYTES = 10 * 1024 * 1024;
+
 interface Props {
-  onSubmit: (values: { body: string; mood: JournalMood }) => void;
+  onSubmit: (values: { body: string; mood: JournalMood; is_private: boolean }, attachment: File | null) => void;
   isPending: boolean;
   error?: string | null;
 }
@@ -28,9 +31,31 @@ const FormSchema = z.object({
 export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
   const [body, setBody] = useState("");
   const [mood, setMood] = useState<JournalMood>("neutral");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const [attachmentError, setAttachmentError] = useState<string | null>(null);
   const [bodyError, setBodyError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  // TODO: photo_r2_key upload integration — leave as optional future field once R2 upload service lands
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setAttachmentError(null);
+    if (!file) {
+      setAttachment(null);
+      return;
+    }
+    if (!ACCEPTED_MIMES.split(",").includes(file.type)) {
+      setAttachmentError("File type not allowed.");
+      setAttachment(null);
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setAttachmentError("File must be under 10 MB.");
+      setAttachment(null);
+      return;
+    }
+    setAttachment(file);
+  }
 
   function validate(): boolean {
     const result = FormSchema.safeParse({ body, mood });
@@ -46,9 +71,12 @@ export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
-    onSubmit({ body, mood });
+    onSubmit({ body, mood, is_private: isPrivate }, attachment);
     setBody("");
     setMood("neutral");
+    setIsPrivate(false);
+    setAttachment(null);
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   return (
@@ -104,6 +132,42 @@ export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
         />
         {bodyError && <p className="text-xs text-status-danger">{bodyError}</p>}
       </div>
+
+      <div className="flex flex-col gap-1">
+        <label
+          htmlFor="journal-attachment"
+          className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+        >
+          Attachment <span className="font-normal normal-case">(optional)</span>
+        </label>
+        <input
+          ref={fileRef}
+          id="journal-attachment"
+          type="file"
+          accept={ACCEPTED_MIMES}
+          onChange={handleFileChange}
+          className="text-sm text-base-text file:mr-3 file:py-1 file:px-3 file:rounded file:border file:border-base-border file:bg-base-surface-raised file:text-xs file:text-base-text-muted"
+        />
+        {attachmentError && <p className="text-xs text-status-danger">{attachmentError}</p>}
+        {attachment && (
+          <p className="text-xs text-base-text-muted">{attachment.name}</p>
+        )}
+      </div>
+
+      <label className="flex items-start gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={isPrivate}
+          onChange={(e) => setIsPrivate(e.target.checked)}
+          className="mt-0.5 accent-pink-primary"
+        />
+        <span className="flex flex-col">
+          <span className="text-sm text-base-text font-medium">Private (only me)</span>
+          <span className="text-xs text-base-text-muted">
+            Private entries stay hidden from your Goddess.
+          </span>
+        </span>
+      </label>
 
       {error && <p className="text-xs text-status-danger">{error}</p>}
 

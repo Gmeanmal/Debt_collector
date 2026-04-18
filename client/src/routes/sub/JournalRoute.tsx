@@ -32,7 +32,13 @@ export function JournalRoute() {
   });
 
   const createMutation = useMutation({
-    mutationFn: createJournalEntry,
+    mutationFn: ({
+      values,
+      attachment,
+    }: {
+      values: { body: string; mood: JournalMood; is_private: boolean };
+      attachment: File | null;
+    }) => createJournalEntry(values, attachment),
     onSuccess: () => {
       setCursor(null);
       setPages([]);
@@ -44,8 +50,11 @@ export function JournalRoute() {
     },
   });
 
-  function handleCreate(values: { body: string; mood: JournalMood }) {
-    createMutation.mutate(values);
+  function handleCreate(
+    values: { body: string; mood: JournalMood; is_private: boolean },
+    attachment: File | null,
+  ) {
+    createMutation.mutate({ values, attachment });
   }
 
   function loadNextPage() {

@@ -73,6 +73,7 @@ class Settings(BaseSettings):
     s3_secret_key: str = "debtdebt"
     s3_bucket_sub_photos: str = "sub-photos"
     s3_bucket_payment_proofs: str = "payment-proofs"
+    s3_bucket_journal_attachments: str = "journal-attachments"
 
     root_kek_b64: str = ""
     root_kek_version: int = 1

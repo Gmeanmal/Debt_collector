@@ -37,6 +37,33 @@ function formatTs(iso: string): string {
   });
 }
 
+function formatRelative(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+function AttachmentPreview({ url, mime }: { url: string; mime: string }) {
+  if (mime.startsWith("image/")) {
+    return (
+      <img
+        src={url}
+        alt="Journal attachment"
+        loading="lazy"
+        className="rounded-md max-h-64 object-contain border border-base-border"
+      />
+    );
+  }
+  if (mime.startsWith("audio/")) {
+    return <audio controls src={url} className="w-full" />;
+  }
+  return null;
+}
+
 export function JournalEntryCard({ entry, commentSlot }: Props) {
   const mood = entry.mood as JournalMood;
 
@@ -48,12 +75,21 @@ export function JournalEntryCard({ entry, commentSlot }: Props) {
         <time dateTime={entry.created_at} className="text-xs text-base-text-muted">
           {formatTs(entry.created_at)}
         </time>
-        <Badge variant={MOOD_VARIANT[mood]}>{MOOD_LABEL[mood]}</Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          {entry.read_by_goddess_at && (
+            <span className="text-xs text-base-text-subtle">
+              Goddess read · {formatRelative(entry.read_by_goddess_at)}
+            </span>
+          )}
+          <Badge variant={MOOD_VARIANT[mood]}>{MOOD_LABEL[mood]}</Badge>
+        </div>
       </header>
 
       <p className="text-sm text-base-text whitespace-pre-wrap leading-relaxed">{entry.body}</p>
 
-      {/* TODO: render attached photo when R2 signed URL integration is added */}
+      {entry.attachment_presigned_url && entry.attachment_mime && (
+        <AttachmentPreview url={entry.attachment_presigned_url} mime={entry.attachment_mime} />
+      )}
 
       {entry.goddess_comment && (
         <div className="mt-1 border-t border-base-border pt-3 flex flex-col gap-1">

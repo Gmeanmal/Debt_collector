@@ -3,6 +3,7 @@ import {
   createJournalEntryApi,
   listOwnJournalApi,
   listSubJournalForGoddessApi,
+  markJournalEntryReadApi,
   upsertJournalCommentApi,
 } from "@/api/journal";
 import { queryKeys } from "@/lib/queryKeys";
@@ -29,6 +30,10 @@ export const JournalEntrySchema = z.object({
   body: z.string(),
   mood: JournalMoodSchema,
   photo_r2_key: z.string().nullable(),
+  attachment_key: z.string().nullable(),
+  attachment_mime: z.string().nullable(),
+  attachment_presigned_url: z.string().nullable(),
+  is_private: z.boolean(),
   created_at: z.string(),
   read_by_goddess_at: z.string().nullable(),
   goddess_comment: z.string().nullable(),
@@ -40,7 +45,7 @@ export type JournalEntry = z.infer<typeof JournalEntrySchema>;
 export const CreateJournalEntrySchema = z.object({
   body: z.string().min(1, "Entry body is required"),
   mood: JournalMoodSchema,
-  photo_r2_key: z.string().nullable().optional(),
+  is_private: z.boolean().default(false),
 });
 
 export type CreateJournalEntryIn = z.infer<typeof CreateJournalEntrySchema>;
@@ -56,9 +61,17 @@ function normaliseError(err: unknown, fallback: string): Error {
   return new Error(fallback);
 }
 
-export async function createJournalEntry(payload: CreateJournalEntryIn): Promise<JournalEntry> {
+export async function createJournalEntry(
+  payload: CreateJournalEntryIn,
+  attachment: File | null,
+): Promise<JournalEntry> {
   try {
-    const raw = await createJournalEntryApi(payload);
+    const raw = await createJournalEntryApi(
+      payload.body,
+      payload.mood,
+      payload.is_private,
+      attachment,
+    );
     return JournalEntrySchema.parse(raw);
   } catch (err) {
     throw normaliseError(err, "Failed to create journal entry");
@@ -98,5 +111,17 @@ export async function upsertJournalComment(
     return JournalEntrySchema.parse(raw);
   } catch (err) {
     throw normaliseError(err, "Failed to save comment");
+  }
+}
+
+export async function markJournalEntryRead(
+  username: string,
+  entryId: string,
+): Promise<JournalEntry> {
+  try {
+    const raw = await markJournalEntryReadApi(username, entryId);
+    return JournalEntrySchema.parse(raw);
+  } catch (err) {
+    throw normaliseError(err, "Failed to mark entry as read");
   }
 }

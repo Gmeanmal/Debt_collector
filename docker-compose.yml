@@ -51,7 +51,8 @@ services:
         mc mb --ignore-existing local/sub-photos &&
         mc mb --ignore-existing local/toy-photos &&
         mc mb --ignore-existing local/vault &&
-        mc mb --ignore-existing local/payment-proofs
+        mc mb --ignore-existing local/payment-proofs &&
+        mc mb --ignore-existing local/journal-attachments
       "
 
 volumes:

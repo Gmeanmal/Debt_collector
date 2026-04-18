@@ -25,7 +25,10 @@ class JournalDao:
         goddess_id: UUID,
         body: str,
         mood: JournalMood,
+        is_private: bool = False,
         photo_r2_key: str | None = None,
+        attachment_key: str | None = None,
+        attachment_mime: str | None = None,
     ) -> JournalEntry:
         """Insert a new journal entry and return it."""
         entry = JournalEntry(
@@ -33,7 +36,10 @@ class JournalDao:
             goddess_id=goddess_id,
             body=body,
             mood=mood,
+            is_private=is_private,
             photo_r2_key=photo_r2_key,
+            attachment_key=attachment_key,
+            attachment_mime=attachment_mime,
         )
         self._session.add(entry)
         return entry
@@ -61,12 +67,13 @@ class JournalDao:
         limit: int = 50,
         offset: int = 0,
     ) -> list[JournalEntry]:
-        """Return journal entries for a specific sub visible to the given goddess."""
+        """Return non-private journal entries for a specific sub visible to the given goddess."""
         result = await self._session.execute(
             select(JournalEntry)
             .where(
                 col(JournalEntry.goddess_id) == goddess_id,
                 col(JournalEntry.sub_id) == sub_id,
+                col(JournalEntry.is_private).is_(False),
             )
             .order_by(col(JournalEntry.created_at).desc())
             .limit(limit)
@@ -95,7 +102,7 @@ class JournalDao:
         limit: int,
         before: datetime | None,
     ) -> list[JournalEntry]:
-        """Return entries for a goddess+sub pair and mark unread ones read in one unit of work.
+        """Return non-private entries for a goddess+sub pair and mark unread ones read.
 
         The bulk UPDATE and the SELECT run in the same DB transaction, so the caller observes
         either both or neither once `session.commit()` fires at the router boundary.
@@ -107,18 +114,34 @@ class JournalDao:
                 col(JournalEntry.goddess_id) == goddess_id,
                 col(JournalEntry.sub_id) == sub_id,
                 col(JournalEntry.read_by_goddess_at).is_(None),
+                col(JournalEntry.is_private).is_(False),
             )
             .values(read_by_goddess_at=now)
         )
         stmt = select(JournalEntry).where(
             col(JournalEntry.goddess_id) == goddess_id,
             col(JournalEntry.sub_id) == sub_id,
+            col(JournalEntry.is_private).is_(False),
         )
         if before is not None:
             stmt = stmt.where(col(JournalEntry.created_at) < before)
         stmt = stmt.order_by(col(JournalEntry.created_at).desc()).limit(limit)
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
+
+    async def mark_read_if_unset(self, entry_id: UUID, goddess_id: UUID) -> JournalEntry:
+        """Set read_by_goddess_at to now if not already set. Idempotent.
+
+        Ownership check: entry.goddess_id must match goddess_id — raises NotFound
+        (not Forbidden) to avoid leaking entry existence to the wrong goddess.
+        """
+        entry = await self._get(entry_id)
+        if entry.goddess_id != goddess_id:
+            raise NotFound(f"journal_entry {entry_id} not found")
+        if entry.read_by_goddess_at is None:
+            entry.read_by_goddess_at = datetime.now(UTC).replace(tzinfo=None)
+            self._session.add(entry)
+        return entry
 
     async def mark_read(self, entry_id: UUID, goddess_id: UUID) -> JournalEntry:
         """Set read_by_goddess_at to now if not already set. Idempotent."""

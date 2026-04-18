@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
-from sqlalchemy import Column, ForeignKey, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Text
 from sqlmodel import Field, SQLModel
 
 
@@ -43,7 +43,15 @@ class JournalEntry(SQLModel, table=True):
     )
     body: str = Field(sa_column=Column(Text, nullable=False))
     mood: JournalMood = Field(nullable=False)
+    # TODO(JOURNAL-consolidation): photo_r2_key is superseded by attachment_key.
+    # Keep writing for image mimes for backwards-compat. Remove in a future slice.
     photo_r2_key: str | None = Field(default=None, nullable=True)
+    attachment_key: str | None = Field(default=None, nullable=True)
+    attachment_mime: str | None = Field(default=None, nullable=True)
+    is_private: bool = Field(
+        default=False,
+        sa_column=Column(Boolean, nullable=False, server_default="false"),
+    )
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC).replace(tzinfo=None),
         nullable=False,

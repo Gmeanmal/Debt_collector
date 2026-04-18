@@ -2390,13 +2390,13 @@ export interface paths {
         };
         /**
          * List own journal entries
-         * @description Returns the authenticated sub's entries, newest first. Cursor-paginated via `before` (an ISO-8601 `created_at`); pass the `created_at` of the oldest row of the previous page to fetch the next one.
+         * @description Returns the authenticated sub's entries (including private ones), newest first. Cursor-paginated via `before` (an ISO-8601 `created_at`); pass the `created_at` of the oldest row of the previous page to fetch the next one.
          */
         get: operations["list_own_journal_sub_journal_get"];
         put?: never;
         /**
          * Create a journal entry
-         * @description Persists a new journal entry authored by the authenticated sub. Entries are immutable after creation — there is no edit or delete path for the body. The goddess assignment is resolved server-side from the sub's profile.
+         * @description Persists a new journal entry authored by the authenticated sub. Accepts multipart/form-data so an optional attachment (image or audio, ≤ 10 MB) can be uploaded in the same request. When `is_private` is true the entry is hidden from the goddess. No notification is emitted for private entries. Entries are immutable after creation — there is no edit or delete path for the body. The goddess assignment is resolved server-side from the sub's profile.
          */
         post: operations["create_journal_entry_sub_journal_post"];
         delete?: never;
@@ -2414,11 +2414,31 @@ export interface paths {
         };
         /**
          * List a sub's journal entries for the goddess
-         * @description Returns entries for the given sub, newest first, cursor-paginated via `before`. As a side-effect, every still-unread entry for this goddess+sub pair is stamped `read_by_goddess_at = now()` atomically with the read. Requests for subs under a different goddess are rejected with 403.
+         * @description Returns non-private entries for the given sub, newest first, cursor-paginated via `before`. As a side-effect, every still-unread entry for this goddess+sub pair is stamped `read_by_goddess_at = now()` atomically with the read. Private entries (`is_private = true`) are always excluded. Requests for subs under a different goddess are rejected with 403.
          */
         get: operations["list_sub_journal_for_goddess_goddess_subs__sub_id__journal_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/goddess/subs/{username}/journal/{entry_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark a journal entry as read
+         * @description Explicitly marks a single journal entry as read by the goddess. Idempotent — if `read_by_goddess_at` is already set the earlier timestamp is preserved. Returns 404 if the entry does not exist or does not belong to a sub of this goddess.
+         */
+        post: operations["mark_journal_entry_read_goddess_subs__username__journal__entry_id__read_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5102,6 +5122,32 @@ export interface components {
              */
             created_at: string;
         };
+        /** Body_create_journal_entry_sub_journal_post */
+        Body_create_journal_entry_sub_journal_post: {
+            /**
+             * Body
+             * @description Free-form journal body. Immutable once submitted.
+             */
+            body: string;
+            /** @description Mood tag selected at time of writing. */
+            mood: components["schemas"]["JournalMood"];
+            /**
+             * Is Private
+             * @description When true the entry is hidden from the goddess.
+             * @default false
+             */
+            is_private: boolean;
+            /**
+             * Photo R2 Key
+             * @description Deprecated — use the attachment file field instead.
+             */
+            photo_r2_key?: string | null;
+            /**
+             * Attachment
+             * @description Optional attachment: image/jpeg, image/png, image/webp, audio/mpeg, audio/ogg, audio/webm. Max 10 MB.
+             */
+            attachment?: string | null;
+        };
         /** Body_declare_payment_sub_payments_post */
         Body_declare_payment_sub_payments_post: {
             /**
@@ -6519,26 +6565,6 @@ export interface components {
              */
             comment: string;
         };
-        /** JournalEntryIn */
-        JournalEntryIn: {
-            /**
-             * Body
-             * @description Free-form journal body. Immutable once submitted.
-             * @example Rough day at work but the morning ritual kept me grounded.
-             */
-            body: string;
-            /**
-             * @description Mood tag selected at time of writing.
-             * @example neutral
-             */
-            mood: components["schemas"]["JournalMood"];
-            /**
-             * Photo R2 Key
-             * @description Optional R2 object key for an attached photo.
-             * @example journal/2026/04/abc123.jpg
-             */
-            photo_r2_key?: string | null;
-        };
         /** JournalEntryOut */
         JournalEntryOut: {
             /**
@@ -6568,9 +6594,30 @@ export interface components {
             mood: components["schemas"]["JournalMood"];
             /**
              * Photo R2 Key
-             * @description R2 key for attached photo, if any.
+             * @description Deprecated R2 key, kept for compatibility.
              */
             photo_r2_key?: string | null;
+            /**
+             * Attachment Key
+             * @description Internal storage key — not exposed to client.
+             */
+            attachment_key?: string | null;
+            /**
+             * Attachment Mime
+             * @description MIME type of the attachment, if any.
+             */
+            attachment_mime?: string | null;
+            /**
+             * Attachment Presigned Url
+             * @description Short-lived presigned GET URL for the attachment. Derived on read — never stored.
+             */
+            attachment_presigned_url?: string | null;
+            /**
+             * Is Private
+             * @description Whether the entry is hidden from the goddess.
+             * @default false
+             */
+            is_private: boolean;
             /**
              * Created At
              * Format: date-time
@@ -19650,7 +19697,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["JournalEntryIn"];
+                "multipart/form-data": components["schemas"]["Body_create_journal_entry_sub_journal_post"];
             };
         };
         responses: {
@@ -19679,6 +19726,13 @@ export interface operations {
             };
             /** @description Forbidden — caller lacks the required role or the entry is not theirs */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Payload Too Large — attachment exceeds 10 MB */
+            413: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19725,6 +19779,66 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JournalEntryOut"][];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller lacks the required role or the entry is not theirs */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — journal entry or sub does not exist for this caller */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable entity — request body validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mark_journal_entry_read_goddess_subs__username__journal__entry_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                username: string;
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntryOut"];
                 };
             };
             /** @description Unauthorized — missing or invalid access token */

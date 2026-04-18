@@ -11,6 +11,7 @@ import { SearchableSelect } from "@/components/shared/SearchableSelect";
 import {
   goddessSubJournalKey,
   listSubJournalForGoddess,
+  markJournalEntryRead,
   upsertJournalComment,
   type JournalEntry,
 } from "@/services/journal/journalApi";
@@ -59,13 +60,19 @@ export function JournalReaderRoute() {
         delete next[updated.id];
         return next;
       });
-      void qc.invalidateQueries({
-        queryKey: goddessSubJournalKey(selectedSubId),
-      });
+      void qc.invalidateQueries({ queryKey: goddessSubJournalKey(selectedSubId) });
     },
     onError: (err, vars) => {
       const msg = err instanceof Error ? err.message : "Failed to save comment";
       setCommentErrors((prev) => ({ ...prev, [vars.entryId]: msg }));
+    },
+  });
+
+  const markReadMutation = useMutation({
+    mutationFn: ({ entryId }: { entryId: string }) =>
+      markJournalEntryRead(selectedSub?.username ?? "", entryId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: goddessSubJournalKey(selectedSubId) });
     },
   });
 
@@ -158,13 +165,27 @@ export function JournalReaderRoute() {
                 key={entry.id}
                 entry={entry}
                 commentSlot={
-                  <GoddessCommentForm
-                    entryId={entry.id}
-                    existingComment={entry.goddess_comment}
-                    onSubmit={(entryId, comment) => commentMutation.mutate({ entryId, comment })}
-                    isPending={commentMutation.isPending}
-                    error={commentErrors[entry.id]}
-                  />
+                  <div className="flex flex-col gap-3">
+                    {!entry.read_by_goddess_at && (
+                      <div className="flex justify-end">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => markReadMutation.mutate({ entryId: entry.id })}
+                          disabled={markReadMutation.isPending}
+                        >
+                          Mark as read
+                        </Button>
+                      </div>
+                    )}
+                    <GoddessCommentForm
+                      entryId={entry.id}
+                      existingComment={entry.goddess_comment}
+                      onSubmit={(entryId, comment) => commentMutation.mutate({ entryId, comment })}
+                      isPending={commentMutation.isPending}
+                      error={commentErrors[entry.id]}
+                    />
+                  </div>
                 }
               />
             ))}
