@@ -13,6 +13,7 @@ import { CategoryRadioGroup } from "@/components/payments/CategoryRadioGroup";
 import { MethodPicker } from "@/components/payments/MethodPicker";
 import { ProofUploadField } from "@/components/payments/ProofUploadField";
 import { queryKeys } from "@/lib/queryKeys";
+import { getSafeword, safewordKey } from "@/services/safeword/safewordApi";
 
 const AMOUNT_RE = /^\d+(\.\d{1,2})?$/;
 
@@ -86,6 +87,13 @@ export function PaymentFormRoute() {
     setAmount("");
   }, [category, forcedEntryTribute, pendingEntry, user?.entry_tribute_amount, userEditedAmount]);
 
+  const { data: safeword } = useQuery({
+    queryKey: [...safewordKey],
+    queryFn: getSafeword,
+    retry: false,
+    throwOnError: false,
+  });
+
   const { data: methods = [], isLoading: methodsLoading } = useQuery({
     queryKey: queryKeys.sub.paymentMethods(),
     queryFn: listSubPaymentMethodsApi,
@@ -140,7 +148,9 @@ export function PaymentFormRoute() {
     });
   }
 
-  const canSubmit = !!proof && !!methodId && !amountErr && !declareMutation.isPending;
+  const safewordMissing = category === "entry" && !safeword?.word?.trim();
+  const canSubmit =
+    !!proof && !!methodId && !amountErr && !declareMutation.isPending && !safewordMissing;
 
   return (
     <div className="p-4 md:p-8">
@@ -212,6 +222,12 @@ export function PaymentFormRoute() {
               className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
             />
           </div>
+
+          {safewordMissing && (
+            <p className="text-sm text-status-warning rounded-md border border-status-warning/40 bg-status-warning/10 px-4 py-3">
+              Set a safeword on the Limits &amp; Triggers page before paying your entry tribute.
+            </p>
+          )}
 
           {submitError && (
             <p className="text-xs text-status-danger" role="alert">

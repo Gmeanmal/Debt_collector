@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/services/auth/useAuth";
+import { getSafeword, safewordKey } from "@/services/safeword/safewordApi";
 
 const GBP = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
 
@@ -11,6 +13,14 @@ export function PorchLayout({ entryTributeAmount }: PorchLayoutProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const { data: safeword } = useQuery({
+    queryKey: [...safewordKey],
+    queryFn: getSafeword,
+    retry: false,
+    throwOnError: false,
+  });
+
+  const safewordMissing = !safeword?.word?.trim();
   const formattedAmount =
     entryTributeAmount != null ? GBP.format(Number(entryTributeAmount)) : null;
 
@@ -53,14 +63,20 @@ export function PorchLayout({ entryTributeAmount }: PorchLayoutProps) {
           </div>
 
           <div className="flex flex-col gap-3 pt-2 border-t border-base-border">
-            <button
-              type="button"
-              onClick={handleDeclare}
-              className="w-full bg-pink-primary text-pink-foreground font-semibold py-3 px-6 rounded-md hover:bg-pink-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-ring"
-              aria-label="Declare entry tribute"
-            >
-              Declare entry tribute
-            </button>
+            {safewordMissing ? (
+              <p className="text-sm text-status-warning rounded-md border border-status-warning/40 bg-status-warning/10 px-4 py-3 text-left">
+                Set a safeword below before paying your entry tribute.
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={handleDeclare}
+                className="w-full bg-pink-primary text-pink-foreground font-semibold py-3 px-6 rounded-md hover:bg-pink-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-ring"
+                aria-label="Declare entry tribute"
+              >
+                Declare entry tribute
+              </button>
+            )}
             <p className="text-xs text-base-text-subtle">
               Once your declaration is validated by Goddess, you will be granted full access.
             </p>

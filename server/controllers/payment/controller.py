@@ -17,12 +17,13 @@ from controllers.payment.helpers import (
 )
 from controllers.payment.proof import build_proof_key, strip_exif_if_jpeg
 from core.config import get_settings
-from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
+from core.exceptions import BadRequest, Conflict, Forbidden, NotFound, Validation
 from daos.allocation_dao import PaymentAllocationDao
 from daos.debt_dao import DebtContractAuditDao, DebtContractDao
 from daos.payment_dao import PaymentDeclarationDao
 from daos.payment_method_dao import PaymentMethodDao
 from daos.rolling_dao import RollingTributeDao
+from daos.sub_safeword_dao import SubSafewordDao
 from daos.user_dao import UserDao
 from models.debt import DebtContractAudit, DebtContractEventType, DebtContractStatus
 from models.debt_event import DebtEvent, EventType
@@ -56,6 +57,7 @@ class PaymentController:
         self._rolling_dao = RollingTributeDao(session)
         self._contract_dao = DebtContractDao(session)
         self._audit_dao = DebtContractAuditDao(session)
+        self._safeword_dao = SubSafewordDao(session)
 
     async def _check_rolling_active(self, sub_id: UUID) -> None:
         record = await self._rolling_dao.get_for_sub(sub_id)
@@ -322,6 +324,12 @@ class PaymentController:
         await self._alloc_dao.create(decl, target_type, decl.target_id)
 
     async def _promote_sub(self, sub: User) -> None:
+        safeword = await self._safeword_dao.get_for_sub(sub.id)
+        if safeword is None or not safeword.word.strip():
+            raise Validation(
+                "A safeword must be set before activating the account.",
+                sub_id=str(sub.id),
+            )
         sub.status = UserStatus.active
         self._session.add(sub)
         await self._session.flush()

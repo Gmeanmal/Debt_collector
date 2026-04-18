@@ -9,6 +9,7 @@ from daos.sub_safeword_dao import SubSafewordDao
 from daos.user_dao import UserDao
 from models.user import Goddess, User
 from schemas.safeword import SubSafewordIn, SubSafewordOut
+from utils.placeholder_guard import reject_if_placeholder
 
 
 def _to_out(record: object) -> SubSafewordOut:
@@ -41,6 +42,10 @@ class SubSafewordController:
 
     async def upsert_self(self, sub_id: UUID, body: SubSafewordIn) -> SubSafewordOut:
         """Create or update the calling sub's safeword, resolving goddess_id from their profile."""
+        reject_if_placeholder(body.word, "word")
+        reject_if_placeholder(body.emergency_contact_name, "emergency_contact_name")
+        reject_if_placeholder(body.emergency_contact_phone, "emergency_contact_phone")
+
         user = await self._user_dao.get_by_id(sub_id)
         if user is None or user.goddess_id is None:
             raise Forbidden("sub is not assigned to a goddess")

@@ -19,6 +19,7 @@ from schemas.limits import (
     SubTriggerOut,
     SubTriggerUpdate,
 )
+from utils.placeholder_guard import reject_if_placeholder
 
 
 def _compose_limit_body(label: str, notes: str | None) -> str:
@@ -74,6 +75,7 @@ class LimitsController:
 
     async def create_own_limit(self, sub_id: UUID, body: SubLimitCreate) -> SubLimitOut:
         """Create a limit row for the calling sub; acknowledgement starts null."""
+        reject_if_placeholder(body.label, "label")
         goddess_id = await self._require_sub_goddess(sub_id)
         row = await self._limits.create(
             sub_id=sub_id,

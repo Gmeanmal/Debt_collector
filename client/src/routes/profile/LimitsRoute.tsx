@@ -10,6 +10,7 @@ import { LimitForm } from "@/components/limits/LimitForm";
 import { LimitsList } from "@/components/limits/LimitsList";
 import { TriggerForm } from "@/components/limits/TriggerForm";
 import { TriggersList } from "@/components/limits/TriggersList";
+import { GoddessPreviewPanel } from "@/components/limits/GoddessPreviewPanel";
 import {
   getLimits,
   addLimit,
@@ -21,6 +22,7 @@ import {
   type LimitSeverity,
 } from "@/services/limits/limitsApi";
 import { getSafeword, setSafeword, safewordKey } from "@/services/safeword/safewordApi";
+import { useAuth } from "@/services/auth/useAuth";
 
 const safewordFormSchema = z.object({
   word: z.string().min(1, "Safeword is required"),
@@ -113,7 +115,7 @@ function SafewordSection() {
                 id="safeword-contact-name"
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
-                placeholder="Jane Doe"
+                placeholder="Full name"
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -122,7 +124,7 @@ function SafewordSection() {
                 id="safeword-contact-phone"
                 value={contactPhone}
                 onChange={(e) => setContactPhone(e.target.value)}
-                placeholder="+44 7700 900000"
+                placeholder="+44 7700 000000"
               />
             </div>
           </div>
@@ -139,6 +141,15 @@ function SafewordSection() {
 
 export function LimitsRoute() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isPendingEntry = user?.status === "pending_entry_tribute";
+
+  const { data: safeword } = useQuery({
+    queryKey: [...safewordKey],
+    queryFn: getSafeword,
+    retry: false,
+    throwOnError: false,
+  });
 
   const { data: limits = [], isLoading: limitsLoading } = useQuery({
     queryKey: [...limitsKey],
@@ -174,6 +185,8 @@ export function LimitsRoute() {
     onError: () => toast.error("Failed to add trigger"),
   });
 
+  const safewordMissing = !safeword?.word?.trim();
+
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
@@ -185,6 +198,12 @@ export function LimitsRoute() {
             Your hard and soft limits, personal triggers, and safeword.
           </p>
         </div>
+
+        {isPendingEntry && safewordMissing && (
+          <div className="rounded-md border border-status-warning/40 bg-status-warning/10 px-4 py-3 text-sm text-status-warning">
+            Set a safeword below before paying your entry tribute.
+          </div>
+        )}
 
         <SafewordSection />
 
@@ -237,6 +256,8 @@ export function LimitsRoute() {
             </CardContent>
           </Card>
         </div>
+
+        <GoddessPreviewPanel safeword={safeword} limits={limits} triggers={triggers} />
       </div>
     </div>
   );
