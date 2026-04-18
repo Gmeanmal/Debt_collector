@@ -27,7 +27,7 @@ function AftercareContent({ aftercare }: { aftercare: Aftercare }) {
     return (
       <p className="text-base-text-muted text-sm">
         No aftercare preferences saved yet. Visit your{" "}
-        <a href="/profile/aftercare" className="text-pink-primary underline underline-offset-2">
+        <a href="/sub/profile/aftercare" className="text-pink-primary underline underline-offset-2">
           aftercare profile
         </a>{" "}
         to add them.

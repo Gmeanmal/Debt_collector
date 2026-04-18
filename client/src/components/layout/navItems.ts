@@ -24,17 +24,17 @@ export const GODDESS_NAV: NavItem[] = [
 ];
 
 export const SUB_NAV: NavItem[] = [
-  { to: "/today", label: "Today" },
+  { to: "/sub/today", label: "Today" },
   { to: "/", label: "Dashboard" },
   { to: "/sub/payments", label: "My payments" },
   { to: "/sub/payments/new", label: "Declare" },
   { to: "/sub/debts", label: "Contracts" },
-  { to: "/profile/kinks", label: "Kinks" },
-  { to: "/profile/limits", label: "Limits" },
+  { to: "/sub/profile/kinks", label: "Kinks" },
+  { to: "/sub/profile/limits", label: "Limits" },
   { to: "/sub/journal", label: "Journal" },
   { to: "/sub/profile/inventory", label: "Inventory" },
-  { to: "/profile/aftercare", label: "Aftercare" },
-  ...(MEDICAL_FEATURE_ENABLED ? [{ to: "/profile/medical", label: "Medical" }] : []),
+  { to: "/sub/profile/aftercare", label: "Aftercare" },
+  ...(MEDICAL_FEATURE_ENABLED ? [{ to: "/sub/profile/medical", label: "Medical" }] : []),
 ];
 
 export const ADMIN_NAV: NavItem[] = [

@@ -354,7 +354,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/profile/kinks",
+    path: "/sub/profile/kinks",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="sub">
@@ -363,8 +363,9 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  { path: "/profile/kinks", element: <Navigate to="/sub/profile/kinks" replace /> },
   {
-    path: "/profile/limits",
+    path: "/sub/profile/limits",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="sub">
@@ -373,8 +374,9 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  { path: "/profile/limits", element: <Navigate to="/sub/profile/limits" replace /> },
   {
-    path: "/today",
+    path: "/sub/today",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="sub">
@@ -383,6 +385,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  { path: "/today", element: <Navigate to="/sub/today" replace /> },
   {
     path: "/sub/journal",
     element: (
@@ -464,7 +467,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/profile/aftercare",
+    path: "/sub/profile/aftercare",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="sub">
@@ -473,8 +476,9 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  { path: "/profile/aftercare", element: <Navigate to="/sub/profile/aftercare" replace /> },
   {
-    path: "/profile/medical",
+    path: "/sub/profile/medical",
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="sub">
@@ -483,6 +487,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  { path: "/profile/medical", element: <Navigate to="/sub/profile/medical" replace /> },
   {
     path: "/goddess/rituals",
     element: (
