@@ -114,6 +114,11 @@
       <li><a href="#events-ledger">Debt event ledger flow</a></li>
       <li><a href="#cronjob">Daily cronjob flow</a></li>
       <li><a href="#permission-matrix">Permission matrix</a></li>
+      <li><a href="#porch-gating">Porch gating</a></li>
+      <li><a href="#surprise-penalty">Surprise-penalty contract picker</a></li>
+      <li><a href="#cron-dry-run">Cron dry-run</a></li>
+      <li><a href="#gender-taxonomy">Gender taxonomy lookup</a></li>
+      <li><a href="#audit-decorator">Audit decorator</a></li>
     </ol>
   </div>
 
@@ -679,6 +684,158 @@ flowchart TD
       <span><span class="tag" style="background:rgba(245,194,66,.14);color:var(--gold)">✓</span> allowed</span>
       <span><span class="tag" style="background:var(--bg-overlay);color:var(--text-subtle)">—</span> denied</span>
     </div>
+  </div>
+
+  <!-- ═════════════ PORCH GATING ═════════════ -->
+  <h2 id="porch-gating">10 · Porch gating (ENTRY-1)</h2>
+  <div class="card">
+    <p>Every request passes through the <code>porch_gate</code> FastAPI dependency (<code>server/dependencies/porch_gate.py</code>). Subs in <code>pending_entry_tribute</code> status are trapped on the porch: they can authenticate, read their own profile, and declare the entry tribute, nothing else. The client mirrors the check via <code>PorchGuard</code> at <code>client/src/components/layout/PorchGuard.tsx</code>, which redirects the UI to <code>/pending-entry-tribute</code> until the status flips to <code>active</code>.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+flowchart TD
+    REQ([Incoming request]) --> ALLOW{method+path on _PORCH_ALLOWLIST?}
+    ALLOW -- "GET /auth/me" --> PASS([Pass-through])
+    ALLOW -- "POST /auth/login, /logout, /refresh" --> PASS
+    ALLOW -- "POST /auth/password-reset/*" --> PASS
+    ALLOW -- "POST /sub/payments (entry tribute)" --> PASS
+    ALLOW -- "GET /health" --> PASS
+    ALLOW -- no --> BEARER{Bearer header present?}
+    BEARER -- no --> PASS_AUTH([Pass-through - normal auth will 401])
+    BEARER -- yes --> DECODE[Decode JWT]
+    DECODE --> IMP{Impersonation claim?}
+    IMP -- yes --> PASS
+    IMP -- no --> LOAD[Load user by id]
+    LOAD --> STATUS{user.status == pending_entry_tribute?}
+    STATUS -- yes --> BLOCK["HTTP 403<br/>X-Access-State: pending_entry_tribute"]
+    STATUS -- no --> PASS
+    BLOCK --> UI[Client PorchGuard reads header<br/>redirect to /pending-entry-tribute]
+</div>
+    </div>
+    <div class="callout info"><strong>invariant</strong> Any new route that must be reachable on the porch has to be added to <code>_PORCH_ALLOWLIST</code> explicitly. Silent allow-by-default is forbidden.</div>
+  </div>
+
+  <!-- ═════════════ SURPRISE PENALTY ═════════════ -->
+  <h2 id="surprise-penalty">11 · Surprise-penalty contract picker (MONEY-1)</h2>
+  <div class="card">
+    <p>Goddess-only flow, reached from a sub profile via the <em>Add penalty</em> action. The controller filters ACTIVE contracts by <code>dom_can_add_surprise_penalty = true</code> before the UI decides whether to show a picker, auto-select, or disable the button. The picker modal runs in three steps: choose contract, enter amount with balance preview, confirm.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+sequenceDiagram
+    actor G as Goddess
+    participant UI as SubProfile UI
+    participant API as /goddess API
+    participant DB as Database
+    participant AUD as Audit log
+    participant N as Notifications
+    G->>UI: Click "Add penalty"
+    UI->>API: GET /goddess/subs/{id}/contracts?penalty_eligible=true
+    API-->>UI: list of ACTIVE contracts with dom_can_add_surprise_penalty=true
+    alt 0 eligible contracts
+        UI-->>G: Button disabled + tooltip "No contract allows surprise penalties"
+    else 1 eligible contract
+        UI-->>G: Auto-select, skip to amount step
+    else 2+ eligible contracts
+        UI-->>G: Step (a) picker modal
+        G->>UI: Pick contract
+    end
+    G->>UI: Step (b) enter amount £
+    UI-->>G: Preview projected balance = current + amount
+    G->>UI: Step (c) confirm
+    UI->>API: POST /goddess/contracts/{id}/adjustments (kind=surprise_penalty)
+    API->>DB: insert DebtEvent + update balance
+    API->>AUD: audit entry surprise_penalty_added
+    API->>N: notify sub
+    API-->>UI: 201 Created
+    UI-->>G: Toast "Penalty applied"
+</div>
+    </div>
+  </div>
+
+  <!-- ═════════════ CRON DRY-RUN ═════════════ -->
+  <h2 id="cron-dry-run">12 · Cron dry-run (CRON-1)</h2>
+  <div class="card">
+    <p>Admin-only. Lets the admin run the daily 08:00 routine on demand, first in dry-run mode (no writes) to review planned side-effects, then for real. The <em>Apply</em> button is gated behind the preview — there is no way to bypass the dry-run step.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+flowchart TD
+    START([Admin opens /admin/cron]) --> CLICK[Click "Run cron now"]
+    CLICK --> DRY[POST /admin/cron/run?dry_run=true]
+    DRY --> EXEC[Controller runs daily routine<br/>collects planned DebtEvent + Notification side-effects<br/>no persistence]
+    EXEC --> PREVIEW[Response: preview table<br/>rendered with dry_run_id]
+    PREVIEW --> REVIEW[Admin reviews rows]
+    REVIEW --> ACK{Tick "I have reviewed"?}
+    ACK -- no --> APPLY_OFF[Apply button stays disabled]
+    APPLY_OFF --> REVIEW
+    ACK -- yes --> APPLY_ON[Apply button enabled]
+    APPLY_ON --> APPLY_CLICK[Click "Apply"]
+    APPLY_CLICK --> REAL[POST /admin/cron/run?dry_run=false]
+    REAL --> PERSIST[Side-effects persist<br/>emit DebtEvent + Notification rows]
+    PERSIST --> AUDIT["Audit entry cron.manual_run<br/>payload: dry_run_id, applied_count"]
+    AUDIT --> HIST[Cron history list updates]
+    HIST --> DONE([Done])
+</div>
+    </div>
+    <div class="callout warn"><strong>gate</strong> The Apply button is disabled until the preview has been rendered and the ack checkbox is ticked. The server also refuses <code>dry_run=false</code> requests that do not reference a prior <code>dry_run_id</code> from the same admin session.</div>
+  </div>
+
+  <!-- ═════════════ GENDER TAXONOMY ═════════════ -->
+  <h2 id="gender-taxonomy">13 · Gender taxonomy lookup (GENDER-1)</h2>
+  <div class="card">
+    <p>The profile gender picker is a <code>SearchableSelect</code> fed by the hard-coded <code>GENDER_TAXONOMY</code> list (72 entries, each with <code>value</code>, <code>label</code>, and <code>aliases[]</code>). Filtering is a case-insensitive substring match against the label or any alias. When nothing matches, the user can write their own answer — persisted to a separate free-text field, capped at 40 characters.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+flowchart TD
+    OPEN([User opens profile edit]) --> RENDER[SearchableSelect renders]
+    RENDER --> SOURCE["Source: GENDER_TAXONOMY<br/>72 entries { value, label, aliases[] }"]
+    SOURCE --> EMPTY{Empty search?}
+    EMPTY -- yes --> CURATED["Show 'Common' group first<br/>then full list below"]
+    EMPTY -- no --> QUERY[User types query]
+    QUERY --> FILTER["Filter: case-insensitive substring<br/>on label OR any alias"]
+    FILTER --> LIST[Render scrollable result list]
+    CURATED --> LIST
+    LIST --> CHOICE{User picks?}
+    CHOICE -- taxonomy entry --> PICK[gender_identity = entry.value]
+    CHOICE -- "Let me write my own" --> FREE[Free-text field<br/>capped at 40 chars]
+    FREE --> PERSIST_FREE[gender_identity_freeform set]
+    PICK --> SAVE[PATCH /me/profile]
+    PERSIST_FREE --> SAVE
+    SAVE --> DONE([Saved])
+</div>
+    </div>
+  </div>
+
+  <!-- ═════════════ AUDIT DECORATOR ═════════════ -->
+  <h2 id="audit-decorator">14 · Audit decorator (AUDIT-1)</h2>
+  <div class="card">
+    <p>Every admin-console write endpoint, plus any goddess write that moves money (breach, forgive, adjustment, buyout), is wrapped in <code>@audit_action(entity, action)</code>. The decorator captures the return value after the method succeeds and inserts an <code>AdminAction</code> row. On exception it does nothing — failed actions leave no trail by design, so we never log half-applied state.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+sequenceDiagram
+    actor U as Actor (admin or goddess)
+    participant R as Router
+    participant D as "@audit_action decorator"
+    participant C as Controller method
+    participant DB as Database
+    participant AA as AdminAction table
+    U->>R: HTTP request to write endpoint
+    R->>D: Invoke decorated method
+    D->>C: Run method body
+    alt success
+        C->>DB: Apply changes
+        DB-->>C: Updated row
+        C-->>D: Return Pydantic response
+        D->>D: Capture actor_user_id, entity, entity_id, action,<br/>payload_snapshot (serialised return value), created_at
+        D->>AA: Insert AdminAction row
+        D-->>R: Original result
+        R-->>U: 2xx response
+    else exception
+        C-->>D: Raise
+        D-->>R: Re-raise (no audit row written)
+        R-->>U: 4xx / 5xx response
+    end
+</div>
+    </div>
+    <div class="callout info"><strong>scope</strong> Applied to every admin-console write endpoint, plus goddess writes that change money: breach, forgive, adjustment, surprise penalty, buyout.</div>
   </div>
 
   <div class="diagram-block">
