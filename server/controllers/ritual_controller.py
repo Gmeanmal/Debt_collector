@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers._goddess import resolve_goddess_id
-from core.exceptions import Conflict, Forbidden, NotFound
+from core.exceptions import BadRequest, Conflict, Forbidden, NotFound
 from daos.ritual_dao import RitualDao
 from daos.ritual_occurrence_dao import RitualOccurrenceDao
 from daos.user_dao import UserDao
@@ -20,6 +20,7 @@ from schemas.rituals import (
     RitualCreateIn,
     RitualOut,
     RitualUpdateIn,
+    RitualWithSubOut,
 )
 from services.merits.credits import record_ritual_complete, record_ritual_miss
 
@@ -67,6 +68,7 @@ class RitualController:
             deadline_time=payload.deadline_time,
             points_on_complete=payload.points_on_complete,
             points_on_miss=payload.points_on_miss,
+            requires_proof=payload.requires_proof,
             paused=payload.paused,
         )
         created = await self._ritual_dao.create(ritual)
@@ -78,6 +80,23 @@ class RitualController:
         await self._require_sub_under_goddess(goddess_id, sub_id)
         rituals = await self._ritual_dao.list_by_sub(sub_id)
         return [_ritual_to_out(r) for r in rituals]
+
+    async def list_all_for_goddess(self, goddess_user: User) -> list[RitualWithSubOut]:
+        """Return all rituals owned by the goddess across all subs, newest first."""
+        goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
+        rows = await self._ritual_dao.list_for_goddess_with_sub_names(goddess_id)
+        result: list[RitualWithSubOut] = []
+        for ritual, first_name, last_name, username in rows:
+            parts = [p for p in (first_name, last_name) if p]
+            display_name = " ".join(parts) if parts else username
+            result.append(
+                RitualWithSubOut(
+                    **RitualOut.model_validate(ritual).model_dump(),
+                    sub_display_name=display_name,
+                    sub_username=username,
+                )
+            )
+        return result
 
     async def update_ritual(
         self, goddess_user: User, ritual_id: UUID, patch: RitualUpdateIn
@@ -164,6 +183,9 @@ class RitualController:
                 f"cannot complete occurrence in status '{occ.status}'; "
                 f"must be one of: {[s.value for s in _COMPLETE_FROM]}"
             )
+        ritual = await self._ritual_dao.get_by_id(occ.ritual_id)
+        if ritual.requires_proof and not body.evidence_r2_key:
+            raise BadRequest("This ritual requires photo/evidence to mark complete.")
         completed_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
         updated = await self._occurrence_dao.mark_completed(
             occurrence_id,
@@ -171,7 +193,6 @@ class RitualController:
             note=body.note,
             evidence_r2_key=body.evidence_r2_key,
         )
-        ritual = await self._ritual_dao.get_by_id(occ.ritual_id)
         await record_ritual_complete(self._session, updated, ritual)
         return _occurrence_to_out(updated)
 
@@ -185,6 +206,9 @@ class RitualController:
                 f"cannot submit occurrence in status '{occ.status}'; "
                 f"must be one of: {[s.value for s in _SUBMIT_FROM]}"
             )
+        ritual = await self._ritual_dao.get_by_id(occ.ritual_id)
+        if ritual.requires_proof and not body.evidence_r2_key:
+            raise BadRequest("This ritual requires photo/evidence to mark complete.")
         updated = await self._occurrence_dao.mark_submitted(
             occurrence_id,
             note=body.note,

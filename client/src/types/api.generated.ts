@@ -2985,6 +2985,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goddess/rituals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all rituals across all subs
+         * @description Returns every ritual owned by the authenticated goddess across all her subs, including paused ones, sorted newest first. Each item embeds the sub's display name and username so the frontend can render per-sub grouping without extra round-trips.
+         */
+        get: operations["list_all_rituals_goddess_rituals_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/goddess/rituals/{ritual_id}": {
         parameters: {
             query?: never;
@@ -8694,6 +8714,13 @@ export interface components {
              */
             points_on_miss: number;
             /**
+             * Requires Proof
+             * @description When true the sub must supply an evidence_r2_key to mark complete
+             * @default false
+             * @example false
+             */
+            requires_proof: boolean;
+            /**
              * Paused
              * @description When true the ritual is inactive and no new occurrences are generated
              * @default false
@@ -8767,6 +8794,12 @@ export interface components {
              */
             points_on_miss: number;
             /**
+             * Requires Proof
+             * @description Whether the sub must supply evidence to mark the occurrence complete
+             * @example false
+             */
+            requires_proof: boolean;
+            /**
              * Paused
              * @description Whether the ritual is currently paused
              * @example false
@@ -8829,11 +8862,114 @@ export interface components {
              */
             points_on_miss?: number | null;
             /**
+             * Requires Proof
+             * @description When true the sub must supply evidence to mark the occurrence complete
+             * @example true
+             */
+            requires_proof?: boolean | null;
+            /**
              * Paused
              * @description Set true to pause, false to resume
              * @example true
              */
             paused?: boolean | null;
+        };
+        /** RitualWithSubOut */
+        RitualWithSubOut: {
+            /**
+             * Id
+             * Format: uuid
+             * @description Ritual UUID
+             */
+            id: string;
+            /**
+             * Sub Id
+             * Format: uuid
+             * @description Owning sub UUID
+             */
+            sub_id: string;
+            /**
+             * Goddess Id
+             * Format: uuid
+             * @description Owning goddess UUID
+             */
+            goddess_id: string;
+            /**
+             * Title
+             * @description Ritual title
+             * @example Morning devotion photo
+             */
+            title: string;
+            /**
+             * Description
+             * @description Optional description
+             */
+            description?: string | null;
+            /**
+             * @description Recurrence frequency
+             * @example daily
+             */
+            frequency: components["schemas"]["RitualFrequency"];
+            /**
+             * Custom Days Bitmask
+             * @description Custom-days bitmask when frequency=custom
+             * @example 65
+             */
+            custom_days_bitmask?: number | null;
+            /**
+             * Deadline Time
+             * @description Deadline wall-clock time in Europe/London
+             * @example 09:00:00
+             */
+            deadline_time?: string | null;
+            /**
+             * Points On Complete
+             * @description Points on completion
+             * @example 2
+             */
+            points_on_complete: number;
+            /**
+             * Points On Miss
+             * @description Points on miss
+             * @example -2
+             */
+            points_on_miss: number;
+            /**
+             * Requires Proof
+             * @description Whether the sub must supply evidence to mark the occurrence complete
+             * @example false
+             */
+            requires_proof: boolean;
+            /**
+             * Paused
+             * @description Whether the ritual is currently paused
+             * @example false
+             */
+            paused: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             * @description UTC creation timestamp
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             * @description UTC last-updated timestamp
+             */
+            updated_at: string;
+            /**
+             * Sub Display Name
+             * @description Display name of the sub this ritual is assigned to
+             * @example little_kitten
+             */
+            sub_display_name: string;
+            /**
+             * Sub Username
+             * @description Username of the sub this ritual is assigned to
+             * @example kitten42
+             */
+            sub_username: string;
         };
         /** RollingTributeIn */
         RollingTributeIn: {
@@ -22081,6 +22217,51 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    list_all_rituals_goddess_rituals_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RitualWithSubOut"][];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — role or ownership mismatch */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };

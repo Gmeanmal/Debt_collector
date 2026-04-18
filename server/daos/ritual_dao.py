@@ -6,6 +6,7 @@ from sqlmodel import col, select
 
 from core.exceptions import NotFound
 from models.ritual import Ritual, RitualFrequency
+from models.user import User
 
 
 class RitualDao:
@@ -33,6 +34,25 @@ class RitualDao:
             .order_by(col(Ritual.created_at).desc())
         )
         return list(result.scalars().all())
+
+    async def list_for_goddess_with_sub_names(
+        self, goddess_id: UUID
+    ) -> list[tuple[Ritual, str | None, str | None, str]]:
+        """Return all rituals for a goddess joined with sub identity fields.
+
+        Returns tuples of (ritual, first_name, last_name, username).
+        Single query; ordered newest first. Includes paused rituals.
+        """
+        result = await self._session.execute(
+            select(Ritual, col(User.first_name), col(User.last_name), col(User.username))
+            .join(User, col(Ritual.sub_id) == col(User.id))
+            .where(col(Ritual.goddess_id) == goddess_id)
+            .order_by(col(Ritual.created_at).desc())
+        )
+        return [
+            (ritual, first_name, last_name, username)
+            for ritual, first_name, last_name, username in result.all()
+        ]
 
     async def list_active_by_goddess(self, goddess_id: UUID) -> list[Ritual]:
         """Return all un-paused rituals created by a goddess across all her subs."""

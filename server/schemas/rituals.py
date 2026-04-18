@@ -52,6 +52,11 @@ class RitualCreateIn(BaseModel):
         ),
         examples=[-2],
     )
+    requires_proof: bool = Field(
+        default=False,
+        description="When true the sub must supply an evidence_r2_key to mark complete",
+        examples=[False],
+    )
     paused: bool = Field(
         default=False,
         description="When true the ritual is inactive and no new occurrences are generated",
@@ -99,6 +104,11 @@ class RitualUpdateIn(BaseModel):
         description="Updated miss points",
         examples=[-3],
     )
+    requires_proof: bool | None = Field(
+        default=None,
+        description="When true the sub must supply evidence to mark the occurrence complete",
+        examples=[True],
+    )
     paused: bool | None = Field(
         default=None,
         description="Set true to pause, false to resume",
@@ -125,6 +135,11 @@ class RitualOut(BaseModel):
     )
     points_on_complete: int = Field(..., description="Points on completion", examples=[2])
     points_on_miss: int = Field(..., description="Points on miss", examples=[-2])
+    requires_proof: bool = Field(
+        ...,
+        description="Whether the sub must supply evidence to mark the occurrence complete",
+        examples=[False],
+    )
     paused: bool = Field(
         ..., description="Whether the ritual is currently paused", examples=[False]
     )
@@ -132,6 +147,19 @@ class RitualOut(BaseModel):
     updated_at: datetime.datetime = Field(..., description="UTC last-updated timestamp")
 
     model_config = {"from_attributes": True}
+
+
+class RitualWithSubOut(RitualOut):
+    sub_display_name: str = Field(
+        ...,
+        description="Display name of the sub this ritual is assigned to",
+        examples=["little_kitten"],
+    )
+    sub_username: str = Field(
+        ...,
+        description="Username of the sub this ritual is assigned to",
+        examples=["kitten42"],
+    )
 
 
 class OccurrenceCompleteIn(BaseModel):

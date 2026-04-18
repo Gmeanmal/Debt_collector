@@ -43,6 +43,7 @@ class Ritual(SQLModel, table=True):
     )
     points_on_complete: int = Field(default=1, nullable=False)
     points_on_miss: int = Field(default=-1, nullable=False)
+    requires_proof: bool = Field(default=False, nullable=False)
     paused: bool = Field(default=False, nullable=False)
     created_at: datetime.datetime = Field(
         default_factory=lambda: datetime.datetime.now(datetime.UTC).replace(tzinfo=None),

@@ -16,6 +16,7 @@ from schemas.rituals import (
     RitualCreateIn,
     RitualOut,
     RitualUpdateIn,
+    RitualWithSubOut,
 )
 
 _E400 = {"description": "Bad request — invalid payload or business rule violation"}
@@ -82,6 +83,27 @@ async def list_rituals_for_sub(
     ctrl: RitualController = Depends(_ctrl),
 ) -> list[RitualOut]:
     return await ctrl.list_rituals_for_sub(user, sub_id)
+
+
+@goddess_router.get(
+    "/goddess/rituals",
+    summary="List all rituals across all subs",
+    description=(
+        "Returns every ritual owned by the authenticated goddess across all her subs, "
+        "including paused ones, sorted newest first. "
+        "Each item embeds the sub's display name and username so the frontend "
+        "can render per-sub grouping without extra round-trips."
+    ),
+    response_model=list[RitualWithSubOut],
+    status_code=200,
+    tags=["rituals"],
+    responses={401: _E401, 403: _E403},
+)
+async def list_all_rituals(
+    user: User = Depends(require_role(UserRole.goddess)),
+    ctrl: RitualController = Depends(_ctrl),
+) -> list[RitualWithSubOut]:
+    return await ctrl.list_all_for_goddess(user)
 
 
 @goddess_router.patch(

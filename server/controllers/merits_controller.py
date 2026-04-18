@@ -272,9 +272,7 @@ class MeritsController:
     # Goddess — per-sub merit event ledger
     # ------------------------------------------------------------------
 
-    async def list_events_for_sub(
-        self, goddess_user: User, sub_id: UUID
-    ) -> list[MeritEventOut]:
+    async def list_events_for_sub(self, goddess_user: User, sub_id: UUID) -> list[MeritEventOut]:
         """Return merit events for a sub scoped to the authenticated goddess."""
         goddess_id = await resolve_goddess_id(self._session, goddess_user.id)
         sub = await self._user_dao.get_by_id(sub_id)

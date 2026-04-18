@@ -20,6 +20,7 @@ export const GODDESS_NAV: NavItem[] = [
   { to: "/goddess/late", label: "Late" },
   { to: "/goddess/merits", label: "Rewards & Punishments" },
   { to: "/goddess/penalty-rules", label: "Penalty rules" },
+  { to: "/goddess/rituals", label: "Rituals" },
 ];
 
 export const SUB_NAV: NavItem[] = [
