@@ -65,9 +65,7 @@ function ContractRow({ item }: ContractRowProps) {
         </Link>
       </td>
       <td className="px-4 py-3">
-        <span className={`font-semibold ${daysLateClass(item.days_late)}`}>
-          {item.days_late}d
-        </span>
+        <span className={`font-semibold ${daysLateClass(item.days_late)}`}>{item.days_late}d</span>
       </td>
       <td className="px-4 py-3 text-base-text">£{Number(item.overdue_amount).toFixed(2)}</td>
       <td className="px-4 py-3 text-base-text-muted">{lastPayment}</td>
@@ -152,9 +150,7 @@ export function LateContractsSection({ items }: LateContractsSectionProps) {
                 <th className="px-4 py-3 text-left font-medium text-base-text-muted">
                   Last payment
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-base-text-muted">
-                  Contract
-                </th>
+                <th className="px-4 py-3 text-left font-medium text-base-text-muted">Contract</th>
               </tr>
             </thead>
             <tbody>

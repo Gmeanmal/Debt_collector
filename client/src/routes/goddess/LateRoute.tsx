@@ -65,9 +65,7 @@ export function LateRoute() {
           />
         )}
 
-        {!rollingLoading && !rollingError && (
-          <LateRollingSection items={rollingItems} />
-        )}
+        {!rollingLoading && !rollingError && <LateRollingSection items={rollingItems} />}
 
         <Separator />
 

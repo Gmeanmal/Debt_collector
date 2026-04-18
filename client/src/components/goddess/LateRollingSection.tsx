@@ -71,9 +71,7 @@ function RollingRow({ item }: RollingRowProps) {
         )}
       </td>
       <td className="px-4 py-3">
-        <span className={`font-semibold ${daysLateClass(item.days_late)}`}>
-          {item.days_late}d
-        </span>
+        <span className={`font-semibold ${daysLateClass(item.days_late)}`}>{item.days_late}d</span>
       </td>
       <td className="px-4 py-3 text-base-text">£{Number(item.overdue_amount).toFixed(2)}</td>
       <td className="px-4 py-3 text-base-text-muted">{lastPayment}</td>

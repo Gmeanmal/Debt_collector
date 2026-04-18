@@ -46,7 +46,8 @@ function StatusCell({ contract }: { contract: DebtContractOut }) {
     <div className="flex flex-col gap-0.5">
       <ContractStatusChip status={contract.status} />
       <span className="text-xs text-status-danger font-semibold">
-        Behind · {fmtGbp(behind.amount.toFixed(2))} · {behind.periods} period{behind.periods !== 1 ? "s" : ""}
+        Behind · {fmtGbp(behind.amount.toFixed(2))} · {behind.periods} period
+        {behind.periods !== 1 ? "s" : ""}
       </span>
     </div>
   );

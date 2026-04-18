@@ -115,18 +115,14 @@ export function KinkMatrix({
   const categoriesToRender = matrix.categories
     .map((cat) => ({
       category: cat,
-      visibleItems: showOnlyUnrated
-        ? cat.items.filter((i) => i.rating === "not_set")
-        : cat.items,
+      visibleItems: showOnlyUnrated ? cat.items.filter((i) => i.rating === "not_set") : cat.items,
       totalItems: cat.items.length,
     }))
     .filter(({ visibleItems }) => visibleItems.length > 0);
 
   if (categoriesToRender.length === 0) {
     return (
-      <p className="text-sm text-base-text-muted text-center py-10">
-        All items have been rated.
-      </p>
+      <p className="text-sm text-base-text-muted text-center py-10">All items have been rated.</p>
     );
   }
 

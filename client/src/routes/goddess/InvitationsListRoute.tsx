@@ -69,9 +69,7 @@ interface TokenCellProps {
 function TokenCell({ token }: TokenCellProps) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="font-mono text-xs text-base-text-muted">
-        {token.slice(0, 8)}&hellip;
-      </span>
+      <span className="font-mono text-xs text-base-text-muted">{token.slice(0, 8)}&hellip;</span>
       <button
         type="button"
         onClick={() => copyToken(token)}
@@ -184,16 +182,10 @@ export function InvitationsListRoute() {
       </div>
 
       {previewId && (
-        <InvitationPreviewModal
-          invitationId={previewId}
-          onClose={() => setPreviewId(null)}
-        />
+        <InvitationPreviewModal invitationId={previewId} onClose={() => setPreviewId(null)} />
       )}
       {resendId && (
-        <InvitationResendModal
-          invitationId={resendId}
-          onClose={() => setResendId(null)}
-        />
+        <InvitationResendModal invitationId={resendId} onClose={() => setResendId(null)} />
       )}
     </div>
   );

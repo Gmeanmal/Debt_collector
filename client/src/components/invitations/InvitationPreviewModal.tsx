@@ -17,14 +17,11 @@ export function InvitationPreviewModal({ invitationId, onClose }: Props) {
   return (
     <Modal title="Email preview" onClose={onClose} size="xl">
       {isLoading && <p className="text-base-text-muted text-sm">Loading preview…</p>}
-      {isError && (
-        <p className="text-status-danger text-sm">Failed to load email preview.</p>
-      )}
+      {isError && <p className="text-status-danger text-sm">Failed to load email preview.</p>}
       {data && (
         <div className="flex flex-col gap-2">
           <p className="text-xs text-base-text-muted">
-            <span className="font-semibold text-base-text-muted">Subject:</span>{" "}
-            {data.subject}
+            <span className="font-semibold text-base-text-muted">Subject:</span> {data.subject}
           </p>
           <iframe
             srcDoc={data.html}

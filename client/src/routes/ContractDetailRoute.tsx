@@ -91,13 +91,12 @@ export function ContractDetailRoute() {
     role === "sub" &&
     (contract.status === "pending_sub" || contract.status === "pending_sub_signature");
   const canDownloadPdf = contract.status === "active" && Boolean(contract.signed_at);
-  const PRE_SIGNATURE_STATUSES: typeof contract.status[] = [
+  const PRE_SIGNATURE_STATUSES: (typeof contract.status)[] = [
     "pending_sub",
     "pending_dom",
     "pending_dom_counter",
   ];
-  const goddessCanPreview =
-    role === "goddess" && PRE_SIGNATURE_STATUSES.includes(contract.status);
+  const goddessCanPreview = role === "goddess" && PRE_SIGNATURE_STATUSES.includes(contract.status);
   const isActive = contract.status === "active";
   const canSurprisePenalty =
     role === "goddess" && isActive && contract.dom_can_add_surprise_penalty;

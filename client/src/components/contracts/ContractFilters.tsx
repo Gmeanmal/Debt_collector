@@ -34,7 +34,11 @@ interface Props {
   onFiltersChange: (f: GoddessContractFilters) => void;
 }
 
-function useDebounced(value: GoddessContractFilters, delay: number, cb: (v: GoddessContractFilters) => void) {
+function useDebounced(
+  value: GoddessContractFilters,
+  delay: number,
+  cb: (v: GoddessContractFilters) => void,
+) {
   const cbRef = useRef(cb);
   cbRef.current = cb;
   useEffect(() => {
@@ -51,9 +55,7 @@ export function ContractFilters({ filters, subs, onFiltersChange }: Props) {
   const minVal = filters.min_amount ?? "";
   const maxVal = filters.max_amount ?? "";
   const amountError =
-    minVal !== "" && maxVal !== "" && Number(minVal) > Number(maxVal)
-      ? "Min must be ≤ Max"
-      : null;
+    minVal !== "" && maxVal !== "" && Number(minVal) > Number(maxVal) ? "Min must be ≤ Max" : null;
 
   function toggleStatus(s: DebtContractStatus) {
     const current = filters.status ?? [];

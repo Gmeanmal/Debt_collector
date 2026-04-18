@@ -31,7 +31,10 @@ function computeNextPayments(contract: DebtContractOut): { date: Date; amount: s
     next = new Date(next.getTime() + periodMs);
   }
   for (let i = 0; i < 3; i++) {
-    results.push({ date: new Date(next.getTime() + i * periodMs), amount: contract.minimum_payment });
+    results.push({
+      date: new Date(next.getTime() + i * periodMs),
+      amount: contract.minimum_payment,
+    });
   }
   return results;
 }

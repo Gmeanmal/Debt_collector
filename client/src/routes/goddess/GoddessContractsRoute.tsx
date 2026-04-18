@@ -33,8 +33,7 @@ export function GoddessContractsRoute() {
 
   const minVal = pendingFilters.min_amount;
   const maxVal = pendingFilters.max_amount;
-  const hasAmountError =
-    minVal !== undefined && maxVal !== undefined && minVal > maxVal;
+  const hasAmountError = minVal !== undefined && maxVal !== undefined && minVal > maxVal;
 
   const {
     data: contracts = [],
