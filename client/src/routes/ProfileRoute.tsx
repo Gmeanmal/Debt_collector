@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Avatar } from "@/components/profile/Avatar";
 import { AvatarPicker } from "@/components/profile/AvatarPicker";
-import { ChangeRequestDialog } from "@/components/profile/ChangeRequestDialog";
+import { ChangeRequestPanel } from "@/components/profile/ChangeRequestPanel";
 import { ChangeRequestList } from "@/components/profile/ChangeRequestList";
 import { updatePaymentHandleApi, listMyChangeRequestsApi } from "@/services/profile/profileApi";
 import type { AvatarKey } from "@/services/profile/avatarMap";
@@ -24,13 +24,18 @@ function emptyToNull(v: string): string | null {
 
 const paymentHandleSchema = z.string().max(64).nullable();
 
+function deriveHandle(email: string): string {
+  return email.split("@")[0] ?? email;
+}
+
 export function ProfileRoute() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const panelHeadingId = useId();
 
   const [avatarKey, setAvatarKey] = useState<AvatarKey>(user?.avatar_key ?? "default");
-  const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [showChangePanel, setShowChangePanel] = useState(false);
   const [paymentHandle, setPaymentHandle] = useState("");
   const [paymentHandleError, setPaymentHandleError] = useState("");
 
@@ -51,7 +56,7 @@ export function ProfileRoute() {
     onSuccess: (result) => {
       if (result.kind === "applied") {
         void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
-        toast.success("Avatar updated");
+        toast.success("Avatar saved");
       }
     },
     onError: () => toast.error("Failed to update avatar"),
@@ -83,16 +88,26 @@ export function ProfileRoute() {
     void navigate(`/sub/payments/new?change_request_id=${requestId}`);
   }
 
+  function handleChangePanelSuccess() {
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.profile.changeRequests.own(),
+    });
+    setShowChangePanel(false);
+  }
+
   const isSubRole = user?.role === "sub";
+  const emailHandle = user?.email ? deriveHandle(user.email) : null;
 
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-lg mx-auto flex flex-col gap-6">
         <div>
           <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Profile
+            {user?.display_name ?? "Profile"}
           </h1>
-          <p className="text-sm text-base-text-muted mt-1">Your identity on the platform.</p>
+          {emailHandle && (
+            <p className="text-sm text-base-text-muted mt-0.5">@{emailHandle}</p>
+          )}
         </div>
 
         <Card>
@@ -137,7 +152,8 @@ export function ProfileRoute() {
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <p className="text-xs text-base-text-muted">
-                Your payment identifier (e.g. CashApp tag, Throne handle). Visible only to you.
+                Your payment identifier (e.g. CashApp tag, Throne handle). Visible to you and your
+                Goddess.
               </p>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="payment_handle">Handle</Label>
@@ -170,29 +186,36 @@ export function ProfileRoute() {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Profile change requests</CardTitle>
-                <Button size="sm" onClick={() => setShowRequestDialog(true)}>
-                  Request change
+                <CardTitle className="text-base" id={panelHeadingId}>
+                  Profile change requests
+                </CardTitle>
+                <Button
+                  size="sm"
+                  aria-expanded={showChangePanel}
+                  aria-controls="change-request-panel"
+                  onClick={() => setShowChangePanel((prev) => !prev)}
+                >
+                  Request profile change
                 </Button>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex flex-col gap-4">
+              {showChangePanel && (
+                <section
+                  id="change-request-panel"
+                  role="region"
+                  aria-labelledby={panelHeadingId}
+                  className="border border-base-border rounded-md px-4 pb-4"
+                >
+                  <ChangeRequestPanel
+                    onSuccess={handleChangePanelSuccess}
+                    onCancel={() => setShowChangePanel(false)}
+                  />
+                </section>
+              )}
               <ChangeRequestList requests={changeRequests} onPayFee={handlePayToFee} />
             </CardContent>
           </Card>
-        )}
-
-        {showRequestDialog && (
-          <ChangeRequestDialog
-            open={showRequestDialog}
-            onClose={() => setShowRequestDialog(false)}
-            onSuccess={() => {
-              void queryClient.invalidateQueries({
-                queryKey: queryKeys.profile.changeRequests.own(),
-              });
-              setShowRequestDialog(false);
-            }}
-          />
         )}
       </div>
     </div>

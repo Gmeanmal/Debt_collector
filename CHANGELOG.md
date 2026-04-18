@@ -4,6 +4,13 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Fixed
+- **PROFILE-1 profile header polish + inline change-request panel** (ref `planning/todo.md` W5, single `fix(profile)` commit):
+  - **Header layout.** `/profile` now renders `display_name` on line 1 (`font-display` pink-primary) and the derived `@handle` on line 2 (muted, small). Duplicate `display_name` line removed. Note: `UserOut` does not yet expose `username` — handle is derived from the email prefix via `deriveHandle(email)` until a future slice adds `UserOut.username`.
+  - **Payment handle copy.** `"Visible only to you."` → `"Visible to you and your Goddess."` on the payment-handle card so the visibility contract matches reality (the goddess reads it from the validation UI).
+  - **Avatar save toast.** The existing `onSuccess` callback on the avatar upload now fires `toast.success("Avatar saved")`.
+  - **Inline change-request panel.** `ChangeRequestDialog` (Radix dialog) replaced with a collapsible inline `<section role="region" aria-labelledby>` inside `ProfileRoute.tsx`, toggled by a `useState<boolean>` + a button carrying `aria-expanded` + `aria-controls`. Collapsed by default; auto-collapses on cancel or successful submission. Form JSX extracted into `components/profile/ChangeRequestPanel.tsx`. The legacy dialog file is deleted — no backwards-compat shim.
+
 ### Added
 - **GENDER-1 72-entry gender taxonomy with searchable picker** (ref `planning/todo.md` W5, single `feat(profile)` commit):
   - **New `gender_taxonomy` table.** `models/gender_taxonomy.py::GenderTaxonomy(id UUID PK, slug VARCHAR UNIQUE, label VARCHAR, description VARCHAR nullable, sort_order INT, created_at TIMESTAMP)`. Alembic migration `b06e2c961616` seeds 72 deterministic rows via `uuid5(NAMESPACE_URL, slug)` so upgrade → downgrade → upgrade round-trips produce stable primary keys — no drifting FK references on rollback. Seed list drawn from Facebook's 2014 identity list + standard queer-inclusive extensions (cis/trans/non-binary variants, agender, bigender, genderfluid, genderqueer, demi-boy/girl/non-binary, two-spirit, hijra, muxe, xenogender, `prefer_not_to_say`, etc.). Sort order is alphabetical by label (1..72).
