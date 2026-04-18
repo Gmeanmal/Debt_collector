@@ -40,6 +40,7 @@ from routers import (
     photo,
     profile,
     public_invitation,
+    reference,
     review_queue,
     rituals,
     rolling,
@@ -161,4 +162,5 @@ app.include_router(review_queue.router)
 app.include_router(sub_aftercare.router)
 app.include_router(sub_medical.sub_router)
 app.include_router(sub_medical.goddess_router)
+app.include_router(reference.router)
 app.include_router(ws.router)

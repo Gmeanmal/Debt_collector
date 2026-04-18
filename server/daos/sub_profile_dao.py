@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.exceptions import NotFound
-from models.sub_profile import Gender, OwnershipStatus, SubProfile
+from models.sub_profile import OwnershipStatus, SubProfile
 
 
 class SubProfileDao:
@@ -34,7 +34,7 @@ class SubProfileDao:
         *,
         real_name: str | None = None,
         age: int | None = None,
-        gender: Gender | None = None,
+        gender_id: UUID | None = None,
         pronouns: str | None = None,
         location: str | None = None,
         timezone: str | None = None,
@@ -48,8 +48,8 @@ class SubProfileDao:
             row.real_name = real_name
         if age is not None:
             row.age = age
-        if gender is not None:
-            row.gender = gender
+        if gender_id is not None:
+            row.gender_id = gender_id
         if pronouns is not None:
             row.pronouns = pronouns
         if location is not None:

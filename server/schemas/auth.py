@@ -6,6 +6,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from models.user import AvatarKey, UserRole, UserStatus
+from schemas.reference import GenderTaxonomyOut
 
 
 class LoginRequest(BaseModel):
@@ -117,6 +118,14 @@ class UserOut(BaseModel):
         ),
         examples=["30.00", None],
     )
+    gender_taxonomy: GenderTaxonomyOut | None = Field(
+        None,
+        description=(
+            "Resolved gender taxonomy entry from sub_profile.gender_id. "
+            "Null when no taxonomy gender has been selected."
+        ),
+        examples=[None],
+    )
 
 
 class ProfileUpdate(BaseModel):
@@ -170,6 +179,14 @@ class ProfileUpdate(BaseModel):
         ),
         examples=["John Doe"],
         max_length=200,
+    )
+    gender_id: UUID | None = Field(
+        None,
+        description=(
+            "UUID of the selected gender taxonomy entry (from GET /reference/genders). "
+            "Written to sub_profile.gender_id."
+        ),
+        examples=[None],
     )
 
     model_config = {"str_strip_whitespace": True}

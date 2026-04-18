@@ -16,6 +16,7 @@ from models.debt import PaymentFrequency as PaymentFrequency
 from models.debt import RenewalPolicy as RenewalPolicy
 from models.debt_event import DebtEvent as DebtEvent
 from models.debt_event import EventType as EventType
+from models.gender_taxonomy import GenderTaxonomy as GenderTaxonomy
 from models.goddess_kek import GoddessKek as GoddessKek
 from models.invitation import Invitation as Invitation
 from models.journal_entry import JournalEntry as JournalEntry
@@ -57,7 +58,6 @@ from models.sub_limit import SubLimit as SubLimit
 from models.sub_medical import SubMedical as SubMedical
 from models.sub_photo import SubPhoto as SubPhoto
 from models.sub_photo import SubPhotoStatus as SubPhotoStatus
-from models.sub_profile import Gender as Gender
 from models.sub_profile import OwnershipStatus as OwnershipStatus
 from models.sub_profile import SubProfile as SubProfile
 from models.sub_safeword import SubSafeword as SubSafeword

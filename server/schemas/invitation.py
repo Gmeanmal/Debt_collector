@@ -168,6 +168,14 @@ class SignupRequest(BaseModel):
         examples=["John Doe"],
         max_length=200,
     )
+    gender_id: UUID | None = Field(
+        default=None,
+        description=(
+            "UUID of the selected gender taxonomy entry (from GET /reference/genders). "
+            "Written to sub_profile.gender_id on account creation."
+        ),
+        examples=[None],
+    )
 
     @field_validator("date_of_birth")
     @classmethod

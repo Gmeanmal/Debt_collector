@@ -7,10 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.profile_controller import ProfileController
 from core.db import get_session
+from daos.gender_taxonomy_dao import GenderTaxonomyDao
+from daos.sub_profile_dao import SubProfileDao
 from daos.user_dao import UserDao
 from dependencies.auth import get_current_user
-from models.user import User
+from models.user import User, UserRole
 from schemas.auth import ProfileUpdate, UserOut
+from schemas.reference import GenderTaxonomyOut
 
 router = APIRouter(prefix="/me", tags=["me"])
 
@@ -22,7 +25,7 @@ def _display_name(user: User) -> str:
     return " ".join(parts) if parts else user.username
 
 
-def _build_user_out(user: User) -> UserOut:
+def _build_user_out(user: User, gender_taxonomy: GenderTaxonomyOut | None = None) -> UserOut:
     return UserOut(
         id=user.id,
         email=user.email,
@@ -45,6 +48,7 @@ def _build_user_out(user: User) -> UserOut:
         impersonator_id=None,
         impersonator_display_name=None,
         entry_tribute_amount=None,
+        gender_taxonomy=gender_taxonomy,
     )
 
 
@@ -130,7 +134,20 @@ async def update_profile(
     if change_req is not None:
         response.status_code = 202
         return {"change_request_id": change_req.id}
-    return _build_user_out(updated)
+    gender_taxonomy = await _resolve_gender_taxonomy(updated, session)
+    return _build_user_out(updated, gender_taxonomy)
+
+
+async def _resolve_gender_taxonomy(user: User, session: AsyncSession) -> GenderTaxonomyOut | None:
+    if user.role != UserRole.sub:
+        return None
+    profile_dao = SubProfileDao(session)
+    gender_dao = GenderTaxonomyDao(session)
+    profile = await profile_dao.get_by_user_id(user.id)
+    if profile.gender_id is None:
+        return None
+    entry = await gender_dao.get_by_id(profile.gender_id)
+    return GenderTaxonomyOut.model_validate(entry)
 
 
 def _coerce_theme(value: str) -> ThemePreference:

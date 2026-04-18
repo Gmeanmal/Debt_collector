@@ -7,11 +7,13 @@ from controllers.auth_controller import AuthController
 from core.config import Settings, get_settings
 from core.db import get_session
 from core.rate_limit import limiter
+from daos.gender_taxonomy_dao import GenderTaxonomyDao
 from daos.invitation_dao import InvitationDao
+from daos.sub_profile_dao import SubProfileDao
 from daos.token_dao import TokenDao
 from daos.user_dao import UserDao
 from dependencies.auth import AuthContext, get_auth_context
-from models.user import User, UserStatus
+from models.user import User, UserRole, UserStatus
 from schemas.auth import (
     LoginRequest,
     PasswordResetConfirm,
@@ -20,6 +22,7 @@ from schemas.auth import (
     TokenPair,
     UserOut,
 )
+from schemas.reference import GenderTaxonomyOut
 from services.email.factory import get_email_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -56,6 +59,7 @@ def _user_out(
     user: User,
     impersonator: User | None = None,
     entry_tribute_amount: Decimal | None = None,
+    gender_taxonomy: GenderTaxonomyOut | None = None,
 ) -> UserOut:
     return UserOut(
         id=user.id,
@@ -79,6 +83,7 @@ def _user_out(
         impersonator_id=impersonator.id if impersonator else None,
         impersonator_display_name=_display_name(impersonator) if impersonator else None,
         entry_tribute_amount=entry_tribute_amount,
+        gender_taxonomy=gender_taxonomy,
     )
 
 
@@ -93,6 +98,18 @@ def _set_refresh_cookie(response: Response, token: str, settings: Settings) -> N
         path="/",
         domain=settings.refresh_cookie_domain or None,
     )
+
+
+async def _resolve_gender_taxonomy(user: User, session: AsyncSession) -> GenderTaxonomyOut | None:
+    if user.role != UserRole.sub:
+        return None
+    profile_dao = SubProfileDao(session)
+    gender_dao = GenderTaxonomyDao(session)
+    profile = await profile_dao.get_by_user_id(user.id)
+    if profile.gender_id is None:
+        return None
+    entry = await gender_dao.get_by_id(profile.gender_id)
+    return GenderTaxonomyOut.model_validate(entry)
 
 
 def _clear_refresh_cookie(response: Response, settings: Settings) -> None:
@@ -298,10 +315,12 @@ async def password_reset_confirm(
 async def me(
     ctx: AuthContext = Depends(get_auth_context),
     ctrl: AuthController = Depends(_build_controller),
+    session: AsyncSession = Depends(get_session),
 ) -> UserOut:
     entry_tribute_amount = (
         await ctrl.get_entry_tribute_amount(ctx.user.id)
         if ctx.user.status == UserStatus.pending_entry_tribute
         else None
     )
-    return _user_out(ctx.user, ctx.impersonator, entry_tribute_amount)
+    gender_taxonomy = await _resolve_gender_taxonomy(ctx.user, session)
+    return _user_out(ctx.user, ctx.impersonator, entry_tribute_amount, gender_taxonomy)

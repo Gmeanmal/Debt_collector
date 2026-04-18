@@ -151,7 +151,9 @@ class InvitationController:
         self._session.add(user)
         await self._session.flush()
 
-        await self._sub_profiles.create_default_row(user.id)
+        profile = await self._sub_profiles.create_default_row(user.id)
+        if signup.gender_id is not None:
+            profile.gender_id = signup.gender_id
 
         await self._dao.consume(invitation, user.id, now)
 

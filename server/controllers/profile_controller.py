@@ -237,6 +237,9 @@ class ProfileController:
         if payload.date_of_birth is not None:
             fields["date_of_birth"] = payload.date_of_birth
 
+        if payload.gender_id is not None:
+            await self._profile_dao.upsert(user.id, gender_id=payload.gender_id)
+
         change_req: ProfileChangeRequestOut | None = None
 
         if payload.real_name is not None:

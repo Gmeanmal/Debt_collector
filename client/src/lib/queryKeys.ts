@@ -159,4 +159,8 @@ export const queryKeys = {
   medical: {
     own: () => ["profile", "medical", "self"] as const,
   },
+
+  reference: {
+    genders: () => ["reference", "genders"] as const,
+  },
 };

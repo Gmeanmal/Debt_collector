@@ -5,13 +5,6 @@ from uuid import UUID
 from sqlmodel import Field, SQLModel
 
 
-class Gender(StrEnum):
-    male = "male"
-    female = "female"
-    non_binary = "non_binary"
-    other = "other"
-
-
 class OwnershipStatus(StrEnum):
     free = "free"
     owned = "owned"
@@ -32,7 +25,11 @@ class SubProfile(SQLModel, table=True):
     )
     real_name: str | None = Field(default=None, nullable=True)
     age: int | None = Field(default=None, nullable=True, ge=18)
-    gender: Gender | None = Field(default=None, nullable=True)
+    gender_id: UUID | None = Field(
+        default=None,
+        foreign_key="gender_taxonomy.id",
+        nullable=True,
+    )
     pronouns: str | None = Field(default=None, nullable=True, max_length=32)
     location: str | None = Field(default=None, nullable=True)
     timezone: str | None = Field(default=None, nullable=True)

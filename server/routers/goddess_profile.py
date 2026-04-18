@@ -5,6 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.profile_controller import ProfileController
 from core.db import get_session
+from daos.gender_taxonomy_dao import GenderTaxonomyDao
+from daos.sub_profile_dao import SubProfileDao
 from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
@@ -15,6 +17,7 @@ from schemas.profile import (
     GoddessSetFeeIn,
     ProfileChangeRequestOut,
 )
+from schemas.reference import GenderTaxonomyOut
 from schemas.status import (
     OwnershipStatusChangeIn,
     OwnershipStatusChangeOut,
@@ -37,7 +40,7 @@ _E422_TRANSITION = {
 router = APIRouter(prefix="/goddess", tags=["profile"])
 
 
-def _user_out(user: User) -> UserOut:
+def _user_out(user: User, gender_taxonomy: GenderTaxonomyOut | None = None) -> UserOut:
     parts = [p for p in [user.first_name, user.last_name] if p]
     display = " ".join(parts) if parts else user.username
     return UserOut(
@@ -62,7 +65,20 @@ def _user_out(user: User) -> UserOut:
         impersonator_id=None,
         impersonator_display_name=None,
         entry_tribute_amount=None,
+        gender_taxonomy=gender_taxonomy,
     )
+
+
+async def _resolve_gender_taxonomy(user: User, session: AsyncSession) -> GenderTaxonomyOut | None:
+    if user.role != UserRole.sub:
+        return None
+    profile_dao = SubProfileDao(session)
+    gender_dao = GenderTaxonomyDao(session)
+    profile = await profile_dao.get_by_user_id(user.id)
+    if profile.gender_id is None:
+        return None
+    entry = await gender_dao.get_by_id(profile.gender_id)
+    return GenderTaxonomyOut.model_validate(entry)
 
 
 @router.get(
@@ -90,7 +106,8 @@ async def get_sub_by_username(
     """Return a sub's user record looked up by username."""
     ctrl = ProfileController(session)
     sub = await ctrl.get_sub_by_username(goddess, username)
-    return _user_out(sub)
+    gender_taxonomy = await _resolve_gender_taxonomy(sub, session)
+    return _user_out(sub, gender_taxonomy)
 
 
 @router.get(
@@ -210,7 +227,8 @@ async def edit_sub_profile(
     ctrl = ProfileController(session)
     updated = await ctrl.goddess_edit_sub(goddess, sub_id, body)
     await session.commit()
-    return _user_out(updated)
+    gender_taxonomy = await _resolve_gender_taxonomy(updated, session)
+    return _user_out(updated, gender_taxonomy)
 
 
 @router.patch(
