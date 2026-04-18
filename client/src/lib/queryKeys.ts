@@ -154,6 +154,7 @@ export const queryKeys = {
 
   aftercare: {
     own: () => ["aftercare", "own"] as const,
+    forSub: (username: string) => ["goddess", "subs", username, "aftercare"] as const,
   },
 
   medical: {

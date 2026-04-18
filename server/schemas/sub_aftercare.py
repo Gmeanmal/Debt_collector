@@ -32,6 +32,16 @@ class SubAftercareOut(BaseModel):
         description="Any additional aftercare notes for the goddess.",
         examples=["Please check in after 30 minutes."],
     )
+    intensity: int = Field(
+        default=3,
+        description="Aftercare intensity on a scale of 1 (gentle) to 5 (intense).",
+        examples=[3],
+    )
+    read_by_goddess_at: datetime | None = Field(
+        default=None,
+        description="When the goddess last read this aftercare profile (UTC). Null if never read.",
+        examples=["2026-04-18T12:00:00"],
+    )
     updated_at: datetime = Field(
         ...,
         description="When this record was last modified (UTC).",
@@ -63,6 +73,13 @@ class SubAftercareUpdate(BaseModel):
         default=None,
         description="Additional aftercare notes for the goddess.",
         examples=["Check in after 30 minutes."],
+    )
+    intensity: int | None = Field(
+        default=None,
+        ge=1,
+        le=5,
+        description="Aftercare intensity from 1 (gentle) to 5 (intense).",
+        examples=[3],
     )
 
     model_config = {"str_strip_whitespace": True}

@@ -1,8 +1,16 @@
 import { z } from "zod";
-import { fetchAftercare, putAftercare, type RawAftercareUpdate } from "@/api/aftercare";
+import {
+  fetchAftercare,
+  fetchSubAftercareForGoddess,
+  postAftercareRead,
+  putAftercare,
+  type RawAftercareUpdate,
+} from "@/api/aftercare";
 import { queryKeys } from "@/lib/queryKeys";
 
 export const aftercareKey = queryKeys.aftercare.own();
+export const goddessAftercareKey = (username: string) =>
+  queryKeys.aftercare.forSub(username) as readonly string[];
 
 export const AftercareSchema = z.object({
   sub_id: z.string().uuid(),
@@ -10,6 +18,8 @@ export const AftercareSchema = z.object({
   comfort_items: z.string().nullable(),
   contact_phrase: z.string().nullable(),
   notes: z.string().nullable(),
+  intensity: z.number().int().min(1).max(5).default(3),
+  read_by_goddess_at: z.string().nullable(),
   updated_at: z.string(),
 });
 
@@ -23,4 +33,13 @@ export async function getOwnAftercare(): Promise<Aftercare> {
 export async function saveOwnAftercare(body: RawAftercareUpdate): Promise<Aftercare> {
   const raw = await putAftercare(body);
   return AftercareSchema.parse(raw);
+}
+
+export async function getSubAftercareForGoddess(username: string): Promise<Aftercare> {
+  const raw = await fetchSubAftercareForGoddess(username);
+  return AftercareSchema.parse(raw);
+}
+
+export async function markAftercareRead(username: string): Promise<void> {
+  await postAftercareRead(username);
 }

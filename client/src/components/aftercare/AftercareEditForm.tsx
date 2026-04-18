@@ -12,6 +12,7 @@ interface FormState {
   comfort_items: string;
   contact_phrase: string;
   notes: string;
+  intensity: number;
 }
 
 function toFormState(aftercare: Aftercare): FormState {
@@ -20,7 +21,18 @@ function toFormState(aftercare: Aftercare): FormState {
     comfort_items: aftercare.comfort_items ?? "",
     contact_phrase: aftercare.contact_phrase ?? "",
     notes: aftercare.notes ?? "",
+    intensity: aftercare.intensity,
   };
+}
+
+function formatRelative(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 }
 
 export function AftercareEditForm({ initial }: Props) {
@@ -35,6 +47,7 @@ export function AftercareEditForm({ initial }: Props) {
         comfort_items: form.comfort_items.trim() || null,
         contact_phrase: form.contact_phrase.trim() || null,
         notes: form.notes.trim() || null,
+        intensity: form.intensity,
       }),
     onSuccess: (updated) => {
       qc.setQueryData(aftercareKey, updated);
@@ -43,7 +56,7 @@ export function AftercareEditForm({ initial }: Props) {
     },
   });
 
-  function handleChange(field: keyof FormState, value: string) {
+  function handleChange(field: keyof FormState, value: string | number) {
     setForm((prev) => ({ ...prev, [field]: value }));
     setSaved(false);
   }
@@ -85,6 +98,17 @@ export function AftercareEditForm({ initial }: Props) {
         onChange={(v) => handleChange("notes", v)}
       />
 
+      <IntensitySlider
+        value={form.intensity}
+        onChange={(v) => handleChange("intensity", v)}
+      />
+
+      {initial.read_by_goddess_at && (
+        <p className="text-xs text-base-text-muted">
+          Goddess read · {formatRelative(initial.read_by_goddess_at)}
+        </p>
+      )}
+
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={mutation.isPending}>
           {mutation.isPending ? "Saving…" : "Save aftercare profile"}
@@ -95,6 +119,39 @@ export function AftercareEditForm({ initial }: Props) {
         )}
       </div>
     </form>
+  );
+}
+
+interface IntensitySliderProps {
+  value: number;
+  onChange: (v: number) => void;
+}
+
+function IntensitySlider({ value, onChange }: IntensitySliderProps) {
+  const helpId = "intensity-help";
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor="intensity" className="text-sm font-medium text-base-text">
+        Aftercare intensity —{" "}
+        <span className="font-semibold text-pink-primary" role="status">
+          {value}
+        </span>
+      </label>
+      <input
+        id="intensity"
+        type="range"
+        min={1}
+        max={5}
+        step={1}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        aria-describedby={helpId}
+        className="w-full accent-pink-primary cursor-pointer"
+      />
+      <p id={helpId} className="text-xs text-base-text-muted">
+        1 = gentle · 5 = intense
+      </p>
+    </div>
   );
 }
 

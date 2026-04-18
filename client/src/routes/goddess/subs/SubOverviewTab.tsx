@@ -6,6 +6,7 @@ import { TributeGauge } from "@/components/goddess/TributeGauge";
 import { SessionCompleteToggle } from "@/components/goddess/SessionCompleteToggle";
 import { MedicalRevealPanel } from "@/components/goddess/MedicalRevealPanel";
 import { DangerZonePanel } from "@/components/goddess/DangerZonePanel";
+import { SubAftercarePanel } from "@/components/goddess/SubAftercarePanel";
 import { SurprisePenaltyFlow } from "@/components/contracts/SurprisePenaltyFlow";
 import { Button } from "@/components/ui/button";
 import { MEDICAL_FEATURE_ENABLED } from "@/services/featureFlags";
@@ -55,6 +56,7 @@ export function SubOverviewTab({ subId, username, status }: Props) {
       )}
 
       {MEDICAL_FEATURE_ENABLED && <MedicalRevealPanel subId={subId} />}
+      <SubAftercarePanel username={username} />
       <SubRollingSection subId={subId} username={username} />
       <SubContractsSection subId={subId} username={username} />
       <SubPaymentsSection subId={subId} />

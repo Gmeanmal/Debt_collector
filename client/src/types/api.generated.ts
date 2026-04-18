@@ -3706,15 +3706,55 @@ export interface paths {
         };
         /**
          * Get own aftercare profile
-         * @description Returns the calling sub's aftercare record. If the sub has never saved an aftercare profile, returns a default-empty document (all fields null) with `updated_at` set to the current time. This endpoint is restricted to the `sub` role.
+         * @description Returns the calling sub's aftercare record. If the sub has never saved an aftercare profile, returns a default-empty document (all fields null, intensity 3) with `updated_at` set to the current time. This endpoint is restricted to the `sub` role.
          */
         get: operations["get_own_aftercare_profile_aftercare_get"];
         /**
          * Save own aftercare profile
-         * @description Creates or fully replaces the calling sub's aftercare record. All fields are optional — omit a field to leave it unchanged. Pass an explicit `null` to clear a field. Returns the updated aftercare document. This endpoint is restricted to the `sub` role.
+         * @description Creates or fully replaces the calling sub's aftercare record. All fields are optional — omit a field to leave it unchanged. Pass an explicit `null` to clear a text field. `intensity` must be between 1 (gentle) and 5 (intense); defaults to 3. Returns the updated aftercare document. This endpoint is restricted to the `sub` role.
          */
         put: operations["upsert_own_aftercare_profile_aftercare_put"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/goddess/subs/{username}/aftercare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a sub's aftercare profile
+         * @description Returns the aftercare profile for the given sub. Returns 404 if the sub does not exist or does not belong to this goddess. This endpoint is restricted to the `goddess` role.
+         */
+        get: operations["get_sub_aftercare_for_goddess_goddess_subs__username__aftercare_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/goddess/subs/{username}/aftercare/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark a sub's aftercare profile as read
+         * @description Stamps `read_by_goddess_at` to the current UTC time on the given sub's aftercare profile. Idempotent — if the field is already set the earlier timestamp is preserved. Returns 404 if the sub does not exist or does not belong to this goddess (existence is not leaked). This endpoint is restricted to the `goddess` role.
+         */
+        post: operations["mark_aftercare_read_goddess_subs__username__aftercare_read_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -8983,6 +9023,19 @@ export interface components {
              */
             notes?: string | null;
             /**
+             * Intensity
+             * @description Aftercare intensity on a scale of 1 (gentle) to 5 (intense).
+             * @default 3
+             * @example 3
+             */
+            intensity: number;
+            /**
+             * Read By Goddess At
+             * @description When the goddess last read this aftercare profile (UTC). Null if never read.
+             * @example 2026-04-18T12:00:00
+             */
+            read_by_goddess_at?: string | null;
+            /**
              * Updated At
              * Format: date-time
              * @description When this record was last modified (UTC).
@@ -9019,6 +9072,12 @@ export interface components {
              * @example Check in after 30 minutes.
              */
             notes?: string | null;
+            /**
+             * Intensity
+             * @description Aftercare intensity from 1 (gentle) to 5 (intense).
+             * @example 3
+             */
+            intensity?: number | null;
         };
         /** SubDashboardOut */
         SubDashboardOut: {
@@ -24325,6 +24384,112 @@ export interface operations {
             };
             /** @description Forbidden — caller does not have the sub role */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sub_aftercare_for_goddess_goddess_subs__username__aftercare_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubAftercareOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller does not have the goddess role */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — sub does not exist or does not belong to this goddess */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_aftercare_read_goddess_subs__username__aftercare_read_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller does not have the goddess role */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — sub does not exist or does not belong to this goddess */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
