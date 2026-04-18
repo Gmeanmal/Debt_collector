@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.notification_controller import NotificationController
@@ -25,7 +26,8 @@ def _ctrl(session: AsyncSession = Depends(get_session)) -> NotificationControlle
     summary="List recent notifications for the authenticated user",
     description=(
         "Returns the 50 most recent notifications for the authenticated user, newest first, "
-        "together with the current unread count."
+        "together with the current unread count. Actor display names and usernames are "
+        "resolved in a single bulk query when notifications carry an actor_user_id."
     ),
     response_model=NotificationListOut,
     status_code=200,
@@ -60,3 +62,26 @@ async def mark_notification_read(
 ) -> None:
     await ctrl.mark_read(user, notification_id)
     await session.commit()
+
+
+@router.post(
+    "/read-all",
+    summary="Mark all unread notifications as read",
+    description=(
+        "Marks every unread notification for the authenticated user as read in a single "
+        "UPDATE statement. No-op when the user has no unread notifications. "
+        "Returns 204 No Content on success."
+    ),
+    response_class=Response,
+    status_code=204,
+    tags=["notifications"],
+    responses={401: _E401, 500: _E500},
+)
+async def mark_all_notifications_read(
+    session: AsyncSession = Depends(get_session),
+    user: User = Depends(get_current_user),
+    ctrl: NotificationController = Depends(_ctrl),
+) -> Response:
+    await ctrl.mark_all_read(user)
+    await session.commit()
+    return Response(status_code=204)

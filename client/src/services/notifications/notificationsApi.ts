@@ -26,3 +26,10 @@ export async function markNotificationReadApi(id: string): Promise<void> {
   });
   if (error) throw new Error("Failed to mark notification as read");
 }
+
+export async function markAllNotificationsReadApi(): Promise<void> {
+  const { error } = await apiClient.POST("/me/notifications/read-all", {
+    headers: authHeaders(),
+  });
+  if (error) throw new Error("Failed to mark all notifications as read");
+}

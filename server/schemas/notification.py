@@ -25,6 +25,16 @@ class NotificationOut(BaseModel):
         default=None, description="UTC timestamp when the user marked this as read"
     )
     created_at: datetime = Field(..., description="UTC datetime when emitted")
+    actor_display_name: str | None = Field(
+        default=None,
+        description="Display name of the actor who triggered this notification, if applicable",
+        examples=["Jane Smith"],
+    )
+    actor_username: str | None = Field(
+        default=None,
+        description="Username of the actor who triggered this notification, if applicable",
+        examples=["janesmith"],
+    )
 
     model_config = {"from_attributes": True}
 

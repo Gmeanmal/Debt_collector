@@ -51,6 +51,13 @@ class Notification(SQLModel, table=True):
             index=True,
         )
     )
+    actor_user_id: UUID | None = Field(
+        default=None,
+        sa_column=Column(
+            ForeignKey("user.id", ondelete="SET NULL"),
+            nullable=True,
+        ),
+    )
     type: NotificationType = Field(nullable=False)
     title: str = Field(nullable=False)
     body: str | None = Field(default=None, sa_column=Column(Text, nullable=True))

@@ -1291,7 +1291,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a users row
-         * @description Admin generic hard-delete for `users`.
+         * @description Admin generic hard-delete for `users`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["users_delete_admin_users__item_id__delete"];
         options?: never;
@@ -1301,6 +1301,26 @@ export interface paths {
          * @description Admin generic partial update for `users`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
          */
         patch: operations["users_update_admin_users__item_id__patch"];
+        trace?: never;
+    };
+    "/admin/users.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export users as CSV
+         * @description Streams all `users` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["users_csv_admin_users_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/goddesses": {
@@ -1343,7 +1363,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a goddesses row
-         * @description Admin generic hard-delete for `goddesses`.
+         * @description Admin generic hard-delete for `goddesses`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["goddesses_delete_admin_goddesses__item_id__delete"];
         options?: never;
@@ -1353,6 +1373,26 @@ export interface paths {
          * @description Admin generic partial update for `goddesses`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
          */
         patch: operations["goddesses_update_admin_goddesses__item_id__patch"];
+        trace?: never;
+    };
+    "/admin/goddesses.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export goddesses as CSV
+         * @description Streams all `goddesses` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["goddesses_csv_admin_goddesses_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/invitations": {
@@ -1395,7 +1435,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a invitations row
-         * @description Admin generic hard-delete for `invitations`.
+         * @description Admin generic hard-delete for `invitations`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["invitations_delete_admin_invitations__item_id__delete"];
         options?: never;
@@ -1405,6 +1445,26 @@ export interface paths {
          * @description Admin generic partial update for `invitations`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
          */
         patch: operations["invitations_update_admin_invitations__item_id__patch"];
+        trace?: never;
+    };
+    "/admin/invitations.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export invitations as CSV
+         * @description Streams all `invitations` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["invitations_csv_admin_invitations_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/payment_methods": {
@@ -1447,7 +1507,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a payment_methods row
-         * @description Admin generic hard-delete for `payment_methods`.
+         * @description Admin generic hard-delete for `payment_methods`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["payment_methods_delete_admin_payment_methods__item_id__delete"];
         options?: never;
@@ -1457,6 +1517,26 @@ export interface paths {
          * @description Admin generic partial update for `payment_methods`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
          */
         patch: operations["payment_methods_update_admin_payment_methods__item_id__patch"];
+        trace?: never;
+    };
+    "/admin/payment_methods.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export payment_methods as CSV
+         * @description Streams all `payment_methods` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["payment_methods_csv_admin_payment_methods_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/payment_declarations": {
@@ -1499,7 +1579,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a payment_declarations row
-         * @description Admin generic hard-delete for `payment_declarations`.
+         * @description Admin generic hard-delete for `payment_declarations`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["payment_declarations_delete_admin_payment_declarations__item_id__delete"];
         options?: never;
@@ -1509,6 +1589,26 @@ export interface paths {
          * @description Admin generic partial update for `payment_declarations`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
          */
         patch: operations["payment_declarations_update_admin_payment_declarations__item_id__patch"];
+        trace?: never;
+    };
+    "/admin/payment_declarations.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export payment_declarations as CSV
+         * @description Streams all `payment_declarations` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["payment_declarations_csv_admin_payment_declarations_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/rolling_tributes": {
@@ -1551,7 +1651,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a rolling_tributes row
-         * @description Admin generic hard-delete for `rolling_tributes`.
+         * @description Admin generic hard-delete for `rolling_tributes`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["rolling_tributes_delete_admin_rolling_tributes__item_id__delete"];
         options?: never;
@@ -1561,6 +1661,26 @@ export interface paths {
          * @description Admin generic partial update for `rolling_tributes`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
          */
         patch: operations["rolling_tributes_update_admin_rolling_tributes__item_id__patch"];
+        trace?: never;
+    };
+    "/admin/rolling_tributes.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export rolling_tributes as CSV
+         * @description Streams all `rolling_tributes` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["rolling_tributes_csv_admin_rolling_tributes_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/debt_contracts": {
@@ -1603,7 +1723,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a debt_contracts row
-         * @description Admin generic hard-delete for `debt_contracts`.
+         * @description Admin generic hard-delete for `debt_contracts`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["debt_contracts_delete_admin_debt_contracts__item_id__delete"];
         options?: never;
@@ -1613,6 +1733,26 @@ export interface paths {
          * @description Admin generic partial update for `debt_contracts`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
          */
         patch: operations["debt_contracts_update_admin_debt_contracts__item_id__patch"];
+        trace?: never;
+    };
+    "/admin/debt_contracts.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export debt_contracts as CSV
+         * @description Streams all `debt_contracts` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["debt_contracts_csv_admin_debt_contracts_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/blacklist_entries": {
@@ -1655,7 +1795,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a blacklist_entries row
-         * @description Admin generic hard-delete for `blacklist_entries`.
+         * @description Admin generic hard-delete for `blacklist_entries`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["blacklist_entries_delete_admin_blacklist_entries__item_id__delete"];
         options?: never;
@@ -1665,6 +1805,26 @@ export interface paths {
          * @description Admin generic partial update for `blacklist_entries`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
          */
         patch: operations["blacklist_entries_update_admin_blacklist_entries__item_id__patch"];
+        trace?: never;
+    };
+    "/admin/blacklist_entries.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export blacklist_entries as CSV
+         * @description Streams all `blacklist_entries` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["blacklist_entries_csv_admin_blacklist_entries_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/notifications": {
@@ -1707,7 +1867,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a notifications row
-         * @description Admin generic hard-delete for `notifications`.
+         * @description Admin generic hard-delete for `notifications`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["notifications_delete_admin_notifications__item_id__delete"];
         options?: never;
@@ -1717,6 +1877,26 @@ export interface paths {
          * @description Admin generic partial update for `notifications`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
          */
         patch: operations["notifications_update_admin_notifications__item_id__patch"];
+        trace?: never;
+    };
+    "/admin/notifications.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export notifications as CSV
+         * @description Streams all `notifications` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["notifications_csv_admin_notifications_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/debt_events": {
@@ -1759,7 +1939,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a debt_events row
-         * @description Admin generic hard-delete for `debt_events`.
+         * @description Admin generic hard-delete for `debt_events`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["debt_events_delete_admin_debt_events__item_id__delete"];
         options?: never;
@@ -1769,6 +1949,26 @@ export interface paths {
          * @description Admin generic partial update for `debt_events`. Unknown keys are ignored. `updated_at` is set when the field exists. Certain immutable fields (e.g. `id`, `created_at`) are rejected with 400.
          */
         patch: operations["debt_events_update_admin_debt_events__item_id__patch"];
+        trace?: never;
+    };
+    "/admin/debt_events.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export debt_events as CSV
+         * @description Streams all `debt_events` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["debt_events_csv_admin_debt_events_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/contract_adjustments": {
@@ -1811,7 +2011,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a contract_adjustments row
-         * @description Admin generic hard-delete for `contract_adjustments`.
+         * @description Admin generic hard-delete for `contract_adjustments`. For `users`, two guards apply: cannot delete the last admin, and cannot delete a user who has active debt contracts.
          */
         delete: operations["contract_adjustments_delete_admin_contract_adjustments__item_id__delete"];
         options?: never;
@@ -1823,6 +2023,26 @@ export interface paths {
         patch: operations["contract_adjustments_update_admin_contract_adjustments__item_id__patch"];
         trace?: never;
     };
+    "/admin/contract_adjustments.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export contract_adjustments as CSV
+         * @description Streams all `contract_adjustments` rows as a CSV file. Sensitive fields (e.g. `password_hash`) are excluded. The response is streamed in batches of 500 rows.
+         */
+        get: operations["contract_adjustments_csv_admin_contract_adjustments_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/notifications": {
         parameters: {
             query?: never;
@@ -1832,7 +2052,7 @@ export interface paths {
         };
         /**
          * List recent notifications for the authenticated user
-         * @description Returns the 50 most recent notifications for the authenticated user, newest first, together with the current unread count.
+         * @description Returns the 50 most recent notifications for the authenticated user, newest first, together with the current unread count. Actor display names and usernames are resolved in a single bulk query when notifications carry an actor_user_id.
          */
         get: operations["list_my_notifications_me_notifications_get"];
         put?: never;
@@ -1857,6 +2077,26 @@ export interface paths {
          * @description Marks the given notification as read for the authenticated user. No-op if the notification is already read. Silently no-ops when the notification does not belong to the caller to avoid leaking existence.
          */
         post: operations["mark_notification_read_me_notifications__notification_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark all unread notifications as read
+         * @description Marks every unread notification for the authenticated user as read in a single UPDATE statement. No-op when the user has no unread notifications. Returns 204 No Content on success.
+         */
+        post: operations["mark_all_notifications_read_me_notifications_read_all_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -7457,6 +7697,18 @@ export interface components {
              * @description UTC datetime when emitted
              */
             created_at: string;
+            /**
+             * Actor Display Name
+             * @description Display name of the actor who triggered this notification, if applicable
+             * @example Jane Smith
+             */
+            actor_display_name?: string | null;
+            /**
+             * Actor Username
+             * @description Username of the actor who triggered this notification, if applicable
+             * @example janesmith
+             */
+            actor_username?: string | null;
         };
         /**
          * NotificationType
@@ -15252,6 +15504,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -15321,6 +15580,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    users_csv_admin_users_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15570,6 +15879,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -15639,6 +15955,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    goddesses_csv_admin_goddesses_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15888,6 +16254,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -15957,6 +16330,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    invitations_csv_admin_invitations_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16206,6 +16629,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -16275,6 +16705,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    payment_methods_csv_admin_payment_methods_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16524,6 +17004,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -16593,6 +17080,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    payment_declarations_csv_admin_payment_declarations_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16842,6 +17379,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -16911,6 +17455,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    rolling_tributes_csv_admin_rolling_tributes_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17160,6 +17754,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -17229,6 +17830,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    debt_contracts_csv_admin_debt_contracts_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17478,6 +18129,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -17547,6 +18205,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    blacklist_entries_csv_admin_blacklist_entries_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17796,6 +18504,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -17865,6 +18580,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    notifications_csv_admin_notifications_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18114,6 +18879,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -18183,6 +18955,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    debt_events_csv_admin_debt_events_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18432,6 +19254,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Conflict — last admin or user has active contracts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -18501,6 +19330,56 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    contract_adjustments_csv_admin_contract_adjustments_csv_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18598,6 +19477,49 @@ export interface operations {
             };
             /** @description Not found — notification does not exist or belongs to another user */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mark_all_notifications_read_me_notifications_read_all_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

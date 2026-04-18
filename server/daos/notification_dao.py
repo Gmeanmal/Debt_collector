@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, func, select
 
@@ -49,3 +50,14 @@ class NotificationDao:
             )
         )
         return int(result.scalar_one())
+
+    async def mark_all_read_for_user(self, user_id: UUID) -> None:
+        now = datetime.now(UTC).replace(tzinfo=None)
+        await self._session.execute(
+            update(Notification)
+            .where(
+                col(Notification.user_id) == user_id,
+                col(Notification.read_at).is_(None),
+            )
+            .values(read_at=now)
+        )

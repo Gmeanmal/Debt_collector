@@ -4,6 +4,24 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Fixed
+- **NOTIF-1 notifications popover polish — actor name, filter chips, mark-all-read, per-kind visuals** (ref `planning/todo.md` W8, single `feat(notif)` commit):
+  - **Actor column.** Alembic `notif1_actor_user_id` adds `actor_user_id: UUID | None` FK to `notification`, `NotificationOut` gains `actor_display_name: str | None` and `actor_username: str | None`, and `NotificationController.list_for_user` bulk-resolves actors via a single `UserDao.get_many_by_ids` call (zero N+1). The popover renders `"{display_name} (@{username})"` when both are present, falls back to whichever exists, or omits the line entirely — raw UUIDs never hit the DOM for sub/goddess surfaces. Round-trip (`upgrade → downgrade → upgrade`) clean.
+  - **Mark-all-read endpoint.** New `POST /me/notifications/read-all` → `204 No Content`. Full OpenAPI metadata (`tags=["notifications"]`, 401/500 responses). Backed by a new `NotificationDao.mark_all_read_for_user(user_id)` — one `UPDATE notification SET read_at=... WHERE user_id=:u AND read_at IS NULL`. No N+1.
+  - **Dynamic bell `aria-label`.** Recomputed on every render as ``Notifications · ${unreadCount} unread`` — kept stable (never switches to `"No unread"`) so screen readers read the counter consistently regardless of state.
+  - **Filter chips.** New `components/layout/NotificationFilterChips.tsx` renders `All / Validations / Late / Contract events` at the top of the popover. `services/notifications/notificationKinds.ts::FILTER_KINDS` maps chips to `NotificationType` sets:
+    - `Validations` → `payment_pending`, `payment_validated`, `payment_rejected`.
+    - `Late` → `rolling_late`, `contract_late_penalty`, `contract_surprise_penalty`.
+    - `Contract events` → all 14 `contract_*` enum values.
+    - `Kink updates` — **hidden via `HIDDEN_CHIPS`** because no current enum value covers kink changes (spec called for it but the `NotificationType` enum has no match today; a future slice can un-hide once the enum grows). Rendering an empty chip was rejected as noisier than hiding.
+    - Chips carry unread-in-category counts in the label (e.g. `Validations · 3`). Buttons use `aria-pressed` with a visible focus ring.
+  - **Mark all as read button** in the popover top-right. Disabled when `unreadCount === 0`. On click fires `markAllNotificationsReadApi` and invalidates the notifications query key. Pending state disables + shows a spinner.
+  - **Per-kind visual differentiation.** New `components/layout/NotificationItem.tsx` resolves icon + accent per kind via helpers in `notificationKinds.ts`:
+    - Icon: `lucide-react` — `BadgeCheck` for validation, `Clock` for late, `Heart` for kinks, `FileText` for contracts, `Bell` as fallback.
+    - Colour accent: 2px left border + muted tint derived from existing tokens (`text-status-warning` / `text-status-success` / `text-pink-primary` / `text-base-text`). Tailwind utilities only; no inline hex.
+    - Unread rows carry an extra `bg-base-surface-raised` tint plus a pink dot indicator.
+  - **Component split.** `NotificationBell.tsx` stays under the 300-line cap; filter chips + the item row split into their own files (`NotificationItem.tsx`, `NotificationFilterChips.tsx`) so the orchestrator stays readable.
+
 ### Added
 - **ADMIN-1 admin console polish — status pills, CSV export, sortable columns, impersonate confirm, delete guards** (ref `planning/todo.md` W8, single `feat(admin)` commit):
   - **Status pills.** New `components/admin/StatusPill.tsx` maps known status strings to semantic tokens via `components/admin/statusUtils.ts::isStatusColumn` (split to keep `react-refresh/only-export-components` happy): `active → bg-status-success/15 text-status-success`, `pending_entry_tribute → warning`, `blacklisted → danger`, `pending_validation → info`, `deleted → muted`; unknown values fall back to a neutral muted pill. `AdminTable` cell renderer checks `isStatusColumn(key)` before writing raw text.

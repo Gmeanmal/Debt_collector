@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Bell, Loader2 } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   listNotificationsApi,
+  markAllNotificationsReadApi,
   markNotificationReadApi,
   type NotificationOut,
 } from "@/services/notifications/notificationsApi";
+import { FILTER_KINDS, type ChipId } from "@/services/notifications/notificationKinds";
 import { useNotificationsStore } from "@/stores/notificationsStore";
 import { useNotificationsSocket } from "@/hooks/useNotificationsSocket";
 import { queryKeys } from "@/lib/queryKeys";
+import { NotificationFilterChips } from "@/components/layout/NotificationFilterChips";
+import { NotificationItem } from "@/components/layout/NotificationItem";
 
 interface NotificationBellProps {
   enabled: boolean;
@@ -17,25 +21,20 @@ interface NotificationBellProps {
 
 const VISIBLE_LIMIT = 20;
 
-function formatRelative(iso: string): string {
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return "";
-  const diffSec = Math.round((Date.now() - then) / 1000);
-  if (diffSec < 60) return "just now";
-  const diffMin = Math.round(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHour = Math.round(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}h ago`;
-  const diffDay = Math.round(diffHour / 24);
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return new Date(iso).toLocaleDateString("en-GB");
+function filterByChip(items: NotificationOut[], chip: ChipId): NotificationOut[] {
+  if (chip === "all") return items;
+  const types = FILTER_KINDS[chip];
+  return items.filter((n) => (types as string[]).includes(n.type));
 }
 
 export function NotificationBell({ enabled }: NotificationBellProps) {
   const [open, setOpen] = useState(false);
+  const [activeChip, setActiveChip] = useState<ChipId>("all");
   const panelRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const items = useNotificationsStore((s) => s.items);
   const unread = useNotificationsStore((s) => s.unread);
   const replaceAll = useNotificationsStore((s) => s.replaceAll);
@@ -54,6 +53,13 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
   useEffect(() => {
     if (seedQuery.data) replaceAll(seedQuery.data.items, seedQuery.data.unread);
   }, [seedQuery.data, replaceAll]);
+
+  const markAllMutation = useMutation({
+    mutationFn: markAllNotificationsReadApi,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
+    },
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -87,14 +93,14 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
     if (n.link) navigate(n.link);
   }
 
-  const visible = items.slice(0, VISIBLE_LIMIT);
+  const filtered = filterByChip(items, activeChip).slice(0, VISIBLE_LIMIT);
 
   return (
     <div className="relative">
       <button
         ref={buttonRef}
         type="button"
-        aria-label="Notifications"
+        aria-label={`Notifications · ${unread} unread`}
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
@@ -111,6 +117,7 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
           </span>
         )}
       </button>
+
       {open && (
         <div
           ref={panelRef}
@@ -120,54 +127,39 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
         >
           <div className="px-4 py-3 border-b border-base-border flex items-center justify-between">
             <span className="font-semibold text-base-text">Notifications</span>
-            <span className="text-xs text-base-text-subtle">{unread} unread</span>
+            <button
+              type="button"
+              disabled={unread === 0 || markAllMutation.isPending}
+              onClick={() => markAllMutation.mutate()}
+              className="flex items-center gap-1 text-xs text-base-text-muted hover:text-pink-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
+            >
+              {markAllMutation.isPending && (
+                <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" />
+              )}
+              Mark all read
+            </button>
           </div>
-          {visible.length === 0 ? (
+
+          <NotificationFilterChips
+            activeChip={activeChip}
+            items={items}
+            onChange={setActiveChip}
+          />
+
+          {filtered.length === 0 ? (
             <div className="px-4 py-8 text-sm text-center text-base-text-muted">
               You&apos;re all caught up.
             </div>
           ) : (
             <ul className="divide-y divide-base-border">
-              {visible.map((n) => (
-                <li key={n.id}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void handleSelect(n);
-                    }}
-                    className={`w-full text-left px-4 py-3 transition-colors hover:bg-base-surface-raised focus-visible:outline-none focus-visible:bg-base-surface-raised ${
-                      n.read_at ? "opacity-70" : ""
-                    }`}
-                  >
-                    <div className="flex items-start gap-2">
-                      {!n.read_at && (
-                        <span
-                          aria-hidden="true"
-                          className="mt-1.5 w-2 h-2 rounded-full bg-pink-primary flex-shrink-0"
-                        />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-baseline justify-between gap-2">
-                          <span
-                            className={`text-sm truncate ${
-                              n.read_at ? "text-base-text-muted" : "text-base-text font-semibold"
-                            }`}
-                          >
-                            {n.title}
-                          </span>
-                          <span className="text-[0.7rem] text-base-text-subtle flex-shrink-0">
-                            {formatRelative(n.created_at)}
-                          </span>
-                        </div>
-                        {n.body && (
-                          <p className="mt-0.5 text-xs text-base-text-muted line-clamp-2">
-                            {n.body}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                </li>
+              {filtered.map((n) => (
+                <NotificationItem
+                  key={n.id}
+                  notification={n}
+                  onSelect={(item) => {
+                    void handleSelect(item);
+                  }}
+                />
               ))}
             </ul>
           )}
