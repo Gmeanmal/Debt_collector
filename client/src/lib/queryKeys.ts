@@ -1,3 +1,5 @@
+import type { GoddessContractFilters } from "@/services/debtContracts/debtContractsApi";
+
 export const queryKeys = {
   auth: {
     all: () => ["auth"] as const,
@@ -26,6 +28,8 @@ export const queryKeys = {
     subs: () => ["goddessSubs"] as const,
     subByUsername: (username: string) => ["goddessSubs", "byUsername", username] as const,
     contracts: () => ["goddessContracts"] as const,
+    contractsList: (filters: GoddessContractFilters) =>
+      ["goddessContracts", "list", filters] as const,
     pendingPayments: () => ["pendingPayments"] as const,
     pendingValidations: () => ["goddessPendingPayments"] as const,
     lateSubs: () => ["goddessLateSubs"] as const,

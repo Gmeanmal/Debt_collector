@@ -4,7 +4,11 @@ import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
-import { listSubDebtsApi } from "@/services/debtContracts/debtContractsApi";
+import {
+  listSubDebtsApi,
+  type DebtContractOut,
+  type PaymentFrequency,
+} from "@/services/debtContracts/debtContractsApi";
 import { queryKeys } from "@/lib/queryKeys";
 
 function fmtDate(iso: string): string {
@@ -13,6 +17,39 @@ function fmtDate(iso: string): string {
 
 function fmtGbp(v: string): string {
   return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+const PERIOD_DAYS: Record<PaymentFrequency, number> = {
+  weekly: 7,
+  biweekly: 14,
+  monthly: 30,
+};
+
+function computeBehindInfo(c: DebtContractOut): { amount: number; periods: number } | null {
+  if (c.on_track || c.status !== "active" || !c.signed_at) return null;
+  const periodMs = PERIOD_DAYS[c.payment_frequency] * 86400 * 1000;
+  const elapsed = Date.now() - new Date(c.signed_at).getTime();
+  const periodsElapsed = Math.floor(elapsed / periodMs);
+  const expectedPaid = periodsElapsed * parseFloat(c.minimum_payment);
+  const actualPaid = parseFloat(c.total_paid);
+  const amountBehind = Math.max(0, expectedPaid - actualPaid);
+  const periodsBehind = Math.max(0, periodsElapsed - c.payment_count);
+  return { amount: amountBehind, periods: periodsBehind };
+}
+
+function StatusCell({ contract }: { contract: DebtContractOut }) {
+  const behind = computeBehindInfo(contract);
+  if (!behind || behind.periods === 0) {
+    return <ContractStatusChip status={contract.status} />;
+  }
+  return (
+    <div className="flex flex-col gap-0.5">
+      <ContractStatusChip status={contract.status} />
+      <span className="text-xs text-status-danger font-semibold">
+        Behind · {fmtGbp(behind.amount.toFixed(2))} · {behind.periods} period{behind.periods !== 1 ? "s" : ""}
+      </span>
+    </div>
+  );
 }
 
 export function SubContractsRoute() {
@@ -77,7 +114,7 @@ export function SubContractsRoute() {
                     <td className="px-4 py-3 text-base-text">{fmtGbp(c.principal)}</td>
                     <td className="px-4 py-3 text-base-text">{fmtGbp(c.balance)}</td>
                     <td className="px-4 py-3">
-                      <ContractStatusChip status={c.status} />
+                      <StatusCell contract={c} />
                     </td>
                     <td className="px-4 py-3 text-base-text-muted text-xs">
                       {fmtDate(c.updated_at)}

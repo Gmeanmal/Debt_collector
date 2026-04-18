@@ -403,6 +403,15 @@ class DebtContractAuditOut(BaseModel):
     contract_id: UUID = Field(..., description="Parent contract UUID")
     event_type: DebtContractEventType = Field(..., description="State-transition event type")
     actor_id: UUID = Field(..., description="UUID of the user who triggered the transition")
+    actor_display_name: str = Field(
+        ...,
+        description=(
+            "Display name of the actor who triggered this event — "
+            "first + last name when available, username as fallback, "
+            "or 'unknown' if the actor user was deleted."
+        ),
+        examples=["Jane Smith"],
+    )
     from_status: DebtContractStatus | None = Field(
         default=None, description="Status before the transition"
     )
@@ -412,7 +421,7 @@ class DebtContractAuditOut(BaseModel):
     note: str | None = Field(default=None, description="Optional free-text note on the transition")
     created_at: datetime = Field(..., description="UTC datetime of the audit event")
 
-    model_config = {"from_attributes": True}
+    model_config = {"from_attributes": False}
 
 
 class DebtSimulationPeriod(BaseModel):

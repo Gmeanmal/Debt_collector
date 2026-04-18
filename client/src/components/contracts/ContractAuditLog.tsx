@@ -44,10 +44,17 @@ export function ContractAuditLog({ entries }: Props) {
           {entries.map((entry) => (
             <div key={entry.id} className="px-5 py-3 flex flex-col gap-0.5">
               <div className="flex items-center justify-between gap-4">
-                <span className="text-sm font-semibold text-base-text">
-                  {EVENT_LABELS[entry.event_type] ?? entry.event_type}
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-sm font-semibold text-base-text shrink-0">
+                    {EVENT_LABELS[entry.event_type] ?? entry.event_type}
+                  </span>
+                  <span className="text-xs text-base-text-muted truncate">
+                    {entry.actor_display_name}
+                  </span>
+                </div>
+                <span className="text-xs text-base-text-muted shrink-0">
+                  {fmtDate(entry.created_at)}
                 </span>
-                <span className="text-xs text-base-text-muted">{fmtDate(entry.created_at)}</span>
               </div>
               {entry.from_status && entry.to_status && (
                 <p className="text-xs text-base-text-muted">

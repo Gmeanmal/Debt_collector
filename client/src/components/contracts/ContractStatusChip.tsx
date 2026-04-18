@@ -3,7 +3,7 @@ import type { DebtContractStatus } from "@/services/debtContracts/debtContractsA
 const STATUS_LABELS: Record<DebtContractStatus, string> = {
   pending_sub: "Pending sub",
   pending_dom: "Pending goddess",
-  pending_dom_counter: "Pending goddess (counter)",
+  pending_dom_counter: "Awaiting your counter-offer",
   pending_sub_signature: "Pending signature",
   active: "Active",
   closed: "Closed",

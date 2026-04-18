@@ -3,7 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
-import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
+import {
+  listGoddessDebtsApi,
+  type DebtContractOut,
+  type PaymentFrequency,
+} from "@/services/debtContracts/debtContractsApi";
 import { queryKeys } from "@/lib/queryKeys";
 
 interface Props {
@@ -22,18 +26,34 @@ function fmtDate(iso: string): string {
   return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
 }
 
+// Approximate monthly multiplier for each frequency
+const MONTHLY_MULTIPLIER: Record<PaymentFrequency, number> = {
+  monthly: 1,
+  biweekly: 26 / 12,
+  weekly: 52 / 12,
+};
+
+function deriveMonthly(c: DebtContractOut): string {
+  const base = parseFloat(c.minimum_payment);
+  const mult = MONTHLY_MULTIPLIER[c.payment_frequency];
+  return fmtGbp((base * mult).toFixed(2));
+}
+
+function deriveRate(c: DebtContractOut): string {
+  const rate = parseFloat(c.interest_rate) * 100;
+  return isNaN(rate) ? "—" : `${rate.toFixed(2)}%`;
+}
+
 export function SubContractsTab({ subId, username }: Props) {
   const {
-    data: all = [],
+    data: contracts = [],
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: queryKeys.goddess.contracts(),
-    queryFn: listGoddessDebtsApi,
+    queryKey: queryKeys.goddess.contractsList({ sub_id: subId }),
+    queryFn: () => listGoddessDebtsApi({ sub_id: subId }),
   });
-
-  const contracts = all.filter((c) => c.sub_id === subId);
 
   return (
     <div className="flex flex-col gap-4">
@@ -60,7 +80,7 @@ export function SubContractsTab({ subId, username }: Props) {
 
       {contracts.length > 0 && (
         <div className="bg-base-surface border border-base-border rounded-lg overflow-x-auto">
-          <table className="w-full min-w-[400px] text-sm">
+          <table className="w-full min-w-[600px] text-sm">
             <thead>
               <tr className="border-b border-base-border bg-base-surface-raised text-left">
                 <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
@@ -68,6 +88,12 @@ export function SubContractsTab({ subId, username }: Props) {
                 </th>
                 <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
                   Status
+                </th>
+                <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+                  Monthly
+                </th>
+                <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+                  Rate
                 </th>
                 <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
                   Updated
@@ -82,6 +108,10 @@ export function SubContractsTab({ subId, username }: Props) {
                   <td className="px-4 py-3">
                     <ContractStatusChip status={c.status} />
                   </td>
+                  <td className="px-4 py-3 text-base-text">
+                    {c.status === "active" ? deriveMonthly(c) : "—"}
+                  </td>
+                  <td className="px-4 py-3 text-base-text">{deriveRate(c)}</td>
                   <td className="px-4 py-3 text-base-text-muted text-xs">
                     {fmtDate(c.updated_at)}
                   </td>

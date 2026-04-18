@@ -829,7 +829,7 @@ export interface paths {
         };
         /**
          * List all debt contracts for goddess
-         * @description Returns all debt contracts across all subs for the authenticated goddess, newest first.
+         * @description Returns all debt contracts across all subs for the authenticated goddess, newest first. Supports optional filtering by status list, sub, and principal amount range. All filter parameters are optional; omitting them returns the full unfiltered list. When both `min_amount` and `max_amount` are supplied, `min_amount` must be ≤ `max_amount`.
          */
         get: operations["list_goddess_contracts_goddess_debts_get"];
         put?: never;
@@ -5670,6 +5670,12 @@ export interface components {
              * @description UUID of the user who triggered the transition
              */
             actor_id: string;
+            /**
+             * Actor Display Name
+             * @description Display name of the actor who triggered this event — first + last name when available, username as fallback, or 'unknown' if the actor user was deleted.
+             * @example Jane Smith
+             */
+            actor_display_name: string;
             /** @description Status before the transition */
             from_status?: components["schemas"]["DebtContractStatus"] | null;
             /** @description Status after the transition */
@@ -13079,7 +13085,16 @@ export interface operations {
     };
     list_goddess_contracts_goddess_debts_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Filter to contracts whose status is in this list. Repeat the parameter for multiple values: `?status=active&status=breached`. */
+                status?: components["schemas"]["DebtContractStatus"][] | null;
+                /** @description Filter to a single sub's contracts. */
+                sub_id?: string | null;
+                /** @description Filter contracts where principal ≥ min_amount (GBP). */
+                min_amount?: number | string | null;
+                /** @description Filter contracts where principal ≤ max_amount (GBP). */
+                max_amount?: number | string | null;
+            };
             header?: {
                 authorization?: string | null;
             };
@@ -13111,14 +13126,12 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Unprocessable entity — request body validation failed */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
+                content?: never;
             };
             /** @description Internal server error */
             500: {

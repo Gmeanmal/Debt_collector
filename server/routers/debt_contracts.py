@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.debt_controller import DebtController
 from core.db import get_session
+from core.exceptions import Validation
 from decorators.audit import audit
 from dependencies.auth import get_current_user, require_role
 from models.debt import DebtContract, DebtContractStatus
@@ -445,15 +446,53 @@ async def list_sub_contracts(
     "/goddess/debts",
     summary="List all debt contracts for goddess",
     description=(
-        "Returns all debt contracts across all subs for the authenticated goddess, newest first."
+        "Returns all debt contracts across all subs for the authenticated goddess, newest first. "
+        "Supports optional filtering by status list, sub, and principal amount range. "
+        "All filter parameters are optional; omitting them returns the full unfiltered list. "
+        "When both `min_amount` and `max_amount` are supplied, `min_amount` must be ≤ `max_amount`."
     ),
     response_model=list[DebtContractOut],
     status_code=200,
     tags=["debt-contracts"],
-    responses={401: _E401, 403: _E403, 500: _E500},
+    responses={401: _E401, 403: _E403, 422: _E422, 500: _E500},
 )
 async def list_goddess_contracts(
+    status: list[DebtContractStatus] | None = Query(
+        default=None,
+        description=(
+            "Filter to contracts whose status is in this list. "
+            "Repeat the parameter for multiple values: `?status=active&status=breached`."
+        ),
+        examples=["active"],
+    ),
+    sub_id: UUID | None = Query(
+        default=None,
+        description="Filter to a single sub's contracts.",
+        examples=["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
+    ),
+    min_amount: Decimal | None = Query(
+        default=None,
+        description="Filter contracts where principal ≥ min_amount (GBP).",
+        examples=["100.00"],
+    ),
+    max_amount: Decimal | None = Query(
+        default=None,
+        description="Filter contracts where principal ≤ max_amount (GBP).",
+        examples=["1000.00"],
+    ),
     user: User = Depends(require_role(UserRole.goddess)),
     ctrl: DebtController = Depends(_build_controller),
 ) -> list[DebtContractOut]:
-    return await ctrl.list_for_viewer(user)
+    if min_amount is not None and max_amount is not None and min_amount > max_amount:
+        raise Validation(
+            "min_amount must be ≤ max_amount",
+            min_amount=str(min_amount),
+            max_amount=str(max_amount),
+        )
+    return await ctrl.list_for_viewer(
+        user,
+        statuses=status,
+        sub_id=sub_id,
+        min_amount=min_amount,
+        max_amount=max_amount,
+    )

@@ -1,5 +1,6 @@
 import { apiClient } from "@/api/client";
 import { getAccessToken } from "@/services/auth/tokenStorage";
+import { env } from "@/utils/env";
 import type { components } from "@/types/api.generated";
 
 export type SurprisePenaltyPreviewOut = components["schemas"]["SurprisePenaltyPreviewOut"];
@@ -154,8 +155,25 @@ export async function listSubDebtsApi(): Promise<DebtContractOut[]> {
   return data;
 }
 
-export async function listGoddessDebtsApi(): Promise<DebtContractOut[]> {
+export interface GoddessContractFilters {
+  status?: DebtContractStatus[];
+  sub_id?: string;
+  min_amount?: number;
+  max_amount?: number;
+}
+
+export async function listGoddessDebtsApi(
+  filters?: GoddessContractFilters,
+): Promise<DebtContractOut[]> {
   const { data, error } = await apiClient.GET("/goddess/debts", {
+    params: {
+      query: {
+        status: filters?.status ?? undefined,
+        sub_id: filters?.sub_id ?? undefined,
+        min_amount: filters?.min_amount ?? undefined,
+        max_amount: filters?.max_amount ?? undefined,
+      },
+    },
     headers: authHeaders(),
   });
   if (error || !data) throw new Error(extractMessage(error, "Failed to list contracts"));

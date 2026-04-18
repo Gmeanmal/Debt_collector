@@ -1,3 +1,4 @@
+from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import func
@@ -47,6 +48,32 @@ class DebtContractDao:
             .where(col(DebtContract.goddess_id) == goddess_id)
             .order_by(col(DebtContract.created_at).desc())
         )
+        return list(result.scalars().all())
+
+    async def list_for_goddess_filtered(
+        self,
+        goddess_id: UUID,
+        *,
+        statuses: list[DebtContractStatus] | None = None,
+        sub_id: UUID | None = None,
+        min_amount: Decimal | None = None,
+        max_amount: Decimal | None = None,
+    ) -> list[DebtContract]:
+        """Return contracts for a goddess with optional filters applied, newest first."""
+        stmt = (
+            select(DebtContract)
+            .where(col(DebtContract.goddess_id) == goddess_id)
+            .order_by(col(DebtContract.created_at).desc())
+        )
+        if statuses is not None:
+            stmt = stmt.where(col(DebtContract.status).in_(statuses))
+        if sub_id is not None:
+            stmt = stmt.where(col(DebtContract.sub_id) == sub_id)
+        if min_amount is not None:
+            stmt = stmt.where(col(DebtContract.principal) >= min_amount)
+        if max_amount is not None:
+            stmt = stmt.where(col(DebtContract.principal) <= max_amount)
+        result = await self._session.execute(stmt)
         return list(result.scalars().all())
 
     async def list_active_for_sub(self, sub_id: UUID) -> list[DebtContract]:

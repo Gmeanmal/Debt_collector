@@ -1,10 +1,15 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
+import { ContractFilters } from "@/components/contracts/ContractFilters";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
-import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
+import {
+  listGoddessDebtsApi,
+  type GoddessContractFilters,
+} from "@/services/debtContracts/debtContractsApi";
 import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
 import { useAuth } from "@/services/auth/useAuth";
 import { queryKeys } from "@/lib/queryKeys";
@@ -17,9 +22,19 @@ function fmtGbp(v: string): string {
   return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+const EMPTY_FILTERS: GoddessContractFilters = {};
+
 export function GoddessContractsRoute() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
+
+  const [pendingFilters, setPendingFilters] = useState<GoddessContractFilters>(EMPTY_FILTERS);
+  const [appliedFilters, setAppliedFilters] = useState<GoddessContractFilters>(EMPTY_FILTERS);
+
+  const minVal = pendingFilters.min_amount;
+  const maxVal = pendingFilters.max_amount;
+  const hasAmountError =
+    minVal !== undefined && maxVal !== undefined && minVal > maxVal;
 
   const {
     data: contracts = [],
@@ -27,8 +42,8 @@ export function GoddessContractsRoute() {
     isError,
     error,
   } = useQuery({
-    queryKey: queryKeys.goddess.contracts(),
-    queryFn: listGoddessDebtsApi,
+    queryKey: queryKeys.goddess.contractsList(appliedFilters),
+    queryFn: () => listGoddessDebtsApi(appliedFilters),
   });
 
   const { data: subs = [] } = useQuery({
@@ -42,6 +57,15 @@ export function GoddessContractsRoute() {
     return isAdmin ? subId : "Unknown sub";
   }
 
+  function handleFiltersChange(f: GoddessContractFilters) {
+    const min = f.min_amount;
+    const max = f.max_amount;
+    const invalid = min !== undefined && max !== undefined && min > max;
+    if (!invalid) {
+      setAppliedFilters(f);
+    }
+  }
+
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
@@ -51,6 +75,15 @@ export function GoddessContractsRoute() {
           </h1>
           <p className="text-sm text-base-text-muted mt-1">All contracts across your subs.</p>
         </div>
+
+        <ContractFilters
+          filters={pendingFilters}
+          subs={subs}
+          onFiltersChange={(f) => {
+            setPendingFilters(f);
+            handleFiltersChange(f);
+          }}
+        />
 
         {isLoading && <ListSkeleton rows={3} />}
         {isError && (
@@ -63,7 +96,11 @@ export function GoddessContractsRoute() {
         {!isLoading && !isError && contracts.length === 0 && (
           <EmptyState
             title="No contracts yet"
-            message="Propose a debt contract to one of your subs to get started."
+            message={
+              hasAmountError
+                ? "Fix the amount filter above."
+                : "Propose a debt contract to one of your subs to get started."
+            }
           />
         )}
 

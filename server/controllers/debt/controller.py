@@ -610,13 +610,32 @@ class DebtController:
         stats = await self._stats_for(contract)
         return contract_out(contract, current_version, stats)
 
-    async def list_for_viewer(self, viewer: User) -> list[DebtContractOut]:
-        """Return all contracts visible to the viewer based on their role."""
+    async def list_for_viewer(
+        self,
+        viewer: User,
+        *,
+        statuses: list[DebtContractStatus] | None = None,
+        sub_id: UUID | None = None,
+        min_amount: Decimal | None = None,
+        max_amount: Decimal | None = None,
+    ) -> list[DebtContractOut]:
+        """Return all contracts visible to the viewer based on their role.
+
+        When the viewer is a goddess, optional filters are forwarded to the DAO:
+        ``statuses`` narrows by status, ``sub_id`` by sub, and the amount range
+        filters by ``principal``. Filters are silently ignored for sub viewers.
+        """
         if viewer.role == UserRole.sub:
             contracts = await self._dao.list_for_sub(viewer.id)
         else:
             goddess_id = await resolve_goddess_id(self._session, viewer.id)
-            contracts = await self._dao.list_for_goddess(goddess_id)
+            contracts = await self._dao.list_for_goddess_filtered(
+                goddess_id,
+                statuses=statuses,
+                sub_id=sub_id,
+                min_amount=min_amount,
+                max_amount=max_amount,
+            )
 
         result: list[DebtContractOut] = []
         for c in contracts:
@@ -626,16 +645,25 @@ class DebtController:
         return result
 
     async def list_audit(self, viewer: User, contract_id: UUID) -> list[DebtContractAuditOut]:
-        """Return audit trail for a contract, enforcing the same visibility rules as get."""
+        """Return audit trail for a contract, enforcing the same visibility rules as get.
+
+        Each row is enriched with ``actor_display_name`` resolved via a single bulk
+        user lookup — zero N+1 queries.
+        """
         contract = await self._get_contract_or_404(contract_id)
         await self._assert_viewer_can_see(viewer, contract)
         rows = await self._audit_dao.list_for_contract(contract_id)
+
+        distinct_actor_ids = list({r.actor_id for r in rows})
+        actor_map = await self._user_dao.get_many_by_ids(distinct_actor_ids)
+
         return [
             DebtContractAuditOut(
                 id=r.id,
                 contract_id=r.contract_id,
                 event_type=r.event_type,
                 actor_id=r.actor_id,
+                actor_display_name=_actor_display_name(actor_map.get(r.actor_id)),
                 from_status=r.from_status,
                 to_status=r.to_status,
                 note=r.note,
@@ -988,6 +1016,18 @@ class DebtController:
                 raise Forbidden("contract does not belong to this goddess")
         else:
             raise Forbidden("only sub or goddess users may view contracts")
+
+
+def _actor_display_name(user: "User | None") -> str:
+    """Resolve a display name for an audit actor.
+
+    Returns first + last name when available, username as fallback, or "unknown"
+    when the actor user row no longer exists (e.g. after a SET NULL cascade).
+    """
+    if user is None:
+        return "unknown"
+    parts = [p for p in (user.first_name, user.last_name) if p]
+    return " ".join(parts) if parts else (user.username or "unknown")
 
 
 NormalizedClause = dict[str, object]

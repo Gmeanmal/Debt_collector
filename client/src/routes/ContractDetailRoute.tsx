@@ -9,6 +9,7 @@ import { SurprisePenaltyFlow } from "@/components/contracts/SurprisePenaltyFlow"
 import { AdjustmentDialog } from "@/components/contracts/AdjustmentDialog";
 import { BuyoutPreviewModal } from "@/components/contracts/BuyoutPreviewModal";
 import { ContractTerms, SimulationPanel } from "@/components/contracts/ContractDetailPanels";
+import { NextPaymentsCard } from "@/components/contracts/NextPaymentsCard";
 import {
   downloadContractPdfApi,
   getContractApi,
@@ -90,6 +91,13 @@ export function ContractDetailRoute() {
     role === "sub" &&
     (contract.status === "pending_sub" || contract.status === "pending_sub_signature");
   const canDownloadPdf = contract.status === "active" && Boolean(contract.signed_at);
+  const PRE_SIGNATURE_STATUSES: typeof contract.status[] = [
+    "pending_sub",
+    "pending_dom",
+    "pending_dom_counter",
+  ];
+  const goddessCanPreview =
+    role === "goddess" && PRE_SIGNATURE_STATUSES.includes(contract.status);
   const isActive = contract.status === "active";
   const canSurprisePenalty =
     role === "goddess" && isActive && contract.dom_can_add_surprise_penalty;
@@ -141,8 +149,10 @@ export function ContractDetailRoute() {
 
         <ContractStats contract={contract} />
 
+        {role === "sub" && <NextPaymentsCard contract={contract} />}
+
         <div className="flex flex-wrap gap-3">
-          {role === "goddess" && (
+          {goddessCanPreview && (
             <Link
               to={`/goddess/contracts/${contract.slug ?? safeSlug}/preview`}
               className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
