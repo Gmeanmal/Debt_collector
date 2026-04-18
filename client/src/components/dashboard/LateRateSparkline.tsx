@@ -3,10 +3,16 @@ import type { TooltipContentProps } from "recharts";
 import { chartColor, CHART_COLORS } from "@/services/dashboard/chartColors";
 import { ChartPanel, ChartError } from "@/components/dashboard/ChartPanel";
 import type { DailyLateCount } from "@/types/dashboard";
+import type { DateRange } from "@/hooks/useDashboardDateRange";
 
 interface Props {
   data: DailyLateCount[];
   error?: string;
+  dateRange?: DateRange;
+}
+
+function filterByRange(data: DailyLateCount[], range: DateRange): DailyLateCount[] {
+  return data.filter((d) => d.date >= range.from && d.date <= range.to);
 }
 
 function CustomTooltip({ active, payload, label }: TooltipContentProps) {
@@ -25,10 +31,11 @@ function CustomTooltip({ active, payload, label }: TooltipContentProps) {
   );
 }
 
-export function LateRateSparkline({ data, error }: Props) {
-  const total = data.reduce((sum, d) => sum + d.count, 0);
+export function LateRateSparkline({ data, error, dateRange }: Props) {
+  const filtered = dateRange ? filterByRange(data, dateRange) : data;
+  const total = filtered.reduce((sum, d) => sum + d.count, 0);
 
-  const chartData = data.map((d) => ({
+  const chartData = filtered.map((d) => ({
     date: d.date.slice(5),
     count: d.count,
   }));

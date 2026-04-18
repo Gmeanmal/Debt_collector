@@ -38,6 +38,14 @@ export function addGBPDecimalStrings(a: string, b: string): string {
   return fromPennies(toPennies(a) + toPennies(b));
 }
 
+export function bucketTotalGBP(bucket: {
+  rolling: string;
+  one_off: string;
+  contract: string;
+}): string {
+  return addGBPDecimalStrings(addGBPDecimalStrings(bucket.rolling, bucket.one_off), bucket.contract);
+}
+
 function parseUtc(dueAt: string): Date {
   const hasTimezone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(dueAt);
   return new Date(hasTimezone ? dueAt : `${dueAt}Z`);

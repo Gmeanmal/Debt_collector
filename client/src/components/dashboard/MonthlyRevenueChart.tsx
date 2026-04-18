@@ -14,10 +14,19 @@ import { chartColor, CHART_COLORS } from "@/services/dashboard/chartColors";
 import { ChartPanel, ChartError } from "@/components/dashboard/ChartPanel";
 import type { MonthlyRevenueBucket } from "@/types/dashboard";
 import { formatGBP } from "@/services/format/currency";
+import { bucketTotalGBP } from "@/services/dashboards/subDashboardFormat";
+import type { DateRange } from "@/hooks/useDashboardDateRange";
 
 interface Props {
   data: MonthlyRevenueBucket[];
   error?: string;
+  dateRange?: DateRange;
+}
+
+function filterByRange(data: MonthlyRevenueBucket[], range: DateRange): MonthlyRevenueBucket[] {
+  const fromMonth = range.from.slice(0, 7);
+  const toMonth = range.to.slice(0, 7);
+  return data.filter((b) => b.month >= fromMonth && b.month <= toMonth);
 }
 
 function CustomTooltip({ active, payload, label }: TooltipContentProps) {
@@ -46,23 +55,22 @@ function revenueSummary(data: MonthlyRevenueBucket[]): string {
   if (data.length === 0) return "";
   let peak = data[0];
   for (const d of data) {
-    const total = Number(d.rolling) + Number(d.one_off) + Number(d.contract);
-    const peakTotal = Number(peak.rolling) + Number(peak.one_off) + Number(peak.contract);
-    if (total > peakTotal) peak = d;
+    if (Number(bucketTotalGBP(d)) > Number(bucketTotalGBP(peak))) peak = d;
   }
-  const peakTotal = Number(peak.rolling) + Number(peak.one_off) + Number(peak.contract);
-  return `Revenue peaked in ${peak.month} at ${formatGBP(peakTotal)}`;
+  return `Revenue peaked in ${peak.month} at ${formatGBP(Number(bucketTotalGBP(peak)))}`;
 }
 
-export function MonthlyRevenueChart({ data, error }: Props) {
-  const chartData = data.map((d) => ({
+export function MonthlyRevenueChart({ data, error, dateRange }: Props) {
+  const filtered = dateRange ? filterByRange(data, dateRange) : data;
+
+  const chartData = filtered.map((d) => ({
     month: d.month,
     Rolling: Number(d.rolling),
     "One-off": Number(d.one_off),
     Contract: Number(d.contract),
   }));
 
-  const summary = revenueSummary(data);
+  const summary = revenueSummary(filtered);
 
   return (
     <ChartPanel
