@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID
@@ -6,8 +7,11 @@ import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
+from core.exceptions import Conflict
+from daos.cron_run_dao import CronRunDao
 from daos.debt_event_dao import DebtEventDao
 from daos.rolling_dao import RollingTributeDao
+from models.cron_run import CronRun
 from models.debt import DebtContract, DebtContractStatus
 from models.debt_event import DebtEvent, EventType
 from models.notification import NotificationType
@@ -27,21 +31,118 @@ def _now_utc() -> datetime:
     return datetime.now(UTC).replace(tzinfo=None)
 
 
+@dataclass
+class CronRunResult:
+    run_id: UUID
+    started_at: datetime
+    finished_at: datetime | None
+    dry_run: bool
+    summary: dict[str, int]
+    errors: list[dict[str, str]]
+    duration_ms: int | None
+
+    @property
+    def id(self) -> UUID:
+        # Exposed so the @audit decorator can pick up entity_id from result.id.
+        return self.run_id
+
+
 class CronController:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
         self._event_dao = DebtEventDao(session)
         self._rolling_dao = RollingTributeDao(session)
 
-    async def run_daily(self) -> dict[str, int]:
+    async def run_daily(
+        self,
+        dry_run: bool = False,
+        triggered_by_user_id: UUID | None = None,
+    ) -> CronRunResult:
+        """Execute (or preview) the daily rolling + contract tick job.
+
+        When dry_run=True the mutating work runs inside a savepoint that is
+        rolled back immediately, so no side-effects persist. The CronRun record
+        itself is created outside the savepoint and always persists.
+        """
+        dao = CronRunDao(self._session)
+        cron_run = await dao.create_started(
+            dry_run=dry_run, triggered_by_user_id=triggered_by_user_id
+        )
+        await self._session.flush()
+
         now = _now_utc()
         subs = await self._load_active_subs()
         processed_rolling = 0
         processed_contracts = 0
-        for sub in subs:
-            processed_rolling += await self._process_rolling(sub.id, now)
-            processed_contracts += await self._process_contracts(sub.id, now)
-        return {"subs": len(subs), "rolling": processed_rolling, "contracts": processed_contracts}
+        errors: list[dict[str, str]] = []
+
+        # Use a SAVEPOINT so dry-run mutations are never committed.
+        # begin_nested() is supported by AsyncSession via asyncpg's savepoint protocol.
+        async with self._session.begin_nested() as sp:
+            for sub in subs:
+                try:
+                    processed_rolling += await self._process_rolling(sub.id, now)
+                except Exception as exc:
+                    errors.append({"sub_id": str(sub.id), "phase": "rolling", "message": str(exc)})
+                try:
+                    processed_contracts += await self._process_contracts(sub.id, now)
+                except Exception as exc:
+                    errors.append(
+                        {"sub_id": str(sub.id), "phase": "contracts", "message": str(exc)}
+                    )
+
+            if dry_run:
+                # Discard all mutations inside this savepoint; CronRun row persists.
+                await sp.rollback()
+
+        summary = {
+            "subs": len(subs),
+            "rolling": processed_rolling,
+            "contracts": processed_contracts,
+        }
+
+        finished = await dao.finish(cron_run.id, summary_json=summary, errors=errors)
+        return CronRunResult(
+            run_id=cron_run.id,
+            started_at=cron_run.started_at,
+            finished_at=finished.finished_at,
+            dry_run=dry_run,
+            summary=summary,
+            errors=errors,
+            duration_ms=finished.duration_ms,
+        )
+
+    async def get_run(self, run_id: UUID) -> CronRun | None:
+        """Return a single CronRun row by id, or None."""
+        return await CronRunDao(self._session).get_by_id(run_id)
+
+    async def validate_apply_preconditions(
+        self,
+        last_dry_run_id: UUID,
+        requesting_user_id: UUID,
+    ) -> None:
+        """Raise ConflictError if the referenced dry-run cannot be used to confirm an apply.
+
+        Rules:
+        - Row must exist.
+        - Must have dry_run=True.
+        - Must have been triggered by the same admin.
+        - Must have started within the last 5 minutes.
+        """
+        row = await CronRunDao(self._session).get_by_id(last_dry_run_id)
+        if row is None:
+            raise Conflict("Dry-run record not found.")
+        if not row.dry_run:
+            raise Conflict("Referenced run is not a dry-run.")
+        if row.triggered_by_user_id != requesting_user_id:
+            raise Conflict("Dry-run was triggered by a different admin.")
+        age_seconds = (_now_utc() - row.started_at).total_seconds()
+        if age_seconds > 300:
+            raise Conflict("Dry-run is older than 5 minutes; please re-run.")
+
+    async def list_runs(self, limit: int = 50) -> list[CronRun]:
+        """Return recent CronRun rows for the admin history view."""
+        return await CronRunDao(self._session).list_recent(limit=limit)
 
     async def _load_active_subs(self) -> list[User]:
         result = await self._session.execute(

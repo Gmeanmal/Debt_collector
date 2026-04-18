@@ -53,8 +53,7 @@ class PenaltyRuleIn(BaseModel):
     name: str | None = Field(
         default=None,
         description=(
-            "Short identifier for the rule (e.g. 'late_2d_notify'). "
-            "Nullable for ad-hoc rules."
+            "Short identifier for the rule (e.g. 'late_2d_notify'). Nullable for ad-hoc rules."
         ),
         examples=["late_2d_notify"],
     )
@@ -179,8 +178,7 @@ class PenaltyRuleOut(BaseModel):
     min_days_late: int | None = Field(
         default=None,
         description=(
-            "Minimum days overdue before this rolling_late rule fires; "
-            "null means no threshold"
+            "Minimum days overdue before this rolling_late rule fires; null means no threshold"
         ),
         examples=[2],
     )

@@ -4,6 +4,7 @@ from models.admin_action import AdminAction as AdminAction
 from models.blacklist import BlacklistEntry as BlacklistEntry
 from models.consent_acceptance import ConsentAcceptance as ConsentAcceptance
 from models.consent_text import ConsentText as ConsentText
+from models.cron_run import CronRun as CronRun
 from models.debt import DebtContract as DebtContract
 from models.debt import DebtContractAudit as DebtContractAudit
 from models.debt import DebtContractEventType as DebtContractEventType

@@ -95,6 +95,7 @@ export const queryKeys = {
     all: () => ["admin"] as const,
     entity: (entity: string) => ["admin", entity] as const,
     list: (entity: string, q: string, page: number) => ["admin", entity, q, page] as const,
+    cronRuns: () => ["admin", "cron", "runs"] as const,
   },
 
   goddessPhotos: {

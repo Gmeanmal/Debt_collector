@@ -20,7 +20,7 @@ LONDON = ZoneInfo("Europe/London")
 async def _run_once() -> None:
     async with SessionMaker() as session:
         ctrl = CronController(session)
-        await ctrl.run_daily()
+        await ctrl.run_daily(dry_run=False, triggered_by_user_id=None)
         await session.commit()
 
 

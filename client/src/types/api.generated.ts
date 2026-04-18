@@ -1123,7 +1123,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/cron/run-now": {
+    "/admin/cron/dry-run": {
         parameters: {
             query?: never;
             header?: never;
@@ -1133,10 +1133,50 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Run the daily cron job immediately
-         * @description Manually triggers the daily cron job (rolling tributes + contract period ticks). Admin only. Useful in development and for operational intervention.
+         * Preview the daily cron job (no writes)
+         * @description Runs the daily cron job logic inside a rolled-back savepoint so no mutations are persisted. Returns a summary of what *would* have been applied — subs touched, rolling tributes, contract ticks — plus any per-sub errors captured without aborting the whole run. Admin only. Use the returned `run_id` as `last_dry_run_id` when calling `/admin/cron/apply` within the next 5 minutes.
          */
-        post: operations["run_cron_now_admin_cron_run_now_post"];
+        post: operations["dry_run_cron_admin_cron_dry_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/cron/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply the daily cron job
+         * @description Executes the daily cron job for real. Requires a `last_dry_run_id` pointing to a dry-run completed by the same admin within the last 5 minutes. Returns 409 Conflict if the precondition is not met (run not found, not a dry-run, triggered by a different admin, or older than 5 minutes). Admin only.
+         */
+        post: operations["apply_cron_admin_cron_apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/cron/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List recent cron runs
+         * @description Returns the most recent cron run records (dry-runs and real runs alike), newest first. Use `limit` to control page size (1–200, default 50). Admin only.
+         */
+        get: operations["list_cron_runs_admin_cron_runs_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -5182,6 +5222,16 @@ export interface components {
          * @enum {string}
          */
         AllocationTargetType: "entry" | "rolling_cycle" | "contract_debt" | "contract_buyout" | "tribute" | "wishlist_goal";
+        /** ApplyBody */
+        ApplyBody: {
+            /**
+             * Last Dry Run Id
+             * Format: uuid
+             * @description ID of a dry-run completed by this admin in the last 5 minutes
+             * @example b3e1c2d4-0000-0000-0000-000000000001
+             */
+            last_dry_run_id: string;
+        };
         /**
          * AvatarKey
          * @enum {string}
@@ -5692,38 +5742,56 @@ export interface components {
              */
             breached: number;
         };
-        /** CronRunOut */
-        CronRunOut: {
+        /** CronRunSummaryOut */
+        CronRunSummaryOut: {
             /**
-             * Ok
-             * @description Always true on success
+             * Run Id
+             * Format: uuid
+             * @description Unique ID of this cron run
+             * @example b3e1c2d4-0000-0000-0000-000000000001
+             */
+            run_id: string;
+            /**
+             * Started At
+             * Format: date-time
+             * @description UTC timestamp when the run started
+             */
+            started_at: string;
+            /**
+             * Finished At
+             * @description UTC timestamp when the run finished (null if crashed mid-run)
+             */
+            finished_at?: string | null;
+            /**
+             * Dry Run
+             * @description True if no mutations were persisted
              * @example true
              */
-            ok: boolean;
+            dry_run: boolean;
             /**
-             * Ran At
-             * Format: date-time
-             * @description UTC datetime when the job was invoked
+             * Summary
+             * @description Counters: subs, rolling, contracts
+             * @example {
+             *       "contracts": 1,
+             *       "rolling": 2,
+             *       "subs": 3
+             *     }
              */
-            ran_at: string;
+            summary: {
+                [key: string]: number;
+            };
             /**
-             * Subs
-             * @description Number of active subs processed
-             * @example 3
+             * Errors
+             * @description Per-sub errors captured during the run
              */
-            subs: number;
+            errors?: {
+                [key: string]: string;
+            }[];
             /**
-             * Rolling
-             * @description Number of rolling tributes touched
-             * @example 2
+             * Duration Ms
+             * @description Wall-clock duration in milliseconds
              */
-            rolling: number;
-            /**
-             * Contracts
-             * @description Number of contract period ticks applied
-             * @example 1
-             */
-            contracts: number;
+            duration_ms?: number | null;
         };
         /** DailyLateCount */
         DailyLateCount: {
@@ -14620,7 +14688,7 @@ export interface operations {
             };
         };
     };
-    run_cron_now_admin_cron_run_now_post: {
+    dry_run_cron_admin_cron_dry_run_post: {
         parameters: {
             query?: never;
             header?: {
@@ -14637,7 +14705,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CronRunOut"];
+                    "application/json": components["schemas"]["CronRunSummaryOut"];
                 };
             };
             /** @description Unauthorized — missing or invalid access token */
@@ -14663,12 +14731,109 @@ export interface operations {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
-            /** @description Internal server error */
-            500: {
+        };
+    };
+    apply_cron_admin_cron_apply_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplyBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CronRunSummaryOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict — dry-run precondition not met */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_cron_runs_admin_cron_runs_get: {
+        parameters: {
+            query?: {
+                /** @description Maximum number of runs to return */
+                limit?: number;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CronRunSummaryOut"][];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };
