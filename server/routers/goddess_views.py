@@ -7,7 +7,7 @@ from controllers.goddess_views_controller import GoddessViewsController
 from core.db import get_session
 from dependencies.auth import require_role
 from models.user import User, UserRole
-from schemas.goddess_views import LateSubItem, WeeklyPaymentBucket
+from schemas.goddess_views import LateContractItem, LateSubItem, WeeklyPaymentBucket
 from schemas.payment import PaymentOut
 
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
@@ -90,3 +90,25 @@ async def late_subs(
     ctrl: GoddessViewsController = Depends(_ctrl),
 ) -> list[LateSubItem]:
     return await ctrl.late_subs(user)
+
+
+@router.get(
+    "/contracts/late",
+    summary="List contracts currently late on their period payment",
+    description=(
+        "Returns all active contracts under this goddess where the current period payment "
+        "has not been applied and the period start is in the past (Europe/London). "
+        "Includes days late (calendar days since period start), the contract minimum_payment "
+        "as the overdue amount, and the datetime of the last payment_applied event if any. "
+        "Sorted by days_late descending, sub display name ascending."
+    ),
+    response_model=list[LateContractItem],
+    status_code=200,
+    tags=["goddess-views"],
+    responses={401: _E401, 403: _E403, 500: _E500},
+)
+async def late_contracts(
+    user: User = Depends(require_role(UserRole.goddess)),
+    ctrl: GoddessViewsController = Depends(_ctrl),
+) -> list[LateContractItem]:
+    return await ctrl.late_contracts(user)

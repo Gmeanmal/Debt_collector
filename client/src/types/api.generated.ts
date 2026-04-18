@@ -2291,6 +2291,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goddess/contracts/late": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List contracts currently late on their period payment
+         * @description Returns all active contracts under this goddess where the current period payment has not been applied and the period start is in the past (Europe/London). Includes days late (calendar days since period start), the contract minimum_payment as the overdue amount, and the datetime of the last payment_applied event if any. Sorted by days_late descending, sub display name ascending.
+         */
+        get: operations["late_contracts_goddess_contracts_late_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/sub/profile/safeword": {
         parameters: {
             query?: never;
@@ -6796,6 +6816,59 @@ export interface components {
          * @enum {string}
          */
         KinkRating: "hard_limit" | "soft_limit" | "curious" | "loves" | "fetish_need" | "not_set";
+        /** LateContractItem */
+        LateContractItem: {
+            /**
+             * Contract Id
+             * Format: uuid
+             * @description UUID of the late contract — client-side cache key and link target for /debts/{slug}
+             * @example 00000000-0000-0000-0000-000000000010
+             */
+            contract_id: string;
+            /**
+             * Slug
+             * @description URL slug for linking to /debts/{slug}
+             * @example c_abc123
+             */
+            slug?: string | null;
+            /**
+             * Sub Id
+             * Format: uuid
+             * @description UUID of the sub — used as a client-side cache key only, never displayed raw
+             * @example 00000000-0000-0000-0000-000000000002
+             */
+            sub_id: string;
+            /**
+             * Sub Display Name
+             * @description Display name of the sub (first + last, or username fallback)
+             * @example Jane Doe
+             */
+            sub_display_name?: string | null;
+            /**
+             * Sub Username
+             * @description Sub's username — lets the client link to /goddess/subs/{username} without a second roundtrip
+             * @example jane_doe
+             */
+            sub_username: string;
+            /**
+             * Days Late
+             * @description Calendar days elapsed since the current period started, in Europe/London
+             * @example 5
+             */
+            days_late: number;
+            /**
+             * Overdue Amount
+             * @description Contract minimum_payment for the current unpaid period (GBP)
+             * @example 75.00
+             */
+            overdue_amount: string;
+            /**
+             * Last Payment At
+             * @description UTC datetime of the most recent payment_applied event for this contract, or null if none
+             * @example 2026-04-01T12:00:00
+             */
+            last_payment_at?: string | null;
+        };
         /** LatePaymentItem */
         LatePaymentItem: {
             /**
@@ -19126,6 +19199,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LateSubItem"][];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller is not a goddess */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    late_contracts_goddess_contracts_late_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LateContractItem"][];
                 };
             };
             /** @description Unauthorized — missing or invalid access token */

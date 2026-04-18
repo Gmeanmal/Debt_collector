@@ -1,5 +1,7 @@
+import datetime
 from uuid import UUID
 
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
@@ -53,6 +55,22 @@ class DebtEventDao:
                 continue
             paid.setdefault(contract_id, set()).add(period_index)
         return paid
+
+    async def last_applied_per_contract(
+        self, contract_ids: list[UUID]
+    ) -> dict[UUID, datetime.datetime]:
+        """Return {contract_id: max created_at} for payment_applied events, single grouped query."""
+        if not contract_ids:
+            return {}
+        result = await self._session.execute(
+            select(DebtEvent.contract_id, func.max(DebtEvent.created_at))
+            .where(
+                col(DebtEvent.contract_id).in_(contract_ids),
+                col(DebtEvent.event_type) == EventType.payment_applied,
+            )
+            .group_by(col(DebtEvent.contract_id))
+        )
+        return {contract_id: created_at for contract_id, created_at in result.all()}
 
     async def last_period_interest_index(self, contract_id: UUID) -> int | None:
         result = await self._session.execute(

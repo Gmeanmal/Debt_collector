@@ -33,6 +33,7 @@ export const queryKeys = {
     pendingPayments: () => ["pendingPayments"] as const,
     pendingValidations: () => ["goddessPendingPayments"] as const,
     lateSubs: () => ["goddessLateSubs"] as const,
+    lateContracts: () => ["goddessLateContracts"] as const,
     weeklyPayments: () => ["goddessWeeklyPayments"] as const,
     weeklyPaymentsDetail: (weekStart: string) =>
       ["goddessWeeklyPayments", "detail", weekStart] as const,

@@ -5,6 +5,58 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 
+class LateContractItem(BaseModel):
+    contract_id: UUID = Field(
+        ...,
+        description=(
+            "UUID of the late contract — client-side cache key and link target for /debts/{slug}"
+        ),
+        examples=["00000000-0000-0000-0000-000000000010"],
+    )
+    slug: str | None = Field(
+        default=None,
+        description="URL slug for linking to /debts/{slug}",
+        examples=["c_abc123"],
+    )
+    # sub_id is a cache key for the client only — never rendered as raw text to sub/goddess users
+    sub_id: UUID = Field(
+        ...,
+        description="UUID of the sub — used as a client-side cache key only, never displayed raw",
+        examples=["00000000-0000-0000-0000-000000000002"],
+    )
+    sub_display_name: str | None = Field(
+        default=None,
+        description="Display name of the sub (first + last, or username fallback)",
+        examples=["Jane Doe"],
+    )
+    sub_username: str = Field(
+        ...,
+        description=(
+            "Sub's username — lets the client link to /goddess/subs/{username}"
+            " without a second roundtrip"
+        ),
+        examples=["jane_doe"],
+    )
+    days_late: int = Field(
+        ...,
+        description="Calendar days elapsed since the current period started, in Europe/London",
+        examples=[5],
+    )
+    overdue_amount: Decimal = Field(
+        ...,
+        description="Contract minimum_payment for the current unpaid period (GBP)",
+        examples=["75.00"],
+    )
+    last_payment_at: datetime.datetime | None = Field(
+        default=None,
+        description=(
+            "UTC datetime of the most recent payment_applied event for this contract,"
+            " or null if none"
+        ),
+        examples=["2026-04-01T12:00:00"],
+    )
+
+
 class WeeklyPaymentBucket(BaseModel):
     week_start: datetime.date = Field(
         ...,

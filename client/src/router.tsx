@@ -31,7 +31,7 @@ import { AdminCronRoute } from "./routes/admin/AdminCronRoute";
 import { AdminRoute } from "./routes/admin/AdminRoute";
 import { DashboardRoute as GoddessDashboardRoute } from "./routes/goddess/DashboardRoute";
 import { WeeklyPaymentsRoute } from "./routes/goddess/WeeklyPaymentsRoute";
-import { LateSubsRoute } from "./routes/goddess/LateSubsRoute";
+import { LateRoute } from "./routes/goddess/LateRoute";
 import { SubDashboardRoute } from "./routes/sub/DashboardRoute";
 import { NotFoundRoute, RouterErrorBoundary } from "./routes/NotFoundRoute";
 import { ProfileRoute } from "./routes/ProfileRoute";
@@ -309,7 +309,7 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <RoleProtectedRoute role="goddess">
-          <LateSubsRoute />
+          <LateRoute />
         </RoleProtectedRoute>
       </ProtectedRoute>
     ),
