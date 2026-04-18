@@ -26,9 +26,7 @@ from schemas.kinks import (
     SubKinkRatingOut,
 )
 
-_CONFIRMATION_RATINGS: frozenset[KinkRating] = frozenset(
-    {KinkRating.loves, KinkRating.fetish_need}
-)
+_CONFIRMATION_RATINGS: frozenset[KinkRating] = frozenset({KinkRating.loves, KinkRating.fetish_need})
 
 
 def _needs_confirmation(safety_flag: bool, rating: KinkRating) -> bool:
