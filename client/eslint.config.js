@@ -20,6 +20,7 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      "max-lines": ["error", { max: 300, skipBlankLines: true, skipComments: true }],
       "no-restricted-globals": [
         "error",
         { name: "prompt", message: "Use Modal/ConfirmActionModal/RejectModal instead." },
@@ -59,5 +60,9 @@ export default tseslint.config(
         },
       ],
     },
+  },
+  {
+    files: ["src/types/api.generated.ts"],
+    rules: { "max-lines": "off" },
   },
 );
