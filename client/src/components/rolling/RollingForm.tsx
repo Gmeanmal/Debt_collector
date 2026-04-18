@@ -1,8 +1,10 @@
+import { useState } from "react";
 import type {
   RollingTributeIn,
   RollingTributeOut,
   DeadlineDay,
 } from "@/services/rolling/rollingApi";
+import { Modal } from "@/components/ui/Modal";
 
 const DEADLINE_DAYS: { value: DeadlineDay; label: string }[] = [
   { value: "mon", label: "Monday" },
@@ -27,6 +29,8 @@ interface Props {
 }
 
 export function RollingForm({ initial, onSave, onClear, isSaving, isClearing, error }: Props) {
+  const [clearOpen, setClearOpen] = useState(false);
+
   function buildDefaults(): RollingTributeIn {
     if (initial) {
       return {
@@ -65,9 +69,7 @@ export function RollingForm({ initial, onSave, onClear, isSaving, isClearing, er
   }
 
   function handleClear() {
-    if (window.confirm("Clear rolling tribute for this sub? The cycle will be paused.")) {
-      onClear();
-    }
+    setClearOpen(true);
   }
 
   return (
@@ -181,6 +183,29 @@ export function RollingForm({ initial, onSave, onClear, isSaving, isClearing, er
           >
             {isClearing ? "Clearing…" : "Clear rolling"}
           </button>
+        )}
+        {clearOpen && (
+          <Modal title="Clear rolling tribute" onClose={() => setClearOpen(false)} size="sm">
+            <p className="text-sm text-base-text">
+              Clear rolling tribute for this sub? The cycle will be paused.
+            </p>
+            <div className="flex gap-3 justify-end mt-2">
+              <button
+                type="button"
+                onClick={() => setClearOpen(false)}
+                className="px-4 py-2 text-sm border border-base-border rounded-md text-base-text-muted hover:text-base-text transition-colors focus-visible:ring-2 focus-visible:ring-base-border"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => { setClearOpen(false); onClear(); }}
+                className="px-4 py-2 text-sm bg-debt-primary text-pink-foreground font-semibold rounded-md hover:bg-debt-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-debt-primary"
+              >
+                Clear
+              </button>
+            </div>
+          </Modal>
         )}
         <button
           type="submit"

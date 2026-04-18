@@ -20,6 +20,12 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      "no-restricted-globals": [
+        "error",
+        { name: "prompt", message: "Use Modal/ConfirmActionModal/RejectModal instead." },
+        { name: "confirm", message: "Use Modal/ConfirmActionModal/RejectModal instead." },
+        { name: "alert", message: "Use Modal/ConfirmActionModal/RejectModal instead." },
+      ],
       "no-restricted-syntax": [
         "error",
         {
@@ -33,6 +39,11 @@ export default tseslint.config(
             "JSXOpeningElement[name.name='img'] > JSXAttribute[name.name='alt'] > Literal[value=/avatar|user|goddess|sub/i]",
           message:
             "Do not hardcode user-identity words in img alt. Use <AvatarImage avatarKey={…} /> for user avatars — alt must derive from display_name, not a generic label.",
+        },
+        {
+          selector:
+            "MemberExpression[object.name='window'][property.name=/^(prompt|confirm|alert)$/]",
+          message: "Use Modal/ConfirmActionModal/RejectModal instead.",
         },
         {
           selector: "MemberExpression[property.name='toLocaleDateString']",

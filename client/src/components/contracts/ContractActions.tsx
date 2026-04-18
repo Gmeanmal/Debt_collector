@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ContractFormFields } from "@/components/contracts/ContractFormFields";
+import { Modal } from "@/components/ui/Modal";
 import { queryKeys } from "@/lib/queryKeys";
 import {
   counterProposeApi,
@@ -46,6 +47,7 @@ const PENDING_STATUSES: DebtContractStatus[] = [
 export function ContractActions({ contract, role, onBanner }: Props) {
   const qc = useQueryClient();
   const [showCounter, setShowCounter] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
   const [counterForm, setCounterForm] = useState<DebtContractCreate>(versionToCreate(contract));
 
   function invalidate() {
@@ -155,13 +157,33 @@ export function ContractActions({ contract, role, onBanner }: Props) {
           <button
             type="button"
             disabled={closeMutation.isPending}
-            onClick={() => {
-              if (window.confirm("Cancel this contract?")) closeMutation.mutate();
-            }}
+            onClick={() => setCancelOpen(true)}
             className={`${btnBase} bg-base-surface-raised text-base-text-muted border border-base-border hover:border-status-danger focus-visible:ring-status-danger`}
           >
             {closeMutation.isPending ? "Cancelling…" : "Cancel contract"}
           </button>
+        )}
+        {cancelOpen && (
+          <Modal title="Cancel contract" onClose={() => setCancelOpen(false)} size="sm">
+            <p className="text-sm text-base-text">Cancel this contract?</p>
+            <div className="flex gap-3 justify-end mt-2">
+              <button
+                type="button"
+                onClick={() => setCancelOpen(false)}
+                className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text focus-visible:ring-base-border`}
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                disabled={closeMutation.isPending}
+                onClick={() => { setCancelOpen(false); closeMutation.mutate(); }}
+                className={`${btnBase} bg-debt-muted text-status-danger border border-debt-ring hover:bg-debt-muted/80 focus-visible:ring-debt-primary`}
+              >
+                {closeMutation.isPending ? "Cancelling…" : "Confirm cancel"}
+              </button>
+            </div>
+          </Modal>
         )}
       </div>
 

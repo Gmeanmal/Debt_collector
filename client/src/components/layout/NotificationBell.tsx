@@ -100,7 +100,7 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
       <button
         ref={buttonRef}
         type="button"
-        aria-label={`Notifications · ${unread} unread`}
+        aria-label={unread > 0 ? `Notifications · ${unread} unread` : "Notifications · no unread"}
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
