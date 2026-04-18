@@ -12,13 +12,15 @@ import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
 import { useAuth } from "@/services/auth/useAuth";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatGBP(v);
 }
 
 function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
+  return formatLondon(iso, "datetime");
 }
 
 interface ForgiveModalProps {

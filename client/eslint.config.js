@@ -34,6 +34,18 @@ export default tseslint.config(
           message:
             "Do not hardcode user-identity words in img alt. Use <AvatarImage avatarKey={…} /> for user avatars — alt must derive from display_name, not a generic label.",
         },
+        {
+          selector: "MemberExpression[property.name='toLocaleDateString']",
+          message: "Use formatLondon from @/services/format/datetime instead.",
+        },
+        {
+          selector: "MemberExpression[property.name='toLocaleString']",
+          message: "Use formatLondon from @/services/format/datetime instead.",
+        },
+        {
+          selector: "MemberExpression[property.name='toLocaleTimeString']",
+          message: "Use formatLondon from @/services/format/datetime instead.",
+        },
       ],
     },
   },

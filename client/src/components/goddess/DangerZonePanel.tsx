@@ -10,6 +10,7 @@ import {
   type BreachPreviewOut,
 } from "@/services/blacklist/blacklistApi";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   subId: string;
@@ -17,10 +18,7 @@ interface Props {
 }
 
 function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  return formatGBP(v);
 }
 
 function BreachPreviewContent({ data }: { data: BreachPreviewOut }) {

@@ -4,6 +4,8 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { daysLateClass } from "@/services/goddess/lateColour";
 import type { LateContractItem } from "@/services/goddess/lateContractsApi";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 type SortKey = "days_late" | "overdue_amount" | "sub_display_name";
 type SortDir = "asc" | "desc";
@@ -46,13 +48,7 @@ interface ContractRowProps {
 }
 
 function ContractRow({ item }: ContractRowProps) {
-  const lastPayment = item.last_payment_at
-    ? new Date(item.last_payment_at).toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : "—";
+  const lastPayment = formatLondon(item.last_payment_at, "date");
 
   return (
     <tr className="border-b border-base-border/50 hover:bg-base-surface-raised/50 transition-colors">
@@ -67,7 +63,7 @@ function ContractRow({ item }: ContractRowProps) {
       <td className="px-4 py-3">
         <span className={`font-semibold ${daysLateClass(item.days_late)}`}>{item.days_late}d</span>
       </td>
-      <td className="px-4 py-3 text-base-text">£{Number(item.overdue_amount).toFixed(2)}</td>
+      <td className="px-4 py-3 text-base-text">{formatGBP(item.overdue_amount)}</td>
       <td className="px-4 py-3 text-base-text-muted">{lastPayment}</td>
       <td className="px-4 py-3">
         {item.slug != null ? (

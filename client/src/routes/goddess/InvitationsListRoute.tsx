@@ -8,20 +8,13 @@ import { queryKeys } from "@/lib/queryKeys";
 import { InvitationStatusChip } from "@/components/invitations/InvitationStatusChip";
 import { InvitationPreviewModal } from "@/components/invitations/InvitationPreviewModal";
 import { InvitationResendModal } from "@/components/invitations/InvitationResendModal";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 type InvitationOut = components["schemas"]["InvitationOut"];
 
 function formatDateTime(iso: string): string {
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
-    .format(new Date(iso))
-    .replace(",", " ·");
+  return formatLondon(iso, "datetime");
 }
 
 function copyToken(token: string) {
@@ -154,7 +147,7 @@ export function InvitationsListRoute() {
                         <TokenCell token={inv.token} />
                       </td>
                       <td className="py-3 pr-4 text-base-text font-semibold">
-                        £{Number(inv.entry_tribute_amount).toFixed(2)}
+                        {formatGBP(inv.entry_tribute_amount)}
                       </td>
                       <td className="py-3 pr-4 text-base-text-muted whitespace-nowrap">
                         {formatDateTime(inv.expires_at)}

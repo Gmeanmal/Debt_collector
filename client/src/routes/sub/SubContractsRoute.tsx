@@ -10,13 +10,15 @@ import {
   type PaymentFrequency,
 } from "@/services/debtContracts/debtContractsApi";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
+  return formatLondon(iso, "datetime");
 }
 
 function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatGBP(v);
 }
 
 const PERIOD_DAYS: Record<PaymentFrequency, number> = {
@@ -46,7 +48,7 @@ function StatusCell({ contract }: { contract: DebtContractOut }) {
     <div className="flex flex-col gap-0.5">
       <ContractStatusChip status={contract.status} />
       <span className="text-xs text-status-danger font-semibold">
-        Behind · {fmtGbp(behind.amount.toFixed(2))} · {behind.periods} period
+        Behind · {fmtGbp(behind.amount)} · {behind.periods} period
         {behind.periods !== 1 ? "s" : ""}
       </span>
     </div>

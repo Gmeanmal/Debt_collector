@@ -5,6 +5,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { queryKeys } from "@/lib/queryKeys";
 import { listSubMeritEvents, type MeritEvent } from "@/services/merits/meritsApi";
+import { formatLondon } from "@/services/format/datetime";
 
 interface Props {
   subId: string;
@@ -29,14 +30,7 @@ function deltaVariant(delta: number): "default" | "info" | "danger" {
 }
 
 function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
-    timeZone: "Europe/London",
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatLondon(iso, "datetime");
 }
 
 function MeritEventRow({ event }: { event: MeritEvent }) {

@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { DebtSimulationOut } from "@/services/debtContracts/debtContractsApi";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   simulation: DebtSimulationOut;
@@ -37,7 +38,7 @@ function fmtPct(fraction: string): string {
 }
 
 function fmtGbp(value: number): string {
-  return `£${value.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatGBP(value);
 }
 
 export function SimulationChart({ simulation, principal }: Props) {

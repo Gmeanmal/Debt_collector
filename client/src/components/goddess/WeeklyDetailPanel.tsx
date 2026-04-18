@@ -10,8 +10,8 @@ import { getWeeklyPaymentDetailApi, type WeeklyPaymentDetail } from "@/services/
 import { listGoddessSubsApi, type DeclarationSource } from "@/services/payments/paymentsApi";
 import { buildWeeklyCsvBlob, weeklyCsvFilename } from "@/services/goddess/weeklyCsv";
 import { queryKeys } from "@/lib/queryKeys";
-
-const GBP = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 const SOURCE_LABEL: Record<DeclarationSource, string> = {
   sub_declared: "Self-declared",
@@ -28,27 +28,11 @@ const SOURCE_VARIANT: Record<DeclarationSource, BadgeVariant> = {
 };
 
 function formatMondayLabel(weekStart: string): string {
-  return new Date(weekStart).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return formatLondon(weekStart, "date");
 }
 
 function formatValidatedAt(iso: string | null | undefined): string {
-  if (!iso) return "—";
-  const date = new Date(iso);
-  const datePart = date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-  const timePart = date.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-  return `${datePart} · ${timePart}`;
+  return formatLondon(iso, "datetime");
 }
 
 function triggerCsvDownload(payments: WeeklyPaymentDetail[], weekStart: string) {
@@ -115,7 +99,7 @@ export function WeeklyDetailPanel({
           </h2>
           <p className="text-sm text-base-text-muted">
             {bucketCount} {bucketCount === 1 ? "payment" : "payments"} ·{" "}
-            <span className="text-base-text font-medium">{GBP.format(Number(bucketTotal))}</span>
+            <span className="text-base-text font-medium">{formatGBP(bucketTotal)}</span>
           </p>
         </header>
 
@@ -165,7 +149,7 @@ interface PaymentRowProps {
 
 function PaymentRow({ payment, username }: PaymentRowProps) {
   const subName = payment.sub_display_name ?? "sub";
-  const amountLabel = GBP.format(Number(payment.amount));
+  const amountLabel = formatGBP(payment.amount);
   const sourceLabel = SOURCE_LABEL[payment.source];
   const sourceVariant = SOURCE_VARIANT[payment.source];
 

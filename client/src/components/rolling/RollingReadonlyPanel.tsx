@@ -1,19 +1,13 @@
 import type { RollingTributeOut } from "@/services/rolling/rollingApi";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   tribute: RollingTributeOut;
 }
 
-function formatLondon(dt: string) {
-  return new Date(dt).toLocaleString("en-GB", {
-    timeZone: "Europe/London",
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
-
 export function RollingReadonlyPanel({ tribute }: Props) {
-  const amountDue = Number(tribute.amount_due).toFixed(2);
+  const amountDue = formatGBP(tribute.amount_due);
   const isLate = tribute.days_late > 0;
 
   return (
@@ -34,7 +28,7 @@ export function RollingReadonlyPanel({ tribute }: Props) {
           role="status"
           aria-label="Amount due"
         >
-          £{amountDue}
+          {amountDue}
         </span>
 
         <span className="text-base-text-muted">Days late</span>

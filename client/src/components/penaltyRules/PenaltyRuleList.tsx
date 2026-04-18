@@ -13,6 +13,7 @@ import {
   type PenaltyRuleIn,
 } from "@/services/penaltyRules/penaltyRulesApi";
 import type { GoddessSub } from "@/services/payments/paymentsApi";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   rules: PenaltyRule[];
@@ -45,7 +46,7 @@ function triggerDescription(rule: PenaltyRule): string {
 }
 
 function feeDisplay(rule: PenaltyRule): string | null {
-  if (rule.fee_amount != null) return `£${Number(rule.fee_amount).toFixed(2)}`;
+  if (rule.fee_amount != null) return formatGBP(rule.fee_amount);
   if (rule.fee_percent != null) return `${Number(rule.fee_percent)} %`;
   return null;
 }

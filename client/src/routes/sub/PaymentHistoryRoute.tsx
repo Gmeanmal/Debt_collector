@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 import {
   cancelDeclarationApi,
   editDeclarationApi,
@@ -41,10 +43,7 @@ const STATUS_CHIP: Record<string, string> = {
 };
 
 function formatDate(dt: string) {
-  return new Date(dt).toLocaleString("en-GB", {
-    dateStyle: "short",
-    timeStyle: "short",
-  });
+  return formatLondon(dt, "datetime");
 }
 
 interface EditModalProps {
@@ -222,7 +221,7 @@ export function PaymentHistoryRoute() {
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-base-text text-sm">
-                    £{Number(p.amount).toFixed(2)}
+                    {formatGBP(p.amount)}
                   </span>
                   <span
                     className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold capitalize ${STATUS_CHIP[p.status] ?? ""}`}

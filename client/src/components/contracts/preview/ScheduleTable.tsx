@@ -2,6 +2,8 @@ import type {
   DebtSimulationPeriod,
   DebtContractOut,
 } from "@/services/debtContracts/debtContractsApi";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   periods: DebtSimulationPeriod[];
@@ -9,8 +11,7 @@ interface Props {
 }
 
 function fmtGbp(v: string | number): string {
-  const n = typeof v === "string" ? parseFloat(v) : v;
-  return `£${n.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatGBP(v);
 }
 
 function periodDueDate(contract: DebtContractOut, periodIndex: number): string {
@@ -26,12 +27,7 @@ function periodDueDate(contract: DebtContractOut, periodIndex: number): string {
     d.setMonth(d.getMonth() + periodIndex);
   }
 
-  return d.toLocaleDateString("en-GB", {
-    timeZone: "Europe/London",
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return formatLondon(d, "date");
 }
 
 export function ScheduleTable({ periods, contract }: Props) {

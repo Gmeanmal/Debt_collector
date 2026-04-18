@@ -13,6 +13,7 @@ import {
 } from "@/services/debtContracts/debtContractsApi";
 import { queryKeys } from "@/lib/queryKeys";
 import { cn } from "@/lib/utils";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   subId: string;
@@ -23,10 +24,7 @@ interface Props {
 type Step = "pick" | "amount" | "reason";
 
 function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  return formatGBP(v);
 }
 
 function PreviewBlock({ data }: { data: SurprisePenaltyPreviewOut }) {
@@ -130,7 +128,7 @@ export function SurprisePenaltyFlow({ subId, onClose, onBanner }: Props) {
                 options={activeContracts}
                 value={selectedContract}
                 onChange={setSelectedContract}
-                getLabel={(c) => `£${parseFloat(c.principal).toFixed(2)} — ${c.status}`}
+                getLabel={(c) => `${formatGBP(c.principal)} — ${c.status}`}
                 getValue={(c) => c.id}
                 placeholder="Choose contract…"
                 renderOption={(c) => (

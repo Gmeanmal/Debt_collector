@@ -4,6 +4,7 @@ import {
   iconForKind,
 } from "@/services/notifications/notificationKinds";
 import type { NotificationOut } from "@/services/notifications/notificationsApi";
+import { formatLondon } from "@/services/format/datetime";
 
 interface Props {
   notification: NotificationOut;
@@ -21,7 +22,7 @@ function formatRelative(iso: string): string {
   if (diffHour < 24) return `${diffHour}h ago`;
   const diffDay = Math.round(diffHour / 24);
   if (diffDay < 7) return `${diffDay}d ago`;
-  return new Date(iso).toLocaleDateString("en-GB");
+  return formatLondon(iso, "date");
 }
 
 function actorLabel(n: NotificationOut): string | null {

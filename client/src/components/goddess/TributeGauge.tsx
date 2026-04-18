@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getTributeGauge, tributeGaugeKey } from "@/services/tributeMinimum/tributeMinimumApi";
 import type { GaugeColor } from "@/services/tributeMinimum/tributeMinimumApi";
+import { formatGBP } from "@/services/format/currency";
 
 // TODO: when /goddess/subs/:subId/tribute-minimum route is registered in the router,
 // replace the "Not configured" stub with: <Link to={`/goddess/subs/${subId}/tribute-minimum`}>Configure</Link>
@@ -25,9 +26,7 @@ function periodLabel(period: "weekly" | "monthly" | null): string {
 }
 
 function formatGbp(value: string | null): string {
-  if (value === null) return "—";
-  const n = Number.parseFloat(value);
-  return `£${n.toFixed(2)}`;
+  return formatGBP(value);
 }
 
 function clampRatio(ratio: string | null): number {

@@ -1,12 +1,24 @@
 import { useRef, useState } from "react";
 import type { UpcomingPaymentItem } from "@/services/dashboards/dashboardsApi";
+import { formatGBP } from "@/services/format/currency";
 
-const GBP = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+const MONTH_LABEL_FMT = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "UTC",
+  month: "long",
+  year: "numeric",
+});
 
 const DAY_HEADERS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 function isoToday(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
 function addDays(isoDate: string, n: number): string {
@@ -22,7 +34,7 @@ function formatDisplayDate(isoDate: string): string {
 
 function formatMonthLabel(isoDate: string): string {
   const d = new Date(isoDate + "T00:00:00Z");
-  return d.toLocaleDateString("en-GB", { timeZone: "UTC", month: "long", year: "numeric" });
+  return MONTH_LABEL_FMT.format(d);
 }
 
 function isoWeekday(isoDate: string): number {
@@ -84,7 +96,7 @@ function TooltipPopover({ items, top, left }: TooltipPopoverProps) {
     >
       {items.map((item, i) => (
         <div key={i} className="flex items-center gap-2">
-          <span className="text-pink-primary font-semibold">{GBP.format(Number(item.amount))}</span>
+          <span className="text-pink-primary font-semibold">{formatGBP(item.amount)}</span>
           <span className="text-base-text-muted">{item.label}</span>
         </div>
       ))}

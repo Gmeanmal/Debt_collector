@@ -18,6 +18,7 @@ import {
 } from "@/components/payments/PendingValidationsBulkBar";
 import { ProofLightbox } from "@/components/payments/ProofLightbox";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatGBP } from "@/services/format/currency";
 
 interface RejectPanelProps {
   decl: PaymentOut;
@@ -35,7 +36,7 @@ function RejectPanel({ decl, onClose }: RejectPanelProps) {
     },
   });
 
-  const description = `£${Number(decl.amount).toFixed(2)} — ${decl.sub_display_name ?? "sub"}`;
+  const description = `${formatGBP(decl.amount)} — ${decl.sub_display_name ?? "sub"}`;
 
   return (
     <RejectModal
@@ -200,7 +201,7 @@ export function PendingValidationsRoute() {
       {lightboxTarget?.proof_presigned_url && (
         <ProofLightbox
           src={lightboxTarget.proof_presigned_url}
-          alt={`Payment proof for ${lightboxTarget.sub_display_name ?? "sub"}'s £${Number(lightboxTarget.amount).toFixed(2)} declaration`}
+          alt={`Payment proof for ${lightboxTarget.sub_display_name ?? "sub"}'s ${formatGBP(lightboxTarget.amount)} declaration`}
           onClose={() => setLightboxTarget(null)}
         />
       )}

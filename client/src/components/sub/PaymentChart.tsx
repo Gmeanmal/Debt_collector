@@ -1,15 +1,15 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { WeeklyPaymentTotal } from "@/services/dashboards/dashboardsApi";
+import { formatGBP } from "@/services/format/currency";
 
-const GBP = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+const WEEK_LABEL_FMT = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/London",
+  day: "2-digit",
+  month: "short",
+});
 
 function weekLabel(isoDate: string): string {
-  const d = new Date(isoDate);
-  return d.toLocaleDateString("en-GB", {
-    timeZone: "Europe/London",
-    day: "2-digit",
-    month: "short",
-  });
+  return WEEK_LABEL_FMT.format(new Date(isoDate));
 }
 
 interface TooltipPayload {
@@ -27,7 +27,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   return (
     <div className="bg-base-surface border border-base-border rounded px-3 py-2 text-xs shadow-lg">
       <p className="text-base-text-muted mb-1">w/c {label}</p>
-      <p className="text-pink-primary font-semibold">{GBP.format(payload[0].value)}</p>
+      <p className="text-pink-primary font-semibold">{formatGBP(payload[0].value)}</p>
     </div>
   );
 }

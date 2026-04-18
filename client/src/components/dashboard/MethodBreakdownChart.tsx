@@ -4,6 +4,7 @@ import type { TooltipContentProps } from "recharts";
 import { chartColor } from "@/services/dashboard/chartColors";
 import { ChartPanel, ChartError } from "@/components/dashboard/ChartPanel";
 import type { MethodBreakdownItem } from "@/types/dashboard";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   data: MethodBreakdownItem[];
@@ -21,10 +22,6 @@ const PALETTE_VARS = [
   "--color-pink-primary-hover",
 ];
 
-function formatGbp(value: number): string {
-  return `£${value.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
 function CustomTooltip({ active, payload }: TooltipContentProps) {
   if (!active || !payload || payload.length === 0) return null;
   const entry = payload[0];
@@ -40,7 +37,7 @@ function CustomTooltip({ active, payload }: TooltipContentProps) {
     >
       <p className="font-medium text-base-text">{entry.name}</p>
       <p className="text-base-text-muted">
-        {formatGbp(Number(entry.value ?? 0))}
+        {formatGBP(Number(entry.value ?? 0))}
         {pct}
       </p>
     </div>
@@ -64,7 +61,7 @@ function renderLegend(items: MethodBreakdownItem[], total: number) {
               {item.method_type.replace("_", " ")}
             </span>
             <span className="ml-auto font-medium text-base-text">
-              {formatGbp(Number(item.total))}
+              {formatGBP(Number(item.total))}
             </span>
             <span className="text-base-text-subtle w-12 text-right">{pct}%</span>
           </li>

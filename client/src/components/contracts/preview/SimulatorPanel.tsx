@@ -7,6 +7,7 @@ import {
 } from "@/services/debtContracts/debtContractsApi";
 import { Modal } from "@/components/ui/Modal";
 import { ScheduleComparisonTable } from "./ScheduleComparisonTable";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   contract: DebtContractOut;
@@ -14,7 +15,7 @@ interface Props {
 }
 
 function fmtGbp(v: number): string {
-  return `£${v.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatGBP(v);
 }
 
 interface WhatIfInputs {

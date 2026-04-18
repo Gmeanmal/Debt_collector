@@ -1,7 +1,6 @@
-const GBP_FORMATTER = new Intl.NumberFormat("en-GB", {
-  style: "currency",
-  currency: "GBP",
-});
+import { formatGBP } from "@/services/format/currency";
+
+export { formatGBP };
 
 const LONG_DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
@@ -10,11 +9,6 @@ const LONG_DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
 });
 
 const MS_PER_DAY = 86_400_000;
-
-export function formatGBP(amount: string | number): string {
-  const numeric = typeof amount === "string" ? parseFloat(amount) : amount;
-  return GBP_FORMATTER.format(isNaN(numeric) ? 0 : numeric);
-}
 
 function splitDecimal(value: string): { sign: 1n | -1n; whole: string; frac: string } {
   const trimmed = value.trim();

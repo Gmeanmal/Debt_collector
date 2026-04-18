@@ -1,16 +1,10 @@
 import { ChartPanel, ChartError } from "@/components/dashboard/ChartPanel";
 import type { TopSubRevenue } from "@/types/dashboard";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   data: TopSubRevenue[];
   error?: string;
-}
-
-function formatGbp(value: string): string {
-  return `£${Number(value).toLocaleString("en-GB", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
 }
 
 function initials(name: string): string {
@@ -63,9 +57,9 @@ export function TopSubsLeaderboard({ data, error }: Props) {
               <span
                 className="text-sm font-semibold text-gold-accent tabular-nums"
                 role="status"
-                aria-label={`${sub.display_name} total: ${formatGbp(sub.total)}`}
+                aria-label={`${sub.display_name} total: ${formatGBP(sub.total)}`}
               >
-                {formatGbp(sub.total)}
+                {formatGBP(sub.total)}
               </span>
             </li>
           ))}

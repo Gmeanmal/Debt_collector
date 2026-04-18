@@ -16,15 +16,11 @@ import {
 import { queryKeys } from "@/lib/queryKeys";
 import { useAuth } from "@/services/auth/useAuth";
 import { useAftercareActive } from "@/hooks/useAftercareActive";
-
-const GBP = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 function formatDate(dt: string) {
-  return new Date(dt).toLocaleString("en-GB", {
-    timeZone: "Europe/London",
-    dateStyle: "short",
-    timeStyle: "short",
-  });
+  return formatLondon(dt, "datetime");
 }
 
 const PROGRESS_WIDTH_CLASS: Record<number, string> = {
@@ -69,13 +65,13 @@ function ContractCard({ contract }: ContractCardProps) {
     >
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <span className="font-semibold text-base-text text-sm">
-          Principal {GBP.format(Number(contract.principal))}
+          Principal {formatGBP(contract.principal)}
         </span>
         <ContractStatusChip status={contract.status} />
       </div>
       <div className="flex items-center justify-between text-xs text-base-text-muted">
         <span>Balance</span>
-        <span className="text-base-text font-semibold">{GBP.format(Number(contract.balance))}</span>
+        <span className="text-base-text font-semibold">{formatGBP(contract.balance)}</span>
       </div>
       <div className="h-2 rounded-full bg-base-surface-raised overflow-hidden">
         <div className={`h-full bg-pink-primary ${progressWidthClass(progressPercent)}`} />
@@ -152,7 +148,7 @@ export function SubDashboardRoute() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
             label="Due this week"
-            value={GBP.format(Number(dash.amount_due_this_week))}
+            value={formatGBP(dash.amount_due_this_week)}
             accent={dash.is_late ? "danger" : "default"}
             trend={
               dash.is_late ? (
@@ -162,18 +158,18 @@ export function SubDashboardRoute() {
           />
           <StatCard
             label="All-time sent"
-            value={GBP.format(Number(planning?.total_paid_all_time ?? dash.total_sent))}
+            value={formatGBP(planning?.total_paid_all_time ?? dash.total_sent)}
             accent="success"
           />
           {planning && (
             <>
               <StatCard
                 label="This month"
-                value={GBP.format(Number(planning.total_paid_this_month))}
+                value={formatGBP(planning.total_paid_this_month)}
               />
               <StatCard
                 label="Rolling remaining"
-                value={GBP.format(Number(planning.rolling_remaining_this_month))}
+                value={formatGBP(planning.rolling_remaining_this_month)}
                 accent={Number(planning.rolling_remaining_this_month) > 0 ? "danger" : "default"}
               />
             </>
@@ -261,7 +257,7 @@ function RecentPaymentsTable({ payments }: RecentPaymentsTableProps) {
                 className="py-2 pr-3 text-base-text text-sm font-semibold whitespace-nowrap"
                 role="status"
               >
-                {GBP.format(Number(p.amount))}
+                {formatGBP(p.amount)}
               </td>
               <td className="py-2 pr-3 text-xs text-base-text-muted capitalize whitespace-nowrap">
                 {p.category.replace(/_/g, " ")}

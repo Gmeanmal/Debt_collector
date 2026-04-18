@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import type { ProfileChangeRequestOut } from "@/services/profile/profileApi";
 import { AvatarImage } from "@/components/profile/AvatarImage";
 import type { AvatarKey } from "@/services/profile/avatarMap";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Pending review",
@@ -44,11 +46,7 @@ interface ChangeRequestRowProps {
 }
 
 function ChangeRequestRow({ request, onPayFee }: ChangeRequestRowProps) {
-  const date = new Date(request.requested_at).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  const date = formatLondon(request.requested_at, "date");
 
   const changes: string[] = [];
   if (request.proposed_first_name) changes.push(`First name → ${request.proposed_first_name}`);
@@ -84,7 +82,7 @@ function ChangeRequestRow({ request, onPayFee }: ChangeRequestRowProps) {
       {request.status === "awaiting_fee_payment" && request.fee_amount && (
         <div className="flex items-center gap-3 mt-1">
           <span className="text-sm text-status-warning font-semibold">
-            Fee: £{Number(request.fee_amount).toFixed(2)}
+            Fee: {formatGBP(request.fee_amount)}
           </span>
           <Button size="sm" onClick={() => onPayFee(request.id)}>
             Pay fee

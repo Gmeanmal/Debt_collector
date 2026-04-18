@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { ConfirmActionModal } from "@/components/shared/ConfirmActionModal";
 import { buyoutPreviewApi, type BuyoutPreviewOut } from "@/services/debtContracts/debtContractsApi";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   contractSlug: string;
@@ -9,10 +10,7 @@ interface Props {
 }
 
 function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  return formatGBP(v);
 }
 
 function PreviewContent({ data }: { data: BuyoutPreviewOut }) {

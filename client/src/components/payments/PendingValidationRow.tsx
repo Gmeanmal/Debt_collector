@@ -5,6 +5,8 @@ import type {
   PaymentCategory,
   PaymentOut,
 } from "@/services/payments/paymentsApi";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 const CATEGORIES: PaymentCategory[] = ["entry", "tribute"];
 
@@ -23,11 +25,11 @@ const SOURCE_VARIANT: Record<DeclarationSource, BadgeVariant> = {
 };
 
 function formatDate(dt: string) {
-  return new Date(dt).toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" });
+  return formatLondon(dt, "datetime");
 }
 
 function formatAmount(amount: string): string {
-  return `£${Number(amount).toFixed(2)}`;
+  return formatGBP(amount);
 }
 
 interface PendingValidationRowProps {

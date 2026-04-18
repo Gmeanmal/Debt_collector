@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/profile/Avatar";
 import { SearchableSelect } from "@/components/shared/SearchableSelect";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatGBP } from "@/services/format/currency";
 
 const CATEGORIES: { value: PaymentCategory; label: string }[] = [
   { value: "entry", label: "Entry tribute" },
@@ -100,7 +101,7 @@ export function RecordPaymentRoute() {
     const numericAmount = Number(amount);
     toastCtxRef.current = {
       subDisplayName: selectedSub.display_name,
-      amountLabel: `£${numericAmount.toFixed(2)}`,
+      amountLabel: formatGBP(numericAmount),
     };
     recordMutation.mutate({
       sub_id: selectedSub.id,

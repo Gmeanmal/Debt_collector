@@ -2,6 +2,7 @@ import * as React from "react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { ChevronLeft, ChevronRight, Calendar, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatLondon } from "@/services/format/datetime";
 
 // --- tiny date helpers (no date-fns dep) ---
 
@@ -40,14 +41,7 @@ function toLocalIso(
 }
 
 function formatDisplay(date: Date): string {
-  return date.toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+  return formatLondon(date, "datetime");
 }
 
 const DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];

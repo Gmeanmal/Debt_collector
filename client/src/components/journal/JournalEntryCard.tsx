@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { JournalEntry, JournalMood } from "@/services/journal/journalApi";
+import { formatLondon } from "@/services/format/datetime";
 
 interface Props {
   entry: JournalEntry;
@@ -31,10 +32,7 @@ const MOOD_VARIANT: Record<
 };
 
 function formatTs(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  return formatLondon(iso, "datetime");
 }
 
 function formatRelative(iso: string): string {

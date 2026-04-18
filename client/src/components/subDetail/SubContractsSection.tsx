@@ -5,6 +5,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   subId: string;
@@ -54,10 +55,10 @@ export function SubContractsSection({ subId, username }: Props) {
           >
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-semibold text-base-text">
-                Principal £{Number(c.principal).toFixed(2)}
+                Principal {formatGBP(c.principal)}
               </span>
               <span className="text-xs text-base-text-muted">
-                Min payment £{Number(c.minimum_payment).toFixed(2)} · {c.payment_frequency}
+                Min payment {formatGBP(c.minimum_payment)} · {c.payment_frequency}
               </span>
             </div>
             <ContractStatusChip status={c.status} />

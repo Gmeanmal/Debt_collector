@@ -1,4 +1,6 @@
 import type { DebtContractOut, PaymentFrequency } from "@/services/debtContracts/debtContractsApi";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 const PERIOD_DAYS: Record<PaymentFrequency, number> = {
   weekly: 7,
@@ -7,16 +9,11 @@ const PERIOD_DAYS: Record<PaymentFrequency, number> = {
 };
 
 function fmtShortDate(d: Date): string {
-  return d.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "Europe/London",
-  });
+  return formatLondon(d, "date");
 }
 
 function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatGBP(v);
 }
 
 function computeNextPayments(contract: DebtContractOut): { date: Date; amount: string }[] {

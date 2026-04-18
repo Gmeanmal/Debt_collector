@@ -4,6 +4,20 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Fixed
+- **I18N-1 locale homogenisation — single date helper, currency sweep, ESLint ban** (ref `planning/todo.md` W8, single `fix(ui)` commit):
+  - **Shared `formatLondon` helper.** New `src/services/format/datetime.ts` exports `formatLondon(date: string | Date | null | undefined, kind: "date" | "datetime" | "time" = "datetime")`. All output in `Europe/London` via cached `Intl.DateTimeFormat` constructors (en-GB). Output spec frozen: `"date"` → `"5 Apr 2026"`, `"datetime"` → `"5 Apr 2026 · 14:32"` (middle-dot separator between date and time, 24h clock), `"time"` → `"14:32"`. `null`/`undefined`/`""` / invalid-date → `"—"`. Accepts both ISO strings and `Date` instances.
+  - **47-file `toLocale*` migration.** Every `toLocaleDateString`, `toLocaleString`, `toLocaleTimeString` call across `src/` was replaced. `kind` was picked per call site: date-only renders → `"date"`, clock-only → `"time"`, rest → `"datetime"`. Edge cases preserved behaviour:
+    - `PlanningCalendar.isoToday()` (computation, not display — used `en-CA` as an ISO date trick) rewritten with `Intl.DateTimeFormat.formatToParts()` to emit `YYYY-MM-DD` without touching `toLocale*`.
+    - `PlanningCalendar.formatMonthLabel`, `PaymentChart.weekLabel`, `WeekRowButton.formatWeekLabel`, `TodayRoute` weekday label, `adminCronService.formatStartedAt` (includes seconds) kept a local `Intl.DateTimeFormat` because the required format isn't one of the three `formatLondon` kinds. These are still locale-safe, just not going through the helper.
+    - `InvitationsListRoute`'s hand-rolled `Intl.DateTimeFormat(...).replace(",", " ·")` hack deleted — `formatLondon(iso, "datetime")` already emits the middle dot.
+    - `date-time-picker.tsx::formatDisplay` now applies `Europe/London` via `formatLondon`, where it previously used browser-local time. Minor behaviour change, deliberate — the picker now matches the rest of the app.
+    - `RollingReadonlyPanel.tsx`'s local `formatLondon` helper deleted in favour of the shared one.
+  - **33-file currency sweep.** Raw `£${n.toFixed(2)}`, hand-rolled `Intl.NumberFormat("en-GB", { style: "currency" })`, and local `formatGbp` helpers all replaced with `formatGBP` from `services/format/currency`. Duplicate `formatGBP` in `services/dashboards/subDashboardFormat.ts` deleted and replaced with a re-export from the canonical module. Non-currency `.toFixed(2)` intentionally kept: percentage helpers (`fmtPct` in contracts), CSV numeric output (`weeklyCsv.ts`), payment input defaults, CSS-variable width (`TributeGauge`), and SimulatorPanel form compute values — all are computation or non-currency contexts.
+  - **ESLint ban on raw `toLocale*`.** `client/eslint.config.js` `no-restricted-syntax` array gains three selectors — `MemberExpression[property.name='toLocaleDateString'|'toLocaleString'|'toLocaleTimeString']` — all with message `"Use formatLondon from @/services/format/datetime instead."`. `datetime.ts` itself uses `Intl.DateTimeFormat` and is unaffected. Verified firing by temporarily adding a call (removed before commit).
+  - **FR string audit.** `grep -rn "jj/mm/aaaa|Bonjour|fr-FR" src/` returned zero matches pre-sweep and post-sweep. Nothing to remove — noted for the reviewer so the spec bullet can be closed.
+  - **Gate green.** `pnpm tsc --noEmit` clean. `pnpm lint` clean.
+
 ### Changed
 - **ROUTING-1 sub route standardisation under `/sub/*`** (ref `planning/todo.md` W8, single `refactor(client)` commit):
   - **Canonical moves.** `/today → /sub/today`, `/profile/kinks → /sub/profile/kinks`, `/profile/limits → /sub/profile/limits`, `/profile/aftercare → /sub/profile/aftercare`, `/profile/medical → /sub/profile/medical`. Each old path now renders a `<Navigate to="/sub/…" replace />` so bookmarks and prior session history land on the canonical URL (SPA-equivalent of the 308 the acceptance asked for — react-router cannot emit an HTTP redirect from a client-only shell; `<Navigate replace>` is the closest idiomatic match and preserves back-button behaviour).

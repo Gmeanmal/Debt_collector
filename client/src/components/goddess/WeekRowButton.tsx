@@ -1,4 +1,12 @@
 import type { WeeklyPaymentBucket } from "@/services/goddess/weeklyApi";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
+
+const WEEK_PART_FMT = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/London",
+  day: "numeric",
+  month: "short",
+});
 
 interface WeekRowButtonProps {
   bucket: WeeklyPaymentBucket;
@@ -7,23 +15,13 @@ interface WeekRowButtonProps {
 }
 
 function formatWeekLabel(weekStart: string, weekEnd: string): string {
-  const start = new Date(weekStart);
-  const end = new Date(weekEnd);
-  const startStr = start.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-  const endStr = end.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  const startStr = WEEK_PART_FMT.format(new Date(weekStart));
+  const endStr = formatLondon(weekEnd, "date");
   return `${startStr} – ${endStr}`;
 }
 
 function formatMondayLabel(weekStart: string): string {
-  return new Date(weekStart).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return formatLondon(weekStart, "date");
 }
 
 function setBarPct(node: HTMLElement | null, pct: number) {
@@ -47,7 +45,7 @@ export function WeekRowButton({ bucket, max, onOpen }: WeekRowButtonProps) {
         <span>{label}</span>
         <span>
           {bucket.count} {bucket.count === 1 ? "payment" : "payments"} ·{" "}
-          <span className="text-base-text font-medium">£{amount.toFixed(2)}</span>
+          <span className="text-base-text font-medium">{formatGBP(amount)}</span>
         </span>
       </div>
       <div className="h-2 w-full rounded-full bg-base-surface-raised overflow-hidden">

@@ -12,15 +12,16 @@ import {
   todayTasksKey,
 } from "@/services/today/todayApi";
 
+const LONG_DATE_FMT = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/London",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
 function TodayDate() {
-  const label = new Date().toLocaleDateString("en-GB", {
-    timeZone: "Europe/London",
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-  return <p className="text-sm text-base-text-muted mt-1">{label}</p>;
+  return <p className="text-sm text-base-text-muted mt-1">{LONG_DATE_FMT.format(new Date())}</p>;
 }
 
 export function TodayRoute() {

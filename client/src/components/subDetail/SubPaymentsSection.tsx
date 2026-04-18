@@ -3,6 +3,8 @@ import { listPendingPaymentsApi } from "@/services/payments/paymentsApi";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   subId: string;
@@ -16,11 +18,7 @@ const STATUS_CLASSES: Record<string, string> = {
 };
 
 function formatDate(dt: string) {
-  return new Date(dt).toLocaleString("en-GB", {
-    timeZone: "Europe/London",
-    dateStyle: "short",
-    timeStyle: "short",
-  });
+  return formatLondon(dt, "datetime");
 }
 
 export function SubPaymentsSection({ subId }: Props) {
@@ -57,7 +55,7 @@ export function SubPaymentsSection({ subId }: Props) {
           >
             <div className="flex items-center gap-2 flex-wrap min-w-0">
               <span className="font-semibold text-base-text text-sm">
-                £{Number(p.amount).toFixed(2)}
+                {formatGBP(p.amount)}
               </span>
               <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-base-surface-raised text-base-text-muted capitalize">
                 {p.category.replace(/_/g, " ")}

@@ -13,14 +13,11 @@ import type { CSSProperties } from "react";
 import { chartColor, CHART_COLORS } from "@/services/dashboard/chartColors";
 import { ChartPanel, ChartError } from "@/components/dashboard/ChartPanel";
 import type { MonthlyRevenueBucket } from "@/types/dashboard";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   data: MonthlyRevenueBucket[];
   error?: string;
-}
-
-function formatGbp(value: number): string {
-  return `£${value.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function CustomTooltip({ active, payload, label }: TooltipContentProps) {
@@ -38,7 +35,7 @@ function CustomTooltip({ active, payload, label }: TooltipContentProps) {
             // eslint-disable-next-line no-restricted-syntax -- recharts provides color at runtime; bridged via CSS var
             style={{ ["--dot" as string]: entry.color } as CSSProperties}
           />
-          {entry.name}: {formatGbp(Number(entry.value ?? 0))}
+          {entry.name}: {formatGBP(Number(entry.value ?? 0))}
         </p>
       ))}
     </div>
@@ -54,7 +51,7 @@ function revenueSummary(data: MonthlyRevenueBucket[]): string {
     if (total > peakTotal) peak = d;
   }
   const peakTotal = Number(peak.rolling) + Number(peak.one_off) + Number(peak.contract);
-  return `Revenue peaked in ${peak.month} at ${formatGbp(peakTotal)}`;
+  return `Revenue peaked in ${peak.month} at ${formatGBP(peakTotal)}`;
 }
 
 export function MonthlyRevenueChart({ data, error }: Props) {

@@ -2,6 +2,8 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicInvitationApi } from "@/services/invitations/invitationsApi";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 function errorMessage(err: unknown): string {
   const e = err as { status?: number; detail?: string } | null;
@@ -66,7 +68,7 @@ export function InviteLandingRoute() {
               <div className="flex justify-between items-center border-b border-base-border pb-3">
                 <span className="text-base-text-muted text-sm">Entry tribute</span>
                 <span className="text-base-text font-semibold" role="status">
-                  £{Number(invitation.entry_tribute_amount).toFixed(2)}
+                  {formatGBP(invitation.entry_tribute_amount)}
                 </span>
               </div>
               {invitation.note && (
@@ -78,11 +80,7 @@ export function InviteLandingRoute() {
               <div className="flex justify-between items-center">
                 <span className="text-base-text-muted text-sm">Expires</span>
                 <span className="text-base-text-subtle text-sm">
-                  {new Date(invitation.expires_at).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {formatLondon(invitation.expires_at, "date")}
                 </span>
               </div>
             </div>

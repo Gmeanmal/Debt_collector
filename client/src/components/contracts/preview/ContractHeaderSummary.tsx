@@ -1,4 +1,5 @@
 import type { DebtContractOut } from "@/services/debtContracts/debtContractsApi";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   contract: DebtContractOut;
@@ -6,7 +7,7 @@ interface Props {
 }
 
 function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatGBP(v);
 }
 
 function fmtPct(fraction: string): string {

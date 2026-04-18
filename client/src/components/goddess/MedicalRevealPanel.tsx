@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { revealSubMedicalApi, type SubMedicalRevealOut } from "@/services/medical/medicalApi";
+import { formatLondon } from "@/services/format/datetime";
 
 interface MedicalRevealPanelProps {
   subId: string;
@@ -81,7 +82,7 @@ export function MedicalRevealPanel({ subId }: MedicalRevealPanelProps) {
             </div>
             <RevealedField label="Additional notes" value={revealed.medical_notes} />
             <p className="text-xs text-base-text-subtle">
-              Last updated: {new Date(revealed.updated_at).toLocaleString("en-GB")}
+              Last updated: {formatLondon(revealed.updated_at, "datetime")}
             </p>
             <div className="flex justify-start">
               <Button

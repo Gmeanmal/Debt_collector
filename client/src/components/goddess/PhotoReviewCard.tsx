@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { RejectModal } from "@/components/shared/RejectModal";
 import type { SubPhotoQueueEntry } from "@/services/goddessPhotos/goddessPhotosApi";
+import { formatLondon } from "@/services/format/datetime";
 
 interface Props {
   entry: SubPhotoQueueEntry;
@@ -15,7 +16,7 @@ function formatBytes(bytes: number): string {
 }
 
 function formatUploadedAt(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+  return formatLondon(iso, "datetime");
 }
 
 export function PhotoReviewCard({ entry, onApprove, onReject }: Props) {

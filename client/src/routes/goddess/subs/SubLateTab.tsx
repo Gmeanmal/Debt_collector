@@ -4,6 +4,8 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { getLateSubsApi } from "@/services/goddess/lateSubsApi";
 import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   subId: string;
@@ -26,13 +28,7 @@ function daysSince(iso: string): number {
 }
 
 function fmtDate(iso: string | null): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "Europe/London",
-  });
+  return formatLondon(iso, "date");
 }
 
 export function SubLateTab({ subId }: Props) {
@@ -152,7 +148,7 @@ function LateTable({ rows }: LateTableProps) {
               className="border-b border-base-border/50 hover:bg-base-surface-raised/50 transition-colors"
             >
               <td className="px-4 py-3 font-medium text-base-text">{row.type}</td>
-              <td className="px-4 py-3 text-base-text">£{row.amount.toFixed(2)}</td>
+              <td className="px-4 py-3 text-base-text">{formatGBP(row.amount)}</td>
               <td className="px-4 py-3">
                 <span className="font-semibold text-pink-primary">{row.daysLate}d</span>
               </td>

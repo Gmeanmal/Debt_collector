@@ -12,13 +12,14 @@ import type { TooltipContentProps } from "recharts";
 import { ChartPanel } from "@/components/dashboard/ChartPanel";
 import { chartColor } from "@/services/dashboard/chartColors";
 import type { DebtSimulationPeriod } from "@/services/debtContracts/debtContractsApi";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   periods: DebtSimulationPeriod[];
 }
 
 function fmtGbp(value: number): string {
-  return `£${value.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatGBP(value);
 }
 
 function toChartData(periods: DebtSimulationPeriod[]) {

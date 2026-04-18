@@ -9,6 +9,8 @@ import {
   type PaymentFrequency,
 } from "@/services/debtContracts/debtContractsApi";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   subId: string;
@@ -16,14 +18,11 @@ interface Props {
 }
 
 function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  return formatGBP(v);
 }
 
 function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
+  return formatLondon(iso, "datetime");
 }
 
 // Approximate monthly multiplier for each frequency

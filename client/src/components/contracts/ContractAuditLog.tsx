@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { DebtContractAuditOut } from "@/services/debtContracts/debtContractsApi";
+import { formatLondon } from "@/services/format/datetime";
 
 const EVENT_LABELS: Record<string, string> = {
   proposed: "Proposed",
@@ -14,7 +15,7 @@ const EVENT_LABELS: Record<string, string> = {
 };
 
 function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
+  return formatLondon(iso, "datetime");
 }
 
 interface Props {

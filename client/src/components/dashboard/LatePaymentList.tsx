@@ -6,6 +6,7 @@ import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   items: LatePaymentItem[];
@@ -51,7 +52,7 @@ export function LatePaymentList({ items }: Props) {
     <ul className="flex flex-col gap-2">
       {items.map((item) => {
         const isLate = item.days_late > 0;
-        const amount = Number(item.amount_due).toFixed(2);
+        const amount = formatGBP(item.amount_due);
         const href = linkFor(item, slugMap);
         return (
           <li
@@ -92,7 +93,7 @@ export function LatePaymentList({ items }: Props) {
               </div>
             </div>
             <div className="flex flex-col items-end gap-0.5">
-              <span className="font-mono text-base text-base-text">£{amount}</span>
+              <span className="font-mono text-base text-base-text">{amount}</span>
               <span
                 className={cn(
                   "text-[10px] font-medium uppercase tracking-[0.12em]",

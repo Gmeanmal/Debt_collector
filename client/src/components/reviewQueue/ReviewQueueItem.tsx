@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { ReviewQueueItem } from "@/services/reviewQueue/reviewQueueApi";
+import { formatLondon } from "@/services/format/datetime";
 
 const NOTE_TRUNCATE = 200;
 
 function formatSubmittedAt(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
-    timeZone: "Europe/London",
-    dateStyle: "short",
-    timeStyle: "short",
-  });
+  return formatLondon(iso, "datetime");
 }
 
 interface Props {

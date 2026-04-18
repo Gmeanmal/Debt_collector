@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { buyoutIntentApi, type BuyoutIntentOut } from "@/services/debtContracts/debtContractsApi";
 import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
 import { METHOD_LABELS } from "@/components/paymentMethods/methodMetadata";
+import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   contractId: string;
@@ -9,7 +10,7 @@ interface Props {
 }
 
 function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatGBP(v);
 }
 
 export function BuyoutIntentPanel({ contractId, onClose }: Props) {

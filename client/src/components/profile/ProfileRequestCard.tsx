@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import type { ProfileChangeRequestOut } from "@/services/profile/profileApi";
 import { AvatarImage } from "@/components/profile/AvatarImage";
 import type { AvatarKey } from "@/services/profile/avatarMap";
+import { formatLondon } from "@/services/format/datetime";
 
 interface ProfileRequestCardProps {
   request: ProfileChangeRequestOut;
@@ -22,11 +23,7 @@ export function ProfileRequestCard({
   onSetFee,
   isApproving,
 }: ProfileRequestCardProps) {
-  const date = new Date(request.requested_at).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  const date = formatLondon(request.requested_at, "date");
 
   const changes: string[] = [];
   if (request.proposed_first_name) changes.push(`First name → ${request.proposed_first_name}`);

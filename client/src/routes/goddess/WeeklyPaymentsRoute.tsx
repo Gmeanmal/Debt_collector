@@ -8,6 +8,7 @@ import { WeekRowButton } from "@/components/goddess/WeekRowButton";
 import { WeeklyDetailPanel } from "@/components/goddess/WeeklyDetailPanel";
 import { getWeeklyPaymentsApi, type WeeklyPaymentBucket } from "@/services/goddess/weeklyApi";
 import { queryKeys } from "@/lib/queryKeys";
+import { formatGBP } from "@/services/format/currency";
 
 export function WeeklyPaymentsRoute() {
   const { data, isLoading, isError, error } = useQuery({
@@ -95,7 +96,7 @@ function WeeklyChart({ buckets, onOpen }: WeeklyChartProps) {
       <Separator />
       <div className="flex justify-between text-sm">
         <span className="text-base-text-muted">8-week total</span>
-        <span className="font-semibold text-base-text">£{totalOverall.toFixed(2)}</span>
+        <span className="font-semibold text-base-text">{formatGBP(totalOverall)}</span>
       </div>
     </div>
   );

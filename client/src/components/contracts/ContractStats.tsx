@@ -1,4 +1,6 @@
 import type { DebtContractOut } from "@/services/debtContracts/debtContractsApi";
+import { formatLondon } from "@/services/format/datetime";
+import { formatGBP } from "@/services/format/currency";
 
 function setProgressVar(node: HTMLElement | null, pct: number) {
   node?.style.setProperty("--progress", `${pct}%`);
@@ -9,14 +11,11 @@ interface Props {
 }
 
 function fmtGbp(v: string): string {
-  return `£${parseFloat(v).toLocaleString("en-GB", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  return formatGBP(v);
 }
 
 function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London" });
+  return formatLondon(iso, "datetime");
 }
 
 interface KpiProps {

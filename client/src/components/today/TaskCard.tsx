@@ -9,17 +9,14 @@ import {
   submitTaskService,
   uploadEvidence,
 } from "@/services/today/todayApi";
+import { formatLondon } from "@/services/format/datetime";
 
 interface Props {
   task: OpenTask;
 }
 
 function formatDue(dueAt: string): string {
-  return new Date(dueAt).toLocaleString("en-GB", {
-    timeZone: "Europe/London",
-    dateStyle: "short",
-    timeStyle: "short",
-  });
+  return formatLondon(dueAt, "datetime");
 }
 
 const STATUS_BADGE: Record<

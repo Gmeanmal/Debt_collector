@@ -17,7 +17,7 @@ export function toSentenceLabel(key: string): string {
 }
 
 export function formatStartedAt(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
+  return new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
     day: "numeric",
     month: "short",
@@ -26,5 +26,5 @@ export function formatStartedAt(iso: string): string {
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
-  });
+  }).format(new Date(iso));
 }

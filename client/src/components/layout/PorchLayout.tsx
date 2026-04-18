@@ -2,8 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/services/auth/useAuth";
 import { getSafeword, safewordKey } from "@/services/safeword/safewordApi";
-
-const GBP = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+import { formatGBP } from "@/services/format/currency";
 
 interface PorchLayoutProps {
   entryTributeAmount: string | number | null | undefined;
@@ -21,8 +20,7 @@ export function PorchLayout({ entryTributeAmount }: PorchLayoutProps) {
   });
 
   const safewordMissing = !safeword?.word?.trim();
-  const formattedAmount =
-    entryTributeAmount != null ? GBP.format(Number(entryTributeAmount)) : null;
+  const formattedAmount = entryTributeAmount != null ? formatGBP(entryTributeAmount) : null;
 
   function handleDeclare() {
     navigate("/sub/payments/new?kind=entry_tribute");
