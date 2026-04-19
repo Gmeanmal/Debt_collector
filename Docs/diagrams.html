@@ -119,6 +119,8 @@
       <li><a href="#cron-dry-run">Cron dry-run</a></li>
       <li><a href="#gender-taxonomy">Gender taxonomy lookup</a></li>
       <li><a href="#audit-decorator">Audit decorator</a></li>
+      <li><a href="#realtime-envelope">Realtime WebSocket envelope &amp; heartbeat (WEBSOCKET-1)</a></li>
+      <li><a href="#web-push">Web Push fan-out (PUSH-1)</a></li>
     </ol>
   </div>
 
@@ -836,6 +838,85 @@ sequenceDiagram
 </div>
     </div>
     <div class="callout info"><strong>scope</strong> Applied to every admin-console write endpoint, plus goddess writes that change money: breach, forgive, adjustment, surprise penalty, buyout.</div>
+  </div>
+
+  <h2 id="realtime-envelope">15 · Realtime WebSocket envelope &amp; heartbeat (WEBSOCKET-1)</h2>
+  <div class="card">
+    <p>Every frame on <code>/ws/notifications</code> is <code>{ type, data, ts }</code>. Four kinds ship today: <code>notification</code> (existing bell payload), <code>payment_declared</code> (to the goddess), <code>validation_resolved</code> (to the sub), <code>contract_state_change</code> (to both parties). A 20 s server ping / 30 s pong deadline keeps half-open TCP from wedging the hub.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+sequenceDiagram
+    participant Browser
+    participant WS as FastAPI /ws/notifications
+    participant Hub as InProcessPublisher
+    participant Ctrl as Controller (payment / contract)
+    participant DB as Database
+    Browser->>WS: Upgrade ?token=JWT
+    WS->>WS: porch_gate short-circuits (HTTPConnection, scope != http)
+    WS->>WS: decode JWT — close 4401 on bad token
+    WS->>Hub: subscribe(user_id) — per-conn Queue(maxsize=32)
+    WS-->>Browser: accept
+    par heartbeat TaskGroup
+        loop every 20 s
+            WS-->>Browser: {type:"ping", ts}
+            Browser-->>WS: {type:"pong"}
+        end
+        Note over WS: close code 1001 after 30 s without pong
+    and publish loop
+        Ctrl->>DB: write + commit
+        Ctrl->>Hub: publish_event(user_id, "payment_declared", data)
+        Hub-->>WS: enqueue envelope
+        WS-->>Browser: {type, data, ts}
+        Browser->>Browser: route: ping→pong, notification→store, else→invalidateQueries
+    end
+    Browser-x WS: close / network drop
+    WS->>Hub: unsubscribe(user_id, conn)
+</div>
+    </div>
+    <div class="callout info"><strong>client routing</strong> <code>useNotificationsSocket</code> parses the envelope, then delegates to <code>useRealtimeInvalidations(qc)</code> which invalidates TanStack Query via the shared <code>queryKeys</code> registry — never ad-hoc keys.</div>
+    <div class="callout warn"><strong>porch_gate fix</strong> Global app-level dep must type its scope as <code>HTTPConnection</code> (Starlette parent of both Request and WebSocket); previous <code>Request</code> typing 500ed every WS handshake because FastAPI can't build a Request from a WS scope.</div>
+  </div>
+
+  <h2 id="web-push">16 · Web Push fan-out (PUSH-1)</h2>
+  <div class="card">
+    <p>Out-of-app delivery via the browser Push API. Opt-in toggle lives in the account menu; the service worker turns server payloads into OS notifications and routes clicks back into the SPA through a <code>postMessage</code> navigate bridge.</p>
+    <div class="mermaid-wrap">
+<div class="mermaid">
+flowchart TD
+    A["User opens account menu<br/>clicks 'Enable push'"]:::ui
+    A --> B{"VITE_VAPID_PUBLIC_KEY set<br/>AND browser supports PushManager?"}
+    B -- no --> Z["Toggle hidden entirely<br/>(silent fallback)"]:::muted
+    B -- yes --> C["Notification.requestPermission()"]
+    C --> D{"granted?"}
+    D -- denied --> E["Show 'Notifications blocked in browser' note"]:::muted
+    D -- granted --> F["registration.pushManager.subscribe<br/>{userVisibleOnly, applicationServerKey}"]
+    F --> G["POST /me/notifications/subscriptions<br/>{endpoint, p256dh, auth, user_agent}"]:::api
+    G --> H["DAO.create — endpoint-conflict rebinds to new user"]
+    H --> I["Persist server-side id via idb-keyval"]:::ui
+
+    subgraph N[notify user_id]
+        N1["Controller calls notify()"] --> N2["DB write Notification"]
+        N2 --> N3["publisher.publish_event → WS frame"]
+        N2 --> N4["_fanout_web_push:<br/>list subs → asyncio.gather(PushSender.send)"]
+        N4 --> N5{"HTTP 404 / 410?"}
+        N5 -- yes --> N6["delete_by_endpoint (prune gone)"]
+        N5 -- no --> N7["Delivered to FCM / Mozilla autopush"]
+    end
+
+    N7 --> SW["Service worker 'push' event<br/>showNotification(title, body, data.url)"]:::sw
+    SW --> CL["User clicks notification"]
+    CL --> M{"matchAll open client?"}
+    M -- yes --> MP["focus tab + postMessage {type:navigate, url}"]
+    M -- no --> OW["clients.openWindow(url)"]
+    MP --> R["main.tsx listener → router.navigate(url)"]:::ui
+    classDef ui fill:#0f0a18,stroke:#ff4fa3,color:#f4ecff
+    classDef api fill:#1a1226,stroke:#7c3aed,color:#f4ecff
+    classDef sw fill:#05020a,stroke:#f5c242,color:#f4ecff
+    classDef muted fill:#0f0a18,stroke:#7a6a92,color:#b8a8cf
+</div>
+    </div>
+    <div class="callout info"><strong>no-VAPID safety</strong> <code>PushSender</code> is a no-op when <code>vapid_private_key == ""</code>; dev boxes without keys stay silent rather than erroring. The toggle hides itself client-side when the VAPID public key is empty — symmetric behaviour on both ends.</div>
+    <div class="callout warn"><strong>swallow on fan-out</strong> Any raise inside <code>_fanout_web_push</code> is logged and swallowed — a push-endpoint failure must not poison the controller transaction or the WS publish that already succeeded.</div>
   </div>
 
   <div class="diagram-block">

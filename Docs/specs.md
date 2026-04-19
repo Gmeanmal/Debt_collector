@@ -349,9 +349,31 @@ Table `notification(id, user_id, type, payload_json, created_at, read_at)`. Bell
 
 ### 9.2. Real-time WebSocket
 
-`GET /ws/notifications` (JWT via `?token=` or cookie). `NotificationPublisher` abstraction: in-process broadcast v1, swappable for Redis pub/sub later. Client reconnects with backoff; falls back to polling on WS failure.
+`GET /ws/notifications?token=…` (JWT query auth, close code **4401** on bad token; close before accept). `InProcessPublisher` hub keyed by `user_id`, per-connection `asyncio.Queue(maxsize=32)`, swappable for Redis pub/sub later.
 
-### 9.3. Email
+**Envelope.** Every frame is `{ "type": "<kind>", "data": {...}, "ts": <epoch_ms> }`. Kinds published today:
+- `notification` — existing bell payload (`NotificationOut`).
+- `payment_declared` — target goddess; `{ declaration_id, sub_username, amount, category }`.
+- `validation_resolved` — target sub author; `{ declaration_id, outcome: "validated" | "rejected", reason?: string }`.
+- `contract_state_change` — both parties; `{ contract_slug, new_state }`.
+
+**Heartbeat.** Server emits `{type: "ping", ts}` every 20 s; client replies `{type: "pong"}`. Server closes the socket with code **1001** after 30 s without pong. Client closes locally when it sees no frame for 30 s, then exponential backoff 1 s → 30 s to reconnect.
+
+**Client invalidations.** `useRealtimeInvalidations(qc)` routes envelope frames into TanStack Query via the shared `queryKeys` registry (no ad-hoc keys). `notification` frames fall through to the notifications store.
+
+Note — `porch_gate` global dependency types its scope as `HTTPConnection` so FastAPI injects it cleanly for both HTTP and WS scopes; WS short-circuits at the top and enforces access state inside the handler.
+
+### 9.3. Web Push (PWA)
+
+Out-of-app delivery via the browser Push API. Opt-in toggle lives in the account menu; the service worker turns server payloads into OS notifications.
+
+- **Table** `push_subscription(id UUID PK, user_id FK CASCADE, endpoint TEXT UNIQUE, p256dh, auth, user_agent, created_at)`. Endpoint-conflict re-binds to the new user.
+- **Endpoints** `POST/GET/DELETE /me/notifications/subscriptions[/{id}]` — auth'd, owner-only.
+- **Fan-out** `notify()` calls `_fanout_web_push` after the DB write + WS publish: `asyncio.gather(return_exceptions=True)` across subs, 404/410 endpoints pruned via `delete_by_endpoint`. Any raise is logged and swallowed — a push failure must not poison the controller transaction.
+- **Transport** `pywebpush` + VAPID (`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` in `server/.env`); `PushSender` no-ops when keys are absent so dev without VAPID stays silent rather than erroring.
+- **Client** `vite-plugin-pwa` in `injectManifest` mode, custom `src/sw.ts` (`push` → `showNotification`, `notificationclick` → focus existing tab + `postMessage {type: "navigate", url}`, or `openWindow`). Subscription state persisted via `idb-keyval`. `usePushOptIn` re-checks support + permission + subscription on mount. Unsupported browsers or empty VAPID key hide the toggle entirely; `permission === "denied"` shows a muted "blocked in browser" note.
+
+### 9.4. Email
 
 **Resend** (100 emails/day free tier). Only for password reset (JWT link, TTL 1h). Invitations are not emailed by the app — Goddess sends the URL externally.
 
@@ -998,6 +1020,9 @@ New routes and components:
 /journal                -- sub journal history
 /devices                -- sub read-only device transparency
 /wishlist               -- sub wishlist view
+/sub/ledger             -- sub transparency ledger (identity, gender, kinks, limits,
+                           journal, payments, merits, rituals, contracts, aftercare)
+                           read-only accordion — reuses existing sub services, no new API
 
 /goddess/subs/:id/
   profile               -- identity + photos queue
