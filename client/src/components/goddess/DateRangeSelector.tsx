@@ -27,7 +27,11 @@ export function DateRangeSelector({
   const activePreset = range.preset;
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-3", className)} role="group" aria-label="Chart date range">
+    <div
+      className={cn("flex flex-wrap items-center gap-3", className)}
+      role="group"
+      aria-label="Chart date range"
+    >
       <div className="flex items-center rounded-md border border-base-border bg-base-surface p-0.5 gap-0.5">
         {PRESETS.map(({ label, value }) => (
           <button
@@ -50,10 +54,7 @@ export function DateRangeSelector({
       {activePreset === "custom" && (
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1.5">
-            <label
-              htmlFor="date-range-from"
-              className="text-xs text-base-text-muted"
-            >
+            <label htmlFor="date-range-from" className="text-xs text-base-text-muted">
               From
             </label>
             <input
@@ -65,10 +66,7 @@ export function DateRangeSelector({
             />
           </div>
           <div className="flex items-center gap-1.5">
-            <label
-              htmlFor="date-range-to"
-              className="text-xs text-base-text-muted"
-            >
+            <label htmlFor="date-range-to" className="text-xs text-base-text-muted">
               To
             </label>
             <input

@@ -177,7 +177,10 @@ export function ContractActions({ contract, role, onBanner }: Props) {
               <button
                 type="button"
                 disabled={closeMutation.isPending}
-                onClick={() => { setCancelOpen(false); closeMutation.mutate(); }}
+                onClick={() => {
+                  setCancelOpen(false);
+                  closeMutation.mutate();
+                }}
                 className={`${btnBase} bg-debt-muted text-status-danger border border-debt-ring hover:bg-debt-muted/80 focus-visible:ring-debt-primary`}
               >
                 {closeMutation.isPending ? "Cancelling…" : "Confirm cancel"}

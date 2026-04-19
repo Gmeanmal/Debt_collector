@@ -56,19 +56,15 @@ export function useDashboardDateRange(): UseDashboardDateRangeResult {
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
 
-  const isCustomValid =
-    customFrom.length > 0 && customTo.length > 0 && customFrom <= customTo;
+  const isCustomValid = customFrom.length > 0 && customTo.length > 0 && customFrom <= customTo;
 
-  const setPreset = useCallback(
-    (preset: DatePreset) => {
-      if (preset === "custom") {
-        setRange((prev) => ({ ...prev, preset: "custom" }));
-      } else {
-        setRange(buildRange(preset, "", ""));
-      }
-    },
-    [],
-  );
+  const setPreset = useCallback((preset: DatePreset) => {
+    if (preset === "custom") {
+      setRange((prev) => ({ ...prev, preset: "custom" }));
+    } else {
+      setRange(buildRange(preset, "", ""));
+    }
+  }, []);
 
   const applyCustom = useCallback(() => {
     if (!isCustomValid) return;

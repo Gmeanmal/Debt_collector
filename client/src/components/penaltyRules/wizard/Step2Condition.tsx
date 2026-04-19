@@ -39,9 +39,7 @@ export function Step2Condition({ state, subs, errors, onMinDaysChange, onSubChan
             className={inputCls}
             aria-label="Minimum days late"
           />
-          {errors.minDaysLate && (
-            <p className="text-xs text-status-danger">{errors.minDaysLate}</p>
-          )}
+          {errors.minDaysLate && <p className="text-xs text-status-danger">{errors.minDaysLate}</p>}
           {!errors.minDaysLate && state.minDaysLate !== "" && !Number.isNaN(days) && days >= 1 && (
             <p className="text-xs text-base-text-muted italic">
               Applies once a sub is {days} {days === 1 ? "day" : "days"} late.

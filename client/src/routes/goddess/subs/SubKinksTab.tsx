@@ -97,7 +97,11 @@ function CategorySection({ category }: CategorySectionProps) {
           )}
           <span className="text-sm font-semibold text-base-text">{category.label}</span>
           {category.safety_flag && (
-            <AlertTriangle size={14} className="text-status-warning shrink-0" aria-label="Safety-flagged" />
+            <AlertTriangle
+              size={14}
+              className="text-status-warning shrink-0"
+              aria-label="Safety-flagged"
+            />
           )}
         </div>
         <span className="text-xs text-base-text-subtle">
@@ -117,7 +121,11 @@ function CategorySection({ category }: CategorySectionProps) {
 }
 
 export function SubKinksTab({ subId }: Props) {
-  const { data: matrix, isLoading, error } = useQuery({
+  const {
+    data: matrix,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: queryKeys.subKinks.forSub(subId),
     queryFn: () => getSubKinkMatrixForGoddess(subId),
     enabled: subId.length > 0,
@@ -127,7 +135,10 @@ export function SubKinksTab({ subId }: Props) {
     return (
       <div className="flex flex-col gap-3 pt-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-12 rounded-lg border border-base-border bg-base-surface-raised animate-pulse" />
+          <div
+            key={i}
+            className="h-12 rounded-lg border border-base-border bg-base-surface-raised animate-pulse"
+          />
         ))}
       </div>
     );
@@ -145,16 +156,12 @@ export function SubKinksTab({ subId }: Props) {
   }
 
   if (!matrix || matrix.categories.length === 0) {
-    return (
-      <p className="text-sm text-base-text-muted pt-4">No kink data available.</p>
-    );
+    return <p className="text-sm text-base-text-muted pt-4">No kink data available.</p>;
   }
 
   return (
     <div className="flex flex-col gap-3 pt-4">
-      <p className="text-xs text-base-text-muted">
-        Read-only view — the sub owns her kink matrix.
-      </p>
+      <p className="text-xs text-base-text-muted">Read-only view — the sub owns her kink matrix.</p>
       {matrix.categories.map((cat) => (
         <CategorySection key={cat.id} category={cat} />
       ))}

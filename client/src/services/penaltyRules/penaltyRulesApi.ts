@@ -46,11 +46,7 @@ export const PenaltyRuleInSchema = z
       .string()
       .regex(/^\d+(\.\d{1,2})?$/, "Must be a valid GBP amount")
       .optional(),
-    fee_percent: z
-      .number()
-      .min(0, "Must be 0–100")
-      .max(100, "Must be 0–100")
-      .optional(),
+    fee_percent: z.number().min(0, "Must be 0–100").max(100, "Must be 0–100").optional(),
     min_days_late: z.number().int().min(1).max(90).optional(),
     name: z.string().max(100).optional(),
     cooldown_hours: z.number().int().min(0),
@@ -72,7 +68,10 @@ export const PenaltyRuleInSchema = z
       }
       return true;
     },
-    { message: "Fee amount or fee percent is required when action is apply_fee", path: ["fee_amount"] },
+    {
+      message: "Fee amount or fee percent is required when action is apply_fee",
+      path: ["fee_amount"],
+    },
   );
 
 export type PenaltyRuleIn = z.infer<typeof PenaltyRuleInSchema>;

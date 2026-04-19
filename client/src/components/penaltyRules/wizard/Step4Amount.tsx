@@ -68,9 +68,7 @@ export function Step4Amount({ state, errors, onChange }: Props) {
                 className={inputCls}
                 aria-label="Fee amount in GBP"
               />
-              {errors.feeAmount && (
-                <p className="text-xs text-status-danger">{errors.feeAmount}</p>
-              )}
+              {errors.feeAmount && <p className="text-xs text-status-danger">{errors.feeAmount}</p>}
             </div>
           )}
 
@@ -121,9 +119,7 @@ export function Step4Amount({ state, errors, onChange }: Props) {
           className={inputCls}
           aria-label="Points delta"
         />
-        {errors.pointsDelta && (
-          <p className="text-xs text-status-danger">{errors.pointsDelta}</p>
-        )}
+        {errors.pointsDelta && <p className="text-xs text-status-danger">{errors.pointsDelta}</p>}
       </div>
 
       <details className="group">
@@ -134,7 +130,8 @@ export function Step4Amount({ state, errors, onChange }: Props) {
         <div className="mt-4 flex flex-col gap-4 border-l-2 border-base-border/50 pl-4">
           <div className="flex flex-col gap-1">
             <label htmlFor="wizard-name" className={labelCls}>
-              Name <span className="normal-case font-normal text-base-text-muted">(optional slug)</span>
+              Name{" "}
+              <span className="normal-case font-normal text-base-text-muted">(optional slug)</span>
             </label>
             <input
               id="wizard-name"

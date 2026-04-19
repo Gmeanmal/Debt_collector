@@ -43,10 +43,7 @@ function MessageForm({ displayName, onClose, onSend, isPending }: MessageFormPro
       </p>
 
       <div className="flex flex-col gap-1">
-        <label
-          htmlFor="goddess-message-body"
-          className="text-sm font-medium text-base-text"
-        >
+        <label htmlFor="goddess-message-body" className="text-sm font-medium text-base-text">
           Message <span className="text-status-danger">*</span>
         </label>
         <textarea
@@ -66,13 +63,7 @@ function MessageForm({ displayName, onClose, onSend, isPending }: MessageFormPro
       </div>
 
       <div className="flex gap-2 justify-end">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={onClose}
-          disabled={isPending}
-        >
+        <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isPending}>
           Cancel
         </Button>
         <Button

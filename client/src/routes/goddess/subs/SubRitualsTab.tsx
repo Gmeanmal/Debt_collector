@@ -78,7 +78,12 @@ function RitualRow({ ritual }: { ritual: RawRitualOut }) {
 }
 
 export function SubRitualsTab({ subId }: Props) {
-  const { data: rituals = [], isLoading, isError, error } = useQuery({
+  const {
+    data: rituals = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: queryKeys.rituals.forSub(subId),
     queryFn: () => fetchGoddessSubRituals(subId),
     enabled: Boolean(subId),
@@ -90,10 +95,7 @@ export function SubRitualsTab({ subId }: Props) {
 
   if (isError) {
     return (
-      <ErrorState
-        title="Failed to load rituals"
-        message={(error as Error | undefined)?.message}
-      />
+      <ErrorState title="Failed to load rituals" message={(error as Error | undefined)?.message} />
     );
   }
 

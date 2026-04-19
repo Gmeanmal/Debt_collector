@@ -93,7 +93,7 @@ export function AssignRitualModal({ onClose }: Props) {
         title: form.title.trim(),
         description: form.description.trim() || null,
         frequency,
-        custom_days_bitmask: frequency === "custom" ? (form.customMask || null) : null,
+        custom_days_bitmask: frequency === "custom" ? form.customMask || null : null,
         deadline_time: form.deadlineTime ? `${form.deadlineTime}:00` : null,
         requires_proof: form.requiresProof,
         paused: false,
@@ -210,9 +210,7 @@ export function AssignRitualModal({ onClose }: Props) {
           <div className="flex flex-col gap-1.5">
             <span className="text-xs font-medium text-base-text">Days</span>
             <DayChips value={form.customMask} onChange={(m) => set("customMask", m)} />
-            {errors.customMask && (
-              <p className="text-xs text-status-danger">{errors.customMask}</p>
-            )}
+            {errors.customMask && <p className="text-xs text-status-danger">{errors.customMask}</p>}
           </div>
         )}
 
@@ -264,19 +262,26 @@ export function AssignRitualModal({ onClose }: Props) {
             className="mt-0.5 h-4 w-4 accent-[var(--color-pink-primary)]"
           />
           <div className="flex flex-col gap-0.5">
-            <label htmlFor="ritual-proof" className="cursor-pointer text-sm font-medium text-base-text">
+            <label
+              htmlFor="ritual-proof"
+              className="cursor-pointer text-sm font-medium text-base-text"
+            >
               Requires proof
             </label>
-            <p className="text-xs text-base-text-muted">
-              Sub must attach a photo to mark complete
-            </p>
+            <p className="text-xs text-base-text-muted">Sub must attach a photo to mark complete</p>
           </div>
         </div>
 
         <p className="text-xs text-base-text-muted italic">{preview}</p>
 
         <div className="flex gap-2 justify-end border-t border-base-border pt-2">
-          <Button type="button" variant="secondary" size="sm" onClick={onClose} disabled={mutation.isPending}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onClose}
+            disabled={mutation.isPending}
+          >
             Cancel
           </Button>
           <Button type="submit" variant="primary" size="sm" disabled={mutation.isPending}>

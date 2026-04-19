@@ -105,9 +105,7 @@ export function ProfileRoute() {
           <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
             {user?.display_name ?? "Profile"}
           </h1>
-          {emailHandle && (
-            <p className="text-sm text-base-text-muted mt-0.5">@{emailHandle}</p>
-          )}
+          {emailHandle && <p className="text-sm text-base-text-muted mt-0.5">@{emailHandle}</p>}
         </div>
 
         <Card>

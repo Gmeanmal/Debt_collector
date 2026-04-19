@@ -68,9 +68,7 @@ function LimitsPreview({ limits }: { limits: LimitItem[] }) {
         {limits.map((l) => (
           <li key={l.id} className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant={l.kind === "hard" ? "destructive" : "secondary"}>
-                {l.kind}
-              </Badge>
+              <Badge variant={l.kind === "hard" ? "destructive" : "secondary"}>{l.kind}</Badge>
               <Badge variant="outline">{l.severity}</Badge>
               {l.acknowledged_by_goddess_at && (
                 <Badge variant="outline" className="text-status-success border-status-success/50">

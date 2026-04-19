@@ -92,11 +92,7 @@ export function BreachSubRoute() {
               {mutation.isPending ? "Breaching…" : "Breach sub"}
             </button>
             {breachOpen && (
-              <Modal
-                title="Breach sub"
-                onClose={() => setBreachOpen(false)}
-                size="sm"
-              >
+              <Modal title="Breach sub" onClose={() => setBreachOpen(false)} size="sm">
                 <p className="text-sm text-base-text">
                   Breach this sub? This cannot be undone without a reinstatement.
                 </p>
@@ -111,7 +107,10 @@ export function BreachSubRoute() {
                   <button
                     type="button"
                     disabled={mutation.isPending}
-                    onClick={() => { setBreachOpen(false); mutation.mutate(); }}
+                    onClick={() => {
+                      setBreachOpen(false);
+                      mutation.mutate();
+                    }}
                     className="px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors disabled:opacity-50"
                   >
                     {mutation.isPending ? "Breaching…" : "Confirm breach"}

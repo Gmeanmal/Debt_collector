@@ -1,11 +1,4 @@
-import {
-  BadgeCheck,
-  Bell,
-  Clock,
-  FileText,
-  Heart,
-  type LucideIcon,
-} from "lucide-react";
+import { BadgeCheck, Bell, Clock, FileText, Heart, type LucideIcon } from "lucide-react";
 
 import type { NotificationType } from "@/services/notifications/notificationsApi";
 
@@ -14,16 +7,8 @@ export type ChipId = "all" | "validations" | "late" | "kink_updates" | "contract
 // Maps each chip to the NotificationType values it covers.
 // Chips with no matching types on the enum are excluded — we only list types that exist.
 export const FILTER_KINDS: Record<Exclude<ChipId, "all">, NotificationType[]> = {
-  validations: [
-    "payment_pending",
-    "payment_validated",
-    "payment_rejected",
-  ],
-  late: [
-    "rolling_late",
-    "contract_late_penalty",
-    "contract_surprise_penalty",
-  ],
+  validations: ["payment_pending", "payment_validated", "payment_rejected"],
+  late: ["rolling_late", "contract_late_penalty", "contract_surprise_penalty"],
   kink_updates: [],
   contract_events: [
     "contract_proposed",

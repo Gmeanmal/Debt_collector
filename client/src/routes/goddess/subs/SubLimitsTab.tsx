@@ -69,16 +69,20 @@ function LimitsCard({ limits }: { limits: LimitItem[] }) {
             {limits.map((l) => (
               <li key={l.id} className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant={l.kind === "hard" ? "destructive" : "secondary"}>
-                    {l.kind}
-                  </Badge>
+                  <Badge variant={l.kind === "hard" ? "destructive" : "secondary"}>{l.kind}</Badge>
                   <Badge variant="outline">{l.severity}</Badge>
                   {l.acknowledged_by_goddess_at ? (
-                    <Badge variant="outline" className="text-status-success border-status-success/50">
+                    <Badge
+                      variant="outline"
+                      className="text-status-success border-status-success/50"
+                    >
                       acknowledged
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="text-status-warning border-status-warning/50">
+                    <Badge
+                      variant="outline"
+                      className="text-status-warning border-status-warning/50"
+                    >
                       pending ack
                     </Badge>
                   )}
@@ -106,11 +110,11 @@ function TriggersCard({ triggers }: { triggers: TriggerItem[] }) {
           <ul className="flex flex-col gap-3">
             {triggers.map((t) => (
               <li key={t.id} className="flex flex-col gap-1">
-                <Badge variant="outline" className="w-fit">{t.severity}</Badge>
+                <Badge variant="outline" className="w-fit">
+                  {t.severity}
+                </Badge>
                 <p className="text-sm text-base-text">{t.trigger_text}</p>
-                {t.notes && (
-                  <p className="text-xs text-base-text-muted">{t.notes}</p>
-                )}
+                {t.notes && <p className="text-xs text-base-text-muted">{t.notes}</p>}
               </li>
             ))}
           </ul>
@@ -147,7 +151,10 @@ export function SubLimitsTab({ subId }: Props) {
     return (
       <div className="flex flex-col gap-4 pt-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-24 rounded-lg border border-base-border bg-base-surface-raised animate-pulse" />
+          <div
+            key={i}
+            className="h-24 rounded-lg border border-base-border bg-base-surface-raised animate-pulse"
+          />
         ))}
       </div>
     );

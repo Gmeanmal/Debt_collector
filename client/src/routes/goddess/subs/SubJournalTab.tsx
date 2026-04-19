@@ -88,15 +88,14 @@ export function SubJournalTab({ subId, username }: Props) {
 
   if (isError) {
     return (
-      <ErrorState
-        title="Failed to load journal"
-        message={(error as Error | undefined)?.message}
-      />
+      <ErrorState title="Failed to load journal" message={(error as Error | undefined)?.message} />
     );
   }
 
   if (allEntries.length === 0) {
-    return <EmptyState title="No entries yet" message="This sub has not written any journal entries." />;
+    return (
+      <EmptyState title="No entries yet" message="This sub has not written any journal entries." />
+    );
   }
 
   return (

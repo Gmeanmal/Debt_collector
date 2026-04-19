@@ -71,8 +71,8 @@ export function AdminCronRoute() {
         <CardHeader>
           <CardTitle className="text-lg">Run cron now</CardTitle>
           <CardDescription>
-            Dry-run freezes all writes and rolls back. Confirm &amp; apply runs it for real within
-            5 minutes of a clean dry-run.
+            Dry-run freezes all writes and rolls back. Confirm &amp; apply runs it for real within 5
+            minutes of a clean dry-run.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -99,14 +99,10 @@ export function AdminCronRoute() {
           </div>
 
           {dryRunExpired && (
-            <p className="text-xs text-base-text-muted">
-              Dry-run expired, run it again.
-            </p>
+            <p className="text-xs text-base-text-muted">Dry-run expired, run it again.</p>
           )}
 
-          {dryRun && !dryRunExpired && (
-            <DryRunResultCard result={dryRun.result} />
-          )}
+          {dryRun && !dryRunExpired && <DryRunResultCard result={dryRun.result} />}
         </CardContent>
       </Card>
 

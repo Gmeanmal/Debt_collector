@@ -43,7 +43,10 @@ export function bucketTotalGBP(bucket: {
   one_off: string;
   contract: string;
 }): string {
-  return addGBPDecimalStrings(addGBPDecimalStrings(bucket.rolling, bucket.one_off), bucket.contract);
+  return addGBPDecimalStrings(
+    addGBPDecimalStrings(bucket.rolling, bucket.one_off),
+    bucket.contract,
+  );
 }
 
 function parseUtc(dueAt: string): Date {

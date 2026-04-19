@@ -98,10 +98,7 @@ export function AftercareEditForm({ initial }: Props) {
         onChange={(v) => handleChange("notes", v)}
       />
 
-      <IntensitySlider
-        value={form.intensity}
-        onChange={(v) => handleChange("intensity", v)}
-      />
+      <IntensitySlider value={form.intensity} onChange={(v) => handleChange("intensity", v)} />
 
       {initial.read_by_goddess_at && (
         <p className="text-xs text-base-text-muted">

@@ -140,11 +140,7 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
             </button>
           </div>
 
-          <NotificationFilterChips
-            activeChip={activeChip}
-            items={items}
-            onChange={setActiveChip}
-          />
+          <NotificationFilterChips activeChip={activeChip} items={items} onChange={setActiveChip} />
 
           {filtered.length === 0 ? (
             <div className="px-4 py-8 text-sm text-center text-base-text-muted">

@@ -16,7 +16,12 @@ const DEVICE_CATEGORY = "cage";
 export function SubDevicesTab({ subId }: Props) {
   const toysKey = goddessSubToysKey(subId);
 
-  const { data: allToys = [], isLoading, isError, error } = useQuery({
+  const {
+    data: allToys = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: toysKey,
     queryFn: () => listGoddessSubToys(subId),
     enabled: Boolean(subId),
@@ -28,10 +33,7 @@ export function SubDevicesTab({ subId }: Props) {
 
   if (isError) {
     return (
-      <ErrorState
-        title="Failed to load devices"
-        message={(error as Error | undefined)?.message}
-      />
+      <ErrorState title="Failed to load devices" message={(error as Error | undefined)?.message} />
     );
   }
 
@@ -39,20 +41,13 @@ export function SubDevicesTab({ subId }: Props) {
 
   if (devices.length === 0) {
     return (
-      <EmptyState
-        title="No devices"
-        message="No cage-category toys are registered for this sub."
-      />
+      <EmptyState title="No devices" message="No cage-category toys are registered for this sub." />
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <InventoryGrid
-        toys={devices}
-        goddessContext
-        subId={subId}
-      />
+      <InventoryGrid toys={devices} goddessContext subId={subId} />
     </div>
   );
 }

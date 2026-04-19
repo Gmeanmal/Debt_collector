@@ -23,4 +23,3 @@ export function StatusPill({ value }: Props) {
     </span>
   );
 }
-

@@ -191,28 +191,24 @@ export function PenaltyRuleList({ rules, subs = [] }: Props) {
                   </td>
                   <td className="px-4 py-3 text-base-text">{rule.cooldown_hours}</td>
                   <td className="px-4 py-3 text-base-text-muted text-xs">
-                    {rule.sub_id == null ? (
-                      "All subs"
-                    ) : (
-                      (() => {
-                        const sub = subs.find((s) => s.id === rule.sub_id);
-                        return sub ? (
-                          <span>
-                            {sub.display_name}{" "}
-                            <span className="text-base-text-muted">@{sub.username}</span>
-                          </span>
-                        ) : (
-                          <span className="italic">scoped</span>
-                        );
-                      })()
-                    )}
+                    {rule.sub_id == null
+                      ? "All subs"
+                      : (() => {
+                          const sub = subs.find((s) => s.id === rule.sub_id);
+                          return sub ? (
+                            <span>
+                              {sub.display_name}{" "}
+                              <span className="text-base-text-muted">@{sub.username}</span>
+                            </span>
+                          ) : (
+                            <span className="italic">scoped</span>
+                          );
+                        })()}
                   </td>
                   <td className="px-4 py-3">
                     <button
                       type="button"
-                      onClick={() =>
-                        toggleMutation.mutate({ id: rule.id, active: !rule.active })
-                      }
+                      onClick={() => toggleMutation.mutate({ id: rule.id, active: !rule.active })}
                       disabled={toggleMutation.isPending}
                       aria-label={rule.active ? "Deactivate rule" : "Activate rule"}
                       className="focus-visible:ring-2 focus-visible:ring-pink-primary rounded"

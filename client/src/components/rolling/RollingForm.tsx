@@ -199,7 +199,10 @@ export function RollingForm({ initial, onSave, onClear, isSaving, isClearing, er
               </button>
               <button
                 type="button"
-                onClick={() => { setClearOpen(false); onClear(); }}
+                onClick={() => {
+                  setClearOpen(false);
+                  onClear();
+                }}
                 className="px-4 py-2 text-sm bg-debt-primary text-pink-foreground font-semibold rounded-md hover:bg-debt-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-debt-primary"
               >
                 Clear

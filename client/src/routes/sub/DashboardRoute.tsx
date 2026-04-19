@@ -163,10 +163,7 @@ export function SubDashboardRoute() {
           />
           {planning && (
             <>
-              <StatCard
-                label="This month"
-                value={formatGBP(planning.total_paid_this_month)}
-              />
+              <StatCard label="This month" value={formatGBP(planning.total_paid_this_month)} />
               <StatCard
                 label="Rolling remaining"
                 value={formatGBP(planning.rolling_remaining_this_month)}

@@ -29,7 +29,10 @@ export async function applyCronApi(lastDryRunId: string): Promise<CronRunSummary
     body: { last_dry_run_id: lastDryRunId },
   });
   if (response.status === 409) {
-    const payload = (await response.clone().json().catch(() => ({}))) as {
+    const payload = (await response
+      .clone()
+      .json()
+      .catch(() => ({}))) as {
       detail?: string;
       message?: string;
     };

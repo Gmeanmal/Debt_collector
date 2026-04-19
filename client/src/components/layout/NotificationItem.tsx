@@ -1,8 +1,5 @@
 import { cn } from "@/lib/utils";
-import {
-  accentClassForKind,
-  iconForKind,
-} from "@/services/notifications/notificationKinds";
+import { accentClassForKind, iconForKind } from "@/services/notifications/notificationKinds";
 import type { NotificationOut } from "@/services/notifications/notificationsApi";
 import { formatLondon } from "@/services/format/datetime";
 
@@ -53,10 +50,7 @@ export function NotificationItem({ notification: n, onSelect }: Props) {
         )}
       >
         <div className="flex items-start gap-2">
-          <Icon
-            aria-hidden="true"
-            className="w-4 h-4 mt-0.5 flex-shrink-0 text-base-text-muted"
-          />
+          <Icon aria-hidden="true" className="w-4 h-4 mt-0.5 flex-shrink-0 text-base-text-muted" />
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between gap-2">
               <span
@@ -71,12 +65,8 @@ export function NotificationItem({ notification: n, onSelect }: Props) {
                 {formatRelative(n.created_at)}
               </span>
             </div>
-            {actor && (
-              <p className="mt-0.5 text-xs text-base-text-subtle truncate">{actor}</p>
-            )}
-            {n.body && (
-              <p className="mt-0.5 text-xs text-base-text-muted line-clamp-2">{n.body}</p>
-            )}
+            {actor && <p className="mt-0.5 text-xs text-base-text-subtle truncate">{actor}</p>}
+            {n.body && <p className="mt-0.5 text-xs text-base-text-muted line-clamp-2">{n.body}</p>}
           </div>
           {isUnread && (
             <span

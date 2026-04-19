@@ -16,7 +16,12 @@ const DEVICE_CATEGORY = "cage";
 export function SubInventoryTab({ subId }: Props) {
   const toysKey = goddessSubToysKey(subId);
 
-  const { data: allToys = [], isLoading, isError, error } = useQuery({
+  const {
+    data: allToys = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: toysKey,
     queryFn: () => listGoddessSubToys(subId),
     enabled: Boolean(subId),
@@ -54,11 +59,7 @@ export function SubInventoryTab({ subId }: Props) {
           {pendingCount} pending proposal{pendingCount > 1 ? "s" : ""} awaiting review
         </p>
       )}
-      <InventoryGrid
-        toys={toys}
-        goddessContext
-        subId={subId}
-      />
+      <InventoryGrid toys={toys} goddessContext subId={subId} />
     </div>
   );
 }

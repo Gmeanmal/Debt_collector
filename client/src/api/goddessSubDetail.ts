@@ -81,10 +81,7 @@ export async function fetchSubTopApprovedPhoto(subId: string): Promise<RawTopPho
   return json;
 }
 
-export async function postGoddessMessageToSub(
-  username: string,
-  body: string,
-): Promise<void> {
+export async function postGoddessMessageToSub(username: string, body: string): Promise<void> {
   await fetchJson<{ sent: boolean }>(`/goddess/subs/${encodeURIComponent(username)}/message`, {
     method: "POST",
     body: JSON.stringify({ body }),

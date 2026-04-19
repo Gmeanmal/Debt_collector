@@ -9,7 +9,13 @@ import { ListSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmActionModal } from "@/components/shared/ConfirmActionModal";
 import { AssignRitualModal } from "@/components/rituals/AssignRitualModal";
-import { listGoddessRituals, pauseRitual, resumeRitual, deleteRitual, type RitualWithSubOut } from "@/api/rituals";
+import {
+  listGoddessRituals,
+  pauseRitual,
+  resumeRitual,
+  deleteRitual,
+  type RitualWithSubOut,
+} from "@/api/rituals";
 import { formatRitualSchedule } from "@/services/rituals/schedulePreview";
 import { queryKeys } from "@/lib/queryKeys";
 import { cn } from "@/lib/utils";
@@ -91,13 +97,22 @@ interface SubGroupProps {
   pendingId: string | null;
 }
 
-function SubGroup({ displayName, username, rituals, onPauseToggle, onDelete, pendingId }: SubGroupProps) {
+function SubGroup({
+  displayName,
+  username,
+  rituals,
+  onPauseToggle,
+  onDelete,
+  pendingId,
+}: SubGroupProps) {
   return (
     <section className="flex flex-col gap-3">
       <header className="flex items-baseline gap-2">
         <h2 className="text-sm font-semibold text-base-text">{displayName}</h2>
         <span className="text-xs text-base-text-muted">@{username}</span>
-        <span className="ml-auto text-xs text-base-text-muted">{rituals.length} ritual{rituals.length !== 1 ? "s" : ""}</span>
+        <span className="ml-auto text-xs text-base-text-muted">
+          {rituals.length} ritual{rituals.length !== 1 ? "s" : ""}
+        </span>
       </header>
       <div className="flex flex-col gap-3">
         {rituals.map((r) => (
@@ -134,7 +149,12 @@ export function GoddessRitualsRoute() {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<RitualWithSubOut | null>(null);
 
-  const { data: rituals = [], isLoading, isError, error } = useQuery({
+  const {
+    data: rituals = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: queryKeys.goddess.rituals(),
     queryFn: listGoddessRituals,
   });

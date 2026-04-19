@@ -10,9 +10,7 @@ export function AdminRoute() {
     <div className="p-4 md:p-8">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-6">
         <aside className="md:w-56 flex-shrink-0">
-          <h1 className="font-display text-2xl font-bold text-accent tracking-wider mb-4">
-            Admin
-          </h1>
+          <h1 className="font-display text-2xl font-bold text-accent tracking-wider mb-4">Admin</h1>
           <nav className="flex flex-col gap-1">
             {ENTITY_SCHEMAS.map((s) => (
               <button

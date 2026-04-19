@@ -24,19 +24,17 @@ interface Props {
   error?: string | null;
 }
 
-const STEP_HEADERS = [
-  "1 / 4 · Trigger",
-  "2 / 4 · Condition",
-  "3 / 4 · Action",
-  "4 / 4 · Amount",
-];
+const STEP_HEADERS = ["1 / 4 · Trigger", "2 / 4 · Condition", "3 / 4 · Action", "4 / 4 · Amount"];
 
 function initialFeeMode(rule?: Partial<PenaltyRule>): "flat" | "percent" {
   if (rule?.fee_percent != null) return "percent";
   return "flat";
 }
 
-function buildInitialState(initial: Partial<PenaltyRule> | undefined, subs: GoddessSub[]): WizardState {
+function buildInitialState(
+  initial: Partial<PenaltyRule> | undefined,
+  subs: GoddessSub[],
+): WizardState {
   const sub = subs.find((s) => s.id === initial?.sub_id) ?? null;
   return {
     trigger: (initial?.trigger as PenaltyTrigger | undefined) ?? "contract_missed",
@@ -161,7 +159,14 @@ function buildPayload(state: WizardState): PenaltyRuleIn {
   return payload;
 }
 
-export function PenaltyRuleForm({ initial, subs = [], onSubmit, onCancel, isPending, error }: Props) {
+export function PenaltyRuleForm({
+  initial,
+  subs = [],
+  onSubmit,
+  onCancel,
+  isPending,
+  error,
+}: Props) {
   const [step, setStep] = useState(0);
   const [wizState, setWizState] = useState<WizardState>(() => buildInitialState(initial, subs));
   const [errors, setErrors] = useState<WizardErrors>({});
@@ -178,7 +183,10 @@ export function PenaltyRuleForm({ initial, subs = [], onSubmit, onCancel, isPend
     if (step === 0) {
       result = step1Schema.safeParse({ trigger: wizState.trigger });
     } else if (step === 1) {
-      result = step2Schema.safeParse({ trigger: wizState.trigger, minDaysLate: wizState.minDaysLate });
+      result = step2Schema.safeParse({
+        trigger: wizState.trigger,
+        minDaysLate: wizState.minDaysLate,
+      });
     } else if (step === 2) {
       result = step3Schema.safeParse({ action: wizState.action });
     } else {
@@ -263,15 +271,18 @@ export function PenaltyRuleForm({ initial, subs = [], onSubmit, onCancel, isPend
             onChange={(action) => patchState({ action })}
           />
         )}
-        {step === 3 && (
-          <Step4Amount state={wizState} errors={errors} onChange={patchState} />
-        )}
+        {step === 3 && <Step4Amount state={wizState} errors={errors} onChange={patchState} />}
       </div>
 
       {error && <p className="text-xs text-status-danger">{error}</p>}
 
       <div className="flex items-center justify-between">
-        <Button type="button" variant="ghost" size="sm" onClick={step === 0 ? onCancel : handleBack}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={step === 0 ? onCancel : handleBack}
+        >
           {step === 0 ? "Cancel" : "Back"}
         </Button>
         {step < 3 ? (

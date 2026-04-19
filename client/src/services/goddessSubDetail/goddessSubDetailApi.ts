@@ -8,7 +8,12 @@ import {
   postGoddessMessageToSub,
 } from "@/api/goddessSubDetail";
 import { KinkMatrixSchema, type KinkMatrix } from "@/services/kinks/kinksApi";
-import { LimitItemSchema, TriggerItemSchema, type LimitItem, type TriggerItem } from "@/services/limits/limitsApi";
+import {
+  LimitItemSchema,
+  TriggerItemSchema,
+  type LimitItem,
+  type TriggerItem,
+} from "@/services/limits/limitsApi";
 
 export const SubSafewordSchema = z.object({
   word: z.string(),

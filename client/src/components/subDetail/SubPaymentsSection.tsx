@@ -54,9 +54,7 @@ export function SubPaymentsSection({ subId }: Props) {
             className="bg-base-surface border border-base-border rounded-lg p-3 flex items-center justify-between gap-3 flex-wrap"
           >
             <div className="flex items-center gap-2 flex-wrap min-w-0">
-              <span className="font-semibold text-base-text text-sm">
-                {formatGBP(p.amount)}
-              </span>
+              <span className="font-semibold text-base-text text-sm">{formatGBP(p.amount)}</span>
               <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-base-surface-raised text-base-text-muted capitalize">
                 {p.category.replace(/_/g, " ")}
               </span>

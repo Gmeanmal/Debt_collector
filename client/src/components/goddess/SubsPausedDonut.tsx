@@ -62,11 +62,7 @@ export function SubsPausedDonut({ summary, error }: Props) {
                 aria-label="Active and paused sub counts"
               >
                 {slices.map((slice) => (
-                  <Cell
-                    key={slice.name}
-                    fill={slice.color}
-                    stroke="transparent"
-                  />
+                  <Cell key={slice.name} fill={slice.color} stroke="transparent" />
                 ))}
               </Pie>
               <Tooltip content={CustomTooltip} />

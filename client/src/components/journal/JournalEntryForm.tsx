@@ -8,7 +8,10 @@ const ACCEPTED_MIMES = "image/jpeg,image/png,image/webp,audio/mpeg,audio/ogg,aud
 const MAX_BYTES = 10 * 1024 * 1024;
 
 interface Props {
-  onSubmit: (values: { body: string; mood: JournalMood; is_private: boolean }, attachment: File | null) => void;
+  onSubmit: (
+    values: { body: string; mood: JournalMood; is_private: boolean },
+    attachment: File | null,
+  ) => void;
   isPending: boolean;
   error?: string | null;
 }
@@ -149,9 +152,7 @@ export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
           className="text-sm text-base-text file:mr-3 file:py-1 file:px-3 file:rounded file:border file:border-base-border file:bg-base-surface-raised file:text-xs file:text-base-text-muted"
         />
         {attachmentError && <p className="text-xs text-status-danger">{attachmentError}</p>}
-        {attachment && (
-          <p className="text-xs text-base-text-muted">{attachment.name}</p>
-        )}
+        {attachment && <p className="text-xs text-base-text-muted">{attachment.name}</p>}
       </div>
 
       <label className="flex items-start gap-2 cursor-pointer">

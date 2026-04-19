@@ -27,10 +27,7 @@ export async function listGoddessRituals(): Promise<RitualWithSubOut[]> {
   return data;
 }
 
-export async function createRitualForSub(
-  subId: string,
-  body: RitualCreateIn,
-): Promise<RitualOut> {
+export async function createRitualForSub(subId: string, body: RitualCreateIn): Promise<RitualOut> {
   const { data, error } = await apiClient.POST("/goddess/subs/{sub_id}/rituals", {
     params: { path: { sub_id: subId } },
     body,
@@ -40,10 +37,7 @@ export async function createRitualForSub(
   return data;
 }
 
-export async function updateRitual(
-  ritualId: string,
-  body: RitualUpdateIn,
-): Promise<RitualOut> {
+export async function updateRitual(ritualId: string, body: RitualUpdateIn): Promise<RitualOut> {
   const { data, error } = await apiClient.PATCH("/goddess/rituals/{ritual_id}", {
     params: { path: { ritual_id: ritualId } },
     body,

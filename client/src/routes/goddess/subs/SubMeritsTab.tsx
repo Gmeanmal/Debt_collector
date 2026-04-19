@@ -41,20 +41,24 @@ function MeritEventRow({ event }: { event: MeritEvent }) {
     <div className="flex items-center justify-between gap-3 py-3 border-b border-base-border last:border-0">
       <div className="flex flex-col gap-0.5 min-w-0">
         <span className="text-sm font-medium text-base-text">{label}</span>
-        {event.note && (
-          <span className="text-xs text-base-text-muted truncate">{event.note}</span>
-        )}
+        {event.note && <span className="text-xs text-base-text-muted truncate">{event.note}</span>}
         <span className="text-xs text-base-text-subtle">{formatDateTime(event.created_at)}</span>
       </div>
       <Badge variant={deltaVariant(event.delta)} className="shrink-0 tabular-nums">
-        {sign}{event.delta} pts
+        {sign}
+        {event.delta} pts
       </Badge>
     </div>
   );
 }
 
 export function SubMeritsTab({ subId }: Props) {
-  const { data: events = [], isLoading, isError, error } = useQuery({
+  const {
+    data: events = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: queryKeys.meritEvents.forSub(subId),
     queryFn: () => listSubMeritEvents(subId),
     enabled: Boolean(subId),
@@ -76,7 +80,9 @@ export function SubMeritsTab({ subId }: Props) {
   const balance = events.reduce((sum, e) => sum + e.delta, 0);
 
   if (events.length === 0) {
-    return <EmptyState title="No merit events" message="No points have been credited or debited yet." />;
+    return (
+      <EmptyState title="No merit events" message="No points have been credited or debited yet." />
+    );
   }
 
   return (
@@ -88,7 +94,8 @@ export function SubMeritsTab({ subId }: Props) {
           aria-label={`Merit balance: ${balance} points`}
           className={`text-xl font-bold tabular-nums ${balance >= 0 ? "text-status-success" : "text-status-danger"}`}
         >
-          {balance >= 0 ? "+" : ""}{balance} pts
+          {balance >= 0 ? "+" : ""}
+          {balance} pts
         </span>
       </div>
 
