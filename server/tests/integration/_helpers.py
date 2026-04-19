@@ -1,10 +1,12 @@
 """Shared helpers for integration tests — DB seeding utilities."""
 
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.security import hash_password
+from models.sub_profile import OwnershipStatus, SubProfile
 from models.user import Goddess, User, UserRole, UserStatus
 
 
@@ -66,6 +68,14 @@ async def seed_sub(
         status=status,
     )
     session.add(user)
+    await session.flush()
+    session.add(
+        SubProfile(
+            user_id=user.id,
+            ownership_status=OwnershipStatus.free,
+            joined_empire_at=datetime.now(UTC).replace(tzinfo=None),
+        )
+    )
     await session.commit()
     return user
 

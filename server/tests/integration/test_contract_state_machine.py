@@ -16,7 +16,7 @@ def _fake_sig_b64() -> str:
         b"\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01"
         b"\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82"
     )
-    return base64.b64encode(png_bytes).decode()
+    return f"data:image/png;base64,{base64.b64encode(png_bytes).decode()}"
 
 
 async def _goddess_login(client: AsyncClient, suffix: str) -> str:
@@ -89,7 +89,7 @@ async def test_propose_counter_accept_sign_flow(
     sign = await client.post(
         f"/debts/{cid}/sign",
         headers={"Authorization": f"Bearer {s_token}"},
-        json={"signature_png_b64": _fake_sig_b64()},
+        json={"signature_b64": _fake_sig_b64()},
     )
     assert sign.status_code == 200, sign.text
     assert sign.json()["status"] == "active"
@@ -177,7 +177,7 @@ async def test_propose_sign_direct(client: AsyncClient, db_session: AsyncSession
     sign = await client.post(
         f"/debts/{cid}/sign",
         headers={"Authorization": f"Bearer {s_token}"},
-        json={"signature_png_b64": _fake_sig_b64()},
+        json={"signature_b64": _fake_sig_b64()},
     )
     assert sign.status_code == 200
     assert sign.json()["status"] == "active"

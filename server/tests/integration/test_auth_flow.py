@@ -126,6 +126,8 @@ async def test_signup_via_invitation(client: AsyncClient, db_session: AsyncSessi
             "email": "newsub_auth6@int.test",
             "password": "subpass123",
             "username": "newsub_auth6",
+            "timezone": "Europe/London",
+            "date_of_birth": "1990-01-15",
         },
     )
     assert signup_resp.status_code == 201
