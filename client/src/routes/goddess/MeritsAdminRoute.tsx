@@ -5,6 +5,8 @@ import { PunishmentTierList } from "@/components/merits/PunishmentTierList";
 import { RewardTierForm } from "@/components/merits/RewardTierForm";
 import { PunishmentTierForm } from "@/components/merits/PunishmentTierForm";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionTitle } from "@/components/ui/section-title";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
 import {
@@ -80,29 +82,28 @@ export function MeritsAdminRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto flex flex-col gap-8">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Rewards &amp; Punishments
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Manage merit tiers your subs can redeem or receive.
-          </p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Rules · Merits"]}
+          title={<span className="italic">Rewards &amp; punishments</span>}
+          description="Manage merit tiers your subs can redeem or receive."
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Rewards column */}
           <section className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-base-text">Reward tiers</h2>
-              {!showRewardForm && (
-                <Button size="sm" onClick={() => setShowRewardForm(true)}>
-                  + New reward
-                </Button>
-              )}
-            </div>
+            <SectionTitle
+              title="Reward tiers"
+              actions={
+                !showRewardForm ? (
+                  <Button variant="primary" size="sm" onClick={() => setShowRewardForm(true)}>
+                    + New reward
+                  </Button>
+                ) : undefined
+              }
+            />
 
             {showRewardForm && (
-              <div className="bg-base-surface border border-base-border rounded-lg p-4">
+              <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
                 <RewardTierForm
                   onSubmit={(values) => createRewardMutation.mutate(values)}
                   onCancel={() => {
@@ -120,7 +121,7 @@ export function MeritsAdminRoute() {
                 {Array.from({ length: 2 }).map((_, i) => (
                   <div
                     key={i}
-                    className="bg-base-surface border border-base-border rounded-lg h-20 animate-pulse"
+                    className="bg-bg-elev border border-line rounded-[10px] h-20 animate-pulse"
                   />
                 ))}
               </div>
@@ -138,17 +139,19 @@ export function MeritsAdminRoute() {
 
           {/* Punishments column */}
           <section className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-base-text">Punishment tiers</h2>
-              {!showPunishmentForm && (
-                <Button size="sm" onClick={() => setShowPunishmentForm(true)}>
-                  + New punishment
-                </Button>
-              )}
-            </div>
+            <SectionTitle
+              title="Punishment tiers"
+              actions={
+                !showPunishmentForm ? (
+                  <Button variant="primary" size="sm" onClick={() => setShowPunishmentForm(true)}>
+                    + New punishment
+                  </Button>
+                ) : undefined
+              }
+            />
 
             {showPunishmentForm && (
-              <div className="bg-base-surface border border-base-border rounded-lg p-4">
+              <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
                 <PunishmentTierForm
                   onSubmit={(values) => createPunishmentMutation.mutate(values)}
                   onCancel={() => {
@@ -166,7 +169,7 @@ export function MeritsAdminRoute() {
                 {Array.from({ length: 2 }).map((_, i) => (
                   <div
                     key={i}
-                    className="bg-base-surface border border-base-border rounded-lg h-20 animate-pulse"
+                    className="bg-bg-elev border border-line rounded-[10px] h-20 animate-pulse"
                   />
                 ))}
               </div>

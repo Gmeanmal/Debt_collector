@@ -59,7 +59,7 @@ export function PunishmentTierForm({ initial, onSubmit, onCancel, isPending, err
       <div className="flex flex-col gap-1">
         <label
           htmlFor="pt-name"
-          className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+          className="text-xs font-semibold text-text-mute uppercase tracking-wide"
         >
           Name
         </label>
@@ -69,17 +69,17 @@ export function PunishmentTierForm({ initial, onSubmit, onCancel, isPending, err
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Missed check-in penalty"
-          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+          className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-sm text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
         {fieldError(errors, "name") && (
-          <p className="text-xs text-status-danger">{fieldError(errors, "name")}</p>
+          <p className="text-xs text-bad-ink">{fieldError(errors, "name")}</p>
         )}
       </div>
 
       <div className="flex flex-col gap-1">
         <label
           htmlFor="pt-desc"
-          className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+          className="text-xs font-semibold text-text-mute uppercase tracking-wide"
         >
           Description <span className="normal-case font-normal">(optional)</span>
         </label>
@@ -88,14 +88,14 @@ export function PunishmentTierForm({ initial, onSubmit, onCancel, isPending, err
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
-          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+          className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-sm text-text resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
       </div>
 
       <div className="flex flex-col gap-1">
         <label
           htmlFor="pt-penalty"
-          className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+          className="text-xs font-semibold text-text-mute uppercase tracking-wide"
         >
           Points penalty (zero or negative)
         </label>
@@ -107,10 +107,10 @@ export function PunishmentTierForm({ initial, onSubmit, onCancel, isPending, err
           value={penalty}
           onChange={(e) => setPenalty(e.target.value)}
           placeholder="-10"
-          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+          className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-sm text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
         {fieldError(errors, "default_points_penalty") && (
-          <p className="text-xs text-status-danger">
+          <p className="text-xs text-bad-ink">
             {fieldError(errors, "default_points_penalty")}
           </p>
         )}
@@ -121,19 +121,19 @@ export function PunishmentTierForm({ initial, onSubmit, onCancel, isPending, err
           type="checkbox"
           checked={active}
           onChange={(e) => setActive(e.target.checked)}
-          className="accent-pink-primary"
+          className="accent-accent"
           aria-label="Active"
         />
-        <span className="text-sm text-base-text">Active (can be invoked)</span>
+        <span className="text-sm text-text">Active (can be invoked)</span>
       </label>
 
-      {error && <p className="text-xs text-status-danger">{error}</p>}
+      {error && <p className="text-xs text-bad-ink">{error}</p>}
 
       <div className="flex gap-2 justify-end">
         <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" size="sm" disabled={isPending}>
+        <Button type="submit" variant="primary" size="sm" disabled={isPending}>
           {isPending ? "Saving…" : "Save"}
         </Button>
       </div>

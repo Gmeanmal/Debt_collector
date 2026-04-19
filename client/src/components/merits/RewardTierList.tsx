@@ -62,7 +62,7 @@ export function RewardTierList({ tiers, mode, onRedeem, isRedeemPending }: Props
         return (
           <li
             key={tier.id}
-            className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-3"
+            className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-3"
           >
             {isEditing && mode === "goddess" ? (
               <RewardTierForm
@@ -76,13 +76,13 @@ export function RewardTierList({ tiers, mode, onRedeem, isRedeemPending }: Props
               <>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex flex-col gap-1 min-w-0">
-                    <span className="text-sm font-semibold text-base-text">{tier.name}</span>
+                    <span className="text-sm font-semibold text-text">{tier.name}</span>
                     {tier.description && (
-                      <span className="text-xs text-base-text-muted">{tier.description}</span>
+                      <span className="text-xs text-text-mute">{tier.description}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge variant={tier.active ? "success" : "default"}>
+                    <Badge variant={tier.active ? "ok" : "default"}>
                       {tier.active ? "Active" : "Inactive"}
                     </Badge>
                     <Badge variant="primary">{tier.cost} pts</Badge>
@@ -100,7 +100,7 @@ export function RewardTierList({ tiers, mode, onRedeem, isRedeemPending }: Props
                       Edit
                     </Button>
                     <Button
-                      variant="destructive"
+                      variant="danger"
                       size="sm"
                       disabled={deleteMutation.isPending}
                       onClick={() => deleteMutation.mutate(tier.id)}
@@ -114,6 +114,7 @@ export function RewardTierList({ tiers, mode, onRedeem, isRedeemPending }: Props
                 {mode === "sub" && tier.active && onRedeem && (
                   <div className="flex justify-end">
                     <Button
+                      variant="primary"
                       size="sm"
                       disabled={isRedeemPending}
                       onClick={() => onRedeem(tier.id)}

@@ -3,8 +3,8 @@ import type { GoddessSub } from "@/services/payments/paymentsApi";
 import type { WizardErrors, WizardState } from "./types";
 
 const inputCls =
-  "bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary w-full";
-const labelCls = "text-xs font-semibold text-base-text-muted uppercase tracking-wide";
+  "bg-bg-sunken border border-line rounded-md px-3 py-2 text-sm text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full";
+const labelCls = "text-xs font-semibold text-text-mute uppercase tracking-wide";
 
 interface Props {
   state: WizardState;
@@ -20,12 +20,12 @@ export function Step2Condition({ state, subs, errors, onMinDaysChange, onSubChan
 
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-sm text-base-text-muted">Only apply when…</p>
+      <p className="text-sm text-text-mute">Only apply when…</p>
 
       {isRollingLate && (
         <div className="flex flex-col gap-1">
           <label htmlFor="wizard-min-days" className={labelCls}>
-            Minimum days late <span className="normal-case font-normal text-pink-primary">*</span>
+            Minimum days late <span className="normal-case font-normal text-accent-deep">*</span>
           </label>
           <input
             id="wizard-min-days"
@@ -39,9 +39,9 @@ export function Step2Condition({ state, subs, errors, onMinDaysChange, onSubChan
             className={inputCls}
             aria-label="Minimum days late"
           />
-          {errors.minDaysLate && <p className="text-xs text-status-danger">{errors.minDaysLate}</p>}
+          {errors.minDaysLate && <p className="text-xs text-bad-ink">{errors.minDaysLate}</p>}
           {!errors.minDaysLate && state.minDaysLate !== "" && !Number.isNaN(days) && days >= 1 && (
-            <p className="text-xs text-base-text-muted italic">
+            <p className="text-xs text-text-mute italic">
               Applies once a sub is {days} {days === 1 ? "day" : "days"} late.
             </p>
           )}
@@ -49,7 +49,7 @@ export function Step2Condition({ state, subs, errors, onMinDaysChange, onSubChan
       )}
 
       {!isRollingLate && (
-        <p className="text-sm text-base-text-muted rounded-lg border border-base-border/50 bg-base-surface-raised px-4 py-3">
+        <p className="text-sm text-text-mute rounded-[10px] border border-line/50 bg-bg-sunken px-4 py-3">
           No additional conditions for this trigger — the rule fires on every occurrence.
         </p>
       )}
@@ -57,7 +57,7 @@ export function Step2Condition({ state, subs, errors, onMinDaysChange, onSubChan
       <div className="flex flex-col gap-1">
         <span className={labelCls}>
           Only for this sub{" "}
-          <span className="normal-case font-normal text-base-text-muted">(optional)</span>
+          <span className="normal-case font-normal text-text-mute">(optional)</span>
         </span>
         <SearchableSelect<GoddessSub>
           options={subs}
@@ -72,8 +72,8 @@ export function Step2Condition({ state, subs, errors, onMinDaysChange, onSubChan
           renderOption={(s) => (
             <span className="flex items-center gap-2 min-w-0">
               <span className="flex-1 min-w-0">
-                <span className="block truncate font-medium text-base-text">{s.display_name}</span>
-                <span className="block truncate text-xs text-base-text-muted">@{s.username}</span>
+                <span className="block truncate font-medium text-text">{s.display_name}</span>
+                <span className="block truncate text-xs text-text-mute">@{s.username}</span>
               </span>
             </span>
           )}

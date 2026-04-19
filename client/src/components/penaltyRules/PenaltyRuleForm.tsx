@@ -235,13 +235,13 @@ export function PenaltyRuleForm({
             <span
               className={cn(
                 "text-xs font-semibold",
-                idx === step ? "text-pink-primary" : "text-base-text-muted",
+                idx === step ? "text-accent-deep" : "text-text-mute",
               )}
             >
               {label}
             </span>
             {idx < STEP_HEADERS.length - 1 && (
-              <span className="text-base-text-muted/40 text-xs">›</span>
+              <span className="text-text-mute/40 text-xs">›</span>
             )}
           </div>
         ))}
@@ -274,7 +274,7 @@ export function PenaltyRuleForm({
         {step === 3 && <Step4Amount state={wizState} errors={errors} onChange={patchState} />}
       </div>
 
-      {error && <p className="text-xs text-status-danger">{error}</p>}
+      {error && <p className="text-xs text-bad-ink">{error}</p>}
 
       <div className="flex items-center justify-between">
         <Button

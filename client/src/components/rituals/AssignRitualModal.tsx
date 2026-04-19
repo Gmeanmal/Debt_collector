@@ -35,8 +35,8 @@ function DayChips({ value, onChange }: DayChipsProps) {
             className={cn(
               "h-8 w-12 rounded-md border text-xs font-medium transition-colors",
               active
-                ? "border-pink-primary bg-pink-primary/15 text-pink-primary"
-                : "border-base-border bg-base-surface-raised text-base-text-muted hover:border-pink-primary/40",
+                ? "border-accent bg-accent-trace text-accent-deep"
+                : "border-line bg-bg-elev text-text-faint hover:border-accent/40",
             )}
           >
             {label}
@@ -140,7 +140,7 @@ export function AssignRitualModal({ onClose }: Props) {
     <Modal title="Assign ritual" onClose={onClose} size="md">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-base-text">Sub</label>
+          <label className="text-xs font-medium text-text">Sub</label>
           <SearchableSelect<GoddessSub>
             options={subs}
             value={form.sub}
@@ -151,16 +151,16 @@ export function AssignRitualModal({ onClose }: Props) {
             ariaLabel="Select sub"
             renderOption={(s) => (
               <span className="flex flex-col">
-                <span className="text-sm text-base-text">{s.display_name}</span>
-                <span className="text-xs text-base-text-muted">@{s.username}</span>
+                <span className="text-sm text-text">{s.display_name}</span>
+                <span className="text-xs text-text-mute">@{s.username}</span>
               </span>
             )}
           />
-          {errors.sub && <p className="text-xs text-status-danger">{errors.sub}</p>}
+          {errors.sub && <p className="text-xs text-bad-ink">{errors.sub}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="ritual-title" className="text-xs font-medium text-base-text">
+          <label htmlFor="ritual-title" className="text-xs font-medium text-text">
             Title
           </label>
           <input
@@ -170,15 +170,15 @@ export function AssignRitualModal({ onClose }: Props) {
             onChange={(e) => set("title", e.target.value)}
             maxLength={200}
             placeholder="Morning devotion"
-            className="h-10 w-full rounded-md border border-base-border bg-base-surface-raised/60 px-3 text-sm text-base-text placeholder:text-base-text-subtle focus:border-pink-primary/60 focus:outline-none focus:ring-2 focus:ring-pink-ring"
+            className="h-10 w-full rounded-md border border-line bg-bg-elev px-3 text-sm text-text placeholder:text-text-faint focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent"
           />
-          {errors.title && <p className="text-xs text-status-danger">{errors.title}</p>}
+          {errors.title && <p className="text-xs text-bad-ink">{errors.title}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="ritual-description" className="text-xs font-medium text-base-text">
+          <label htmlFor="ritual-description" className="text-xs font-medium text-text">
             Description
-            <span className="ml-1 font-normal text-base-text-muted">(optional)</span>
+            <span className="ml-1 font-normal text-text-mute">(optional)</span>
           </label>
           <textarea
             id="ritual-description"
@@ -186,19 +186,19 @@ export function AssignRitualModal({ onClose }: Props) {
             onChange={(e) => set("description", e.target.value)}
             rows={2}
             placeholder="Visible to the sub"
-            className="w-full resize-none rounded-md border border-base-border bg-base-surface-raised/60 px-3 py-2 text-sm text-base-text placeholder:text-base-text-subtle focus:border-pink-primary/60 focus:outline-none focus:ring-2 focus:ring-pink-ring"
+            className="w-full resize-none rounded-md border border-line bg-bg-elev px-3 py-2 text-sm text-text placeholder:text-text-faint focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="ritual-preset" className="text-xs font-medium text-base-text">
+          <label htmlFor="ritual-preset" className="text-xs font-medium text-text">
             Schedule
           </label>
           <select
             id="ritual-preset"
             value={form.preset}
             onChange={(e) => set("preset", e.target.value as FormState["preset"])}
-            className="h-10 w-full rounded-md border border-base-border bg-base-surface-raised/60 px-3 text-sm text-base-text focus:border-pink-primary/60 focus:outline-none focus:ring-2 focus:ring-pink-ring"
+            className="h-10 w-full rounded-md border border-line bg-bg-elev px-3 text-sm text-text focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent"
           >
             <option value="daily">Daily</option>
             <option value="weekly">Weekly (every Monday)</option>
@@ -208,15 +208,15 @@ export function AssignRitualModal({ onClose }: Props) {
 
         {form.preset === "custom" && (
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-base-text">Days</span>
+            <span className="text-xs font-medium text-text">Days</span>
             <DayChips value={form.customMask} onChange={(m) => set("customMask", m)} />
-            {errors.customMask && <p className="text-xs text-status-danger">{errors.customMask}</p>}
+            {errors.customMask && <p className="text-xs text-bad-ink">{errors.customMask}</p>}
           </div>
         )}
 
         <div className="flex gap-3">
           <div className="flex flex-1 flex-col gap-1.5">
-            <label htmlFor="ritual-deadline" className="text-xs font-medium text-base-text">
+            <label htmlFor="ritual-deadline" className="text-xs font-medium text-text">
               Deadline time
             </label>
             <input
@@ -224,11 +224,11 @@ export function AssignRitualModal({ onClose }: Props) {
               type="time"
               value={form.deadlineTime}
               onChange={(e) => set("deadlineTime", e.target.value)}
-              className="h-10 w-full rounded-md border border-base-border bg-base-surface-raised/60 px-3 text-sm text-base-text focus:border-pink-primary/60 focus:outline-none focus:ring-2 focus:ring-pink-ring"
+              className="h-10 w-full rounded-md border border-line bg-bg-elev px-3 text-sm text-text focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
           <div className="flex flex-1 flex-col gap-1.5">
-            <label htmlFor="ritual-pts-complete" className="text-xs font-medium text-base-text">
+            <label htmlFor="ritual-pts-complete" className="text-xs font-medium text-text">
               Points on complete
             </label>
             <input
@@ -236,11 +236,11 @@ export function AssignRitualModal({ onClose }: Props) {
               type="number"
               value={form.pointsComplete}
               onChange={(e) => set("pointsComplete", Number(e.target.value))}
-              className="h-10 w-full rounded-md border border-base-border bg-base-surface-raised/60 px-3 text-sm text-base-text focus:border-pink-primary/60 focus:outline-none focus:ring-2 focus:ring-pink-ring"
+              className="h-10 w-full rounded-md border border-line bg-bg-elev px-3 text-sm text-text focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
           <div className="flex flex-1 flex-col gap-1.5">
-            <label htmlFor="ritual-pts-miss" className="text-xs font-medium text-base-text">
+            <label htmlFor="ritual-pts-miss" className="text-xs font-medium text-text">
               Points on miss
             </label>
             <input
@@ -248,36 +248,36 @@ export function AssignRitualModal({ onClose }: Props) {
               type="number"
               value={form.pointsMiss}
               onChange={(e) => set("pointsMiss", Number(e.target.value))}
-              className="h-10 w-full rounded-md border border-base-border bg-base-surface-raised/60 px-3 text-sm text-base-text focus:border-pink-primary/60 focus:outline-none focus:ring-2 focus:ring-pink-ring"
+              className="h-10 w-full rounded-md border border-line bg-bg-elev px-3 text-sm text-text focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
         </div>
 
-        <div className="flex items-start gap-3 rounded-md border border-base-border bg-base-surface-raised/40 p-3">
+        <div className="flex items-start gap-3 rounded-[10px] border border-line bg-bg-elev p-[18px]">
           <input
             id="ritual-proof"
             type="checkbox"
             checked={form.requiresProof}
             onChange={(e) => set("requiresProof", e.target.checked)}
-            className="mt-0.5 h-4 w-4 accent-[var(--color-pink-primary)]"
+            className="mt-0.5 h-4 w-4 accent-accent"
           />
           <div className="flex flex-col gap-0.5">
             <label
               htmlFor="ritual-proof"
-              className="cursor-pointer text-sm font-medium text-base-text"
+              className="cursor-pointer text-sm font-medium text-text"
             >
               Requires proof
             </label>
-            <p className="text-xs text-base-text-muted">Sub must attach a photo to mark complete</p>
+            <p className="text-xs text-text-mute">Sub must attach a photo to mark complete</p>
           </div>
         </div>
 
-        <p className="text-xs text-base-text-muted italic">{preview}</p>
+        <p className="text-xs text-text-mute italic">{preview}</p>
 
-        <div className="flex gap-2 justify-end border-t border-base-border pt-2">
+        <div className="flex gap-2 justify-end border-t border-line pt-2">
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="sm"
             onClick={onClose}
             disabled={mutation.isPending}

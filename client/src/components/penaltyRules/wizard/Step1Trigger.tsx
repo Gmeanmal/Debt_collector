@@ -34,7 +34,7 @@ const TRIGGERS: { value: PenaltyTrigger; label: string; subtext: string }[] = [
 export function Step1Trigger({ state, errors, onChange }: Props) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-base-text-muted">When does this rule fire?</p>
+      <p className="text-sm text-text-mute">When does this rule fire?</p>
       <div className="flex flex-col gap-2" role="radiogroup" aria-label="Trigger">
         {TRIGGERS.map(({ value, label, subtext }) => {
           const checked = state.trigger === value;
@@ -42,10 +42,10 @@ export function Step1Trigger({ state, errors, onChange }: Props) {
             <label
               key={value}
               className={cn(
-                "flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors",
+                "flex items-start gap-3 rounded-[10px] border p-4 cursor-pointer transition-colors",
                 checked
-                  ? "border-pink-primary bg-pink-primary/5"
-                  : "border-base-border hover:border-pink-primary/40",
+                  ? "border-accent bg-accent-trace"
+                  : "border-line hover:border-accent/40",
               )}
             >
               <input
@@ -54,18 +54,18 @@ export function Step1Trigger({ state, errors, onChange }: Props) {
                 value={value}
                 checked={checked}
                 onChange={() => onChange(value)}
-                className="mt-0.5 accent-pink-primary shrink-0"
+                className="mt-0.5 accent-[var(--color-accent)] shrink-0"
                 aria-label={label}
               />
               <span className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium text-base-text">{label}</span>
-                <span className="text-xs text-base-text-muted">{subtext}</span>
+                <span className="text-sm font-medium text-text">{label}</span>
+                <span className="text-xs text-text-mute">{subtext}</span>
               </span>
             </label>
           );
         })}
       </div>
-      {errors.trigger && <p className="text-xs text-status-danger">{errors.trigger}</p>}
+      {errors.trigger && <p className="text-xs text-bad-ink">{errors.trigger}</p>}
     </div>
   );
 }

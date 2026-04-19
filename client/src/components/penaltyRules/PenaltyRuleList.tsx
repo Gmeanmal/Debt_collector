@@ -111,7 +111,7 @@ export function PenaltyRuleList({ rules, subs = [] }: Props) {
           description={
             <span>
               Delete rule{" "}
-              <strong className="text-base-text">
+              <strong className="text-text">
                 {ruleToDelete.name ?? TRIGGER_LABELS[ruleToDelete.trigger]}
               </strong>
               ? This cannot be undone.
@@ -126,19 +126,19 @@ export function PenaltyRuleList({ rules, subs = [] }: Props) {
         />
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-base-border">
+      <div className="overflow-x-auto rounded-[10px] border border-line">
         <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="border-b border-base-border bg-base-surface-raised">
-              <th className="px-4 py-3 text-left font-medium text-base-text-muted">Name</th>
-              <th className="px-4 py-3 text-left font-medium text-base-text-muted">Trigger</th>
-              <th className="px-4 py-3 text-left font-medium text-base-text-muted">Action</th>
-              <th className="px-4 py-3 text-left font-medium text-base-text-muted">Points Δ</th>
-              <th className="px-4 py-3 text-left font-medium text-base-text-muted">Fee</th>
-              <th className="px-4 py-3 text-left font-medium text-base-text-muted">Cooldown (h)</th>
-              <th className="px-4 py-3 text-left font-medium text-base-text-muted">Sub</th>
-              <th className="px-4 py-3 text-left font-medium text-base-text-muted">Active</th>
-              <th className="px-4 py-3 text-left font-medium text-base-text-muted">Actions</th>
+            <tr className="border-b border-line bg-bg-sunken">
+              <th className="px-4 py-3 text-left font-medium text-text-mute">Name</th>
+              <th className="px-4 py-3 text-left font-medium text-text-mute">Trigger</th>
+              <th className="px-4 py-3 text-left font-medium text-text-mute">Action</th>
+              <th className="px-4 py-3 text-left font-medium text-text-mute">Points Δ</th>
+              <th className="px-4 py-3 text-left font-medium text-text-mute">Fee</th>
+              <th className="px-4 py-3 text-left font-medium text-text-mute">Cooldown (h)</th>
+              <th className="px-4 py-3 text-left font-medium text-text-mute">Sub</th>
+              <th className="px-4 py-3 text-left font-medium text-text-mute">Active</th>
+              <th className="px-4 py-3 text-left font-medium text-text-mute">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -168,29 +168,29 @@ export function PenaltyRuleList({ rules, subs = [] }: Props) {
               return (
                 <tr
                   key={rule.id}
-                  className="border-b border-base-border/50 hover:bg-base-surface-raised/50 transition-colors"
+                  className="border-b border-line/50 hover:bg-bg-sunken/50 transition-colors"
                 >
-                  <td className="px-4 py-3 text-base-text-muted text-xs">
+                  <td className="px-4 py-3 text-text-mute text-xs">
                     {rule.name ?? <span className="italic">—</span>}
                   </td>
-                  <td className="px-4 py-3 font-medium text-base-text">
+                  <td className="px-4 py-3 font-medium text-text">
                     {triggerDescription(rule)}
                   </td>
                   <td className="px-4 py-3">
                     <ActionBadge action={rule.action} />
                   </td>
-                  <td className="px-4 py-3 text-base-text">
+                  <td className="px-4 py-3 text-text">
                     {rule.points_delta !== 0 ? (
-                      <span className="font-mono text-status-danger">{rule.points_delta}</span>
+                      <span className="font-mono text-bad-ink">{rule.points_delta}</span>
                     ) : (
-                      <span className="text-base-text-muted">—</span>
+                      <span className="text-text-mute">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-base-text">
-                    {fee != null ? fee : <span className="text-base-text-muted">—</span>}
+                  <td className="px-4 py-3 text-text">
+                    {fee != null ? fee : <span className="text-text-mute">—</span>}
                   </td>
-                  <td className="px-4 py-3 text-base-text">{rule.cooldown_hours}</td>
-                  <td className="px-4 py-3 text-base-text-muted text-xs">
+                  <td className="px-4 py-3 text-text">{rule.cooldown_hours}</td>
+                  <td className="px-4 py-3 text-text-mute text-xs">
                     {rule.sub_id == null
                       ? "All subs"
                       : (() => {
@@ -198,7 +198,7 @@ export function PenaltyRuleList({ rules, subs = [] }: Props) {
                           return sub ? (
                             <span>
                               {sub.display_name}{" "}
-                              <span className="text-base-text-muted">@{sub.username}</span>
+                              <span className="text-text-mute">@{sub.username}</span>
                             </span>
                           ) : (
                             <span className="italic">scoped</span>
@@ -211,7 +211,7 @@ export function PenaltyRuleList({ rules, subs = [] }: Props) {
                       onClick={() => toggleMutation.mutate({ id: rule.id, active: !rule.active })}
                       disabled={toggleMutation.isPending}
                       aria-label={rule.active ? "Deactivate rule" : "Activate rule"}
-                      className="focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
+                      className="focus-visible:ring-2 focus-visible:ring-accent rounded"
                     >
                       <Badge variant={rule.active ? "success" : "default"}>
                         {rule.active ? "On" : "Off"}
@@ -221,7 +221,7 @@ export function PenaltyRuleList({ rules, subs = [] }: Props) {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => setEditState({ ruleId: rule.id, error: null })}
                         aria-label="Edit rule"
@@ -229,7 +229,7 @@ export function PenaltyRuleList({ rules, subs = [] }: Props) {
                         Edit
                       </Button>
                       <Button
-                        variant="destructive"
+                        variant="danger"
                         size="sm"
                         onClick={() => setConfirmDeleteId(rule.id)}
                         aria-label="Delete rule"

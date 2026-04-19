@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/ui/page-header";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -18,7 +18,6 @@ import {
 } from "@/api/rituals";
 import { formatRitualSchedule } from "@/services/rituals/schedulePreview";
 import { queryKeys } from "@/lib/queryKeys";
-import { cn } from "@/lib/utils";
 
 interface RitualRowProps {
   ritual: RitualWithSubOut;
@@ -35,38 +34,40 @@ function RitualRow({ ritual, onPauseToggle, onDelete, isPending }: RitualRowProp
   });
 
   return (
-    <article className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-3">
+    <article className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2 flex-wrap">
         <div className="flex flex-col gap-1 min-w-0">
-          <span className="text-sm font-semibold text-base-text">{ritual.title}</span>
-          <span className="text-xs text-base-text-muted italic">{schedule}</span>
+          <span className="font-serif italic text-text">{ritual.title}</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-text-faint">
+            {schedule}
+          </span>
           {ritual.description && (
-            <p className="text-xs text-base-text-muted leading-relaxed line-clamp-2">
+            <p className="text-text-mute text-xs leading-relaxed line-clamp-2">
               {ritual.description}
             </p>
           )}
         </div>
         <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
-          {ritual.paused && <Badge variant="warning">Paused</Badge>}
-          {ritual.requires_proof && <Badge variant="info">Requires proof</Badge>}
+          {ritual.paused && <Badge variant="warn">Paused</Badge>}
+          {ritual.requires_proof && <Badge variant="neutral">Requires proof</Badge>}
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-base-border pt-3">
-        <div className="flex flex-wrap gap-4 text-xs text-base-text-muted">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
+        <div className="flex flex-wrap gap-4 text-xs">
           <span>
-            <span className="font-medium text-base-text">Complete:</span>{" "}
-            <span className="text-status-success">+{ritual.points_on_complete} pts</span>
+            <span className="font-medium text-text">Complete:</span>{" "}
+            <span className="text-ok-ink">+{ritual.points_on_complete} pts</span>
           </span>
           <span>
-            <span className="font-medium text-base-text">Miss:</span>{" "}
-            <span className="text-status-danger">{ritual.points_on_miss} pts</span>
+            <span className="font-medium text-text">Miss:</span>{" "}
+            <span className="text-bad-ink">{ritual.points_on_miss} pts</span>
           </span>
         </div>
         <div className="flex gap-2">
           <Button
             size="sm"
-            variant="secondary"
+            variant="ghost"
             onClick={() => onPauseToggle(ritual)}
             disabled={isPending}
             aria-label={ritual.paused ? "Resume ritual" : "Pause ritual"}
@@ -75,7 +76,7 @@ function RitualRow({ ritual, onPauseToggle, onDelete, isPending }: RitualRowProp
           </Button>
           <Button
             size="sm"
-            variant="destructive"
+            variant="danger"
             onClick={() => onDelete(ritual)}
             disabled={isPending}
             aria-label="Delete ritual"
@@ -108,9 +109,11 @@ function SubGroup({
   return (
     <section className="flex flex-col gap-3">
       <header className="flex items-baseline gap-2">
-        <h2 className="text-sm font-semibold text-base-text">{displayName}</h2>
-        <span className="text-xs text-base-text-muted">@{username}</span>
-        <span className="ml-auto text-xs text-base-text-muted">
+        <span className="font-serif italic text-text">{displayName}</span>
+        <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">
+          @{username}
+        </span>
+        <span className="ml-auto font-mono text-[11px] text-text-faint">
           {rituals.length} ritual{rituals.length !== 1 ? "s" : ""}
         </span>
       </header>
@@ -188,30 +191,21 @@ export function GoddessRitualsRoute() {
   return (
     <div className="px-4 py-10 sm:px-8 md:py-16">
       <div className="mx-auto flex max-w-4xl flex-col gap-10">
-        <header className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.3em] text-pink-primary/80">
-              Assignments
-            </p>
-            <h1 className="mt-3 font-display text-4xl sm:text-5xl italic leading-none text-base-text">
-              Rituals.
-            </h1>
-            <p className="mt-3 text-sm text-base-text-muted max-w-xl">
-              Recurring obligations assigned to your subs. Each ritual generates a daily occurrence
-              that the sub must complete before the deadline.
-            </p>
-          </div>
-          <Button
-            size="sm"
-            onClick={() => setShowAssign(true)}
-            aria-label="Assign ritual"
-            className={cn("shrink-0 mt-4 sm:mt-0")}
-          >
-            + Assign ritual
-          </Button>
-        </header>
-
-        <Separator />
+        <PageHeader
+          crumbs={["Home · Rules · Rituals"]}
+          title={<span className="italic">Rituals</span>}
+          description="Recurring obligations assigned to your subs. Each ritual generates a daily occurrence that the sub must complete before the deadline."
+          actions={
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => setShowAssign(true)}
+              aria-label="Assign ritual"
+            >
+              + Assign ritual
+            </Button>
+          }
+        />
 
         {isLoading && <ListSkeleton rows={3} />}
 

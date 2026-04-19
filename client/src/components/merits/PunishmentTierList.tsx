@@ -82,7 +82,7 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
         return (
           <li
             key={tier.id}
-            className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-3"
+            className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-3"
           >
             {isEditing ? (
               <PunishmentTierForm
@@ -94,7 +94,7 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
               />
             ) : isInvoking ? (
               <div className="flex flex-col gap-2">
-                <p className="text-sm font-semibold text-base-text">
+                <p className="text-sm font-semibold text-text">
                   Invoke &ldquo;{tier.name}&rdquo; against:
                 </p>
                 <select
@@ -102,7 +102,7 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
                   onChange={(e) =>
                     setInvokeState((s) => (s ? { ...s, subId: e.target.value } : null))
                   }
-                  className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+                  className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-sm text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   aria-label="Select sub to invoke punishment against"
                 >
                   <option value="">Select a sub</option>
@@ -113,14 +113,14 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
                   ))}
                 </select>
                 {invokeState.error && (
-                  <p className="text-xs text-status-danger">{invokeState.error}</p>
+                  <p className="text-xs text-bad-ink">{invokeState.error}</p>
                 )}
                 <div className="flex gap-2 justify-end">
                   <Button variant="ghost" size="sm" onClick={() => setInvokeState(null)}>
                     Cancel
                   </Button>
                   <Button
-                    variant="destructive"
+                    variant="danger"
                     size="sm"
                     disabled={!invokeState.subId || invokeMutation.isPending}
                     onClick={() =>
@@ -139,16 +139,16 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
               <>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex flex-col gap-1 min-w-0">
-                    <span className="text-sm font-semibold text-base-text">{tier.name}</span>
+                    <span className="text-sm font-semibold text-text">{tier.name}</span>
                     {tier.description && (
-                      <span className="text-xs text-base-text-muted">{tier.description}</span>
+                      <span className="text-xs text-text-mute">{tier.description}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge variant={tier.active ? "warning" : "default"}>
+                    <Badge variant={tier.active ? "warn" : "default"}>
                       {tier.active ? "Active" : "Inactive"}
                     </Badge>
-                    <Badge variant="danger">{tier.default_points_penalty} pts</Badge>
+                    <Badge variant="bad">{tier.default_points_penalty} pts</Badge>
                   </div>
                 </div>
 
@@ -162,7 +162,7 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
                     Edit
                   </Button>
                   <Button
-                    variant="destructive"
+                    variant="danger"
                     size="sm"
                     disabled={deleteMutation.isPending}
                     onClick={() => deleteMutation.mutate(tier.id)}
@@ -172,6 +172,7 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
                   </Button>
                   {tier.active && subs.length > 0 && (
                     <Button
+                      variant="primary"
                       size="sm"
                       onClick={() => setInvokeState({ tierId: tier.id, subId: "", error: null })}
                       aria-label={`Invoke ${tier.name} for sub`}

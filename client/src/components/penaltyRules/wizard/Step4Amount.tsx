@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils";
 import type { WizardErrors, WizardState } from "./types";
 
 const inputCls =
-  "bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary w-full";
-const labelCls = "text-xs font-semibold text-base-text-muted uppercase tracking-wide";
+  "bg-bg-sunken border border-line rounded-md px-3 py-2 text-sm text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full";
+const labelCls = "text-xs font-semibold text-text-mute uppercase tracking-wide";
 
 interface Props {
   state: WizardState;
@@ -16,7 +16,7 @@ export function Step4Amount({ state, errors, onChange }: Props) {
 
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-sm text-base-text-muted">
+      <p className="text-sm text-text-mute">
         {action === "apply_fee"
           ? "Set the fee. Points delta is also applied (default 0)."
           : "Set the points change applied to the sub."}
@@ -31,8 +31,8 @@ export function Step4Amount({ state, errors, onChange }: Props) {
               className={cn(
                 "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors",
                 state.feeMode === "flat"
-                  ? "border-pink-primary bg-pink-primary/10 text-pink-primary"
-                  : "border-base-border text-base-text-muted hover:border-pink-primary/40",
+                  ? "border-accent bg-accent-trace text-accent-deep"
+                  : "border-line text-text-mute hover:border-accent/40",
               )}
               aria-pressed={state.feeMode === "flat"}
             >
@@ -44,8 +44,8 @@ export function Step4Amount({ state, errors, onChange }: Props) {
               className={cn(
                 "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors",
                 state.feeMode === "percent"
-                  ? "border-pink-primary bg-pink-primary/10 text-pink-primary"
-                  : "border-base-border text-base-text-muted hover:border-pink-primary/40",
+                  ? "border-accent bg-accent-trace text-accent-deep"
+                  : "border-line text-text-mute hover:border-accent/40",
               )}
               aria-pressed={state.feeMode === "percent"}
             >
@@ -68,7 +68,7 @@ export function Step4Amount({ state, errors, onChange }: Props) {
                 className={inputCls}
                 aria-label="Fee amount in GBP"
               />
-              {errors.feeAmount && <p className="text-xs text-status-danger">{errors.feeAmount}</p>}
+              {errors.feeAmount && <p className="text-xs text-bad-ink">{errors.feeAmount}</p>}
             </div>
           )}
 
@@ -90,7 +90,7 @@ export function Step4Amount({ state, errors, onChange }: Props) {
                 aria-label="Fee percentage"
               />
               {errors.feePercent && (
-                <p className="text-xs text-status-danger">{errors.feePercent}</p>
+                <p className="text-xs text-bad-ink">{errors.feePercent}</p>
               )}
             </div>
           )}
@@ -101,10 +101,10 @@ export function Step4Amount({ state, errors, onChange }: Props) {
         <label htmlFor="wizard-points" className={labelCls}>
           Points delta
           {action === "apply_points" && (
-            <span className="normal-case font-normal text-pink-primary ml-1">*</span>
+            <span className="normal-case font-normal text-accent-deep ml-1">*</span>
           )}
           {action === "notify_only" && (
-            <span className="normal-case font-normal text-base-text-muted ml-1">
+            <span className="normal-case font-normal text-text-mute ml-1">
               (allow negative)
             </span>
           )}
@@ -119,19 +119,19 @@ export function Step4Amount({ state, errors, onChange }: Props) {
           className={inputCls}
           aria-label="Points delta"
         />
-        {errors.pointsDelta && <p className="text-xs text-status-danger">{errors.pointsDelta}</p>}
+        {errors.pointsDelta && <p className="text-xs text-bad-ink">{errors.pointsDelta}</p>}
       </div>
 
       <details className="group">
-        <summary className="cursor-pointer text-xs font-semibold text-base-text-muted uppercase tracking-wide select-none list-none flex items-center gap-1">
+        <summary className="cursor-pointer text-xs font-semibold text-text-mute uppercase tracking-wide select-none list-none flex items-center gap-1">
           <span className="group-open:hidden">+ Advanced</span>
           <span className="hidden group-open:inline">− Advanced</span>
         </summary>
-        <div className="mt-4 flex flex-col gap-4 border-l-2 border-base-border/50 pl-4">
+        <div className="mt-4 flex flex-col gap-4 border-l-2 border-line/50 pl-4">
           <div className="flex flex-col gap-1">
             <label htmlFor="wizard-name" className={labelCls}>
               Name{" "}
-              <span className="normal-case font-normal text-base-text-muted">(optional slug)</span>
+              <span className="normal-case font-normal text-text-mute">(optional slug)</span>
             </label>
             <input
               id="wizard-name"
@@ -143,8 +143,8 @@ export function Step4Amount({ state, errors, onChange }: Props) {
               className={inputCls}
               aria-label="Rule name"
             />
-            <p className="text-xs text-base-text-muted">Use a short slug, e.g. late_2d_notify</p>
-            {errors.name && <p className="text-xs text-status-danger">{errors.name}</p>}
+            <p className="text-xs text-text-mute">Use a short slug, e.g. late_2d_notify</p>
+            {errors.name && <p className="text-xs text-bad-ink">{errors.name}</p>}
           </div>
 
           <div className="flex flex-col gap-1">
@@ -163,7 +163,7 @@ export function Step4Amount({ state, errors, onChange }: Props) {
               aria-label="Cooldown hours"
             />
             {errors.cooldownHours && (
-              <p className="text-xs text-status-danger">{errors.cooldownHours}</p>
+              <p className="text-xs text-bad-ink">{errors.cooldownHours}</p>
             )}
           </div>
 
@@ -172,10 +172,10 @@ export function Step4Amount({ state, errors, onChange }: Props) {
               type="checkbox"
               checked={state.active}
               onChange={(e) => onChange({ active: e.target.checked })}
-              className="accent-pink-primary"
+              className="accent-[var(--color-accent)]"
               aria-label="Active"
             />
-            <span className="text-sm text-base-text">Active (cron will consult this rule)</span>
+            <span className="text-sm text-text">Active (cron will consult this rule)</span>
           </label>
         </div>
       </details>

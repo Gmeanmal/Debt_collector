@@ -225,9 +225,9 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase G · Goddess · rules engine
 
-- [ ] **Step 30 — Rituals.** Editorial list + per-ritual card. _Files: `client/src/routes/goddess/GoddessRitualsRoute.tsx`._
-- [ ] **Step 31 — Penalty rules.** Builder UI, condition rows. _Files: `client/src/routes/goddess/PenaltyRulesRoute.tsx`._
-- [ ] **Step 32 — Rewards & punishments (Merits).** Two-column ledger. _Files: `client/src/routes/goddess/MeritsAdminRoute.tsx`._
+- [x] **Step 30 — Rituals.** Editorial list + per-ritual card. _Files: `client/src/routes/goddess/GoddessRitualsRoute.tsx`._
+- [x] **Step 31 — Penalty rules.** Builder UI, condition rows. _Files: `client/src/routes/goddess/PenaltyRulesRoute.tsx`._
+- [x] **Step 32 — Rewards & punishments (Merits).** Two-column ledger. _Files: `client/src/routes/goddess/MeritsAdminRoute.tsx`._
 
 → _commit: `refactor(ui): phase G goddess rules engine`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **6 / 13**
-- Steps complete: **29 / 51**
-- Last commit: `refactor(ui): phase F — goddess subs & contracts`
-- Next phase: **G — Goddess · rules engine**
+- Phases complete: **7 / 13**
+- Steps complete: **32 / 51**
+- Last commit: `refactor(ui): phase G — goddess rules engine`
+- Next phase: **H — Goddess · gatekeeping**
