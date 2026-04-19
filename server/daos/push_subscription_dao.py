@@ -43,9 +43,7 @@ class PushSubscriptionDao:
         )
         return list(result.scalars().all())
 
-    async def get_by_id_for_user(
-        self, sub_id: UUID, user_id: UUID
-    ) -> PushSubscription | None:
+    async def get_by_id_for_user(self, sub_id: UUID, user_id: UUID) -> PushSubscription | None:
         result = await self._session.execute(
             select(PushSubscription).where(
                 col(PushSubscription.id) == sub_id,

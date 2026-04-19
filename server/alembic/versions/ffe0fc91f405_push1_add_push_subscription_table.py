@@ -51,7 +51,5 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_index(op.f("ix_push_subscription_user_id"), table_name="push_subscription")
     op.drop_index(op.f("ix_push_subscription_created_at"), table_name="push_subscription")
-    op.drop_constraint(
-        "uq_push_subscription_endpoint", "push_subscription", type_="unique"
-    )
+    op.drop_constraint("uq_push_subscription_endpoint", "push_subscription", type_="unique")
     op.drop_table("push_subscription")
