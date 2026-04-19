@@ -1,14 +1,13 @@
 <!doctype html>
-<html lang="en-GB">
+<html lang="en-GB" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <script>
       (function () {
         var saved = localStorage.getItem("theme") || "system";
-        var isDark =
-          saved === "dark" ||
-          (saved === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-        if (!isDark) document.documentElement.setAttribute("data-theme", "light");
+        var prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+        var effective = saved === "system" ? (prefersLight ? "light" : "dark") : saved;
+        document.documentElement.setAttribute("data-theme", effective);
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -17,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
   </head>

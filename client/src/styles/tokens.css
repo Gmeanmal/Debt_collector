@@ -1,122 +1,263 @@
-/* Dark dom — default. Deep violet-black, hot barbie pink, gold prestige. */
+/* Debt app tokens — pink + lime + cream + ink handoff palette.
+   Raw scales live on :root; theme aliases and the legacy back-compat
+   layer (shadcn names, --color-base-*, --color-pink-*, --color-violet-*,
+   --color-gold-*, --color-debt-*, --color-status-*) resolve inside each
+   theme block so existing Tailwind utilities keep working until
+   components are restyled in refonte phases B–L. */
+
+/* ===== Raw scales ===== */
 :root {
-  /* Base surfaces */
-  --color-base-bg: #0a0410;
-  --color-base-surface: #14081e;
-  --color-base-surface-raised: #1f0e2d;
-  --color-base-border: #36204a;
-  --color-base-text: #f7ecff;
-  --color-base-text-muted: #c4afd9;
-  --color-base-text-subtle: #847098;
+  --pink-50: #fff0f7;
+  --pink-100: #ffd9ea;
+  --pink-200: #ffb0d4;
+  --pink-300: #ff82ba;
+  --pink-400: #ff4fa3;
+  --pink-500: #ef2b89;
+  --pink-600: #c81569;
+  --pink-700: #8f0d49;
+  --pink-800: #55072b;
+  --pink-900: #2e0417;
 
-  /* Hot pink — primary (barbie dom) */
-  --color-pink-primary: #ff4fa3;
-  --color-pink-primary-hover: #ff6fb5;
-  --color-pink-primary-active: #e6458f;
+  --lime-100: #eaf7c6;
+  --lime-200: #d4ef8a;
+  --lime-300: #b8e14f;
+  --lime-400: #9bc928;
+  --lime-500: #6f961a;
+
+  --cream-50: #fbf6ed;
+  --cream-100: #f3ecdd;
+  --cream-200: #e7dcc3;
+  --cream-300: #cdbd9c;
+  --cream-400: #9a8b69;
+
+  --ink-100: #6e5c66;
+  --ink-200: #3f2e38;
+  --ink-300: #271a22;
+  --ink-400: #180f15;
+  --ink-500: #0f090d;
+
+  --ok: #3b7a52;
+  --warn: #9a6516;
+  --bad: #b8253d;
+}
+
+/* ===== Light theme ===== */
+html,
+html[data-theme="light"] {
+  --bg: var(--cream-50);
+  --bg-elev: #ffffff;
+  --bg-sunken: var(--cream-100);
+  --bg-inset: var(--cream-200);
+  --line: rgba(24, 16, 21, 0.12);
+  --line-strong: rgba(24, 16, 21, 0.26);
+  --text: var(--ink-400);
+  --text-mute: var(--ink-200);
+  --text-faint: #8a7a82;
+
+  --accent: var(--pink-400);
+  --accent-ink: #ffffff;
+  --accent-soft: var(--pink-50);
+  --accent-trace: var(--pink-100);
+  --accent-deep: var(--pink-700);
+
+  --signal: var(--lime-400);
+  --signal-soft: var(--lime-100);
+  --signal-ink: #2a3b06;
+
+  --ok-bg: #e2eed9;
+  --ok-ink: #2d5537;
+  --warn-bg: #f1e3ca;
+  --warn-ink: #6c4710;
+  --bad-bg: #f9dfe9;
+  --bad-ink: var(--pink-700);
+
+  --shadow-sm: 0 1px 2px rgba(24, 16, 21, 0.06);
+  --shadow-md: 0 2px 14px rgba(24, 16, 21, 0.09);
+
+  /* --- Back-compat: legacy tokens --- */
+  --color-base-bg: var(--bg);
+  --color-base-surface: var(--bg-elev);
+  --color-base-surface-raised: var(--bg-sunken);
+  --color-base-border: var(--line);
+  --color-base-text: var(--text);
+  --color-base-text-muted: var(--text-mute);
+  --color-base-text-subtle: var(--text-faint);
+
+  --color-pink-primary: var(--accent);
+  --color-pink-primary-hover: var(--pink-300);
+  --color-pink-primary-active: var(--pink-500);
   --color-pink-ring: rgba(255, 79, 163, 0.45);
-  --color-pink-foreground: #1a0510;
-  --color-pink-muted: #3a0f22;
-  --color-pink-glow: 0 0 60px rgba(255, 79, 163, 0.35);
+  --color-pink-foreground: var(--accent-ink);
+  --color-pink-muted: var(--accent-trace);
+  --color-pink-glow: 0 0 40px rgba(255, 79, 163, 0.25);
 
-  /* Violet — admin / secondary */
-  --color-violet-primary: #a855f7;
-  --color-violet-primary-hover: #b96bff;
-  --color-violet-primary-active: #9333ea;
-  --color-violet-ring: rgba(168, 85, 247, 0.45);
-  --color-violet-foreground: #f7ecff;
-  --color-violet-muted: #2a1140;
+  --color-debt-primary: var(--bad-ink);
+  --color-debt-primary-hover: var(--bad-ink);
+  --color-debt-muted: var(--bad-bg);
+  --color-debt-ring: rgba(184, 37, 61, 0.45);
 
-  /* Gold — drained, prestige */
-  --color-gold-accent: #f5c242;
-  --color-gold-accent-hover: #f7cc5a;
-  --color-gold-foreground: #1a1200;
-  --color-gold-ring: rgba(245, 194, 66, 0.45);
+  --color-gold-accent: var(--signal);
+  --color-gold-accent-hover: var(--signal);
+  --color-gold-foreground: var(--signal-ink);
+  --color-gold-ring: rgba(155, 201, 40, 0.45);
 
-  /* Crimson — debt, late, breach */
-  --color-debt-primary: #ff3b6c;
-  --color-debt-primary-hover: #ff5a85;
-  --color-debt-muted: #3f0a18;
-  --color-debt-ring: rgba(255, 59, 108, 0.45);
+  --color-violet-primary: var(--ink-300);
+  --color-violet-primary-hover: var(--ink-200);
+  --color-violet-primary-active: var(--ink-400);
+  --color-violet-ring: rgba(39, 26, 34, 0.45);
+  --color-violet-foreground: #ffffff;
+  --color-violet-muted: var(--bg-inset);
 
-  /* Status (semantic) */
-  --color-status-danger: #ef4466;
-  --color-status-warning: #f5b042;
-  --color-status-success: #4ade80;
-  --color-status-info: #60a5fa;
+  --color-status-danger: var(--bad);
+  --color-status-warning: var(--warn);
+  --color-status-success: var(--ok);
+  --color-status-info: #2a6fb8;
 
-  /* Radii */
-  --radius-xs: 3px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 28px;
-  --radius-full: 9999px;
+  --shadow-card: var(--shadow-md);
+  --shadow-pink-glow: 0 0 40px rgba(255, 79, 163, 0.25);
+  --shadow-violet-glow: 0 0 40px rgba(39, 26, 34, 0.25);
+  --shadow-gold-glow: 0 0 40px rgba(155, 201, 40, 0.25);
+  --shadow-debt-glow: 0 0 40px rgba(184, 37, 61, 0.3);
 
-  /* Shadows */
-  --shadow-card: 0 24px 60px -20px rgba(20, 5, 30, 0.7), 0 1px 0 rgba(255, 79, 163, 0.06) inset;
-  --shadow-pink-glow: 0 0 60px rgba(255, 79, 163, 0.35);
-  --shadow-violet-glow: 0 0 60px rgba(168, 85, 247, 0.3);
-  --shadow-gold-glow: 0 0 60px rgba(245, 194, 66, 0.3);
-  --shadow-debt-glow: 0 0 60px rgba(255, 59, 108, 0.3);
-
-  /* Motion */
   --motion-duration-fast: 140ms;
   --motion-duration-normal: 220ms;
   --motion-duration-slow: 360ms;
   --motion-ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
 
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
   /* shadcn aliases */
-  --background: var(--color-base-bg);
-  --foreground: var(--color-base-text);
-  --card: var(--color-base-surface);
-  --card-foreground: var(--color-base-text);
-  --popover: var(--color-base-surface-raised);
-  --popover-foreground: var(--color-base-text);
-  --primary: var(--color-pink-primary);
-  --primary-foreground: var(--color-pink-foreground);
-  --secondary: var(--color-base-surface-raised);
-  --secondary-foreground: var(--color-base-text);
-  --muted: var(--color-base-surface-raised);
-  --muted-foreground: var(--color-base-text-muted);
-  --accent: var(--color-pink-primary);
-  --accent-foreground: var(--color-pink-foreground);
-  --destructive: var(--color-debt-primary);
-  --destructive-foreground: var(--color-base-text);
-  --border: var(--color-base-border);
-  --input: var(--color-base-surface-raised);
-  --ring: var(--color-pink-ring);
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--bg-elev);
+  --card-foreground: var(--text);
+  --popover: var(--bg-elev);
+  --popover-foreground: var(--text);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-ink);
+  --secondary: var(--bg-sunken);
+  --secondary-foreground: var(--text);
+  --muted: var(--bg-sunken);
+  --muted-foreground: var(--text-mute);
+  --accent-foreground: var(--accent-ink);
+  --destructive: var(--bad-ink);
+  --destructive-foreground: var(--bad-bg);
+  --border: var(--line);
+  --input: var(--bg-elev);
+  --ring: rgba(255, 79, 163, 0.45);
 }
 
-/* Light dom — soft rose paper, hot pink ink, violet accents */
-[data-theme="light"] {
-  --color-base-bg: #fdf4f9;
-  --color-base-surface: #ffffff;
-  --color-base-surface-raised: #fce7f1;
-  --color-base-border: #f5c8dd;
-  --color-base-text: #2a0820;
-  --color-base-text-muted: #6b3656;
-  --color-base-text-subtle: #9a6f88;
+/* ===== Dark theme ===== */
+html[data-theme="dark"] {
+  --bg: var(--ink-400);
+  --bg-elev: #221520;
+  --bg-sunken: var(--ink-500);
+  --bg-inset: #33222d;
+  --line: rgba(255, 214, 230, 0.1);
+  --line-strong: rgba(255, 214, 230, 0.22);
+  --text: #f7ecf1;
+  --text-mute: #b8a3ae;
+  --text-faint: #7a6672;
 
-  --color-pink-primary: #e6458f;
-  --color-pink-primary-hover: #ff4fa3;
-  --color-pink-primary-active: #c93a78;
-  --color-pink-foreground: #ffffff;
-  --color-pink-muted: #fce7f1;
+  --accent: var(--pink-400);
+  --accent-ink: var(--ink-400);
+  --accent-soft: #3a0f22;
+  --accent-trace: #2a0a18;
+  --accent-deep: var(--pink-200);
 
-  --color-violet-primary: #9333ea;
+  --signal: var(--lime-300);
+  --signal-soft: #1e2a10;
+  --signal-ink: var(--lime-200);
+
+  --ok-bg: #1a3225;
+  --ok-ink: #8bc497;
+  --warn-bg: #33240f;
+  --warn-ink: #e3b36a;
+  --bad-bg: #3a1220;
+  --bad-ink: #ff9cc0;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.55);
+
+  /* --- Back-compat: legacy tokens --- */
+  --color-base-bg: var(--bg);
+  --color-base-surface: var(--bg-elev);
+  --color-base-surface-raised: var(--bg-sunken);
+  --color-base-border: var(--line);
+  --color-base-text: var(--text);
+  --color-base-text-muted: var(--text-mute);
+  --color-base-text-subtle: var(--text-faint);
+
+  --color-pink-primary: var(--accent);
+  --color-pink-primary-hover: var(--pink-300);
+  --color-pink-primary-active: var(--pink-500);
+  --color-pink-ring: rgba(255, 79, 163, 0.45);
+  --color-pink-foreground: var(--accent-ink);
+  --color-pink-muted: var(--accent-trace);
+  --color-pink-glow: 0 0 40px rgba(255, 79, 163, 0.25);
+
+  --color-debt-primary: var(--bad-ink);
+  --color-debt-primary-hover: var(--bad-ink);
+  --color-debt-muted: var(--bad-bg);
+  --color-debt-ring: rgba(184, 37, 61, 0.45);
+
+  --color-gold-accent: var(--signal);
+  --color-gold-accent-hover: var(--signal);
+  --color-gold-foreground: var(--signal-ink);
+  --color-gold-ring: rgba(155, 201, 40, 0.45);
+
+  --color-violet-primary: var(--ink-300);
+  --color-violet-primary-hover: var(--ink-200);
+  --color-violet-primary-active: var(--ink-400);
+  --color-violet-ring: rgba(39, 26, 34, 0.45);
   --color-violet-foreground: #ffffff;
-  --color-violet-muted: #f3e8ff;
+  --color-violet-muted: var(--bg-inset);
 
-  --color-gold-accent: #c89020;
-  --color-gold-foreground: #ffffff;
+  --color-status-danger: var(--bad);
+  --color-status-warning: var(--warn);
+  --color-status-success: var(--ok);
+  --color-status-info: #2a6fb8;
 
-  --color-debt-primary: #d4174f;
-  --color-debt-muted: #ffe0e8;
+  --shadow-card: var(--shadow-md);
+  --shadow-pink-glow: 0 0 40px rgba(255, 79, 163, 0.25);
+  --shadow-violet-glow: 0 0 40px rgba(39, 26, 34, 0.25);
+  --shadow-gold-glow: 0 0 40px rgba(155, 201, 40, 0.25);
+  --shadow-debt-glow: 0 0 40px rgba(184, 37, 61, 0.3);
 
-  --color-status-danger: #d4174f;
-  --color-status-warning: #c8841a;
-  --color-status-success: #2f9c5e;
-  --color-status-info: #2563eb;
+  --motion-duration-fast: 140ms;
+  --motion-duration-normal: 220ms;
+  --motion-duration-slow: 360ms;
+  --motion-ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --shadow-card: 0 24px 60px -20px rgba(230, 69, 143, 0.2), 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* shadcn aliases */
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--bg-elev);
+  --card-foreground: var(--text);
+  --popover: var(--bg-elev);
+  --popover-foreground: var(--text);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-ink);
+  --secondary: var(--bg-sunken);
+  --secondary-foreground: var(--text);
+  --muted: var(--bg-sunken);
+  --muted-foreground: var(--text-mute);
+  --accent-foreground: var(--accent-ink);
+  --destructive: var(--bad-ink);
+  --destructive-foreground: var(--bad-bg);
+  --border: var(--line);
+  --input: var(--bg-elev);
+  --ring: rgba(255, 79, 163, 0.45);
 }

@@ -3,56 +3,115 @@
 @import "./tokens.css";
 
 @theme inline {
-  --color-base-bg: var(--color-base-bg);
-  --color-base-surface: var(--color-base-surface);
-  --color-base-surface-raised: var(--color-base-surface-raised);
-  --color-base-border: var(--color-base-border);
-  --color-base-text: var(--color-base-text);
-  --color-base-text-muted: var(--color-base-text-muted);
-  --color-base-text-subtle: var(--color-base-text-subtle);
-  --color-pink-primary: var(--color-pink-primary);
-  --color-pink-primary-hover: var(--color-pink-primary-hover);
-  --color-pink-foreground: var(--color-pink-foreground);
-  --color-pink-muted: var(--color-pink-muted);
-  --color-violet-primary: var(--color-violet-primary);
-  --color-violet-foreground: var(--color-violet-foreground);
-  --color-gold-accent: var(--color-gold-accent);
-  --color-gold-foreground: var(--color-gold-foreground);
-  --color-debt-primary: var(--color-debt-primary);
-  --color-debt-muted: var(--color-debt-muted);
-  --color-status-success: var(--color-status-success);
-  --color-status-warning: var(--color-status-warning);
-  --color-status-danger: var(--color-status-danger);
-  --color-status-info: var(--color-status-info);
+  /* NEW editorial palette — use these for all new components */
+  --color-bg:           var(--bg);
+  --color-bg-elev:      var(--bg-elev);
+  --color-bg-sunken:    var(--bg-sunken);
+  --color-bg-inset:     var(--bg-inset);
+  --color-line:         var(--line);
+  --color-line-strong:  var(--line-strong);
+  --color-text:         var(--text);
+  --color-text-mute:    var(--text-mute);
+  --color-text-faint:   var(--text-faint);
+  --color-accent:       var(--accent);
+  --color-accent-ink:   var(--accent-ink);
+  --color-accent-soft:  var(--accent-soft);
+  --color-accent-trace: var(--accent-trace);
+  --color-accent-deep:  var(--accent-deep);
+  --color-signal:       var(--signal);
+  --color-signal-soft:  var(--signal-soft);
+  --color-signal-ink:   var(--signal-ink);
+  --color-ok-bg:        var(--ok-bg);
+  --color-ok-ink:       var(--ok-ink);
+  --color-warn-bg:      var(--warn-bg);
+  --color-warn-ink:     var(--warn-ink);
+  --color-bad-bg:       var(--bad-bg);
+  --color-bad-ink:      var(--bad-ink);
+
+  /* Pink scale (full) — so utilities like bg-pink-400 work in Tailwind */
+  --color-pink-50:  #fff0f7;
+  --color-pink-100: #ffd9ea;
+  --color-pink-200: #ffb0d4;
+  --color-pink-300: #ff82ba;
+  --color-pink-400: #ff4fa3;
+  --color-pink-500: #ef2b89;
+  --color-pink-600: #c81569;
+  --color-pink-700: #8f0d49;
+  --color-pink-800: #55072b;
+  --color-pink-900: #2e0417;
+
+  /* Lime scale */
+  --color-lime-100: #eaf7c6;
+  --color-lime-200: #d4ef8a;
+  --color-lime-300: #b8e14f;
+  --color-lime-400: #9bc928;
+  --color-lime-500: #6f961a;
+
+  /* Cream scale */
+  --color-cream-50:  #fbf6ed;
+  --color-cream-100: #f3ecdd;
+  --color-cream-200: #e7dcc3;
+  --color-cream-300: #cdbd9c;
+  --color-cream-400: #9a8b69;
+
+  /* Ink scale */
+  --color-ink-100: #6e5c66;
+  --color-ink-200: #3f2e38;
+  --color-ink-300: #271a22;
+  --color-ink-400: #180f15;
+  --color-ink-500: #0f090d;
+
+  /* Legacy aliases — keep until phases B–L migrate components */
+  --color-base-bg:              var(--color-base-bg);
+  --color-base-surface:         var(--color-base-surface);
+  --color-base-surface-raised:  var(--color-base-surface-raised);
+  --color-base-border:          var(--color-base-border);
+  --color-base-text:            var(--color-base-text);
+  --color-base-text-muted:      var(--color-base-text-muted);
+  --color-base-text-subtle:     var(--color-base-text-subtle);
+  --color-pink-primary:         var(--color-pink-primary);
+  --color-pink-primary-hover:   var(--color-pink-primary-hover);
+  --color-pink-foreground:      var(--color-pink-foreground);
+  --color-pink-muted:           var(--color-pink-muted);
+  --color-violet-primary:       var(--color-violet-primary);
+  --color-violet-foreground:    var(--color-violet-foreground);
+  --color-gold-accent:          var(--color-gold-accent);
+  --color-gold-foreground:      var(--color-gold-foreground);
+  --color-debt-primary:         var(--color-debt-primary);
+  --color-debt-muted:           var(--color-debt-muted);
+  --color-status-success:       var(--color-status-success);
+  --color-status-warning:       var(--color-status-warning);
+  --color-status-danger:        var(--color-status-danger);
+  --color-status-info:          var(--color-status-info);
 
   /* shadcn aliases */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
+  --color-background:          var(--background);
+  --color-foreground:          var(--foreground);
+  --color-card:                var(--card);
+  --color-card-foreground:     var(--card-foreground);
+  --color-popover:             var(--popover);
+  --color-popover-foreground:  var(--popover-foreground);
+  --color-primary:             var(--primary);
+  --color-primary-foreground:  var(--primary-foreground);
+  --color-secondary:           var(--secondary);
+  --color-secondary-foreground:var(--secondary-foreground);
+  --color-muted:               var(--muted);
+  --color-muted-foreground:    var(--muted-foreground);
+  --color-accent-foreground:   var(--accent-foreground);
+  --color-destructive:         var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
+  --color-border:              var(--border);
+  --color-input:               var(--input);
+  --color-ring:                var(--ring);
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
 
-  --font-sans: "Inter Tight", "Inter", system-ui, sans-serif;
-  --font-display: "Cormorant Garamond", "Cormorant", Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans:    "Inter", "Söhne", system-ui, -apple-system, sans-serif;
+  --font-display: "Playfair Display", "GT Sectra", Georgia, serif;
+  --font-serif:   "Playfair Display", "GT Sectra", Georgia, serif;
+  --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
 }
 
 html {
@@ -63,25 +122,17 @@ html[data-theme="light"] {
 }
 html,
 body {
-  background: var(--color-base-bg);
-  color: var(--color-base-text);
+  background: var(--bg);
+  color: var(--text);
 }
 body {
   font-family: var(--font-sans);
-  font-feature-settings: "ss01", "cv11";
+  font-feature-settings: "ss01", "tnum", "cv11";
   -webkit-font-smoothing: antialiased;
-  background-image:
-    radial-gradient(ellipse at top left, rgba(255, 79, 163, 0.08), transparent 50%),
-    radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.07), transparent 55%);
-  background-attachment: fixed;
-}
-html[data-theme="light"] body {
-  background-image:
-    radial-gradient(ellipse at top left, rgba(255, 79, 163, 0.08), transparent 50%),
-    radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.05), transparent 55%);
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
 }
 
-/* Display headings — serif by default at h1/h2 sizes */
 h1,
 h2,
 .font-display {
@@ -89,36 +140,29 @@ h2,
   letter-spacing: -0.01em;
 }
 
-/* Hairline divider helper */
+/* Hairline divider helper — hangover from old charter, still used by some components */
 .luxe-hairline {
   background: linear-gradient(
     to right,
     transparent,
-    var(--color-base-border) 20%,
-    var(--color-base-border) 80%,
+    var(--line) 20%,
+    var(--line) 80%,
     transparent
   );
 }
 
-/* Glass surface helper — subtle gradient + inset highlight */
+/* Legacy card surface helper — used by Card until step 7 rewrites it */
 .luxe-surface {
-  background:
-    linear-gradient(180deg, rgba(255, 79, 163, 0.04), transparent 40%), var(--color-base-surface);
-  border: 1px solid var(--color-base-border);
-  box-shadow: var(--shadow-card);
-}
-html[data-theme="light"] .luxe-surface {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.6), transparent 60%), var(--color-base-surface);
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-md);
 }
 
-/* Planning calendar tooltip — position driven by CSS vars set imperatively via setProperty */
+/* Runtime-driven positions/widths — keep */
 .planning-tooltip {
   top: var(--tt-top);
   left: var(--tt-left);
 }
-
-/* Tribute gauge fill — width driven by --gauge-fill-width set imperatively via setProperty */
 .gauge-fill-el {
   width: var(--gauge-fill-width, 0%);
 }
