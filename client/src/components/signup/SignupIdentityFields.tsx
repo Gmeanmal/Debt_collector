@@ -1,4 +1,6 @@
 import type { UseFormRegister, FieldError } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export interface SignupFormValues {
   email: string;
@@ -29,95 +31,75 @@ interface Props {
   errors: IdentityErrors;
 }
 
-const INPUT_CLASS =
-  "bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary";
-
-const LABEL_CLASS = "text-sm font-medium text-base-text-muted";
+const REQUIRED_MARK = <span className="text-accent">*</span>;
+const ERROR_CLASS = "font-mono text-[12px] text-bad-ink";
 
 export function SignupIdentityFields({ register, errors }: Props) {
   return (
     <>
-      <div className="flex flex-col gap-1">
-        <label htmlFor="timezone" className={LABEL_CLASS}>
-          Timezone <span className="text-status-danger">*</span>
-        </label>
-        <input
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="timezone">Timezone {REQUIRED_MARK}</Label>
+        <Input
           id="timezone"
           type="text"
-          className={INPUT_CLASS}
           readOnly
+          className="font-mono text-[13px]"
           {...register("timezone")}
         />
-        {errors.timezone && <p className="text-sm text-status-danger">{errors.timezone.message}</p>}
+        {errors.timezone && <p className={ERROR_CLASS}>{errors.timezone.message}</p>}
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="date_of_birth" className={LABEL_CLASS}>
-          Date of birth <span className="text-status-danger">*</span>
-        </label>
-        <input
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="date_of_birth">Date of birth {REQUIRED_MARK}</Label>
+        <Input
           id="date_of_birth"
           type="date"
-          className={INPUT_CLASS}
+          className="font-mono text-[13px]"
           {...register("date_of_birth")}
         />
-        {errors.date_of_birth && (
-          <p className="text-sm text-status-danger">{errors.date_of_birth.message}</p>
-        )}
+        {errors.date_of_birth && <p className={ERROR_CLASS}>{errors.date_of_birth.message}</p>}
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="gender" className={LABEL_CLASS}>
-          Gender
-        </label>
-        <input
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="gender">Gender</Label>
+        <Input
           id="gender"
           type="text"
           maxLength={64}
           placeholder="e.g. non-binary"
-          className={INPUT_CLASS}
           {...register("gender")}
         />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="pronouns" className={LABEL_CLASS}>
-          Pronouns
-        </label>
-        <input
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="pronouns">Pronouns</Label>
+        <Input
           id="pronouns"
           type="text"
           maxLength={64}
           placeholder="e.g. they/them"
-          className={INPUT_CLASS}
           {...register("pronouns")}
         />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="location" className={LABEL_CLASS}>
-          Location
-        </label>
-        <input
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="location">Location</Label>
+        <Input
           id="location"
           type="text"
           maxLength={120}
           placeholder="e.g. London, UK"
-          className={INPUT_CLASS}
           {...register("location")}
         />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="real_name" className={LABEL_CLASS}>
-          Real name
-        </label>
-        <input
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="real_name">Real name</Label>
+        <Input
           id="real_name"
           type="text"
           maxLength={200}
           placeholder="Your legal name (visible only to your goddess)"
-          className={INPUT_CLASS}
           {...register("real_name")}
         />
       </div>

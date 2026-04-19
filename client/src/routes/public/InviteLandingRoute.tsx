@@ -4,6 +4,8 @@ import { getPublicInvitationApi } from "@/services/invitations/invitationsApi";
 import { queryKeys } from "@/lib/queryKeys";
 import { formatLondon } from "@/services/format/datetime";
 import { formatGBP } from "@/services/format/currency";
+import { BrandLockup } from "@/components/layout/BrandMark";
+import { Button } from "@/components/ui/button";
 
 function errorMessage(err: unknown): string {
   const e = err as { status?: number; detail?: string } | null;
@@ -34,65 +36,101 @@ export function InviteLandingRoute() {
   const isInvalid = error != null || (invitation && new Date(invitation.expires_at) < new Date());
 
   return (
-    <div className="min-h-screen bg-base-bg flex items-center justify-center p-4">
-      <div className="w-full max-w-md flex flex-col gap-6">
-        <div className="text-center">
-          <h1 className="font-display text-3xl font-bold text-pink-primary tracking-wider">
-            Debt Collector
-          </h1>
-        </div>
+    <div className="min-h-screen bg-bg text-text flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-[560px] flex flex-col items-center gap-10">
+        <BrandLockup />
 
-        {isLoading && (
-          <div className="bg-base-surface border border-base-border rounded-lg p-8 text-center">
-            <p className="text-base-text-muted">Loading invitation…</p>
-          </div>
-        )}
-
-        {isInvalid && (
-          <div className="bg-base-surface border border-base-border rounded-lg p-8 text-center flex flex-col gap-3">
-            <p className="text-base-text font-semibold">Invitation no longer valid</p>
-            <p className="text-base-text-muted text-sm">{errorMessage(error)}</p>
-          </div>
-        )}
-
-        {invitation && !isInvalid && (
-          <div className="bg-base-surface border border-base-border rounded-lg p-8 shadow-[var(--shadow-card)] flex flex-col gap-6">
-            <div className="text-center">
-              <p className="text-base-text-muted text-sm mb-1">Invitation from</p>
-              <p className="text-pink-primary font-display text-2xl font-bold">
-                {invitation.goddess_display_name}
+        <div className="w-full bg-bg-elev border border-line rounded-[10px] shadow-md p-8 sm:p-10 flex flex-col gap-7">
+          {isLoading && (
+            <div className="flex flex-col items-center gap-3 text-center">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-accent-deep">
+                Invitation received
+              </p>
+              <h1 className="font-serif italic text-[28px] leading-tight text-text">
+                Opening your invitation…
+              </h1>
+              <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-text-faint">
+                Verifying token
               </p>
             </div>
+          )}
 
-            <div className="flex flex-col gap-3">
-              <div className="flex justify-between items-center border-b border-base-border pb-3">
-                <span className="text-base-text-muted text-sm">Entry tribute</span>
-                <span className="text-base-text font-semibold" role="status">
-                  {formatGBP(invitation.entry_tribute_amount)}
-                </span>
-              </div>
-              {invitation.note && (
-                <div className="border-b border-base-border pb-3">
-                  <p className="text-base-text-muted text-sm mb-1">Note</p>
-                  <p className="text-base-text text-sm">{invitation.note}</p>
-                </div>
-              )}
-              <div className="flex justify-between items-center">
-                <span className="text-base-text-muted text-sm">Expires</span>
-                <span className="text-base-text-subtle text-sm">
-                  {formatLondon(invitation.expires_at, "date")}
-                </span>
-              </div>
+          {isInvalid && (
+            <div className="flex flex-col items-center gap-3 text-center">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-bad-ink">
+                Invitation declined
+              </p>
+              <h1 className="font-serif italic text-[30px] leading-tight text-text">
+                This key no longer fits.
+              </h1>
+              <p className="max-w-sm text-[14.5px] leading-relaxed text-text-mute">
+                {errorMessage(error)}
+              </p>
             </div>
+          )}
 
-            <Link
-              to={`/invite/${token}/signup`}
-              className="w-full text-center bg-pink-primary text-white font-semibold py-2 px-4 rounded-md hover:bg-pink-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-pink-primary focus:ring-offset-2 focus:ring-offset-base-surface"
-            >
-              Sign up
-            </Link>
-          </div>
-        )}
+          {invitation && !isInvalid && (
+            <>
+              <div className="flex flex-col items-center gap-3 text-center">
+                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-accent-deep">
+                  Invitation received
+                </p>
+                <h1 className="font-serif italic text-[32px] leading-[1.05] tracking-[-0.01em] text-text">
+                  Enter the ledger.
+                </h1>
+                <p className="max-w-sm text-[14.5px] leading-relaxed text-text-mute">
+                  You have been summoned. Review the terms and claim your place below.
+                </p>
+              </div>
+
+              <div className="flex flex-col border-t border-line">
+                <div className="flex items-baseline justify-between border-b border-line py-4">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+                    Invitation from
+                  </span>
+                  <span className="font-serif italic text-[20px] text-accent-deep">
+                    {invitation.goddess_display_name}
+                  </span>
+                </div>
+
+                <div className="flex items-baseline justify-between border-b border-line py-4">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+                    Entry tribute
+                  </span>
+                  <span className="font-mono text-[14px] font-semibold text-text" role="status">
+                    {formatGBP(invitation.entry_tribute_amount)}
+                  </span>
+                </div>
+
+                {invitation.note && (
+                  <div className="flex flex-col gap-1.5 border-b border-line py-4">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+                      Note
+                    </span>
+                    <p className="text-sm leading-relaxed text-text">{invitation.note}</p>
+                  </div>
+                )}
+
+                <div className="flex items-baseline justify-between py-4">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+                    Expires
+                  </span>
+                  <span className="font-mono text-[12.5px] text-text">
+                    {formatLondon(invitation.expires_at, "date")}
+                  </span>
+                </div>
+              </div>
+
+              <Button asChild size="lg" className="w-full">
+                <Link to={`/invite/${token}/signup`}>Accept invitation</Link>
+              </Button>
+            </>
+          )}
+        </div>
+
+        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+          Mean Mal · The Ledger · Private quarters
+        </p>
       </div>
     </div>
   );

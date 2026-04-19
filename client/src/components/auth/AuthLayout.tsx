@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BrandLockup } from "@/components/layout/BrandMark";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface AuthLayoutProps {
@@ -9,64 +10,55 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
-    <div className="relative grid min-h-screen grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
+    <div className="relative grid min-h-screen grid-cols-1 bg-bg lg:grid-cols-[1.1fr_1fr]">
       <div className="absolute right-4 top-4 z-20">
-        <ThemeToggle />
+        <div className="rounded-full border border-line bg-bg-elev/60 p-0.5">
+          <ThemeToggle />
+        </div>
       </div>
-      <aside className="relative hidden overflow-hidden bg-base-surface lg:flex lg:flex-col lg:justify-between lg:p-12">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,79,163,0.22),transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(168,85,247,0.2),transparent_55%)]" />
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="h-[420px] w-[420px] rounded-full border border-pink-primary/15" />
-        </div>
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="h-[260px] w-[260px] rounded-full border border-pink-primary/10" />
-        </div>
 
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full border border-pink-primary/40 bg-pink-primary/10 flex items-center justify-center">
-            <span className="font-display text-lg text-pink-primary">G</span>
-          </div>
-          <span className="font-display text-lg tracking-[0.3em] text-base-text-muted uppercase">
-            Mean Mal
-          </span>
-        </div>
+      <aside className="relative hidden overflow-hidden bg-bg-elev border-r border-line lg:flex lg:flex-col lg:justify-between lg:p-12">
+        <BrandLockup />
 
-        <div className="relative z-10 max-w-md">
-          <p className="text-xs font-medium uppercase tracking-[0.3em] text-pink-primary/80">
-            Private quarters
+        <div className="max-w-xl">
+          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-accent-deep">
+            Private quarters · Vol. IV
           </p>
-          <h1 className="mt-4 font-display text-5xl italic leading-[1.05] text-base-text">
-            Owed,
+          <h1 className="mt-7 font-display text-[48px] italic leading-[1.02] tracking-[-0.02em] text-text xl:text-[56px]">
+            Owed.
             <br />
-            owned,
+            Owned.
             <br />
-            <span className="text-pink-primary">remembered.</span>
+            <span className="text-accent-deep">Remembered.</span>
           </h1>
-          <p className="mt-6 text-base text-base-text-muted">
+          <p className="mt-8 max-w-md text-[14.5px] leading-relaxed text-text-mute">
             The ledger keeps every tribute, every promise, every late minute. You only need to
             arrive.
           </p>
         </div>
 
-        <div className="relative z-10 flex items-center justify-between text-xs uppercase tracking-[0.2em] text-base-text-subtle">
-          <span>est. 2026</span>
-          <span>·</span>
-          <span>collection · contracts · ceremony</span>
+        <div className="border-t border-line pt-6">
+          <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+            <span>Est. mmxxvi</span>
+            <span>Collection · Contracts · Ceremony</span>
+            <span>UK · £</span>
+          </div>
         </div>
       </aside>
 
-      <section className="flex flex-col items-center justify-center bg-base-bg p-6 sm:p-12">
+      <section className="flex flex-col items-center justify-center bg-bg p-6 sm:p-12">
         <div className="w-full max-w-sm">
           <div className="mb-10 lg:hidden">
-            <span className="font-display text-2xl tracking-[0.3em] text-pink-primary uppercase">
-              Mean Mal
+            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+              Mean Mal · The Ledger
             </span>
           </div>
 
           <div className="mb-8">
-            <h2 className="font-display text-4xl text-base-text">{title ?? "Welcome back."}</h2>
-            {subtitle && <p className="mt-2 text-sm text-base-text-muted">{subtitle}</p>}
+            <h2 className="font-display text-[32px] italic leading-[1] tracking-[-0.02em] text-text">
+              {title ?? "Welcome back."}
+            </h2>
+            {subtitle && <p className="mt-3 text-sm text-text-mute">{subtitle}</p>}
           </div>
 
           {children}

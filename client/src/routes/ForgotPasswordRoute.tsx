@@ -3,8 +3,10 @@ import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 
 export function ForgotPasswordRoute() {
   return (
-    <AuthLayout>
-      <h2 className="text-xl font-semibold text-base-text mb-6">Reset password</h2>
+    <AuthLayout
+      title="Reset password."
+      subtitle="We will send a link to your email if it matches an account."
+    >
       <ForgotPasswordForm />
     </AuthLayout>
   );

@@ -199,9 +199,9 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase D · Auth & public
 
-- [ ] **Step 19 — LoginRoute.** Split-screen editorial: left hero (serif italic "Mean Mal, the Ledger"), right form on cream/ink. Reuse new primitives. _Files: `client/src/routes/LoginRoute.tsx` (and any `components/auth/*` extracted)._
-- [ ] **Step 20 — Forgot / Reset password.** Reuse login layout, adjust copy. _Files: `client/src/routes/ForgotPasswordRoute.tsx`, `ResetPasswordRoute.tsx`._
-- [ ] **Step 21 — Invite landing + Signup.** Public invite screen + post-invite signup, matching screens 47 & 48. _Files: `client/src/routes/public/InviteLandingRoute.tsx`, `SignupRoute.tsx`._
+- [x] **Step 19 — LoginRoute.** Split-screen editorial: left hero (serif italic "Mean Mal, the Ledger"), right form on cream/ink. Reuse new primitives. _Files: `client/src/routes/LoginRoute.tsx` (and any `components/auth/*` extracted)._
+- [x] **Step 20 — Forgot / Reset password.** Reuse login layout, adjust copy. _Files: `client/src/routes/ForgotPasswordRoute.tsx`, `ResetPasswordRoute.tsx`._
+- [x] **Step 21 — Invite landing + Signup.** Public invite screen + post-invite signup, matching screens 47 & 48. _Files: `client/src/routes/public/InviteLandingRoute.tsx`, `SignupRoute.tsx`._
 
 → _commit: `refactor(ui): phase D auth & public — login/reset/invite/signup`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **3 / 13**
-- Steps complete: **18 / 51**
-- Last commit: `refactor(ui): phase C — shell, sidebar, topbar, banners, porch`
-- Next phase: **D — Auth & public**
+- Phases complete: **4 / 13**
+- Steps complete: **21 / 51**
+- Last commit: `refactor(ui): phase D — auth & public`
+- Next phase: **E — Goddess · overview & money**

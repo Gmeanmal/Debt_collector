@@ -8,6 +8,10 @@ import { signupViaInviteApi } from "@/services/invitations/invitationsApi";
 import { setTokens } from "@/services/auth/tokenStorage";
 import { queryKeys } from "@/lib/queryKeys";
 import { SignupIdentityFields } from "@/components/signup/SignupIdentityFields";
+import { BrandLockup } from "@/components/layout/BrandMark";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function isAtLeast18(dob: string): boolean {
   const birth = new Date(dob);
@@ -41,8 +45,8 @@ const signupSchema = z
 
 type FormValues = z.infer<typeof signupSchema>;
 
-const INPUT_CLASS =
-  "bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary";
+const REQUIRED_MARK = <span className="text-accent">*</span>;
+const ERROR_CLASS = "font-mono text-[12px] text-bad-ink";
 
 export function SignupRoute() {
   const { token } = useParams<{ token: string }>();
@@ -97,129 +101,111 @@ export function SignupRoute() {
   }
 
   return (
-    <div className="min-h-screen bg-base-bg flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="font-display text-3xl font-bold text-pink-primary tracking-wider">
-            Debt Collector
-          </h1>
-        </div>
-        <div className="bg-base-surface border border-base-border rounded-lg p-5 sm:p-8 shadow-[var(--shadow-card)]">
-          <h2 className="text-xl font-semibold text-base-text mb-6">Create your account</h2>
+    <div className="min-h-screen bg-bg text-text flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-[640px] flex flex-col items-center gap-10">
+        <BrandLockup />
+
+        <div className="w-full bg-bg-elev border border-line rounded-[10px] shadow-md p-6 sm:p-10 flex flex-col gap-7">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-accent-deep">
+              Create your account
+            </p>
+            <h1 className="font-serif italic text-[32px] leading-[1.05] tracking-[-0.01em] text-text">
+              Claim your name.
+            </h1>
+            <p className="max-w-md text-[14.5px] leading-relaxed text-text-mute">
+              A few details bind you to the ledger. Everything below stays between you and your
+              goddess.
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="email" className="text-sm font-medium text-base-text-muted">
-                Email <span className="text-status-danger">*</span>
-              </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                className={INPUT_CLASS}
-                {...register("email")}
-              />
-              {errors.email && <p className="text-sm text-status-danger">{errors.email.message}</p>}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="email">Email {REQUIRED_MARK}</Label>
+              <Input id="email" type="email" autoComplete="email" {...register("email")} />
+              {errors.email && <p className={ERROR_CLASS}>{errors.email.message}</p>}
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label htmlFor="username" className="text-sm font-medium text-base-text-muted">
-                Username <span className="text-status-danger">*</span>
-              </label>
-              <input
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="username">Username {REQUIRED_MARK}</Label>
+              <Input
                 id="username"
                 type="text"
                 autoComplete="username"
-                className={INPUT_CLASS}
                 {...register("username")}
               />
-              {errors.username && (
-                <p className="text-sm text-status-danger">{errors.username.message}</p>
-              )}
+              {errors.username && <p className={ERROR_CLASS}>{errors.username.message}</p>}
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="flex flex-col gap-1 flex-1">
-                <label htmlFor="first_name" className="text-sm font-medium text-base-text-muted">
-                  First name
-                </label>
-                <input
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <div className="flex flex-col gap-2 flex-1">
+                <Label htmlFor="first_name">First name</Label>
+                <Input
                   id="first_name"
                   type="text"
                   autoComplete="given-name"
-                  className={INPUT_CLASS}
                   {...register("first_name")}
                 />
               </div>
-              <div className="flex flex-col gap-1 flex-1">
-                <label htmlFor="last_name" className="text-sm font-medium text-base-text-muted">
-                  Last name
-                </label>
-                <input
+              <div className="flex flex-col gap-2 flex-1">
+                <Label htmlFor="last_name">Last name</Label>
+                <Input
                   id="last_name"
                   type="text"
                   autoComplete="family-name"
-                  className={INPUT_CLASS}
                   {...register("last_name")}
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label htmlFor="password" className="text-sm font-medium text-base-text-muted">
-                Password <span className="text-status-danger">*</span>
-              </label>
-              <input
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="password">Password {REQUIRED_MARK}</Label>
+              <Input
                 id="password"
                 type="password"
                 autoComplete="new-password"
-                className={INPUT_CLASS}
                 {...register("password")}
               />
-              {errors.password && (
-                <p className="text-sm text-status-danger">{errors.password.message}</p>
-              )}
+              {errors.password && <p className={ERROR_CLASS}>{errors.password.message}</p>}
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="confirm_password"
-                className="text-sm font-medium text-base-text-muted"
-              >
-                Confirm password <span className="text-status-danger">*</span>
-              </label>
-              <input
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="confirm_password">Confirm password {REQUIRED_MARK}</Label>
+              <Input
                 id="confirm_password"
                 type="password"
                 autoComplete="new-password"
-                className={INPUT_CLASS}
                 {...register("confirm_password")}
               />
               {errors.confirm_password && (
-                <p className="text-sm text-status-danger">{errors.confirm_password.message}</p>
+                <p className={ERROR_CLASS}>{errors.confirm_password.message}</p>
               )}
             </div>
 
-            <hr className="border-base-border" />
-            <p className="text-xs text-base-text-muted -mb-2">
-              Identity (timezone and date of birth required)
-            </p>
-
-            <SignupIdentityFields register={register} errors={errors} />
+            <div className="border-t border-line pt-5">
+              <p className="mb-4 font-serif italic text-[13px] text-text-faint">
+                Identity (timezone and date of birth required)
+              </p>
+              <div className="flex flex-col gap-5">
+                <SignupIdentityFields register={register} errors={errors} />
+              </div>
+            </div>
 
             {errors.root && (
-              <p className="text-sm text-status-danger text-center">{errors.root.message}</p>
+              <div className="rounded-[6px] border border-line bg-bad-bg px-4 py-3 text-center font-mono text-[12px] text-bad-ink">
+                {errors.root.message}
+              </div>
             )}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-pink-primary text-white font-semibold py-2 px-4 rounded-md hover:bg-pink-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-pink-primary focus:ring-offset-2 focus:ring-offset-base-surface disabled:opacity-50"
-            >
+            <Button type="submit" size="lg" disabled={isSubmitting} className="w-full mt-2">
               {isSubmitting ? "Creating account…" : "Create account"}
-            </button>
+            </Button>
           </form>
         </div>
+
+        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+          Mean Mal · The Ledger · Private quarters
+        </p>
       </div>
     </div>
   );

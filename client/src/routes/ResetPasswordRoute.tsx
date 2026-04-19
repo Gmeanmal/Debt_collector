@@ -3,8 +3,10 @@ import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 
 export function ResetPasswordRoute() {
   return (
-    <AuthLayout>
-      <h2 className="text-xl font-semibold text-base-text mb-6">Choose a new password</h2>
+    <AuthLayout
+      title="Choose a new password."
+      subtitle="Pick something only you would know."
+    >
       <ResetPasswordForm />
     </AuthLayout>
   );

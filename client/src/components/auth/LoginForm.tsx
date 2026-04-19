@@ -52,7 +52,9 @@ export function LoginForm() {
           placeholder="you@quarters.com"
           {...register("email")}
         />
-        {errors.email && <p className="text-xs text-status-danger">{errors.email.message}</p>}
+        {errors.email && (
+          <p className="font-mono text-[12px] text-bad-ink">{errors.email.message}</p>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -60,7 +62,7 @@ export function LoginForm() {
           <Label htmlFor="password">Passphrase</Label>
           <Link
             to="/forgot-password"
-            className="text-xs text-base-text-muted underline underline-offset-2 hover:text-pink-primary transition-colors"
+            className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-deep decoration-accent/50 underline-offset-4 hover:text-accent hover:underline"
           >
             Forgotten?
           </Link>
@@ -72,16 +74,24 @@ export function LoginForm() {
           placeholder="••••••••"
           {...register("password")}
         />
-        {errors.password && <p className="text-xs text-status-danger">{errors.password.message}</p>}
+        {errors.password && (
+          <p className="font-mono text-[12px] text-bad-ink">{errors.password.message}</p>
+        )}
       </div>
 
       {errors.root && (
-        <div className="rounded-md border border-status-danger/30 bg-status-danger/10 px-4 py-3 text-sm text-status-danger">
+        <div className="rounded-[6px] border border-line bg-bad-bg px-4 py-3 text-sm text-bad-ink">
           {errors.root.message}
         </div>
       )}
 
-      <Button type="submit" size="lg" disabled={isSubmitting} className="mt-2 group">
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        disabled={isSubmitting}
+        className="group mt-2"
+      >
         {isSubmitting ? "Entering…" : "Enter"}
         <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
       </Button>

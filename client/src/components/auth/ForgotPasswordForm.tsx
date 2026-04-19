@@ -4,6 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link } from "react-router-dom";
 import { requestPasswordResetApi } from "@/services/auth/authApi";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const schema = z.object({
   email: z.string().min(1, "Email is required"),
@@ -27,11 +30,14 @@ export function ForgotPasswordForm() {
 
   if (submitted) {
     return (
-      <div className="text-center flex flex-col gap-4">
-        <p className="text-base-text">
+      <div className="flex flex-col gap-4 text-center">
+        <p className="text-sm text-text">
           If an account exists for that email, you will receive a reset link shortly.
         </p>
-        <Link to="/login" className="text-sm text-pink-primary hover:text-pink-primary-hover">
+        <Link
+          to="/login"
+          className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-deep decoration-accent/50 underline-offset-4 hover:text-accent hover:underline"
+        >
           Back to sign in
         </Link>
       </div>
@@ -39,36 +45,41 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
-      <p className="text-sm text-base-text-muted">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
+      <p className="text-sm text-text-mute">
         Enter your email and we will send you a reset link.
       </p>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="email" className="text-sm font-medium text-base-text-muted">
-          Email
-        </label>
-        <input
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
           id="email"
           type="email"
           autoComplete="email"
           autoFocus
-          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary"
+          placeholder="you@quarters.com"
           {...register("email")}
         />
-        {errors.email && <p className="text-sm text-status-danger">{errors.email.message}</p>}
+        {errors.email && (
+          <p className="font-mono text-[12px] text-bad-ink">{errors.email.message}</p>
+        )}
       </div>
 
-      <button
+      <Button
         type="submit"
+        variant="primary"
+        size="lg"
         disabled={isSubmitting}
-        className="w-full bg-pink-primary text-white font-semibold py-2 px-4 rounded-md hover:bg-pink-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-pink-primary focus:ring-offset-2 focus:ring-offset-base-surface disabled:opacity-50"
+        className="mt-2"
       >
         {isSubmitting ? "Sending…" : "Send reset link"}
-      </button>
+      </Button>
 
-      <p className="text-center text-sm">
-        <Link to="/login" className="text-pink-primary hover:text-pink-primary-hover">
+      <p className="text-center">
+        <Link
+          to="/login"
+          className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-deep decoration-accent/50 underline-offset-4 hover:text-accent hover:underline"
+        >
           Back to sign in
         </Link>
       </p>
