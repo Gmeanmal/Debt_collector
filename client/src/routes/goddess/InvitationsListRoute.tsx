@@ -10,6 +10,8 @@ import { InvitationPreviewModal } from "@/components/invitations/InvitationPrevi
 import { InvitationResendModal } from "@/components/invitations/InvitationResendModal";
 import { formatLondon } from "@/services/format/datetime";
 import { formatGBP } from "@/services/format/currency";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 
 type InvitationOut = components["schemas"]["InvitationOut"];
 
@@ -33,23 +35,25 @@ interface ActionsProps {
 function InvitationActionsCell({ inv, onPreview, onResend }: ActionsProps) {
   return (
     <div className="flex items-center gap-2">
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="sm"
         onClick={() => onPreview(inv.id)}
-        className="text-xs text-base-text-muted hover:text-base-text focus-visible:ring-2 focus-visible:ring-pink-primary rounded px-1.5 py-0.5 border border-base-border hover:border-pink-primary transition-colors"
         aria-label="Preview invitation email"
       >
         Preview
-      </button>
+      </Button>
       {inv.status === "active" && (
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           onClick={() => onResend(inv.id)}
-          className="text-xs text-base-text-muted hover:text-base-text focus-visible:ring-2 focus-visible:ring-pink-primary rounded px-1.5 py-0.5 border border-base-border hover:border-pink-primary transition-colors"
           aria-label="Resend invitation email"
         >
           Resend
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -62,12 +66,14 @@ interface TokenCellProps {
 function TokenCell({ token }: TokenCellProps) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="font-mono text-xs text-base-text-muted">{token.slice(0, 8)}&hellip;</span>
+      <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">
+        {token.slice(0, 8)}&hellip;
+      </span>
       <button
         type="button"
         onClick={() => copyToken(token)}
         aria-label="Copy invite token"
-        className="text-base-text-subtle hover:text-base-text focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
+        className="text-text-faint hover:text-text focus-visible:ring-2 focus-visible:ring-accent rounded"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -105,57 +111,71 @@ export function InvitationsListRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <div className="bg-base-surface border border-base-border rounded-lg p-6 shadow-[var(--shadow-card)]">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <h2 className="text-xl font-semibold text-base-text">Invitations</h2>
-            <Link
-              to="/goddess/invite"
-              className="inline-flex items-center justify-center px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary w-full sm:w-auto"
-            >
-              + New invitation
-            </Link>
-          </div>
+        <PageHeader
+          crumbs={["Home · Gatekeeping · Invitations"]}
+          title={<span className="italic">Invitations</span>}
+          actions={
+            <Button asChild variant="primary" size="sm">
+              <Link to="/goddess/invite">+ New invitation</Link>
+            </Button>
+          }
+        />
 
-          {isLoading && <p className="text-base-text-muted text-sm">Loading…</p>}
-          {isError && <p className="text-status-danger text-sm">Failed to load invitations.</p>}
+        <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+          {isLoading && <p className="text-text-mute text-sm">Loading…</p>}
+          {isError && <p className="text-bad-ink text-sm">Failed to load invitations.</p>}
 
           {invitations && invitations.length === 0 && (
-            <p className="text-base-text-muted text-sm">No invitations yet.</p>
+            <p className="text-text-mute text-sm">No invitations yet.</p>
           )}
 
           {invitations && invitations.length > 0 && (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[680px] text-sm">
-                <thead>
-                  <tr className="border-b border-base-border text-base-text-muted text-left">
-                    <th className="pb-2 pr-4 font-medium">Created</th>
-                    <th className="pb-2 pr-4 font-medium">Token</th>
-                    <th className="pb-2 pr-4 font-medium">Amount</th>
-                    <th className="pb-2 pr-4 font-medium">Expires</th>
-                    <th className="pb-2 pr-4 font-medium">Status</th>
-                    <th className="pb-2 pr-4 font-medium">Note</th>
-                    <th className="pb-2 font-medium">Actions</th>
+              <table className="w-full min-w-[680px] text-sm bg-bg-elev border-line rounded-[10px]">
+                <thead className="bg-bg-sunken">
+                  <tr className="border-b border-line text-left">
+                    <th className="pb-2 pr-4 pt-2 pl-2 font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+                      Created
+                    </th>
+                    <th className="pb-2 pr-4 pt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+                      Token
+                    </th>
+                    <th className="pb-2 pr-4 pt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+                      Amount
+                    </th>
+                    <th className="pb-2 pr-4 pt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+                      Expires
+                    </th>
+                    <th className="pb-2 pr-4 pt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+                      Status
+                    </th>
+                    <th className="pb-2 pr-4 pt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+                      Note
+                    </th>
+                    <th className="pb-2 pt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-line">
                   {invitations.map((inv) => (
-                    <tr key={inv.id} className="border-b border-base-border last:border-0">
-                      <td className="py-3 pr-4 text-base-text-muted whitespace-nowrap">
+                    <tr key={inv.id}>
+                      <td className="py-3 pr-4 pl-2 text-text-mute whitespace-nowrap">
                         {formatDateTime(inv.created_at)}
                       </td>
                       <td className="py-3 pr-4">
                         <TokenCell token={inv.token} />
                       </td>
-                      <td className="py-3 pr-4 text-base-text font-semibold">
+                      <td className="py-3 pr-4 text-text font-semibold">
                         {formatGBP(inv.entry_tribute_amount)}
                       </td>
-                      <td className="py-3 pr-4 text-base-text-muted whitespace-nowrap">
+                      <td className="py-3 pr-4 text-text-mute whitespace-nowrap">
                         {formatDateTime(inv.expires_at)}
                       </td>
                       <td className="py-3 pr-4">
                         <InvitationStatusChip status={inv.status} />
                       </td>
-                      <td className="py-3 pr-4 text-base-text-subtle text-xs max-w-[120px] truncate">
+                      <td className="py-3 pr-4 text-text-faint text-xs max-w-[120px] truncate">
                         {inv.note ?? "—"}
                       </td>
                       <td className="py-3">

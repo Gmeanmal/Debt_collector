@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { createInvitationApi } from "@/services/invitations/invitationsApi";
 import type { components } from "@/types/api.generated";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 
 type InvitationOut = components["schemas"]["InvitationOut"];
 
@@ -64,48 +66,52 @@ export function InviteSubRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="w-full max-w-lg mx-auto flex flex-col gap-6">
-        <div className="bg-base-surface border border-base-border rounded-lg p-5 sm:p-8 shadow-[var(--shadow-card)]">
-          <h2 className="text-xl font-semibold text-base-text mb-6">Create Invitation</h2>
+        <PageHeader
+          crumbs={["Home · Gatekeeping · Invite"]}
+          title={<span className="italic">New invitation</span>}
+          description="Draft an invite link for a new sub."
+        />
 
+        <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">
               <label
                 htmlFor="entry_tribute_amount"
-                className="text-sm font-medium text-base-text-muted"
+                className="text-sm font-medium text-text-mute"
               >
-                Entry tribute <span className="text-status-danger">*</span>
+                Entry tribute <span className="text-bad-ink">*</span>
               </label>
-              <div className="flex items-center bg-base-surface-raised border border-base-border rounded-md focus-within:ring-2 focus-within:ring-pink-primary">
-                <span className="pl-3 text-base-text-muted select-none">£</span>
+              <div className="flex items-center bg-bg-sunken border border-line rounded-md focus-within:ring-2 focus-within:ring-accent">
+                <span className="pl-3 text-text-mute select-none">£</span>
                 <input
                   id="entry_tribute_amount"
                   type="text"
                   inputMode="decimal"
                   placeholder="0.00"
-                  className="flex-1 bg-transparent outline-none px-2 py-2 text-base-text placeholder:text-base-text-subtle"
+                  className="flex-1 bg-transparent outline-none px-2 py-2 text-text placeholder:text-text-faint"
                   {...register("entry_tribute_amount")}
                 />
               </div>
               {errors.entry_tribute_amount && (
-                <p className="text-sm text-status-danger">{errors.entry_tribute_amount.message}</p>
+                <p className="text-sm text-bad-ink">{errors.entry_tribute_amount.message}</p>
               )}
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="note" className="text-sm font-medium text-base-text-muted">
-                Note <span className="text-base-text-subtle">(optional)</span>
+              <label htmlFor="note" className="text-sm font-medium text-text-mute">
+                Note <span className="text-text-faint">(optional)</span>
               </label>
               <textarea
                 id="note"
                 rows={2}
                 placeholder="Message for the sub…"
-                className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text placeholder:text-base-text-subtle focus:outline-none focus:ring-2 focus:ring-pink-primary resize-none"
+                className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-text placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-accent resize-none"
                 {...register("note")}
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="expires_in_days" className="text-sm font-medium text-base-text-muted">
+              <label htmlFor="expires_in_days" className="text-sm font-medium text-text-mute">
                 Expires in (days)
               </label>
               <input
@@ -113,41 +119,39 @@ export function InviteSubRoute() {
                 type="number"
                 min={1}
                 max={30}
-                className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text focus:outline-none focus:ring-2 focus:ring-pink-primary"
+                className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-text focus:outline-none focus:ring-2 focus:ring-accent"
                 {...register("expires_in_days")}
               />
               {errors.expires_in_days && (
-                <p className="text-sm text-status-danger">{errors.expires_in_days.message}</p>
+                <p className="text-sm text-bad-ink">{errors.expires_in_days.message}</p>
               )}
             </div>
 
             {errors.root && (
-              <p className="text-sm text-status-danger text-center">{errors.root.message}</p>
+              <p className="text-sm text-bad-ink text-center">{errors.root.message}</p>
             )}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-pink-primary text-pink-foreground font-semibold py-2 px-4 rounded-md hover:bg-pink-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-pink-primary focus:ring-offset-2 focus:ring-offset-base-surface disabled:opacity-50 flex items-center justify-center gap-2"
-            >
+            <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full">
               {isSubmitting && (
-                <span className="inline-block w-3 h-3 border-2 border-pink-foreground/30 border-t-pink-foreground rounded-full animate-spin" />
+                <span className="inline-block w-3 h-3 border-2 border-accent-ink/30 border-t-accent-ink rounded-full animate-spin" />
               )}
               {isSubmitting ? "Creating…" : "Create invitation"}
-            </button>
+            </Button>
           </form>
         </div>
 
         {created && (
-          <div className="bg-base-surface border border-base-border rounded-lg p-6 shadow-[var(--shadow-card)]">
-            <p className="text-sm font-medium text-base-text-muted mb-2">Invitation URL</p>
-            <p className="text-base-text break-all text-sm mb-4">{created.url}</p>
-            <button
+          <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+            <p className="text-sm font-medium text-text-mute mb-2">Invitation URL</p>
+            <p className="text-text break-all text-sm mb-4">{created.url}</p>
+            <Button
+              type="button"
+              variant="soft"
               onClick={() => copyUrl(created.url)}
-              className="w-full bg-pink-muted text-pink-primary font-semibold py-2 px-4 rounded-md hover:bg-pink-primary hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-pink-primary focus:ring-offset-2 focus:ring-offset-base-surface"
+              className="w-full"
             >
               {copied ? "Copied!" : "Copy URL"}
-            </button>
+            </Button>
           </div>
         )}
       </div>

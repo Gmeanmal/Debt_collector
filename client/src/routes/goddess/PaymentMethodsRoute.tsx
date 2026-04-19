@@ -29,6 +29,8 @@ import {
   type PaymentMethodUpdate,
 } from "@/services/paymentMethods/paymentMethodsApi";
 import { queryKeys } from "@/lib/queryKeys";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 
 interface SortableCardProps {
   method: PaymentMethodOut;
@@ -58,13 +60,13 @@ function SortableCard({ method, onEdit, onDisable, onEnable }: SortableCardProps
   return (
     <div
       ref={applyDragVars}
-      className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-wrap items-center gap-3 [transform:var(--dnd-transform)] [transition:var(--dnd-transition)]"
+      className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-wrap items-center gap-3 [transform:var(--dnd-transform)] [transition:var(--dnd-transition)]"
     >
       <button
         {...attributes}
         {...listeners}
         aria-label="Drag to reorder"
-        className="text-base-text-subtle cursor-grab active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
+        className="text-text-faint cursor-grab active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-accent rounded"
       >
         ⠿
       </button>
@@ -73,41 +75,45 @@ function SortableCard({ method, onEdit, onDisable, onEnable }: SortableCardProps
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-semibold text-base-text text-sm truncate">{method.name}</span>
-          <span className="text-xs text-base-text-subtle">{METHOD_LABELS[method.type]}</span>
+          <span className="font-semibold text-text text-sm truncate">{method.name}</span>
+          <span className="text-xs text-text-faint">{METHOD_LABELS[method.type]}</span>
           {!method.enabled && (
-            <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-debt-muted text-status-danger">
+            <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-bad-bg text-bad-ink">
               disabled
             </span>
           )}
         </div>
-        <p className="text-xs text-base-text-muted mt-0.5 truncate">{method.handle_or_link}</p>
+        <p className="text-xs text-text-mute mt-0.5 truncate">{method.handle_or_link}</p>
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => onEdit(method)}
           aria-label={`Edit ${method.name}`}
-          className="text-xs text-base-text-muted hover:text-base-text px-2 py-1 rounded border border-base-border transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
         >
           Edit
-        </button>
+        </Button>
         {method.enabled ? (
-          <button
+          <Button
+            variant="danger"
+            size="sm"
             onClick={() => onDisable(method.id)}
             aria-label={`Disable ${method.name}`}
-            className="text-xs text-status-danger hover:text-debt-primary-hover px-2 py-1 rounded border border-debt-muted transition-colors focus-visible:ring-2 focus-visible:ring-debt-primary"
           >
             Disable
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => onEnable(method.id)}
             aria-label={`Enable ${method.name}`}
-            className="text-xs text-status-success hover:text-status-success/80 px-2 py-1 rounded border border-status-success/30 transition-colors focus-visible:ring-2 focus-visible:ring-status-success"
+            className="text-ok-ink hover:text-ok-ink"
           >
             Enable
-          </button>
+          </Button>
         )}
       </div>
     </div>
@@ -123,20 +129,21 @@ interface ModalProps {
 function Modal({ title, onClose, children }: ModalProps) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-base-bg/80 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 px-4"
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-base-surface border border-base-border rounded-lg w-full max-w-md p-6 shadow-[var(--shadow-card)]">
+      <div className="bg-bg-elev border border-line rounded-[10px] w-full max-w-md p-6 shadow-[var(--shadow-card)]">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-base-text">{title}</h2>
-          <button
+          <h2 className="text-lg font-semibold text-text">{title}</h2>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
             aria-label="Close modal"
-            className="text-base-text-muted hover:text-base-text transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
           >
             ✕
-          </button>
+          </Button>
         </div>
         {children}
       </div>
@@ -229,23 +236,22 @@ export function PaymentMethodsRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Payment Methods
-          </h1>
-          <button
-            onClick={() => setShowAdd(true)}
-            className="w-full sm:w-auto px-4 py-2 text-sm rounded bg-pink-primary text-pink-foreground font-semibold hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
-          >
-            Add method
-          </button>
-        </div>
+        <PageHeader
+          crumbs={["Home · Money · Payment methods"]}
+          title={<span className="italic">Payment methods</span>}
+          description="Manage the payment methods shown to subs on their dashboard."
+          actions={
+            <Button variant="primary" onClick={() => setShowAdd(true)}>
+              Add method
+            </Button>
+          }
+        />
 
-        {isLoading && <p className="text-base-text-muted text-sm">Loading…</p>}
-        {isError && <p className="text-status-danger text-sm">Failed to load payment methods.</p>}
+        {isLoading && <p className="text-text-mute text-sm">Loading…</p>}
+        {isError && <p className="text-bad-ink text-sm">Failed to load payment methods.</p>}
 
         {!isLoading && !isError && ordered.length === 0 && (
-          <p className="text-base-text-muted text-sm">No payment methods yet. Add one above.</p>
+          <p className="text-text-mute text-sm">No payment methods yet. Add one above.</p>
         )}
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

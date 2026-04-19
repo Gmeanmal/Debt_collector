@@ -1,12 +1,14 @@
 import type { components } from "@/types/api.generated";
+import { Badge } from "@/components/ui/badge";
+import type { BadgeProps } from "@/components/ui/badge";
 
 type InvitationStatus = components["schemas"]["InvitationStatus"];
 
-const STATUS_CLASSES: Record<InvitationStatus, string> = {
-  active: "bg-pink-muted text-pink-primary",
-  pending_entry_tribute_paid: "bg-status-warning/15 text-status-warning",
-  consumed: "bg-base-surface-raised text-base-text-muted",
-  expired: "bg-debt-muted text-status-danger",
+const STATUS_TONE: Record<InvitationStatus, BadgeProps["variant"]> = {
+  active: "pink",
+  pending_entry_tribute_paid: "warn",
+  consumed: "neutral",
+  expired: "bad",
 };
 
 const STATUS_LABELS: Record<InvitationStatus, string> = {
@@ -21,11 +23,5 @@ interface Props {
 }
 
 export function InvitationStatusChip({ status }: Props) {
-  return (
-    <span
-      className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${STATUS_CLASSES[status]}`}
-    >
-      {STATUS_LABELS[status]}
-    </span>
-  );
+  return <Badge variant={STATUS_TONE[status]}>{STATUS_LABELS[status]}</Badge>;
 }

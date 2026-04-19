@@ -18,6 +18,8 @@ import { Avatar } from "@/components/profile/Avatar";
 import { SearchableSelect } from "@/components/shared/SearchableSelect";
 import { queryKeys } from "@/lib/queryKeys";
 import { formatGBP } from "@/services/format/currency";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 
 const CATEGORIES: { value: PaymentCategory; label: string }[] = [
   { value: "entry", label: "Entry tribute" },
@@ -121,21 +123,19 @@ export function RecordPaymentRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-lg mx-auto flex flex-col gap-6">
-        <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-          Record Payment
-        </h1>
-        <p className="text-sm text-base-text-muted">
-          Log a validated payment on behalf of a sub. This creates an already-validated declaration
-          and emits an allocation immediately.
-        </p>
+        <PageHeader
+          crumbs={["Home · Money · Record payment"]}
+          title={<span className="italic">Record a tribute</span>}
+          description="Log a validated payment on behalf of a sub. This creates an already-validated declaration and emits an allocation immediately."
+        />
 
         <form
           onSubmit={handleSubmit}
-          className="bg-base-surface border border-base-border rounded-lg p-6 flex flex-col gap-5"
+          className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-5"
         >
           {/* Sub */}
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-semibold text-base-text">Sub</span>
+            <span className="text-sm font-semibold text-text">Sub</span>
             <SearchableSelect<GoddessSub>
               options={subs}
               value={selectedSub}
@@ -149,10 +149,10 @@ export function RecordPaymentRoute() {
                 <span className="flex items-center gap-2 min-w-0">
                   <Avatar user={s} size="sm" className="shrink-0" />
                   <span className="flex-1 min-w-0">
-                    <span className="block truncate font-medium text-base-text">
+                    <span className="block truncate font-medium text-text">
                       {s.display_name}
                     </span>
-                    <span className="block truncate text-xs text-base-text-muted">
+                    <span className="block truncate text-xs text-text-mute">
                       @{s.username}
                     </span>
                   </span>
@@ -166,14 +166,14 @@ export function RecordPaymentRoute() {
 
           {/* Category */}
           <div className="flex flex-col gap-1">
-            <label htmlFor="category" className="text-sm font-semibold text-base-text">
+            <label htmlFor="category" className="text-sm font-semibold text-text">
               Category
             </label>
             <select
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value as PaymentCategory)}
-              className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+              className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               {CATEGORIES.map(({ value, label }) => (
                 <option key={value} value={value}>
@@ -185,7 +185,7 @@ export function RecordPaymentRoute() {
 
           {/* Amount */}
           <div className="flex flex-col gap-1">
-            <label htmlFor="amount" className="text-sm font-semibold text-base-text">
+            <label htmlFor="amount" className="text-sm font-semibold text-text">
               Amount (£)
             </label>
             <input
@@ -196,9 +196,9 @@ export function RecordPaymentRoute() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               onBlur={validateAmount}
-              className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+              className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             />
-            {amountErr && <p className="text-xs text-status-danger">{amountErr}</p>}
+            {amountErr && <p className="text-xs text-bad-ink">{amountErr}</p>}
           </div>
 
           {/* Method */}
@@ -206,8 +206,8 @@ export function RecordPaymentRoute() {
 
           {/* External timestamp */}
           <div className="flex flex-col gap-1">
-            <label htmlFor="externalTs" className="text-sm font-semibold text-base-text">
-              Payment date <span className="text-base-text-subtle font-normal">(optional)</span>
+            <label htmlFor="externalTs" className="text-sm font-semibold text-text">
+              Payment date <span className="text-text-faint font-normal">(optional)</span>
             </label>
             <DateTimePicker
               id="externalTs"
@@ -219,42 +219,45 @@ export function RecordPaymentRoute() {
 
           {/* Note */}
           <div className="flex flex-col gap-1">
-            <label htmlFor="note" className="text-sm font-semibold text-base-text">
-              Note <span className="text-base-text-subtle font-normal">(optional)</span>
+            <label htmlFor="note" className="text-sm font-semibold text-text">
+              Note <span className="text-text-faint font-normal">(optional)</span>
             </label>
             <textarea
               id="note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={2}
-              className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+              className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             />
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => navigate("/goddess/validations")}
-              className="w-full sm:w-auto px-4 py-2 text-sm text-base-text-muted border border-base-border rounded-md hover:text-base-text transition-colors"
+              className="w-full sm:w-auto"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="outline"
               onClick={() => submitWithMode("close")}
               disabled={recordMutation.isPending}
-              className="w-full sm:w-auto px-4 py-2 text-sm text-base-text border border-base-border rounded-md hover:bg-base-surface-raised transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto"
             >
               Record & close
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="primary"
               disabled={recordMutation.isPending}
               aria-label="Record payment and keep form open to add another"
-              className="w-full sm:w-auto px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto"
             >
               {recordMutation.isPending ? "Recording…" : "Record & add another"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

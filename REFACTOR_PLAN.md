@@ -233,9 +233,9 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase H · Goddess · gatekeeping
 
-- [ ] **Step 33 — Invite + Invitations list.** _Files: `client/src/routes/goddess/InviteSubRoute.tsx`, `InvitationsListRoute.tsx`._
-- [ ] **Step 34 — Payment methods + Record payment.** _Files: `client/src/routes/goddess/PaymentMethodsRoute.tsx`, `RecordPaymentRoute.tsx`._
-- [ ] **Step 35 — Blacklist.** _Files: `client/src/routes/goddess/BlacklistRoute.tsx`._
+- [x] **Step 33 — Invite + Invitations list.** _Files: `client/src/routes/goddess/InviteSubRoute.tsx`, `InvitationsListRoute.tsx`._
+- [x] **Step 34 — Payment methods + Record payment.** _Files: `client/src/routes/goddess/PaymentMethodsRoute.tsx`, `RecordPaymentRoute.tsx`._
+- [x] **Step 35 — Blacklist.** _Files: `client/src/routes/goddess/BlacklistRoute.tsx`._
 
 → _commit: `refactor(ui): phase H goddess gatekeeping`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **7 / 13**
-- Steps complete: **32 / 51**
-- Last commit: `refactor(ui): phase G — goddess rules engine`
-- Next phase: **H — Goddess · gatekeeping**
+- Phases complete: **8 / 13**
+- Steps complete: **35 / 51**
+- Last commit: `refactor(ui): phase H — goddess gatekeeping`
+- Next phase: **I — Goddess · moderation & deeper dossier**

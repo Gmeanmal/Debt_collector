@@ -10,6 +10,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { useAuth } from "@/services/auth/useAuth";
 import { queryKeys } from "@/lib/queryKeys";
 import { formatLondon } from "@/services/format/datetime";
@@ -42,11 +44,11 @@ function ForgiveModal({ entry, onClose }: ForgiveModalProps) {
 
   return (
     <Modal title="Forgive sub" onClose={onClose}>
-      <p className="text-xs text-base-text-muted">
+      <p className="text-xs text-text-mute">
         Balance at breach: {fmtGbp(entry.balance_snapshot)}
       </p>
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-base-text" htmlFor="fee">
+        <label className="text-sm font-medium text-text" htmlFor="fee">
           Reinstatement fee paid (GBP)
         </label>
         <input
@@ -56,28 +58,25 @@ function ForgiveModal({ entry, onClose }: ForgiveModalProps) {
           step="0.01"
           value={fee}
           onChange={(e) => setFee(e.target.value)}
-          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+          className="bg-bg-sunken border border-line rounded px-3 py-2 text-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
       </div>
       {mutation.isError && (
-        <p className="text-xs text-status-danger">{(mutation.error as Error).message}</p>
+        <p className="text-xs text-bad-ink">{(mutation.error as Error).message}</p>
       )}
       <div className="flex gap-2 justify-end">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
-        >
+        <Button type="button" variant="ghost" size="sm" onClick={onClose}>
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="primary"
+          size="sm"
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending || !fee}
-          className="px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors disabled:opacity-50"
         >
           {mutation.isPending ? "Forgiving…" : "Forgive"}
-        </button>
+        </Button>
       </div>
     </Modal>
   );
@@ -103,23 +102,39 @@ export function BlacklistRoute() {
     queryFn: listGoddessSubsApi,
   });
 
-  function subLabel(subId: string): string {
+  function subLabel(subId: string): { name: string; username: string } | null {
     const sub = subs.find((s) => s.id === subId);
-    if (sub) return `${sub.display_name} (@${sub.username})`;
-    return isAdmin ? subId : "Unknown sub";
+    if (sub) return { name: sub.display_name, username: sub.username };
+    return null;
+  }
+
+  function renderSubLabel(subId: string) {
+    const found = subLabel(subId);
+    if (found) {
+      return (
+        <>
+          <span className="font-serif italic text-text">{found.name}</span>{" "}
+          <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">
+            @{found.username}
+          </span>
+        </>
+      );
+    }
+    return (
+      <span className="text-text-faint">
+        {isAdmin ? subId : "Unknown sub"}
+      </span>
+    );
   }
 
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-3xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Blacklist
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Subs you have marked as breached, and their reinstatement status.
-          </p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Moderation · Blacklist"]}
+          title={<span className="italic">Blacklist</span>}
+          description="Subs who were breached. Their debts remain; their access does not."
+        />
 
         {isLoading && <ListSkeleton rows={3} />}
         {isError && (
@@ -135,27 +150,33 @@ export function BlacklistRoute() {
           />
         )}
 
-        <div className="flex flex-col gap-3">
-          {entries.map((e) => {
+        <div className="bg-bg-elev border border-line rounded-[10px] overflow-hidden">
+          {entries.map((e, idx) => {
             const forgiven = e.forgiven_at !== null && e.forgiven_at !== undefined;
             return (
               <div
                 key={e.id}
-                className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-2"
+                className={
+                  "p-4 flex flex-col gap-2" +
+                  (idx < entries.length - 1 ? " border-b border-line" : "")
+                }
               >
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div>
-                    <p className="font-semibold text-base-text text-sm">
-                      {subLabel(e.sub_id)} · {fmtGbp(e.balance_snapshot)}
+                    <p className="font-semibold text-text text-sm flex flex-wrap items-baseline gap-1">
+                      {renderSubLabel(e.sub_id)}
+                      <span className="text-text-mute font-normal">
+                        · {fmtGbp(e.balance_snapshot)}
+                      </span>
                       {e.reason && (
-                        <span className="text-base-text-muted font-normal"> · {e.reason}</span>
+                        <span className="text-text-faint font-normal"> · {e.reason}</span>
                       )}
                     </p>
-                    <p className="text-xs text-base-text-muted mt-0.5">
+                    <p className="text-xs text-text-mute mt-0.5">
                       Breached {fmtDate(e.breached_at)}
                     </p>
                     {forgiven && e.forgiven_at && (
-                      <p className="text-xs text-status-success mt-1">
+                      <p className="text-xs text-ok-ink mt-1">
                         Forgiven {fmtDate(e.forgiven_at)}
                         {e.reinstatement_fee_paid !== null &&
                           e.reinstatement_fee_paid !== undefined &&
@@ -164,13 +185,14 @@ export function BlacklistRoute() {
                     )}
                   </div>
                   {!forgiven && (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setTarget(e)}
-                      className="px-3 py-1 text-xs bg-status-success/20 text-status-success border border-status-success/30 rounded font-semibold hover:bg-status-success/30 transition-colors focus-visible:ring-2 focus-visible:ring-status-success"
                     >
                       Forgive
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>

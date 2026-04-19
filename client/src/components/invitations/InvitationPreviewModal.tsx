@@ -16,17 +16,17 @@ export function InvitationPreviewModal({ invitationId, onClose }: Props) {
 
   return (
     <Modal title="Email preview" onClose={onClose} size="xl">
-      {isLoading && <p className="text-base-text-muted text-sm">Loading preview…</p>}
-      {isError && <p className="text-status-danger text-sm">Failed to load email preview.</p>}
+      {isLoading && <p className="text-text-mute text-sm">Loading preview…</p>}
+      {isError && <p className="text-bad-ink text-sm">Failed to load email preview.</p>}
       {data && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs text-base-text-muted">
-            <span className="font-semibold text-base-text-muted">Subject:</span> {data.subject}
+          <p className="text-xs text-text-mute">
+            <span className="font-semibold text-text-mute">Subject:</span> {data.subject}
           </p>
           <iframe
             srcDoc={data.html}
             title="Invitation email preview"
-            className="w-full min-h-[500px] rounded border border-base-border bg-white"
+            className="w-full min-h-[500px] rounded border border-line bg-white"
           />
         </div>
       )}

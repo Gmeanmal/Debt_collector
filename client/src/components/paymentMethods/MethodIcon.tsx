@@ -26,7 +26,7 @@ export function MethodIcon({ type, size = "md", className, title }: MethodIconPr
         alt={label}
         title={label}
         className={cn(
-          "rounded-md object-contain shrink-0 border border-base-border/60 bg-white",
+          "rounded-md object-contain shrink-0 border border-line bg-bg-elev",
           sizeClass,
           className,
         )}
