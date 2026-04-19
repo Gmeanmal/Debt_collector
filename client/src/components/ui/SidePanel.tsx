@@ -76,7 +76,7 @@ export function SidePanel({
         type="button"
         aria-label="Close overlay"
         onClick={onClose}
-        className="flex-1 bg-base-bg/80 focus:outline-none"
+        className="flex-1 bg-ink-400/55 backdrop-blur-sm focus:outline-none"
       />
       <div
         ref={panelRef}
@@ -84,19 +84,19 @@ export function SidePanel({
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
-        className={`w-full ${widthClass} h-full bg-base-surface border-l border-base-border shadow-[var(--shadow-card)] flex flex-col translate-x-0 focus:outline-none`}
+        className={`w-full ${widthClass} h-full bg-bg-elev border-l border-line shadow-md flex flex-col translate-x-0 focus:outline-none font-display`}
       >
-        <div className="flex justify-end p-3 border-b border-base-border/60">
+        <div className="flex justify-end p-3 border-b border-line">
           <button
             type="button"
             onClick={onClose}
             aria-label={closeButtonLabel}
-            className="text-base-text-muted hover:text-base-text focus-visible:ring-2 focus-visible:ring-pink-primary rounded px-2 py-1"
+            className="text-text-faint hover:text-text focus-visible:ring-2 focus-visible:ring-accent rounded px-2 py-1"
           >
             Close
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto">{children}</div>
+        <div className="flex-1 overflow-y-auto font-sans">{children}</div>
       </div>
     </div>
   );

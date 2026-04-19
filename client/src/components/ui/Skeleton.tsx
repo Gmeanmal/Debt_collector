@@ -8,7 +8,7 @@ export function Skeleton({ className = "h-4 w-full", label = "Loading" }: Props)
     <div
       role="status"
       aria-label={label}
-      className={`animate-pulse rounded bg-base-surface-raised ${className}`}
+      className={`animate-pulse rounded-[6px] bg-bg-inset ${className}`}
     />
   );
 }
@@ -23,10 +23,10 @@ export function ListSkeleton({ rows = 3 }: ListSkeletonProps) {
       {Array.from({ length: rows }).map((_, i) => (
         <div
           key={i}
-          className="bg-base-surface border border-base-border rounded-lg p-4 animate-pulse flex flex-col gap-2"
+          className="bg-bg-elev border border-line rounded-[10px] p-4 animate-pulse flex flex-col gap-2"
         >
-          <div className="h-4 w-1/3 rounded bg-base-surface-raised" />
-          <div className="h-3 w-2/3 rounded bg-base-surface-raised" />
+          <div className="h-4 w-1/3 rounded-[6px] bg-bg-inset" />
+          <div className="h-3 w-2/3 rounded-[6px] bg-bg-inset" />
         </div>
       ))}
     </div>

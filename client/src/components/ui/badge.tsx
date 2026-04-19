@@ -3,18 +3,24 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium uppercase tracking-[0.08em] transition-colors",
+  "inline-flex items-center gap-1 rounded-[4px] border px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] font-mono",
   {
     variants: {
       variant: {
-        default: "border-base-border bg-base-surface-raised text-base-text-muted",
-        primary: "border-pink-primary/30 bg-pink-primary/10 text-pink-primary",
-        success: "border-status-success/30 bg-status-success/10 text-status-success",
-        warning: "border-status-warning/30 bg-status-warning/10 text-status-warning",
-        danger: "border-status-danger/30 bg-status-danger/10 text-status-danger",
-        info: "border-status-info/30 bg-status-info/10 text-status-info",
-        debt: "border-debt-primary/30 bg-debt-primary/10 text-debt-primary",
-        gold: "border-gold-accent/30 bg-gold-accent/10 text-gold-accent",
+        default: "bg-bg-inset border-transparent text-text-mute",
+        neutral: "bg-bg-inset border-transparent text-text-mute",
+        primary: "bg-accent-trace border-transparent text-accent-deep",
+        pink: "bg-accent-trace border-transparent text-accent-deep",
+        success: "bg-ok-bg border-transparent text-ok-ink",
+        ok: "bg-ok-bg border-transparent text-ok-ink",
+        warning: "bg-warn-bg border-transparent text-warn-ink",
+        warn: "bg-warn-bg border-transparent text-warn-ink",
+        danger: "bg-bad-bg border-transparent text-bad-ink",
+        bad: "bg-bad-bg border-transparent text-bad-ink",
+        debt: "bg-bad-bg border-transparent text-bad-ink",
+        info: "bg-bg-inset border-transparent text-text-mute",
+        gold: "bg-signal-soft border-transparent text-signal-ink",
+        ink: "bg-ink-400 border-transparent text-white",
       },
     },
     defaultVariants: { variant: "default" },

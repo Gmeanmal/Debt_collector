@@ -175,15 +175,15 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase B · Primitive components (shadcn-aligned, no hex inline)
 
-- [ ] **Step 5 — Button variants.** Rewrite `button.tsx` variants to `primary | ghost | soft | ink | danger` using `bg-accent / text-accent-ink`, `border-line-strong`, `bg-accent-trace / text-accent-deep`, `bg-ink-400`, `text-bad-ink`. Sizes `sm|md|lg|icon`, radius 6. _Files: `client/src/components/ui/button.tsx`._
-- [ ] **Step 6 — Badge tones.** Rewrite `badge.tsx` tones to `neutral | ok | warn | bad | pink | ink`, mono typography, radius 4, uppercase tracking. _Files: `client/src/components/ui/badge.tsx`._
-- [ ] **Step 7 — Card.** Drop `.luxe-surface` helper, use `bg-bg-elev border-line rounded-[10px] p-[18px]` + hairline shadow. Split `CardTitle` to serif italic. _Files: `client/src/components/ui/card.tsx`, `client/src/styles/globals.css` (remove `.luxe-surface`)._
-- [ ] **Step 8 — Avatar.** Pink-trace background, mono initials, hairline border; size prop. _Files: `client/src/components/ui/avatar.tsx`._
-- [ ] **Step 9 — Inputs & form controls.** Input/Label/Select/Switch/DatePicker → cream/ink surfaces, accent focus ring (`ring-accent` @ 2 px), radius 6. _Files: `client/src/components/ui/input.tsx`, `label.tsx`, `select.tsx`, `switch.tsx`, `date-time-picker.tsx`._
-- [ ] **Step 10 — Tabs.** Flat underline strip on `border-line`, active tab `text-accent-deep` + `border-accent`. _Files: `client/src/components/ui/tabs.tsx`._
-- [ ] **Step 11 — Dialog / Modal / SidePanel / Separator.** Backdrop `bg-ink-400/50`, modal `bg-bg-elev rounded-[10px]`, divider hairline. _Files: `client/src/components/ui/dialog.tsx`, `Modal.tsx`, `SidePanel.tsx`, `separator.tsx`._
-- [ ] **Step 12 — DropdownMenu, Toaster (sonner), Skeleton, EmptyState, ErrorState.** Align surfaces, hairlines, fonts. _Files: `client/src/components/ui/dropdown-menu.tsx`, `sonner.tsx`, `Skeleton.tsx`, `EmptyState.tsx`, `ErrorState.tsx`._
-- [ ] **Step 13 — New editorial primitives.** Add `Stat`, `Money`, `SectionTitle`, `Divider`, `Eyebrow`, `PageHeader` under `components/ui/` (named exports, no default), matching the `shell.jsx` API — serif italic numerics, mono eyebrows, hairline rules. _Files: `client/src/components/ui/stat.tsx`, `money.tsx`, `section-title.tsx`, `divider.tsx`, `eyebrow.tsx`, `page-header.tsx`._
+- [x] **Step 5 — Button variants.** Rewrite `button.tsx` variants to `primary | ghost | soft | ink | danger` using `bg-accent / text-accent-ink`, `border-line-strong`, `bg-accent-trace / text-accent-deep`, `bg-ink-400`, `text-bad-ink`. Sizes `sm|md|lg|icon`, radius 6. _Files: `client/src/components/ui/button.tsx`._
+- [x] **Step 6 — Badge tones.** Rewrite `badge.tsx` tones to `neutral | ok | warn | bad | pink | ink`, mono typography, radius 4, uppercase tracking. _Files: `client/src/components/ui/badge.tsx`._
+- [x] **Step 7 — Card.** Drop `.luxe-surface` helper, use `bg-bg-elev border-line rounded-[10px] p-[18px]` + hairline shadow. Split `CardTitle` to serif italic. _Files: `client/src/components/ui/card.tsx`, `client/src/styles/globals.css` (remove `.luxe-surface`)._
+- [x] **Step 8 — Avatar.** Pink-trace background, mono initials, hairline border; size prop. _Files: `client/src/components/ui/avatar.tsx`._
+- [x] **Step 9 — Inputs & form controls.** Input/Label/Select/Switch/DatePicker → cream/ink surfaces, accent focus ring (`ring-accent` @ 2 px), radius 6. _Files: `client/src/components/ui/input.tsx`, `label.tsx`, `select.tsx`, `switch.tsx`, `date-time-picker.tsx`._
+- [x] **Step 10 — Tabs.** Flat underline strip on `border-line`, active tab `text-accent-deep` + `border-accent`. _Files: `client/src/components/ui/tabs.tsx`._
+- [x] **Step 11 — Dialog / Modal / SidePanel / Separator.** Backdrop `bg-ink-400/50`, modal `bg-bg-elev rounded-[10px]`, divider hairline. _Files: `client/src/components/ui/dialog.tsx`, `Modal.tsx`, `SidePanel.tsx`, `separator.tsx`._
+- [x] **Step 12 — DropdownMenu, Toaster (sonner), Skeleton, EmptyState, ErrorState.** Align surfaces, hairlines, fonts. _Files: `client/src/components/ui/dropdown-menu.tsx`, `sonner.tsx`, `Skeleton.tsx`, `EmptyState.tsx`, `ErrorState.tsx`._
+- [x] **Step 13 — New editorial primitives.** Add `Stat`, `Money`, `SectionTitle`, `Divider`, `Eyebrow`, `PageHeader` under `components/ui/` (named exports, no default), matching the `shell.jsx` API — serif italic numerics, mono eyebrows, hairline rules. _Files: `client/src/components/ui/stat.tsx`, `money.tsx`, `section-title.tsx`, `divider.tsx`, `eyebrow.tsx`, `page-header.tsx`._
 
 → _commit: `refactor(ui): phase B primitives — button/badge/card/inputs/editorial`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **1 / 13**
-- Steps complete: **4 / 51**
-- Last commit: `refactor(ui): phase A — tokens, fonts, theme default`
-- Next phase: **B — Primitive components**
+- Phases complete: **2 / 13**
+- Steps complete: **13 / 51**
+- Last commit: `refactor(ui): phase B — primitives`
+- Next phase: **C — Shell & navigation**

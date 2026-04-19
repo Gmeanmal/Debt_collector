@@ -4,26 +4,32 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[6px] text-sm font-medium tracking-[0.01em] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         primary:
-          "bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover shadow-[0_0_0_1px_rgba(255,79,163,0.4)_inset,0_8px_24px_-12px_rgba(255,79,163,0.5)] hover:shadow-[0_0_0_1px_rgba(255,79,163,0.6)_inset,0_12px_32px_-12px_rgba(255,79,163,0.65)] active:translate-y-px",
+          "bg-accent text-accent-ink border border-accent hover:bg-pink-500 hover:border-pink-500 active:translate-y-px",
         secondary:
-          "bg-base-surface-raised text-base-text border border-base-border hover:border-pink-primary/40 hover:text-pink-primary",
-        ghost: "text-base-text-muted hover:text-base-text hover:bg-base-surface-raised/60",
+          "bg-bg-sunken text-text border border-line hover:border-line-strong",
+        ghost:
+          "bg-transparent text-text-mute hover:text-text hover:bg-bg-sunken/60",
         outline:
-          "border border-base-border bg-transparent text-base-text hover:bg-base-surface-raised hover:border-pink-primary/50",
+          "bg-transparent text-text border border-line-strong hover:bg-bg-sunken",
         destructive:
-          "bg-debt-primary text-base-text hover:bg-debt-primary-hover shadow-[0_0_0_1px_rgba(168,50,50,0.4)_inset]",
-        link: "text-pink-primary underline-offset-4 hover:underline",
+          "bg-transparent text-bad-ink border border-bad-ink hover:bg-bad-bg",
+        link: "text-accent underline-offset-4 hover:underline p-0 h-auto bg-transparent border-0",
+        soft:
+          "bg-accent-trace text-accent-deep border border-transparent hover:bg-accent-soft",
+        ink: "bg-ink-400 text-white border border-ink-400 hover:bg-ink-300",
+        danger:
+          "bg-transparent text-bad-ink border border-bad-ink hover:bg-bad-bg",
       },
       size: {
         sm: "h-8 px-3 text-xs",
-        md: "h-10 px-5",
-        lg: "h-12 px-7 text-base",
-        icon: "h-9 w-9",
+        md: "h-9 px-4 text-[13px]",
+        lg: "h-11 px-5 text-sm",
+        icon: "h-9 w-9 p-0",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },

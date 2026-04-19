@@ -86,7 +86,10 @@ function CalendarGrid({ year, month, selectedDay, onSelectDay }: CalendarGridPro
   return (
     <div className="grid grid-cols-7 gap-1" role="grid" aria-label="Calendar">
       {DAYS.map((d) => (
-        <div key={d} className="text-center text-xs font-semibold text-base-text-subtle py-1">
+        <div
+          key={d}
+          className="text-center font-mono text-[11px] uppercase tracking-[0.14em] text-text-faint py-1"
+        >
           {d}
         </div>
       ))}
@@ -104,12 +107,12 @@ function CalendarGrid({ year, month, selectedDay, onSelectDay }: CalendarGridPro
             aria-label={`${day} ${MONTHS[month]} ${year}`}
             aria-pressed={isSelected}
             className={cn(
-              "h-8 w-8 rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary",
+              "h-8 w-8 rounded-[6px] text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
               isSelected
-                ? "bg-pink-primary text-pink-foreground font-bold"
+                ? "bg-accent text-accent-ink font-semibold"
                 : isToday
-                  ? "border border-pink-primary text-pink-primary hover:bg-pink-muted"
-                  : "text-base-text hover:bg-base-surface-raised",
+                  ? "border border-accent text-accent-deep hover:bg-accent-trace"
+                  : "text-text hover:bg-bg-sunken",
             )}
           >
             {day}
@@ -129,11 +132,11 @@ interface TimeSelectsProps {
 
 function TimeSelects({ hour, minute, onHourChange, onMinuteChange }: TimeSelectsProps) {
   const selectClass =
-    "bg-base-surface-raised border border-base-border rounded-md px-2 py-1 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary";
+    "h-9 rounded-[6px] bg-bg-elev border border-line px-2 text-sm text-text focus-visible:outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg transition-colors";
 
   return (
-    <div className="flex items-center gap-2 pt-3 border-t border-base-border">
-      <Clock className="h-4 w-4 text-base-text-subtle shrink-0" />
+    <div className="flex items-center gap-2 pt-3 border-t border-line">
+      <Clock className="h-4 w-4 text-text-faint shrink-0" />
       <select
         aria-label="Hour"
         value={hour}
@@ -146,7 +149,7 @@ function TimeSelects({ hour, minute, onHourChange, onMinuteChange }: TimeSelects
           </option>
         ))}
       </select>
-      <span className="text-base-text-muted font-semibold">:</span>
+      <span className="text-text-mute font-semibold">:</span>
       <select
         aria-label="Minute"
         value={minute}
@@ -237,11 +240,11 @@ export function DateTimePicker({ value, onChange, label, placeholder, id }: Date
           aria-haspopup="dialog"
           aria-expanded={open}
           className={cn(
-            "flex w-full items-center gap-2 rounded-md border border-base-border bg-base-surface-raised px-3 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary",
-            parsed ? "text-base-text" : "text-base-text-subtle",
+            "flex h-9 w-full items-center gap-2 rounded-[6px] border border-line bg-bg-elev px-3 text-sm transition-colors focus-visible:outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+            parsed ? "text-text" : "text-text-faint",
           )}
         >
-          <Calendar className="h-4 w-4 shrink-0 text-base-text-subtle" />
+          <Calendar className="h-4 w-4 shrink-0 text-text-faint" />
           <span className="flex-1 text-left">{displayText}</span>
         </button>
       </PopoverPrimitive.Trigger>
@@ -251,7 +254,7 @@ export function DateTimePicker({ value, onChange, label, placeholder, id }: Date
           sideOffset={6}
           align="start"
           className={cn(
-            "z-50 w-72 rounded-lg border border-base-border bg-base-surface-raised p-4 shadow-card",
+            "z-50 w-72 rounded-[10px] border border-line bg-bg-elev p-4 shadow-md",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -263,18 +266,18 @@ export function DateTimePicker({ value, onChange, label, placeholder, id }: Date
               type="button"
               onClick={prevMonth}
               aria-label="Previous month"
-              className="rounded-md p-1 text-base-text-muted hover:bg-base-surface hover:text-base-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+              className="rounded-[6px] p-1 text-text-mute hover:bg-bg-sunken hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="text-sm font-semibold text-base-text">
+            <span className="text-sm font-semibold text-text">
               {MONTHS[viewMonth]} {viewYear}
             </span>
             <button
               type="button"
               onClick={nextMonth}
               aria-label="Next month"
-              className="rounded-md p-1 text-base-text-muted hover:bg-base-surface hover:text-base-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+              className="rounded-[6px] p-1 text-text-mute hover:bg-bg-sunken hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             >
               <ChevronRight className="h-4 w-4" />
             </button>

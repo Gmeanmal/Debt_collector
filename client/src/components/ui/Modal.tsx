@@ -73,7 +73,7 @@ export function Modal({ title, onClose, children, size = "sm" }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-base-bg/80 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink-400/55 backdrop-blur-sm px-4"
       role="dialog"
       aria-modal="true"
       aria-label={title}
@@ -81,15 +81,15 @@ export function Modal({ title, onClose, children, size = "sm" }: Props) {
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`bg-base-surface border border-base-border rounded-lg w-full ${SIZE_CLASSES[size]} p-6 shadow-[var(--shadow-card)] flex flex-col gap-4 focus:outline-none`}
+        className={`bg-bg-elev text-text border border-line rounded-[10px] w-full ${SIZE_CLASSES[size]} p-6 shadow-md flex flex-col gap-4 focus:outline-none`}
       >
         <div className="flex justify-between items-center">
-          <h2 className="text-base font-semibold text-base-text">{title}</h2>
+          <h2 className="font-display italic text-[20px] text-text">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="text-base-text-muted hover:text-base-text focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
+            className="text-text-faint hover:text-text focus-visible:ring-2 focus-visible:ring-accent rounded"
           >
             ✕
           </button>

@@ -9,14 +9,14 @@ interface Props {
 
 export function EmptyState({ title, message, icon, cta }: Props) {
   return (
-    <div className="bg-base-surface border border-base-border border-dashed rounded-lg p-8 flex flex-col items-center text-center gap-3">
+    <div className="bg-bg-elev border border-line rounded-[10px] p-8 flex flex-col items-center text-center gap-3">
       {icon && (
-        <div className="text-3xl text-base-text-subtle" aria-hidden="true">
+        <div className="text-text-faint" aria-hidden="true">
           {icon}
         </div>
       )}
-      <p className="text-base-text font-semibold text-sm">{title}</p>
-      {message && <p className="text-base-text-muted text-sm max-w-md">{message}</p>}
+      <p className="font-display italic text-[20px] text-text">{title}</p>
+      {message && <p className="text-sm text-text-mute max-w-md">{message}</p>}
       {cta && <div className="mt-1">{cta}</div>}
     </div>
   );
