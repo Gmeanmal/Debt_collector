@@ -42,6 +42,7 @@ from schemas.debt import (
 )
 from schemas.money_previews import BuyoutPreviewOut, SurprisePenaltyPreviewOut
 from services.notifications.notify import notify
+from services.notifications.publisher import publisher
 from services.pdf.generator import generate as generate_contract_pdf
 from utils.finance import exit_due
 from utils.ledger import apply_event_and_recompute
@@ -446,6 +447,15 @@ class DebtController:
                 link=f"/debts/{contract.id}",
                 payload={"contract_id": str(contract.id)},
             )
+
+        # Data: { contract_slug, new_state } — emitted to both parties on activation
+        _state_change_data: dict[str, str] = {
+            "contract_slug": contract.slug,
+            "new_state": contract.status.value,
+        }
+        for uid in (goddess_user_id, sub_user.id):
+            if uid is not None:
+                await publisher.publish_event(uid, "contract_state_change", _state_change_data)
 
         stats = await self._stats_for(contract)
         return contract_out(contract, current_version, stats)

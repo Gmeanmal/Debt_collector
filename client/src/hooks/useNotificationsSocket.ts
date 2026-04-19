@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { NotificationOut } from "@/services/notifications/notificationsApi";
 import { useNotificationsStore } from "@/stores/notificationsStore";
+import { useRealtimeInvalidations } from "@/hooks/useRealtimeInvalidations";
 import { env } from "@/utils/env";
 
 const INITIAL_BACKOFF_MS = 1000;
@@ -12,16 +14,32 @@ interface UseNotificationsSocketResult {
   connected: boolean;
 }
 
+interface Envelope {
+  type: string;
+  data?: unknown;
+  ts?: number;
+}
+
 function buildWsUrl(token: string): string {
   const wsBase = env.VITE_WS_BASE_URL;
   return `${wsBase}/ws/notifications?token=${encodeURIComponent(token)}`;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isEnvelope(value: unknown): value is Envelope {
+  if (!isRecord(value)) return false;
+  return typeof value.type === "string";
+}
+
 function isNotificationOut(value: unknown): value is NotificationOut {
-  if (typeof value !== "object" || value === null) return false;
-  const v = value as Record<string, unknown>;
+  if (!isRecord(value)) return false;
   return (
-    typeof v.id === "string" && typeof v.title === "string" && typeof v.created_at === "string"
+    typeof value.id === "string" &&
+    typeof value.title === "string" &&
+    typeof value.created_at === "string"
   );
 }
 
@@ -32,6 +50,10 @@ export function useNotificationsSocket(enabled: boolean): UseNotificationsSocket
   const backoffRef = useRef<number>(INITIAL_BACKOFF_MS);
   const disposedRef = useRef<boolean>(false);
   const add = useNotificationsStore((s) => s.add);
+  const qc = useQueryClient();
+  const { route } = useRealtimeInvalidations(qc);
+  const routeRef = useRef(route);
+  routeRef.current = route;
 
   useEffect(() => {
     if (!enabled) return;
@@ -56,7 +78,19 @@ export function useNotificationsSocket(enabled: boolean): UseNotificationsSocket
       ws.onmessage = (event: MessageEvent<string>) => {
         try {
           const parsed: unknown = JSON.parse(event.data);
-          if (isNotificationOut(parsed)) add(parsed);
+          if (!isEnvelope(parsed)) return;
+
+          if (parsed.type === "ping") {
+            ws.send(JSON.stringify({ type: "pong" }));
+            return;
+          }
+
+          if (parsed.type === "notification") {
+            if (isNotificationOut(parsed.data)) add(parsed.data);
+            return;
+          }
+
+          routeRef.current(parsed.type, parsed.data);
         } catch {
           // malformed frame — ignore
         }

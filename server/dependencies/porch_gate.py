@@ -1,7 +1,8 @@
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.requests import HTTPConnection
 
 from core.db import get_session
 from core.security import decode_access_token
@@ -31,7 +32,7 @@ _403_HEADERS = {"X-Access-State": "pending_entry_tribute"}
 
 
 async def porch_gate(
-    request: Request,
+    conn: HTTPConnection,
     session: AsyncSession = Depends(get_session),
 ) -> None:
     """Block pending-entry-tribute subs from all routes outside the porch allowlist.
@@ -43,11 +44,16 @@ async def porch_gate(
     - The resolved user is not pending_entry_tribute.
 
     Raises HTTP 403 with header ``X-Access-State: pending_entry_tribute`` otherwise.
+    WebSocket scopes short-circuit — WS endpoints authenticate via ?token=... and
+    enforce access state themselves.
     """
-    if (request.method, request.url.path) in _PORCH_ALLOWLIST:
+    if conn.scope.get("type") != "http":
         return
 
-    authorization = request.headers.get("Authorization") or request.headers.get("authorization")
+    if (conn.scope["method"], conn.url.path) in _PORCH_ALLOWLIST:
+        return
+
+    authorization = conn.headers.get("Authorization") or conn.headers.get("authorization")
     if not authorization or not authorization.lower().startswith("bearer "):
         return
 

@@ -43,6 +43,7 @@ from schemas.payment import (
     RecordPaymentIn,
 )
 from services.notifications.notify import notify
+from services.notifications.publisher import publisher
 from services.storage import object_store
 from utils.ledger import apply_event_and_recompute
 
@@ -124,6 +125,17 @@ class PaymentController:
                 body=f"A sub declared a payment of £{Decimal(str(decl.amount))}.",
                 link="/goddess/payments",
                 payload={"declaration_id": str(decl.id)},
+            )
+            # Data: { declaration_id, sub_username, amount, category }
+            await publisher.publish_event(
+                goddess_user_id,
+                "payment_declared",
+                {
+                    "declaration_id": str(decl.id),
+                    "sub_username": sub_user.username,
+                    "amount": str(Decimal(str(decl.amount))),
+                    "category": decl.category.value,
+                },
             )
 
         return await to_out(self._session, decl)
@@ -251,6 +263,12 @@ class PaymentController:
             link="/sub/payments",
             payload={"declaration_id": str(decl.id), "category": category.value},
         )
+        # Data: { declaration_id, outcome, reason }
+        await publisher.publish_event(
+            decl.sub_id,
+            "validation_resolved",
+            {"declaration_id": str(decl.id), "outcome": "validated", "reason": None},
+        )
 
         return await to_out(self._session, decl)
 
@@ -273,6 +291,12 @@ class PaymentController:
             body=f"Your payment of £{decl.amount} was rejected: {reason}",
             link="/sub/payments",
             payload={"declaration_id": str(decl.id)},
+        )
+        # Data: { declaration_id, outcome, reason }
+        await publisher.publish_event(
+            decl.sub_id,
+            "validation_resolved",
+            {"declaration_id": str(decl.id), "outcome": "rejected", "reason": reason},
         )
 
         return await to_out(self._session, decl)
@@ -394,3 +418,12 @@ class PaymentController:
                 link=f"/debts/{contract.id}",
                 payload={"contract_id": str(contract.id)},
             )
+
+        # Data: { contract_slug, new_state } — emitted to both parties on contract close
+        _state_change_data: dict[str, str] = {
+            "contract_slug": contract.slug,
+            "new_state": contract.status.value,
+        }
+        for uid in (goddess_user_id, contract.sub_id):
+            if uid is not None:
+                await publisher.publish_event(uid, "contract_state_change", _state_change_data)

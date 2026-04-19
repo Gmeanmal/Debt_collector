@@ -36,5 +36,5 @@ async def notify(
         "payload": notification.payload,
         "created_at": notification.created_at.isoformat(),
     }
-    await publisher.publish(user_id, ws_payload)
+    await publisher.publish_event(user_id, "notification", ws_payload)
     return notification

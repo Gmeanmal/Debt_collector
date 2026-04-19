@@ -10,6 +10,7 @@ log = structlog.get_logger()
 
 class NotificationPublisher(Protocol):
     async def publish(self, user_id: UUID, payload: dict[str, Any]) -> None: ...
+    async def publish_event(self, user_id: UUID, event_type: str, data: dict[str, Any]) -> None: ...
     async def subscribe(self, user_id: UUID) -> asyncio.Queue[dict[str, Any]]: ...
     async def unsubscribe(self, user_id: UUID, q: asyncio.Queue[dict[str, Any]]) -> None: ...
 
@@ -19,6 +20,7 @@ class InProcessPublisher:
         self._subs: dict[UUID, list[asyncio.Queue[dict[str, Any]]]] = defaultdict(list)
 
     async def publish(self, user_id: UUID, payload: dict[str, Any]) -> None:
+        # WHY: legacy — used by publish_event internally
         for q in list(self._subs.get(user_id, [])):
             try:
                 q.put_nowait(payload)
@@ -28,6 +30,10 @@ class InProcessPublisher:
                     user_id=str(user_id),
                     dropped_type=payload.get("type"),
                 )
+
+    async def publish_event(self, user_id: UUID, event_type: str, data: dict[str, Any]) -> None:
+        """Publish a typed envelope frame to all queues subscribed for user_id."""
+        await self.publish(user_id, {"type": event_type, "data": data})
 
     async def subscribe(self, user_id: UUID) -> asyncio.Queue[dict[str, Any]]:
         q: asyncio.Queue[dict[str, Any]] = asyncio.Queue(maxsize=32)
