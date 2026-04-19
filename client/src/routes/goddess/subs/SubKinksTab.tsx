@@ -40,25 +40,25 @@ interface KinkItemRowProps {
 
 function KinkItemRow({ item }: KinkItemRowProps) {
   return (
-    <div className="flex items-start justify-between gap-3 py-2.5 border-b border-base-border last:border-0">
+    <div className="flex items-start justify-between gap-3 py-2.5 border-b border-line last:border-0">
       <div className="flex flex-col gap-0.5 min-w-0 flex-1">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-sm text-base-text">{item.label}</span>
+          <span className="text-sm text-text">{item.label}</span>
           {item.safety_flag && (
             <AlertTriangle
               size={14}
-              className="shrink-0 text-status-warning"
+              className="shrink-0 text-warn-ink"
               aria-label="Safety-flagged item"
             />
           )}
           {item.is_custom && (
-            <span className="text-[10px] px-1 py-0.5 rounded bg-violet-muted text-violet-primary border border-violet-primary/20 leading-none">
+            <span className="text-[10px] px-1 py-0.5 rounded bg-bg-inset text-text-mute border border-line leading-none font-mono">
               custom
             </span>
           )}
         </div>
         {item.note && (
-          <p className="text-xs text-base-text-muted italic leading-snug">"{item.note}"</p>
+          <p className="text-xs text-text-mute italic leading-snug">"{item.note}"</p>
         )}
       </div>
       <div className="shrink-0">
@@ -79,40 +79,40 @@ function CategorySection({ category }: CategorySectionProps) {
   const rated = category.items.filter((i) => i.rating !== "not_set").length;
 
   return (
-    <div className="border border-base-border rounded-lg overflow-hidden">
+    <div className="border border-line rounded-[10px] overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
         className={cn(
           "w-full flex items-center justify-between px-4 py-3 text-left",
-          "bg-base-surface-raised hover:bg-base-surface-raised/70 transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary focus-visible:ring-inset",
+          "bg-bg-elev hover:bg-bg-inset transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset",
         )}
         aria-expanded={expanded}
         aria-label={`Expand ${category.label} kink category`}
       >
         <div className="flex items-center gap-2">
           {expanded ? (
-            <ChevronDown size={16} className="text-base-text-muted shrink-0" />
+            <ChevronDown size={16} className="text-text-faint shrink-0" />
           ) : (
-            <ChevronRight size={16} className="text-base-text-muted shrink-0" />
+            <ChevronRight size={16} className="text-text-faint shrink-0" />
           )}
-          <span className="text-sm font-semibold text-base-text">{category.label}</span>
+          <span className="text-sm font-semibold text-text">{category.label}</span>
           {category.safety_flag && (
             <AlertTriangle
               size={14}
-              className="text-status-warning shrink-0"
+              className="text-warn-ink shrink-0"
               aria-label="Safety-flagged"
             />
           )}
         </div>
-        <span className="text-xs text-base-text-subtle">
+        <span className="text-xs text-text-faint">
           {category.items.length} items · {rated} rated
         </span>
       </button>
 
       {expanded && (
-        <div className="px-4 bg-base-surface">
+        <div className="px-4 bg-bg">
           {category.items.map((item) => (
             <KinkItemRow key={item.id} item={item} />
           ))}
@@ -139,7 +139,7 @@ export function SubKinksTab({ subId }: Props) {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-12 rounded-lg border border-base-border bg-base-surface-raised animate-pulse"
+            className="h-12 rounded-[10px] border border-line bg-bg-elev animate-pulse"
           />
         ))}
       </div>
@@ -158,12 +158,12 @@ export function SubKinksTab({ subId }: Props) {
   }
 
   if (!matrix || matrix.categories.length === 0) {
-    return <p className="text-sm text-base-text-muted pt-4">No kink data available.</p>;
+    return <p className="text-sm text-text-mute pt-4">No kink data available.</p>;
   }
 
   return (
     <div className="flex flex-col gap-3 pt-4">
-      <p className="text-xs text-base-text-muted">Read-only view — the sub owns her kink matrix.</p>
+      <p className="text-xs text-text-faint">Read-only view — the sub owns her kink matrix.</p>
       {matrix.categories.map((cat) => (
         <CategorySection key={cat.id} category={cat} />
       ))}

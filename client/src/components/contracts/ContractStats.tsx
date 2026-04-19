@@ -26,8 +26,8 @@ interface KpiProps {
 function Kpi({ label, value }: KpiProps) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-base-text-muted">{label}</span>
-      <span className="text-sm font-semibold text-base-text" role="status">
+      <span className="text-xs text-text-faint">{label}</span>
+      <span className="text-sm font-semibold text-text" role="status">
         {value}
       </span>
     </div>
@@ -38,18 +38,18 @@ export function ContractStats({ contract }: Props) {
   const pct = Math.min(100, Math.max(0, contract.progress_pct));
 
   return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-4">
-      <h2 className="text-sm font-semibold text-base-text">Payment stats</h2>
+    <div className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-4">
+      <h2 className="text-sm font-semibold text-text">Payment stats</h2>
 
       <div className="flex flex-col gap-1">
-        <div className="flex justify-between text-xs text-base-text-muted">
+        <div className="flex justify-between text-xs text-text-faint">
           <span>Progress</span>
           <span>{pct.toFixed(1)}%</span>
         </div>
-        <div className="h-2 rounded-full bg-base-surface-raised overflow-hidden">
+        <div className="h-2 rounded-full bg-bg-sunken overflow-hidden">
           <div
             ref={(node) => setProgressVar(node, pct)}
-            className="h-full rounded-full bg-pink-primary w-[var(--progress)]"
+            className="h-full rounded-full bg-accent w-[var(--progress)]"
           />
         </div>
       </div>
@@ -60,11 +60,11 @@ export function ContractStats({ contract }: Props) {
         <Kpi label="Remaining" value={fmtGbp(contract.remaining)} />
         <Kpi label="Payments made" value={String(contract.payment_count)} />
         <div className="flex flex-col gap-0.5">
-          <span className="text-xs text-base-text-muted">On track</span>
+          <span className="text-xs text-text-faint">On track</span>
           <span
             role="status"
             className={`text-sm font-semibold ${
-              contract.on_track ? "text-status-success" : "text-status-danger"
+              contract.on_track ? "text-ok-ink" : "text-bad-ink"
             }`}
           >
             {contract.on_track ? "Yes" : "Behind"}

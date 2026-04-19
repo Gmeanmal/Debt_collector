@@ -10,6 +10,8 @@ import { AdjustmentDialog } from "@/components/contracts/AdjustmentDialog";
 import { BuyoutPreviewModal } from "@/components/contracts/BuyoutPreviewModal";
 import { ContractTerms, SimulationPanel } from "@/components/contracts/ContractDetailPanels";
 import { NextPaymentsCard } from "@/components/contracts/NextPaymentsCard";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 import {
   downloadContractPdfApi,
   getContractApi,
@@ -21,9 +23,6 @@ import { useAuth } from "@/services/auth/useAuth";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { queryKeys } from "@/lib/queryKeys";
-
-const btnBase =
-  "px-4 py-2 text-sm font-semibold rounded-md transition-colors disabled:opacity-50 focus-visible:ring-2";
 
 export function ContractDetailRoute() {
   const { slug } = useParams<{ slug: string }>();
@@ -117,22 +116,21 @@ export function ContractDetailRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-              Debt Contract
-            </h1>
-            {role === "admin" && (
-              <p className="text-xs text-base-text-muted mt-1 font-mono">{contract.id}</p>
-            )}
-          </div>
-          <ContractStatusChip status={contract.status} />
-        </div>
+        <PageHeader
+          crumbs={["Home · Contracts"]}
+          title={<span className="italic">Debt contract</span>}
+          description={
+            role === "admin" ? (
+              <span className="font-mono text-[11px] text-text-faint">{contract.id}</span>
+            ) : undefined
+          }
+          actions={<ContractStatusChip status={contract.status} />}
+        />
 
         {banner && (
           <p
             role="status"
-            className={`text-sm rounded-md px-4 py-2 border ${banner.kind === "success" ? "bg-status-success/10 text-status-success border-status-success/30" : "bg-debt-muted text-status-danger border-debt-ring"}`}
+            className={`text-sm rounded-md px-4 py-2 border ${banner.kind === "success" ? "bg-ok-bg text-ok-ink border-line" : "bg-bad-bg text-bad-ink border-line"}`}
           >
             {banner.msg}
           </p>
@@ -140,8 +138,8 @@ export function ContractDetailRoute() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ContractTerms contract={contract} />
-          <div className="bg-base-surface border border-base-border rounded-lg p-5">
-            <h2 className="text-sm font-semibold text-base-text mb-3">Projection</h2>
+          <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+            <h2 className="text-sm font-semibold text-text mb-3">Projection</h2>
             <SimulationPanel contract={contract} />
           </div>
         </div>
@@ -152,56 +150,36 @@ export function ContractDetailRoute() {
 
         <div className="flex flex-wrap gap-3">
           {goddessCanPreview && (
-            <Link
-              to={`/goddess/contracts/${contract.slug ?? safeSlug}/preview`}
-              className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
-            >
-              Preview contract
-            </Link>
+            <Button variant="ghost" asChild>
+              <Link to={`/goddess/contracts/${contract.slug ?? safeSlug}/preview`}>
+                Preview contract
+              </Link>
+            </Button>
           )}
           {canSubSign && (
-            <Link
-              to={`/sub/debts/${contract.slug ?? safeSlug}/sign`}
-              className={`${btnBase} bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover focus-visible:ring-pink-primary`}
-            >
-              Sign contract
-            </Link>
+            <Button variant="primary" asChild>
+              <Link to={`/sub/debts/${contract.slug ?? safeSlug}/sign`}>Sign contract</Link>
+            </Button>
           )}
           {canDownloadPdf && (
-            <button
-              type="button"
-              onClick={handleDownloadPdf}
-              className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
-            >
+            <Button variant="ghost" type="button" onClick={handleDownloadPdf}>
               Download signed PDF
-            </button>
+            </Button>
           )}
           {canSurprisePenalty && (
-            <button
-              type="button"
-              onClick={() => setShowSurprise(true)}
-              className={`${btnBase} bg-debt-muted text-status-danger border border-debt-ring hover:bg-debt-primary/20 focus-visible:ring-debt-primary`}
-            >
+            <Button variant="danger" type="button" onClick={() => setShowSurprise(true)}>
               Surprise penalty
-            </button>
+            </Button>
           )}
           {canAdjustment && (
-            <button
-              type="button"
-              onClick={() => setShowAdjustment(true)}
-              className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
-            >
+            <Button variant="ghost" type="button" onClick={() => setShowAdjustment(true)}>
               Add adjustment
-            </button>
+            </Button>
           )}
           {canRequestBuyout && (
-            <button
-              type="button"
-              onClick={() => setShowBuyout(true)}
-              className={`${btnBase} bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover focus-visible:ring-pink-primary`}
-            >
+            <Button variant="primary" type="button" onClick={() => setShowBuyout(true)}>
               Request buyout
-            </button>
+            </Button>
           )}
         </div>
 

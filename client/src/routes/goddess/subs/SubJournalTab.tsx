@@ -79,7 +79,7 @@ export function SubJournalTab({ subId, username }: Props) {
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
-            className="bg-base-surface border border-base-border rounded-lg h-28 animate-pulse"
+            className="bg-bg-elev border border-line rounded-[10px] h-28 animate-pulse"
           />
         ))}
       </div>

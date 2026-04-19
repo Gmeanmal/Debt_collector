@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { breachSubApi } from "@/services/blacklist/blacklistApi";
 import { getSubByUsernameApi } from "@/services/payments/paymentsApi";
 import { queryKeys } from "@/lib/queryKeys";
@@ -30,38 +32,42 @@ export function BreachSubRoute() {
   if (!safeUsername)
     return (
       <div className="p-4">
-        <p className="text-status-danger text-sm">No username in route.</p>
+        <p className="text-bad-ink text-sm">No username in route.</p>
       </div>
     );
 
   if (isLoading)
     return (
       <div className="p-4">
-        <p className="text-base-text-muted text-sm">Loading…</p>
+        <p className="text-text-faint text-sm">Loading…</p>
       </div>
     );
 
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-lg mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Breach sub
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Transitions all active contracts to <span className="font-semibold">breached</span>,
-            blacklists this sub, and snapshots the outstanding balance.
-          </p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Moderation · Blacklist"]}
+          title={<span className="italic">Breach sub</span>}
+          description={
+            <>
+              Transitions all active contracts to{" "}
+              <span className="text-bad-ink font-semibold">breached</span>, blacklists this sub,
+              and snapshots the outstanding balance.
+            </>
+          }
+        />
 
-        <div className="bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-4">
-          <p className="text-sm font-semibold text-base-text">
+        <div className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-4">
+          <p className="text-sm font-serif italic text-text">
             {sub?.display_name ?? safeUsername}
-            <span className="text-base-text-muted font-normal ml-1">(@{safeUsername})</span>
+            <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint font-normal ml-2">
+              @{safeUsername}
+            </span>
           </p>
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-base-text" htmlFor="reason">
-              Reason <span className="text-base-text-subtle font-normal">(optional)</span>
+            <label className="text-sm font-medium text-text" htmlFor="reason">
+              Reason <span className="text-text-faint font-normal">(optional)</span>
             </label>
             <textarea
               id="reason"
@@ -69,52 +75,54 @@ export function BreachSubRoute() {
               onChange={(e) => setReason(e.target.value)}
               maxLength={500}
               rows={4}
-              className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-debt-primary"
+              className="bg-bg-sunken border border-line rounded-[6px] px-3 py-2 text-sm text-text placeholder:text-text-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-accent resize-none"
             />
           </div>
           {mutation.isError && (
-            <p className="text-xs text-status-danger">{(mutation.error as Error).message}</p>
+            <p className="text-xs text-bad-ink">{(mutation.error as Error).message}</p>
           )}
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => navigate(-1)}
-              className="w-full sm:w-auto px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
+              className="w-full sm:w-auto"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="danger"
               onClick={() => setBreachOpen(true)}
               disabled={mutation.isPending || !sub}
-              className="w-full sm:w-auto px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto"
             >
               {mutation.isPending ? "Breaching…" : "Breach sub"}
-            </button>
+            </Button>
             {breachOpen && (
               <Modal title="Breach sub" onClose={() => setBreachOpen(false)} size="sm">
-                <p className="text-sm text-base-text">
+                <p className="text-sm text-text">
                   Breach this sub? This cannot be undone without a reinstatement.
                 </p>
                 <div className="flex gap-3 justify-end mt-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => setBreachOpen(false)}
-                    className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="danger"
                     disabled={mutation.isPending}
                     onClick={() => {
                       setBreachOpen(false);
                       mutation.mutate();
                     }}
-                    className="px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors disabled:opacity-50"
                   >
                     {mutation.isPending ? "Breaching…" : "Confirm breach"}
-                  </button>
+                  </Button>
                 </div>
               </Modal>
             )}

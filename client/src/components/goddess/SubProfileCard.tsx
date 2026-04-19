@@ -1,17 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@/components/profile/Avatar";
+import { Badge } from "@/components/ui/badge";
 import { queryKeys } from "@/lib/queryKeys";
 import { getSubTopApprovedPhoto } from "@/services/goddessSubDetail/goddessSubDetailApi";
 
 // TODO(backend): GoddessSub from listGoddessSubsApi does not expose real_name.
 // When the backend exposes it, add it to the identity strip below (goddess-only mask).
 
-const STATUS_CLASSES: Record<string, string> = {
-  active: "bg-status-success/15 text-status-success border-status-success/30",
-  blacklisted: "bg-debt-muted text-status-danger border-debt-ring",
-  pending_entry_tribute: "bg-status-warning/15 text-status-warning border-status-warning/30",
-  deleted: "bg-base-surface-raised text-base-text-muted border-base-border",
+type StatusBadgeVariant = "ok" | "bad" | "warn" | "default";
+
+const STATUS_VARIANT: Record<string, StatusBadgeVariant> = {
+  active: "ok",
+  blacklisted: "bad",
+  pending_entry_tribute: "warn",
 };
+
+function statusVariant(status: string): StatusBadgeVariant {
+  return STATUS_VARIANT[status] ?? "default";
+}
 
 function statusLabel(status: string): string {
   return status.replace(/_/g, " ");
@@ -51,7 +57,7 @@ function PhotoAvatar({ subId, displayName, fallback }: PhotoAvatarProps) {
           src={photo.presigned_get_url}
           alt={displayName}
           loading="lazy"
-          className="h-16 w-16 rounded-full object-cover border-2 border-pink-primary/30"
+          className="h-16 w-16 rounded-full object-cover border-2 border-line"
         />
       </div>
     );
@@ -63,40 +69,37 @@ function PhotoAvatar({ subId, displayName, fallback }: PhotoAvatarProps) {
 export function SubProfileCard({ sub, isLoading = false }: SubProfileCardProps) {
   if (isLoading) {
     return (
-      <div className="flex items-center gap-4">
-        <div className="h-16 w-16 rounded-full bg-base-surface-raised animate-pulse" />
+      <div className="flex items-center gap-4 bg-bg-elev border border-line rounded-[10px] p-[18px]">
+        <div className="h-16 w-16 rounded-full bg-bg-inset animate-pulse" />
         <div className="flex flex-col gap-2">
-          <div className="h-6 w-40 rounded bg-base-surface-raised animate-pulse" />
-          <div className="h-4 w-24 rounded bg-base-surface-raised animate-pulse" />
+          <div className="h-6 w-40 rounded bg-bg-inset animate-pulse" />
+          <div className="h-4 w-24 rounded bg-bg-inset animate-pulse" />
         </div>
       </div>
     );
   }
 
-  const statusClass = STATUS_CLASSES[sub.status] ?? "";
   const avatarFallback = <Avatar user={sub} size="lg" />;
 
   return (
-    <div className="flex items-start gap-4">
+    <div className="flex items-start gap-4 bg-bg-elev border border-line rounded-[10px] p-[18px]">
       {sub.id ? (
         <PhotoAvatar subId={sub.id} displayName={sub.display_name} fallback={avatarFallback} />
       ) : (
         avatarFallback
       )}
       <div className="flex flex-col gap-1.5 min-w-0">
-        <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider truncate">
+        <h2 className="font-serif italic text-2xl text-text truncate">
           {sub.display_name}
-        </h1>
+        </h2>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-base-text-muted">@{sub.username}</span>
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border capitalize ${statusClass}`}
-          >
-            {statusLabel(sub.status)}
+          <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">
+            @{sub.username}
           </span>
+          <Badge variant={statusVariant(sub.status)}>{statusLabel(sub.status)}</Badge>
         </div>
         {(sub.first_name ?? sub.last_name) && (
-          <p className="text-sm text-base-text-muted">
+          <p className="text-sm text-text-mute">
             {[sub.first_name, sub.last_name].filter(Boolean).join(" ")}
           </p>
         )}

@@ -46,15 +46,15 @@ export function NextPaymentsCard({ contract }: Props) {
   const payments = computeNextPayments(contract);
 
   return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-4">
-      <h3 className="text-xs font-semibold text-base-text-muted uppercase tracking-wide mb-3">
+    <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+      <h3 className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint mb-3">
         Next 3 payments
       </h3>
       <ul className="flex flex-col gap-1.5">
         {payments.map((p, i) => (
           <li key={i} className="flex items-center justify-between text-sm">
-            <span className="text-base-text-muted">{fmtShortDate(p.date)}</span>
-            <span className="font-semibold text-base-text">{fmtGbp(p.amount)}</span>
+            <span className="text-text-mute">{fmtShortDate(p.date)}</span>
+            <span className="font-semibold text-text">{fmtGbp(p.amount)}</span>
           </li>
         ))}
       </ul>

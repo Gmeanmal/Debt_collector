@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { PageHeader } from "@/components/ui/page-header";
 import { getSubByUsernameApi } from "@/services/payments/paymentsApi";
 import { queryKeys } from "@/lib/queryKeys";
 import { SubOverviewTab } from "./SubOverviewTab";
@@ -22,14 +23,14 @@ import type { AvatarKey } from "@/services/profile/avatarMap";
 
 function GroupLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-base-text-muted self-center">
+    <span className="px-2 font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint self-center">
       {children}
     </span>
   );
 }
 
 function GroupSeparator() {
-  return <span aria-hidden className="h-4 w-px bg-base-border/60 self-center" />;
+  return <span aria-hidden className="h-4 w-px bg-line self-center" />;
 }
 
 export function SubManageRoute() {
@@ -45,10 +46,12 @@ export function SubManageRoute() {
   if (!safeUsername) {
     return (
       <div className="p-4 md:p-8">
-        <p className="text-status-danger text-sm">No username in route.</p>
+        <p className="text-bad-ink text-sm">No username in route.</p>
       </div>
     );
   }
+
+  const displayName = sub?.display_name ?? safeUsername;
 
   return (
     <div className="p-4 md:p-8">
@@ -56,31 +59,36 @@ export function SubManageRoute() {
         <div className="flex flex-col gap-2">
           <Link
             to="/goddess/subs"
-            className="text-xs text-base-text-muted hover:text-base-text transition-colors focus-visible:ring-2 focus-visible:ring-pink-ring rounded w-fit"
+            className="text-xs text-text-faint hover:text-text transition-colors focus-visible:ring-2 focus-visible:ring-accent rounded w-fit"
           >
             ← All subs
           </Link>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex-1">
-              {sub ? (
-                <SubProfileCard sub={sub} />
-              ) : (
-                <SubProfileCard
-                  sub={{
-                    display_name: isLoading ? "Loading…" : "Unknown sub",
-                    username: safeUsername,
-                    status: "deleted",
-                  }}
-                  isLoading={isLoading}
+          <PageHeader
+            crumbs={["Home · People · Sub"]}
+            title={<span className="italic">{displayName}</span>}
+            description={`Dossier for @${safeUsername}`}
+            actions={
+              sub ? (
+                <SendMessageQuickAction
+                  username={safeUsername}
+                  displayName={displayName}
                 />
-              )}
-            </div>
+              ) : undefined
+            }
+          />
+          <div className="flex-1">
             {sub ? (
-              <SendMessageQuickAction
-                username={safeUsername}
-                displayName={sub.display_name ?? safeUsername}
+              <SubProfileCard sub={sub} />
+            ) : (
+              <SubProfileCard
+                sub={{
+                  display_name: isLoading ? "Loading…" : "Unknown sub",
+                  username: safeUsername,
+                  status: "deleted",
+                }}
+                isLoading={isLoading}
               />
-            ) : null}
+            )}
           </div>
         </div>
 

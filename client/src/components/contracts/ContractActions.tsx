@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ContractFormFields } from "@/components/contracts/ContractFormFields";
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
 import { queryKeys } from "@/lib/queryKeys";
 import {
   counterProposeApi,
@@ -102,9 +103,6 @@ export function ContractActions({ contract, role, onBanner }: Props) {
   const canGoddessRejectCounter = role === "goddess" && status === "pending_dom_counter";
   const canGoddessClose = role === "goddess" && isPending;
 
-  const btnBase =
-    "px-4 py-2 text-sm font-semibold rounded-md transition-colors disabled:opacity-50 focus-visible:ring-2";
-
   if (
     status === "active" ||
     status === "closed" ||
@@ -119,100 +117,92 @@ export function ContractActions({ contract, role, onBanner }: Props) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap gap-3">
         {(canSubCounter || canGoddessCounter) && (
-          <button
+          <Button
+            variant="ghost"
             type="button"
             onClick={() => {
               setCounterForm(versionToCreate(contract));
               setShowCounter((v) => !v);
             }}
-            className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
           >
             Counter-propose
-          </button>
+          </Button>
         )}
 
         {canGoddessAcceptCounter && (
-          <button
+          <Button
+            variant="secondary"
             type="button"
             disabled={acceptMutation.isPending}
             onClick={() => acceptMutation.mutate()}
-            className={`${btnBase} bg-status-success/20 text-status-success border border-status-success/30 hover:bg-status-success/30 focus-visible:ring-status-success`}
           >
             {acceptMutation.isPending ? "Accepting…" : "Accept counter"}
-          </button>
+          </Button>
         )}
 
         {canGoddessRejectCounter && (
-          <button
+          <Button
+            variant="danger"
             type="button"
             disabled={rejectMutation.isPending}
             onClick={() => rejectMutation.mutate()}
-            className={`${btnBase} bg-debt-muted text-status-danger border border-debt-ring hover:bg-debt-muted/80 focus-visible:ring-debt-primary`}
           >
             {rejectMutation.isPending ? "Rejecting…" : "Reject counter"}
-          </button>
+          </Button>
         )}
 
         {canGoddessClose && (
-          <button
+          <Button
+            variant="ghost"
             type="button"
             disabled={closeMutation.isPending}
             onClick={() => setCancelOpen(true)}
-            className={`${btnBase} bg-base-surface-raised text-base-text-muted border border-base-border hover:border-status-danger focus-visible:ring-status-danger`}
           >
             {closeMutation.isPending ? "Cancelling…" : "Cancel contract"}
-          </button>
+          </Button>
         )}
         {cancelOpen && (
           <Modal title="Cancel contract" onClose={() => setCancelOpen(false)} size="sm">
-            <p className="text-sm text-base-text">Cancel this contract?</p>
+            <p className="text-sm text-text">Cancel this contract?</p>
             <div className="flex gap-3 justify-end mt-2">
-              <button
-                type="button"
-                onClick={() => setCancelOpen(false)}
-                className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text focus-visible:ring-base-border`}
-              >
+              <Button variant="ghost" type="button" onClick={() => setCancelOpen(false)}>
                 Back
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="danger"
                 type="button"
                 disabled={closeMutation.isPending}
                 onClick={() => {
                   setCancelOpen(false);
                   closeMutation.mutate();
                 }}
-                className={`${btnBase} bg-debt-muted text-status-danger border border-debt-ring hover:bg-debt-muted/80 focus-visible:ring-debt-primary`}
               >
                 {closeMutation.isPending ? "Cancelling…" : "Confirm cancel"}
-              </button>
+              </Button>
             </div>
           </Modal>
         )}
       </div>
 
       {showCounter && (
-        <div className="bg-base-surface border border-base-border rounded-lg p-5">
-          <h3 className="text-sm font-semibold text-base-text mb-4">Edit counter-proposal terms</h3>
+        <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+          <h3 className="text-sm font-semibold text-text mb-4">Edit counter-proposal terms</h3>
           <ContractFormFields
             values={counterForm}
             onChange={(patch) => setCounterForm((prev) => ({ ...prev, ...patch }))}
           />
           <div className="flex gap-3 mt-4 justify-end">
-            <button
-              type="button"
-              onClick={() => setShowCounter(false)}
-              className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text focus-visible:ring-base-border`}
-            >
+            <Button variant="ghost" type="button" onClick={() => setShowCounter(false)}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
               type="button"
               disabled={counterMutation.isPending}
               onClick={() => counterMutation.mutate()}
-              className={`${btnBase} bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover focus-visible:ring-pink-primary`}
             >
               {counterMutation.isPending ? "Submitting…" : "Submit counter"}
-            </button>
+            </Button>
           </div>
         </div>
       )}

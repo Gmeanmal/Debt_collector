@@ -8,6 +8,8 @@ import { BalanceDecayChart } from "@/components/contracts/preview/BalanceDecayCh
 import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   getContractBySlugGoddessApi,
   simulateDraftApi,
@@ -86,13 +88,10 @@ export function ContractPreviewRoute() {
       });
   }
 
-  const btnBase =
-    "px-4 py-2 text-sm font-semibold rounded-md transition-colors disabled:opacity-50 focus-visible:ring-2";
-
   if (!safeId) {
     return (
       <div className="p-4 md:p-8">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto bg-bg-elev border border-line rounded-[10px] p-[18px]">
           <ErrorState title="No contract ID in the URL" />
         </div>
       </div>
@@ -102,7 +101,7 @@ export function ContractPreviewRoute() {
   if (isLoading) {
     return (
       <div className="p-4 md:p-8">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto bg-bg-elev border border-line rounded-[10px] p-[18px]">
           <ListSkeleton rows={4} />
         </div>
       </div>
@@ -112,11 +111,10 @@ export function ContractPreviewRoute() {
   if (isError || !contract) {
     return (
       <div className="p-4 md:p-8">
-        <div className="max-w-5xl mx-auto">
-          <ErrorState
-            title="Failed to load contract"
-            message={(error as Error | undefined)?.message}
-          />
+        <div className="max-w-5xl mx-auto bg-bg-elev border border-line rounded-[10px] p-[18px]">
+          <p className="text-bad-ink text-sm" role="alert">
+            {(error as Error | undefined)?.message ?? "Failed to load contract"}
+          </p>
         </div>
       </div>
     );
@@ -127,31 +125,32 @@ export function ContractPreviewRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <Link
-              to={`/debts/${safeId}`}
-              className="text-xs text-base-text-muted hover:text-pink-primary transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
-            >
-              ← Back to contract
-            </Link>
-            <span className="text-base-border">|</span>
-            <h1 className="font-display text-xl font-bold text-pink-primary tracking-wider">
-              Contract Preview
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <ContractStatusChip status={contract.status} />
-            <button
-              type="button"
-              onClick={handleDraftPdf}
-              disabled={!contract}
-              className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
-              aria-label="Download draft PDF with watermark"
-            >
-              Draft PDF
-            </button>
-          </div>
+        <div>
+          <Link
+            to={`/debts/${safeId}`}
+            className="font-mono text-[11px] uppercase tracking-[0.14em] text-text-faint hover:text-text-mute transition-colors"
+          >
+            ← Back to contract
+          </Link>
+          <PageHeader
+            crumbs={["Home · Contracts · Preview"]}
+            title={<span className="italic">Contract preview</span>}
+            actions={
+              <>
+                <ContractStatusChip status={contract.status} />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDraftPdf}
+                  disabled={!contract}
+                  aria-label="Download draft PDF with watermark"
+                >
+                  Draft PDF
+                </Button>
+              </>
+            }
+          />
         </div>
 
         <ContractHeaderSummary
@@ -160,14 +159,14 @@ export function ContractPreviewRoute() {
         />
 
         {initMutation.isPending && periods.length === 0 && (
-          <div className="bg-base-surface border border-base-border rounded-lg p-5">
-            <p className="text-sm text-base-text-muted">Loading schedule…</p>
+          <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+            <p className="text-sm text-text-faint">Loading schedule…</p>
           </div>
         )}
 
         {initMutation.isError && periods.length === 0 && (
-          <div className="bg-base-surface border border-base-border rounded-lg p-5">
-            <p className="text-sm text-status-danger" role="alert">
+          <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+            <p className="text-sm text-bad-ink" role="alert">
               Failed to load repayment schedule. Check connection and retry.
             </p>
           </div>

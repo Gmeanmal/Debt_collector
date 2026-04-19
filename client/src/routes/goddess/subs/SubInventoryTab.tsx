@@ -55,7 +55,7 @@ export function SubInventoryTab({ subId }: Props) {
   return (
     <div className="flex flex-col gap-4">
       {pendingCount > 0 && (
-        <p className="text-sm text-status-warning">
+        <p className="text-sm text-warn-ink">
           {pendingCount} pending proposal{pendingCount > 1 ? "s" : ""} awaiting review
         </p>
       )}

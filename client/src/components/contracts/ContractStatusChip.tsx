@@ -13,15 +13,15 @@ const STATUS_LABELS: Record<DebtContractStatus, string> = {
 };
 
 const STATUS_CLASSES: Record<DebtContractStatus, string> = {
-  pending_sub: "bg-status-warning/15 text-status-warning border-status-warning/30",
-  pending_dom: "bg-status-warning/15 text-status-warning border-status-warning/30",
-  pending_dom_counter: "bg-status-warning/15 text-status-warning border-status-warning/30",
-  pending_sub_signature: "bg-status-info/15 text-status-info border-status-info/30",
-  active: "bg-status-success/15 text-status-success border-status-success/30",
-  closed: "bg-base-surface-raised text-base-text-muted border-base-border",
-  breached: "bg-debt-muted text-status-danger border-debt-ring",
-  completed: "bg-status-success/15 text-status-success border-status-success/30",
-  cancelled_by_dom: "bg-base-surface-raised text-base-text-muted border-base-border",
+  pending_sub: "bg-warn-bg text-warn-ink border-line",
+  pending_dom: "bg-warn-bg text-warn-ink border-line",
+  pending_dom_counter: "bg-warn-bg text-warn-ink border-line",
+  pending_sub_signature: "bg-bg-elev text-text-mute border-line",
+  active: "bg-ok-bg text-ok-ink border-line",
+  closed: "bg-bg-elev text-text-faint border-line",
+  breached: "bg-bad-bg text-bad-ink border-line",
+  completed: "bg-ok-bg text-ok-ink border-line",
+  cancelled_by_dom: "bg-bg-elev text-text-faint border-line",
 };
 
 interface Props {

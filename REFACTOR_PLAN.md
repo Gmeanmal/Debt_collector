@@ -216,10 +216,10 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase F · Goddess · subs & contracts
 
-- [ ] **Step 26 — Subs roster.** Hairline table, mono usernames, `Money` per row. _Files: `client/src/routes/goddess/SubsListRoute.tsx`, `components/goddess/*`._
-- [ ] **Step 27 — Sub dossier (Manage).** Tabs Overview/Contracts/Kinks/Journal/Inventory; restyle each tab. _Files: `client/src/routes/goddess/subs/SubManageRoute.tsx` + tab subcomponents._
-- [ ] **Step 28 — Contracts · all + Contract · detail.** Shared `ContractDetailRoute` for both roles. _Files: `client/src/routes/goddess/GoddessContractsRoute.tsx`, `client/src/routes/ContractDetailRoute.tsx`._
-- [ ] **Step 29 — Breach sub + Contract preview.** Cruel-tone confirmation + serif preview. _Files: `client/src/routes/goddess/BreachSubRoute.tsx`, `ContractPreviewRoute.tsx`._
+- [x] **Step 26 — Subs roster.** Hairline table, mono usernames, `Money` per row. _Files: `client/src/routes/goddess/SubsListRoute.tsx`, `components/goddess/*`._
+- [x] **Step 27 — Sub dossier (Manage).** Tabs Overview/Contracts/Kinks/Journal/Inventory; restyle each tab. _Files: `client/src/routes/goddess/subs/SubManageRoute.tsx` + tab subcomponents._
+- [x] **Step 28 — Contracts · all + Contract · detail.** Shared `ContractDetailRoute` for both roles. _Files: `client/src/routes/goddess/GoddessContractsRoute.tsx`, `client/src/routes/ContractDetailRoute.tsx`._
+- [x] **Step 29 — Breach sub + Contract preview.** Cruel-tone confirmation + serif preview. _Files: `client/src/routes/goddess/BreachSubRoute.tsx`, `ContractPreviewRoute.tsx`._
 
 → _commit: `refactor(ui): phase F goddess subs & contracts`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **5 / 13**
-- Steps complete: **25 / 51**
-- Last commit: `refactor(ui): phase E — goddess overview & money`
-- Next phase: **F — Goddess · subs & contracts**
+- Phases complete: **6 / 13**
+- Steps complete: **29 / 51**
+- Last commit: `refactor(ui): phase F — goddess subs & contracts`
+- Next phase: **G — Goddess · rules engine**

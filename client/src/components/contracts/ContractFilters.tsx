@@ -80,7 +80,7 @@ export function ContractFilters({ filters, subs, onFiltersChange }: Props) {
   const active = filters.status ?? [];
 
   return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-4">
+    <div className="bg-bg-elev border border-line rounded-[10px] p-4 flex flex-col gap-4">
       <div className="flex flex-wrap gap-2">
         {ALL_STATUSES.map((s) => (
           <button
@@ -90,8 +90,8 @@ export function ContractFilters({ filters, subs, onFiltersChange }: Props) {
             aria-pressed={active.includes(s)}
             className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${
               active.includes(s)
-                ? "bg-pink-primary text-pink-foreground border-pink-primary"
-                : "bg-base-surface-raised text-base-text-muted border-base-border hover:border-pink-primary"
+                ? "bg-accent text-accent-ink border-accent"
+                : "bg-bg-sunken text-text-mute border-line hover:border-line-strong"
             }`}
           >
             {STATUS_LABELS[s]}
@@ -101,7 +101,7 @@ export function ContractFilters({ filters, subs, onFiltersChange }: Props) {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 min-w-0">
-          <label className="block text-xs font-semibold text-base-text-muted mb-1">Sub</label>
+          <label className="block text-xs font-semibold text-text-faint mb-1">Sub</label>
           <SearchableSelect
             options={subs}
             value={selectedSub}
@@ -116,7 +116,7 @@ export function ContractFilters({ filters, subs, onFiltersChange }: Props) {
 
         <div className="flex gap-2 items-end">
           <div>
-            <label className="block text-xs font-semibold text-base-text-muted mb-1">Min £</label>
+            <label className="block text-xs font-semibold text-text-faint mb-1">Min £</label>
             <input
               type="number"
               min={0}
@@ -124,11 +124,11 @@ export function ContractFilters({ filters, subs, onFiltersChange }: Props) {
               value={minVal}
               onChange={(e) => handleMinChange(e.target.value)}
               placeholder="0.00"
-              className="w-24 h-11 rounded-md border border-base-border bg-base-surface-raised/60 px-3 text-sm text-base-text placeholder:text-base-text-subtle focus:border-pink-primary/60 focus:outline-none focus:ring-2 focus:ring-pink-ring"
+              className="w-24 h-11 rounded-md border border-line bg-bg-inset px-3 text-sm text-text placeholder:text-text-faint focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-base-text-muted mb-1">Max £</label>
+            <label className="block text-xs font-semibold text-text-faint mb-1">Max £</label>
             <input
               type="number"
               min={0}
@@ -136,13 +136,13 @@ export function ContractFilters({ filters, subs, onFiltersChange }: Props) {
               value={maxVal}
               onChange={(e) => handleMaxChange(e.target.value)}
               placeholder="∞"
-              className="w-24 h-11 rounded-md border border-base-border bg-base-surface-raised/60 px-3 text-sm text-base-text placeholder:text-base-text-subtle focus:border-pink-primary/60 focus:outline-none focus:ring-2 focus:ring-pink-ring"
+              className="w-24 h-11 rounded-md border border-line bg-bg-inset px-3 text-sm text-text placeholder:text-text-faint focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
         </div>
       </div>
 
-      {amountError && <p className="text-xs text-status-danger">{amountError}</p>}
+      {amountError && <p className="text-xs text-bad-ink">{amountError}</p>}
     </div>
   );
 }

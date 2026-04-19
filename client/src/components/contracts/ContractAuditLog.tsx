@@ -26,43 +26,43 @@ export function ContractAuditLog({ entries }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="bg-base-surface border border-base-border rounded-lg">
+    <div className="bg-bg-elev border border-line rounded-[10px]">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-3 text-sm font-semibold text-base-text hover:text-pink-primary transition-colors"
+        className="w-full flex items-center justify-between px-5 py-3 text-sm font-semibold text-text hover:text-accent transition-colors"
         aria-expanded={open}
       >
         <span>Audit log ({entries.length} events)</span>
-        <span className="text-base-text-muted">{open ? "▲" : "▼"}</span>
+        <span className="text-text-faint">{open ? "▲" : "▼"}</span>
       </button>
 
       {open && (
-        <div className="border-t border-base-border divide-y divide-base-border">
+        <div className="border-t border-line divide-y divide-line">
           {entries.length === 0 && (
-            <p className="px-5 py-4 text-sm text-base-text-muted">No events yet.</p>
+            <p className="px-5 py-4 text-sm text-text-mute">No events yet.</p>
           )}
           {entries.map((entry) => (
             <div key={entry.id} className="px-5 py-3 flex flex-col gap-0.5">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-sm font-semibold text-base-text shrink-0">
+                  <span className="text-sm font-semibold text-text shrink-0">
                     {EVENT_LABELS[entry.event_type] ?? entry.event_type}
                   </span>
-                  <span className="text-xs text-base-text-muted truncate">
+                  <span className="text-xs text-text-mute truncate">
                     {entry.actor_display_name}
                   </span>
                 </div>
-                <span className="text-xs text-base-text-muted shrink-0">
+                <span className="text-xs text-text-faint shrink-0">
                   {fmtDate(entry.created_at)}
                 </span>
               </div>
               {entry.from_status && entry.to_status && (
-                <p className="text-xs text-base-text-muted">
+                <p className="text-xs text-text-mute">
                   {entry.from_status} → {entry.to_status}
                 </p>
               )}
-              {entry.note && <p className="text-xs text-base-text-subtle">{entry.note}</p>}
+              {entry.note && <p className="text-xs text-text-faint">{entry.note}</p>}
             </div>
           ))}
         </div>

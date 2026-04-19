@@ -47,8 +47,8 @@ export function SubOverviewTab({ subId, username, status }: Props) {
           role="status"
           className={`text-sm rounded-md px-4 py-2 border ${
             banner.kind === "success"
-              ? "bg-status-success/10 text-status-success border-status-success/30"
-              : "bg-debt-muted text-status-danger border-debt-ring"
+              ? "bg-ok-bg text-ok-ink border-ok-bg"
+              : "bg-bad-bg text-bad-ink border-bad-bg"
           }`}
         >
           {banner.msg}

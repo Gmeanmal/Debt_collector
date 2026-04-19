@@ -23,17 +23,17 @@ function fmtPct(fraction: string): string {
 
 function TermRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-4 py-1.5 border-b border-base-border last:border-0">
-      <span className="text-sm text-base-text-muted">{label}</span>
-      <span className="text-sm font-semibold text-base-text text-right">{value}</span>
+    <div className="flex justify-between gap-4 py-1.5 border-b border-line last:border-0">
+      <span className="text-sm text-text-mute">{label}</span>
+      <span className="text-sm font-semibold text-text text-right">{value}</span>
     </div>
   );
 }
 
 export function ContractTerms({ contract }: { contract: DebtContractOut }) {
   return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-5">
-      <h2 className="text-sm font-semibold text-base-text mb-3">Current terms</h2>
+    <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+      <h2 className="text-sm font-semibold text-text mb-3">Current terms</h2>
       <TermRow label="Principal" value={fmtGbp(contract.principal)} />
       <TermRow label="Interest rate" value={fmtPct(contract.interest_rate)} />
       <TermRow label="Interest period" value={contract.interest_period} />
@@ -82,7 +82,7 @@ export function SimulationPanel({ contract }: { contract: DebtContractOut }) {
     };
   }, [contract]);
 
-  if (simError) return <p className="text-xs text-status-warning">{simError}</p>;
-  if (!simulation) return <p className="text-sm text-base-text-muted">Loading projection…</p>;
+  if (simError) return <p className="text-xs text-warn-ink">{simError}</p>;
+  if (!simulation) return <p className="text-sm text-text-mute">Loading projection…</p>;
   return <SimulationChart simulation={simulation} principal={contract.principal} />;
 }

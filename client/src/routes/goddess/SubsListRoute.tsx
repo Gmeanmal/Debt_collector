@@ -8,13 +8,24 @@ import { ListSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { queryKeys } from "@/lib/queryKeys";
 import { Avatar } from "@/components/profile/Avatar";
+import { PageHeader } from "@/components/ui/page-header";
+import { Badge } from "@/components/ui/badge";
+import type { BadgeProps } from "@/components/ui/badge";
 
-const STATUS_CLASSES: Record<string, string> = {
-  active: "bg-status-success/15 text-status-success border-status-success/30",
-  blacklisted: "bg-debt-muted text-status-danger border-debt-ring",
-  pending_entry_tribute: "bg-status-warning/15 text-status-warning border-status-warning/30",
-  deleted: "bg-base-surface-raised text-base-text-muted border-base-border",
-};
+type BadgeTone = NonNullable<BadgeProps["variant"]>;
+
+function statusTone(status: string): BadgeTone {
+  switch (status) {
+    case "active":
+      return "ok";
+    case "blacklisted":
+      return "bad";
+    case "pending_entry_tribute":
+      return "warn";
+    default:
+      return "neutral";
+  }
+}
 
 const ACTIVE_CONTRACT_STATUSES = new Set([
   "pending_sub",
@@ -67,10 +78,11 @@ export function SubsListRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">Subs</h1>
-          <p className="text-sm text-base-text-muted mt-1">All subs linked to your account.</p>
-        </div>
+        <PageHeader
+          crumbs={["Home · People"]}
+          title={<span className="italic">Subs</span>}
+          description="All subs linked to your account."
+        />
 
         {isLoading && <ListSkeleton rows={4} />}
         {isError && (
@@ -82,30 +94,30 @@ export function SubsListRoute() {
         )}
 
         {subs.length > 0 && (
-          <div className="bg-base-surface border border-base-border rounded-lg overflow-x-auto">
+          <div className="bg-bg-elev border border-line rounded-[10px] overflow-x-auto">
             <table className="w-full min-w-[560px] text-sm">
               <thead>
-                <tr className="border-b border-base-border bg-base-surface-raised text-left">
-                  <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+                <tr className="border-b border-line bg-bg-sunken text-left">
+                  <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-[0.14em] text-text-faint">
                     Name
                   </th>
-                  <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+                  <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-[0.14em] text-text-faint">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+                  <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-[0.14em] text-text-faint">
                     Rolling
                   </th>
-                  <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+                  <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-[0.14em] text-text-faint text-right">
                     Active contracts
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-base-border">
+              <tbody className="divide-y divide-line">
                 {subs.map((sub) => (
                   <tr
                     key={sub.id}
                     onClick={() => void navigate(`/goddess/subs/${sub.username}`)}
-                    className="hover:bg-base-surface-raised transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-inset focus-within:ring-pink-ring"
+                    className="hover:bg-bg-sunken transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
                     tabIndex={0}
                     role="button"
                     aria-label={`Manage ${sub.display_name}`}
@@ -120,30 +132,30 @@ export function SubsListRoute() {
                       <div className="flex items-center gap-2">
                         <Avatar user={sub} size="sm" />
                         <div className="flex flex-col">
-                          <span className="font-medium text-base-text">
+                          <span className="font-medium text-text">
                             {sub.first_name || sub.last_name
                               ? [sub.first_name, sub.last_name].filter(Boolean).join(" ")
                               : sub.display_name}
                           </span>
-                          <span className="text-xs text-base-text-muted">@{sub.username}</span>
+                          <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">
+                            @{sub.username}
+                          </span>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border capitalize ${STATUS_CLASSES[sub.status] ?? ""}`}
-                      >
+                      <Badge variant={statusTone(sub.status)}>
                         {sub.status.replace(/_/g, " ")}
-                      </span>
+                      </Badge>
                     </td>
-                    <td className="px-4 py-3 text-sm text-base-text-muted">
+                    <td className="px-4 py-3">
                       {hasRolling[sub.id] ? (
-                        <span className="text-status-success font-semibold">Yes</span>
+                        <span className="text-ok-ink font-semibold">Yes</span>
                       ) : (
-                        <span className="text-base-text-muted">—</span>
+                        <span className="text-text-faint">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-sm text-base-text">
+                    <td className="px-4 py-3 font-mono tabular-nums text-text text-right">
                       {activeContractCount(sub.id)}
                     </td>
                   </tr>
