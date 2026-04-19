@@ -1,25 +1,28 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { LogOut, Menu, User, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useAuth } from "@/services/auth/useAuth";
+import { useTheme, type ThemePref } from "@/hooks/useTheme";
 import { ImpersonationBanner } from "@/components/layout/ImpersonationBanner";
 import { SafewordBanner } from "@/components/layout/SafewordBanner";
 import { NotificationBell } from "@/components/layout/NotificationBell";
-import { PushOptInToggle } from "@/components/layout/PushOptInToggle";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { useTheme, type ThemePref } from "@/hooks/useTheme";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { GODDESS_NAV, SUB_NAV, ADMIN_NAV } from "@/components/layout/navItems";
+import { BrandLockup } from "@/components/layout/BrandMark";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Topbar, AccountMenu } from "@/components/layout/Topbar";
+import { MobileDrawer } from "@/components/layout/MobileDrawer";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  GODDESS_NAV,
+  SUB_NAV,
+  ADMIN_NAV,
+  type NavGroup,
+  type NavItem,
+} from "@/components/layout/navItems";
 import { Toaster } from "@/components/ui/sonner";
-import { cn } from "@/lib/utils";
+import type { components } from "@/types/api.generated";
+
+type UserOut = components["schemas"]["UserOut"];
+type UserRole = UserOut["role"];
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -29,13 +32,33 @@ function isThemePref(value: string | null | undefined): value is ThemePref {
   return value === "system" || value === "dark" || value === "light";
 }
 
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("");
+function navFor(role: UserRole | undefined): NavGroup[] {
+  if (role === "goddess") return GODDESS_NAV;
+  if (role === "sub") return SUB_NAV;
+  if (role === "admin") return ADMIN_NAV;
+  return [];
+}
+
+function rootRedirectFor(role: UserRole | undefined): string | null {
+  if (role === "goddess") return "/goddess/dashboard";
+  if (role === "sub") return "/sub/dashboard";
+  if (role === "admin") return "/admin";
+  return null;
+}
+
+interface ActiveMatch {
+  group: string;
+  item: NavItem;
+}
+
+function findActive(nav: NavGroup[], pathname: string, role: UserRole | undefined): ActiveMatch | null {
+  const target = pathname === "/" ? rootRedirectFor(role) ?? "/" : pathname;
+  for (const section of nav) {
+    for (const item of section.items) {
+      if (item.to === target) return { group: section.group, item };
+    }
+  }
+  return null;
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
@@ -74,191 +97,91 @@ export function AppLayout({ children }: AppLayoutProps) {
     };
   }, [mobileOpen]);
 
-  const nav = (() => {
-    if (user?.role === "goddess") return GODDESS_NAV;
-    if (user?.role === "sub") return SUB_NAV;
-    if (user?.role === "admin") return ADMIN_NAV;
-    return [];
-  })();
+  const nav = useMemo(() => navFor(user?.role), [user?.role]);
+  const active = useMemo(
+    () => findActive(nav, location.pathname, user?.role),
+    [nav, location.pathname, user?.role],
+  );
+
+  const crumbs = active ? [active.group] : [];
+  const title = active?.item.label ?? "";
 
   return (
-    <div className="min-h-screen bg-base-bg flex flex-col">
+    <div className="min-h-screen flex flex-col bg-bg text-text">
       <ImpersonationBanner />
       <SafewordBanner />
-      <header className="sticky top-0 z-40 border-b border-base-border/60 bg-base-bg/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 sm:gap-8 px-3 sm:px-6 py-4">
-          {nav.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setMobileOpen((v) => !v)}
-              className="md:hidden flex items-center justify-center h-9 w-9 rounded-md text-base-text-muted hover:text-base-text hover:bg-base-surface-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-ring"
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
-              aria-expanded={mobileOpen}
-              aria-controls="mobile-nav"
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          )}
 
-          <NavLink to="/" className="flex items-center gap-2.5 group">
-            <div className="h-8 w-8 rounded-full border border-pink-primary/40 bg-pink-primary/10 flex items-center justify-center transition-all duration-200 group-hover:bg-pink-primary/20">
-              <span className="font-display text-base text-pink-primary">G</span>
-            </div>
-            <span className="font-display text-base tracking-[0.25em] text-base-text uppercase hidden sm:inline">
-              Mean Mal
-            </span>
-          </NavLink>
-
-          <nav className="flex-1 hidden md:flex items-center gap-1">
-            {nav.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === "/"}
-                className={({ isActive }) =>
-                  cn(
-                    "relative px-3 py-2 text-sm font-medium tracking-wide transition-colors",
-                    isActive ? "text-pink-primary" : "text-base-text-muted hover:text-base-text",
-                  )
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {item.label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-3 right-3 h-px bg-pink-primary" />
-                    )}
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </nav>
-
-          <div className="flex flex-1 md:flex-none items-center justify-end gap-2 sm:gap-3">
-            <ThemeToggle />
-            <NotificationBell enabled={user != null} />
-            {user && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="flex items-center gap-2 rounded-full p-0.5 transition-all duration-200 hover:bg-base-surface-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-ring"
-                    aria-label="Account menu"
-                  >
-                    <Avatar>
-                      <AvatarFallback>{initials(user.display_name)}</AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-[14rem]">
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col gap-0.5 normal-case tracking-normal">
-                      <span className="font-display text-base text-base-text">
-                        {user.display_name}
-                      </span>
-                      <span className="text-xs text-base-text-subtle">{user.email}</span>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <NavLink to="/profile" className="flex items-center gap-2 w-full">
-                      <User className="h-4 w-4" />
-                      Profile
-                    </NavLink>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-                    <PushOptInToggle />
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => void logout()}>
-                    <LogOut className="h-4 w-4" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+      {user ? (
+        <div className="flex flex-1 min-h-0">
+          <Sidebar nav={nav} user={user} />
+          <div className="flex-1 min-w-0 flex flex-col">
+            <MobileTopbar
+              mobileOpen={mobileOpen}
+              onToggle={() => setMobileOpen((v) => !v)}
+              user={user}
+              onLogout={() => void logout()}
+            />
+            <Topbar
+              crumbs={crumbs}
+              title={title}
+              user={user}
+              onLogout={() => void logout()}
+            />
+            <main className="flex-1 min-w-0 overflow-y-auto px-6 md:px-8 py-6">
+              {children}
+            </main>
           </div>
         </div>
-      </header>
-
-      {nav.length > 0 && (
-        <div
-          className={cn(
-            "md:hidden fixed inset-0 z-50 transition-opacity duration-300",
-            mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
-          )}
-          aria-hidden={!mobileOpen}
-        >
-          <button
-            type="button"
-            onClick={() => setMobileOpen(false)}
-            aria-label="Close menu"
-            className="absolute inset-0 bg-base-bg/70 backdrop-blur-md"
-          />
-          <nav
-            id="mobile-nav"
-            aria-label="Primary"
-            className={cn(
-              "absolute inset-y-0 left-0 w-[82%] max-w-sm bg-base-bg border-r border-base-border/60 shadow-2xl flex flex-col transition-transform duration-300 ease-out",
-              mobileOpen ? "translate-x-0" : "-translate-x-full",
-            )}
-          >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-base-border/40">
-              <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-full border border-pink-primary/40 bg-pink-primary/10 flex items-center justify-center">
-                  <span className="font-display text-base text-pink-primary">G</span>
-                </div>
-                <span className="font-display text-sm tracking-[0.25em] text-base-text uppercase">
-                  Mean Mal
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setMobileOpen(false)}
-                aria-label="Close menu"
-                className="flex items-center justify-center h-9 w-9 rounded-md text-base-text-muted hover:text-base-text hover:bg-base-surface-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-ring"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <p className="px-5 pt-5 pb-2 text-[10px] font-medium uppercase tracking-[0.3em] text-pink-primary/80">
-              Navigate
-            </p>
-            <div className="flex-1 overflow-y-auto px-3 pb-6 flex flex-col gap-0.5">
-              {nav.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.to === "/"}
-                  className={({ isActive }) =>
-                    cn(
-                      "group relative flex items-center px-4 py-3 font-display text-lg tracking-wide rounded-lg transition-colors",
-                      isActive
-                        ? "text-pink-primary bg-pink-primary/10"
-                        : "text-base-text-muted hover:text-base-text hover:bg-base-surface-raised",
-                    )
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <span
-                        className={cn(
-                          "absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-r bg-pink-primary transition-opacity",
-                          isActive ? "opacity-100" : "opacity-0 group-hover:opacity-40",
-                        )}
-                      />
-                      {item.label}
-                    </>
-                  )}
-                </NavLink>
-              ))}
-            </div>
-          </nav>
-        </div>
+      ) : (
+        <main className="flex-1 min-w-0 px-6 md:px-8 py-6">{children}</main>
       )}
 
-      <main className="flex-1">{children}</main>
+      {user && (
+        <MobileDrawer
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          nav={nav}
+          user={user}
+        />
+      )}
+
       <Toaster />
     </div>
+  );
+}
+
+interface MobileTopbarProps {
+  mobileOpen: boolean;
+  onToggle: () => void;
+  user: UserOut;
+  onLogout: () => void;
+}
+
+function MobileTopbar({ mobileOpen, onToggle, user, onLogout }: MobileTopbarProps) {
+  return (
+    <header className="md:hidden sticky top-0 z-30 flex items-center gap-3 bg-bg border-b border-line px-3 py-3">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label={mobileOpen ? "Close menu" : "Open menu"}
+        aria-expanded={mobileOpen}
+        aria-controls="mobile-nav"
+        className="grid place-items-center h-9 w-9 rounded-md text-text-mute hover:text-text hover:bg-bg-sunken focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+      >
+        {mobileOpen ? (
+          <X className="h-5 w-5" aria-hidden="true" />
+        ) : (
+          <Menu className="h-5 w-5" aria-hidden="true" />
+        )}
+      </button>
+      <NavLink to="/" className="flex-1 min-w-0">
+        <BrandLockup small />
+      </NavLink>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <NotificationBell enabled={true} />
+        <AccountMenu user={user} onLogout={onLogout} />
+      </div>
+    </header>
   );
 }

@@ -38,40 +38,39 @@ export function NotificationItem({ notification: n, onSelect }: Props) {
   const actor = actorLabel(n);
 
   return (
-    <li>
+    <li className="border-b border-line last:border-b-0">
       <button
         type="button"
         onClick={() => onSelect(n)}
         className={cn(
           "w-full text-left px-4 py-3 border-l-2 transition-colors",
-          "hover:bg-base-surface-raised focus-visible:outline-none focus-visible:bg-base-surface-raised",
-          isUnread ? "bg-base-surface-raised" : "opacity-70",
-          accent,
+          "hover:bg-bg-sunken/60 focus-visible:outline-none focus-visible:bg-bg-sunken/60",
+          isUnread ? "bg-accent-trace/40 border-l-accent" : accent,
         )}
       >
         <div className="flex items-start gap-2">
-          <Icon aria-hidden="true" className="w-4 h-4 mt-0.5 flex-shrink-0 text-base-text-muted" />
+          <Icon aria-hidden="true" className="w-4 h-4 mt-0.5 flex-shrink-0 text-text-mute" />
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between gap-2">
               <span
                 className={cn(
-                  "text-sm truncate",
-                  isUnread ? "text-base-text font-semibold" : "text-base-text-muted",
+                  "text-[13.5px] truncate",
+                  isUnread ? "text-text font-semibold" : "text-text-mute",
                 )}
               >
                 {n.title}
               </span>
-              <span className="text-[0.7rem] text-base-text-subtle flex-shrink-0">
+              <span className="font-mono text-[11px] text-text-faint flex-shrink-0 tabular-nums">
                 {formatRelative(n.created_at)}
               </span>
             </div>
-            {actor && <p className="mt-0.5 text-xs text-base-text-subtle truncate">{actor}</p>}
-            {n.body && <p className="mt-0.5 text-xs text-base-text-muted line-clamp-2">{n.body}</p>}
+            {actor && <p className="mt-0.5 text-xs text-text-faint truncate">{actor}</p>}
+            {n.body && <p className="mt-0.5 text-xs text-text-mute line-clamp-2">{n.body}</p>}
           </div>
           {isUnread && (
             <span
               aria-hidden="true"
-              className="mt-1.5 w-2 h-2 rounded-full bg-pink-primary flex-shrink-0"
+              className="mt-1.5 h-2 w-2 rounded-full bg-accent flex-shrink-0"
             />
           )}
         </div>

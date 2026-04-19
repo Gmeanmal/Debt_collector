@@ -189,11 +189,11 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase C · Shell & navigation
 
-- [ ] **Step 14 — Grouped nav items.** Rewrite `navItems.ts` to export grouped structures matching the bundle (`NAV_GODDESS` Overview/People/Money/Moderation/Rules; `NAV_SUB` Today/Money/Profile; `NAV_ADMIN` System). Add `group`, optional `badge`/`tone`. Keep existing route targets. _Files: `client/src/components/layout/navItems.ts`._
-- [ ] **Step 15 — Sidebar + Topbar + AppShell.** Rebuild `AppLayout.tsx` as sidebar (232 px grouped nav, role avatar foot) + sticky topbar (crumbs + serif italic page title + search + notif bell). Remove horizontal topnav. Keep `ImpersonationBanner`/`SafewordBanner` above topbar. _Files: `client/src/components/layout/AppLayout.tsx` (extract `Sidebar.tsx`, `Topbar.tsx`, `BrandMark.tsx` siblings if >300 lines)._
-- [ ] **Step 16 — Mobile nav drawer + account menu.** Adapt mobile drawer to match sidebar grouping; restyle `DropdownMenu` account popover (avatar + display name + username mono). _Files: `client/src/components/layout/AppLayout.tsx` (mobile block), `client/src/components/ui/dropdown-menu.tsx` (if tweaks needed)._
-- [ ] **Step 17 — Banners + notifications chrome.** Restyle `ImpersonationBanner`, `SafewordBanner`, `NotificationBell`, `NotificationFilterChips`, `NotificationItem`, `PushOptInToggle` with new tokens. _Files: `client/src/components/layout/ImpersonationBanner.tsx`, `SafewordBanner.tsx`, `NotificationBell.tsx`, `NotificationFilterChips.tsx`, `NotificationItem.tsx`, `PushOptInToggle.tsx`._
-- [ ] **Step 18 — Porch (tribute-locked) layout.** Restyle `PorchLayout`, `PorchGuard`, `PorchRoute` to match the editorial cream/ink plate ("your account awaits your first tribute"). _Files: `client/src/components/layout/PorchLayout.tsx`, `PorchGuard.tsx`, `client/src/routes/sub/PorchRoute.tsx`._
+- [x] **Step 14 — Grouped nav items.** Rewrite `navItems.ts` to export grouped structures matching the bundle (`NAV_GODDESS` Overview/People/Money/Moderation/Rules; `NAV_SUB` Today/Money/Profile; `NAV_ADMIN` System). Add `group`, optional `badge`/`tone`. Keep existing route targets. _Files: `client/src/components/layout/navItems.ts`._
+- [x] **Step 15 — Sidebar + Topbar + AppShell.** Rebuild `AppLayout.tsx` as sidebar (232 px grouped nav, role avatar foot) + sticky topbar (crumbs + serif italic page title + search + notif bell). Remove horizontal topnav. Keep `ImpersonationBanner`/`SafewordBanner` above topbar. _Files: `client/src/components/layout/AppLayout.tsx` (extract `Sidebar.tsx`, `Topbar.tsx`, `BrandMark.tsx` siblings if >300 lines)._
+- [x] **Step 16 — Mobile nav drawer + account menu.** Adapt mobile drawer to match sidebar grouping; restyle `DropdownMenu` account popover (avatar + display name + username mono). _Files: `client/src/components/layout/AppLayout.tsx` (mobile block), `client/src/components/ui/dropdown-menu.tsx` (if tweaks needed)._
+- [x] **Step 17 — Banners + notifications chrome.** Restyle `ImpersonationBanner`, `SafewordBanner`, `NotificationBell`, `NotificationFilterChips`, `NotificationItem`, `PushOptInToggle` with new tokens. _Files: `client/src/components/layout/ImpersonationBanner.tsx`, `SafewordBanner.tsx`, `NotificationBell.tsx`, `NotificationFilterChips.tsx`, `NotificationItem.tsx`, `PushOptInToggle.tsx`._
+- [x] **Step 18 — Porch (tribute-locked) layout.** Restyle `PorchLayout`, `PorchGuard`, `PorchRoute` to match the editorial cream/ink plate ("your account awaits your first tribute"). _Files: `client/src/components/layout/PorchLayout.tsx`, `PorchGuard.tsx`, `client/src/routes/sub/PorchRoute.tsx`._
 
 → _commit: `refactor(ui): phase C shell — sidebar, topbar, banners, porch`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **2 / 13**
-- Steps complete: **13 / 51**
-- Last commit: `refactor(ui): phase B — primitives`
-- Next phase: **C — Shell & navigation**
+- Phases complete: **3 / 13**
+- Steps complete: **18 / 51**
+- Last commit: `refactor(ui): phase C — shell, sidebar, topbar, banners, porch`
+- Next phase: **D — Auth & public**

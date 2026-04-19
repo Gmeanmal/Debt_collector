@@ -104,17 +104,15 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="relative p-2 rounded-md text-base-text-muted hover:text-pink-primary hover:bg-base-surface-raised transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+        className="relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-bg-elev border border-line text-text-mute hover:text-text hover:border-line-strong transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
-        <Bell className="w-5 h-5" aria-hidden="true" />
+        <Bell className="w-4 h-4" aria-hidden="true" />
         {unread > 0 && (
           <span
             role="status"
             aria-label={`${unread} unread notifications`}
-            className="absolute -top-0.5 -right-0.5 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-pink-primary text-pink-foreground text-[0.65rem] font-bold flex items-center justify-center"
-          >
-            {unread > 99 ? "99+" : unread}
-          </span>
+            className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-accent ring-2 ring-bg"
+          />
         )}
       </button>
 
@@ -123,15 +121,17 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
           ref={panelRef}
           role="dialog"
           aria-label="Notifications"
-          className="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto bg-base-surface border border-base-border rounded-lg shadow-xl z-50"
+          className="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto bg-bg-elev border border-line rounded-[10px] shadow-md z-50"
         >
-          <div className="px-4 py-3 border-b border-base-border flex items-center justify-between">
-            <span className="font-semibold text-base-text">Notifications</span>
+          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+            <span className="font-serif italic text-[18px] leading-none text-text">
+              Notifications
+            </span>
             <button
               type="button"
               disabled={unread === 0 || markAllMutation.isPending}
               onClick={() => markAllMutation.mutate()}
-              className="flex items-center gap-1 text-xs text-base-text-muted hover:text-pink-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
+              className="flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.1em] text-text-mute hover:text-accent-deep disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
             >
               {markAllMutation.isPending && (
                 <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" />
@@ -143,11 +143,11 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
           <NotificationFilterChips activeChip={activeChip} items={items} onChange={setActiveChip} />
 
           {filtered.length === 0 ? (
-            <div className="px-4 py-8 text-sm text-center text-base-text-muted">
+            <div className="px-4 py-8 text-sm text-center text-text-mute">
               You&apos;re all caught up.
             </div>
           ) : (
-            <ul className="divide-y divide-base-border">
+            <ul>
               {filtered.map((n) => (
                 <NotificationItem
                   key={n.id}

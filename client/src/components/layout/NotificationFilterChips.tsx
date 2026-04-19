@@ -35,7 +35,7 @@ export function NotificationFilterChips({ activeChip, items, onChange }: Props) 
     <div
       role="group"
       aria-label="Filter notifications"
-      className="flex flex-wrap gap-1.5 px-4 py-2 border-b border-base-border"
+      className="flex flex-wrap gap-1.5 px-4 py-2 border-b border-line"
     >
       {visibleChips.map((chip) => {
         const count = unreadCountForChip(chip, items);
@@ -49,19 +49,19 @@ export function NotificationFilterChips({ activeChip, items, onChange }: Props) 
             aria-pressed={isActive}
             onClick={() => onChange(chip)}
             className={cn(
-              "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary",
+              "inline-flex items-center gap-1 rounded-[999px] border px-3 py-1 text-[12px] transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
               isActive
-                ? "bg-pink-primary text-pink-foreground"
-                : "bg-base-surface-raised text-base-text-muted hover:text-base-text",
+                ? "bg-accent-trace text-accent-deep border-accent"
+                : "bg-bg-elev text-text-mute border-line hover:text-text hover:border-line-strong",
             )}
           >
             {label}
             {count > 0 && (
               <span
                 className={cn(
-                  "tabular-nums",
-                  isActive ? "text-pink-foreground" : "text-pink-primary",
+                  "font-mono tabular-nums text-[11px]",
+                  isActive ? "text-accent-deep" : "text-text-faint",
                 )}
               >
                 · {count}
