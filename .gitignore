@@ -187,3 +187,10 @@ planning/
 # ─────────────────────────────────────────────────────────────
 .review-notes.md
 .review-screenshots/
+
+# ─────────────────────────────────────────────────────────────
+# Design handoff bundle (derivative — not versioned)
+# ─────────────────────────────────────────────────────────────
+Docs/design_bundle/
+*-handoff.tar.gz
+*.handoff.tar.gz
