@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { adminCreate, adminUpdate } from "@/services/admin/adminApi";
 import type { EntitySchema, FieldDef } from "@/services/admin/entitySchemas";
+import { Button } from "@/components/ui/button";
 
 interface AdminFormProps {
   schema: EntitySchema;
@@ -93,29 +94,31 @@ export function AdminForm({ schema, mode, initialData, onClose, onSaved }: Admin
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50"
+      className="fixed inset-0 bg-ink-400/55 backdrop-blur-sm flex items-center justify-center p-4 z-50"
       onClick={onClose}
     >
       <div
-        className="bg-base-surface border border-base-border rounded-lg p-5 max-w-xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-bg-elev border border-line rounded-[10px] p-5 max-w-xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display text-lg font-bold text-violet-primary tracking-wider">
+          <h3 className="font-serif italic text-lg text-text">
             {mode === "create" ? `New ${schema.label}` : `Edit ${schema.label}`}
           </h3>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-base-text-muted hover:text-base-text"
+            className="text-text-faint hover:text-text"
           >
             ×
           </button>
         </div>
 
         {mode === "edit" && initialData?.id != null && (
-          <p className="text-xs text-base-text-subtle mb-3">ID: {String(initialData.id)}</p>
+          <p className="font-mono text-[11px] text-text-faint tracking-[0.08em] mb-3">
+            ID: {String(initialData.id)}
+          </p>
         )}
 
         <form onSubmit={submit} className="flex flex-col gap-3">
@@ -125,43 +128,37 @@ export function AdminForm({ schema, mode, initialData, onClose, onSaved }: Admin
             const val = form[field.key] ?? "";
             return (
               <label key={field.key} className="flex flex-col gap-1 text-sm">
-                <span className="text-base-text-muted">{field.label}</span>
+                <span className="font-mono text-[11px] text-text-faint tracking-[0.08em] uppercase">
+                  {field.label}
+                </span>
                 {field.kind === "json" ? (
                   <textarea
                     rows={4}
                     value={val}
                     onChange={(e) => setForm((f) => ({ ...f, [field.key]: e.target.value }))}
-                    className="px-3 py-2 bg-base-surface-raised border border-base-border rounded-md text-base-text font-mono text-xs focus-visible:ring-2 focus-visible:ring-violet-primary"
+                    className="px-3 py-2 bg-bg-sunken border border-line rounded-md text-text font-mono text-xs focus-visible:ring-2 focus-visible:ring-accent"
                   />
                 ) : (
                   <input
                     type={field.kind === "password" ? "password" : "text"}
                     value={val}
                     onChange={(e) => setForm((f) => ({ ...f, [field.key]: e.target.value }))}
-                    className="px-3 py-2 bg-base-surface-raised border border-base-border rounded-md text-base-text focus-visible:ring-2 focus-visible:ring-violet-primary"
+                    className="px-3 py-2 bg-bg-sunken border border-line rounded-md text-text focus-visible:ring-2 focus-visible:ring-accent"
                   />
                 )}
               </label>
             );
           })}
 
-          {error && <p className="text-sm text-status-danger">{error}</p>}
+          {error && <p className="text-sm text-bad-ink">{error}</p>}
 
           <div className="flex items-center gap-2 justify-end mt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text hover:bg-base-surface"
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={onClose}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={mutation.isPending}
-              className="px-3 py-1.5 text-sm bg-violet-primary text-violet-foreground font-semibold rounded-md hover:bg-violet-primary-hover disabled:opacity-50"
-            >
+            </Button>
+            <Button type="submit" variant="primary" size="sm" disabled={mutation.isPending}>
               {mutation.isPending ? "Saving…" : "Save"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

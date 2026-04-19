@@ -1,13 +1,17 @@
 import { useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   onReady: (dataUrl: string) => void;
   disabled?: boolean;
 }
 
-const btnBase =
-  "px-4 py-2 text-sm font-semibold rounded-md transition-colors disabled:opacity-50 focus-visible:ring-2";
+function resolveTextColor(): string {
+  // CSS var always defined by tokens.css; empty string lets the library fall back to its own default.
+  return getComputedStyle(document.documentElement).getPropertyValue("--text").trim();
+}
 
 export function SignaturePad({ onReady, disabled }: Props) {
   const sigRef = useRef<SignatureCanvas>(null);
@@ -24,31 +28,34 @@ export function SignaturePad({ onReady, disabled }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="border-2 border-neutral-300 rounded bg-white inline-block w-fit">
+    <Card className="flex flex-col gap-4 w-fit">
+      <div className="border border-line rounded-[6px] bg-bg-sunken overflow-hidden">
         <SignatureCanvas
           ref={sigRef}
+          penColor={resolveTextColor()}
           canvasProps={{ width: 600, height: 200, className: "block" }}
         />
       </div>
       <div className="flex gap-3">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           onClick={handleClear}
           disabled={disabled}
-          className={`${btnBase} bg-base-surface-raised border border-base-border text-base-text hover:border-pink-primary focus-visible:ring-pink-primary`}
         >
           Clear
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="primary"
+          size="sm"
           onClick={handleSave}
           disabled={disabled}
-          className={`${btnBase} bg-pink-primary text-pink-foreground hover:bg-pink-primary-hover focus-visible:ring-pink-primary`}
         >
           Save signature
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }

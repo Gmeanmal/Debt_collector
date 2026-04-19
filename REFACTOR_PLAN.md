@@ -265,9 +265,9 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase L · Admin & tail
 
-- [ ] **Step 45 — Admin console + Cron.** _Files: `client/src/routes/admin/AdminRoute.tsx`, `AdminCronRoute.tsx`._
-- [ ] **Step 46 — Shared tail routes.** `Home` redirect, `NotFound`, `Health`, `RouterErrorBoundary` neutral plates. _Files: `client/src/routes/HomeRoute.tsx`, `NotFoundRoute.tsx`, `HealthRoute.tsx`._
-- [ ] **Step 47 — Confirm/Reject modals + SearchableSelect + Signature canvas.** _Files: `client/src/components/shared/ConfirmActionModal.tsx`, `RejectModal.tsx`, `SearchableSelect.tsx`, `components/signature/*`._
+- [x] **Step 45 — Admin console + Cron.** _Files: `client/src/routes/admin/AdminRoute.tsx`, `AdminCronRoute.tsx`._
+- [x] **Step 46 — Shared tail routes.** `Home` redirect, `NotFound`, `Health`, `RouterErrorBoundary` neutral plates. _Files: `client/src/routes/HomeRoute.tsx`, `NotFoundRoute.tsx`, `HealthRoute.tsx`._
+- [x] **Step 47 — Confirm/Reject modals + SearchableSelect + Signature canvas.** _Files: `client/src/components/shared/ConfirmActionModal.tsx`, `RejectModal.tsx`, `SearchableSelect.tsx`, `components/signature/*`._
 
 → _commit: `refactor(ui): phase L admin, tail routes, shared modals`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **11 / 13**
-- Steps complete: **44 / 51**
-- Last commit: `refactor(ui): phase K — sub money & contracts`
-- Next phase: **L — Admin & tail**
+- Phases complete: **12 / 13**
+- Steps complete: **47 / 51**
+- Last commit: `refactor(ui): phase L — admin & tail`
+- Next phase: **M — Polish, smoke, tests**

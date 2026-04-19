@@ -10,6 +10,7 @@ import { AdminTableToolbar } from "@/components/admin/AdminTableToolbar";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { useAuth } from "@/services/auth/useAuth";
 import { queryKeys } from "@/lib/queryKeys";
+import { Button } from "@/components/ui/button";
 
 interface AdminTableProps {
   schema: EntitySchema;
@@ -149,71 +150,75 @@ export function AdminTable({ schema }: AdminTableProps) {
       />
 
       {query.isError && (
-        <p className="text-sm text-status-danger">{(query.error as Error).message}</p>
+        <p className="text-sm text-bad-ink">{(query.error as Error).message}</p>
       )}
 
-      <div className="overflow-x-auto border border-base-border rounded-md">
-        <table className="min-w-[640px] w-full text-sm">
-          <thead className="bg-base-surface-raised">
-            <tr>
-              {schema.columns.map((col) => (
-                <th
-                  key={col.key}
-                  className="text-left px-3 py-2 font-semibold text-base-text-muted border-b border-base-border"
-                >
-                  {col.sortable !== false ? (
-                    <button
-                      type="button"
-                      onClick={() => handleSortClick(col.key)}
-                      aria-label={`Sort by ${col.label}`}
-                      className="flex items-center gap-1 hover:text-base-text focus-visible:ring-1 focus-visible:ring-violet-primary rounded"
-                    >
-                      {col.label}
-                      <span className="text-xs w-3 inline-block text-center">
-                        {sortKey === col.key ? (sortDir === "asc" ? "↑" : "↓") : ""}
-                      </span>
-                    </button>
-                  ) : (
-                    col.label
-                  )}
-                </th>
-              ))}
-              <th className="px-3 py-2 border-b border-base-border w-40"></th>
-            </tr>
-          </thead>
-          <AdminTableBody
-            columns={schema.columns}
-            items={filteredItems}
-            isLoading={query.isLoading}
-            isReadonly={isReadonly}
-            isUsers={isUsers}
-            onRowClick={setEditing}
-            onImpersonate={setImpersonateTarget}
-            onDelete={setDeleteTarget}
-          />
-        </table>
+      <div className="bg-bg-elev border border-line rounded-[10px] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-[640px] w-full text-sm divide-y divide-line">
+            <thead className="bg-bg-sunken">
+              <tr>
+                {schema.columns.map((col) => (
+                  <th
+                    key={col.key}
+                    className="text-left px-3 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint"
+                  >
+                    {col.sortable !== false ? (
+                      <button
+                        type="button"
+                        onClick={() => handleSortClick(col.key)}
+                        aria-label={`Sort by ${col.label}`}
+                        className="flex items-center gap-1 hover:text-text focus-visible:ring-1 focus-visible:ring-accent rounded"
+                      >
+                        {col.label}
+                        <span className="text-xs w-3 inline-block text-center">
+                          {sortKey === col.key ? (sortDir === "asc" ? "↑" : "↓") : ""}
+                        </span>
+                      </button>
+                    ) : (
+                      col.label
+                    )}
+                  </th>
+                ))}
+                <th className="px-3 py-2 w-40"></th>
+              </tr>
+            </thead>
+            <AdminTableBody
+              columns={schema.columns}
+              items={filteredItems}
+              isLoading={query.isLoading}
+              isReadonly={isReadonly}
+              isUsers={isUsers}
+              onRowClick={setEditing}
+              onImpersonate={setImpersonateTarget}
+              onDelete={setDeleteTarget}
+            />
+          </table>
+        </div>
       </div>
 
       <div className="flex items-center gap-3 text-sm">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           disabled={page <= 1}
           onClick={() => setPage((p) => p - 1)}
-          className="px-3 py-1.5 bg-base-surface-raised border border-base-border rounded-md disabled:opacity-40"
         >
           Previous
-        </button>
-        <span className="text-base-text-muted">
+        </Button>
+        <span className="text-text-mute">
           Page {page} of {totalPages}
         </span>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           disabled={page >= totalPages}
           onClick={() => setPage((p) => p + 1)}
-          className="px-3 py-1.5 bg-base-surface-raised border border-base-border rounded-md disabled:opacity-40"
         >
           Next
-        </button>
+        </Button>
       </div>
 
       {impersonateTarget && (

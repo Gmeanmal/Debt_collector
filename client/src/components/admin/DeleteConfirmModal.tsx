@@ -1,4 +1,5 @@
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   onConfirm: () => void;
@@ -9,27 +10,23 @@ interface Props {
 export function DeleteConfirmModal({ onConfirm, onCancel, isPending }: Props) {
   return (
     <Modal title="Delete row" onClose={onCancel} size="sm">
-      <p className="text-sm text-base-text">
+      <p className="text-sm text-text">
         This will permanently delete the row. This action cannot be undone.
       </p>
       <div className="flex justify-end gap-3 pt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={isPending}
-          className="px-4 py-2 text-sm rounded-md bg-base-surface-raised border border-base-border text-base-text hover:bg-base-surface disabled:opacity-50"
-        >
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={isPending}>
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="danger"
+          size="sm"
           onClick={onConfirm}
           disabled={isPending}
           aria-label="Confirm delete"
-          className="px-4 py-2 text-sm rounded-md bg-status-danger text-base-bg font-semibold hover:opacity-90 disabled:opacity-50"
         >
           {isPending ? "Deleting…" : "Delete"}
-        </button>
+        </Button>
       </div>
     </Modal>
   );

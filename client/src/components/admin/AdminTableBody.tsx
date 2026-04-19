@@ -37,7 +37,7 @@ export function AdminTableBody({
     <tbody>
       {isLoading && (
         <tr>
-          <td colSpan={columns.length + 1} className="px-3 py-4 text-center text-base-text-subtle">
+          <td colSpan={columns.length + 1} className="px-3 py-4 text-center text-text-faint">
             Loading…
           </td>
         </tr>
@@ -47,13 +47,13 @@ export function AdminTableBody({
         return (
           <tr
             key={id}
-            className={`border-b border-base-border hover:bg-base-surface-raised ${isReadonly ? "" : "cursor-pointer"}`}
+            className={`border-b border-line last:border-0 hover:bg-bg-sunken/60 transition-colors ${isReadonly ? "" : "cursor-pointer"}`}
             onClick={() => {
               if (!isReadonly) onRowClick(row);
             }}
           >
             {columns.map((col) => (
-              <td key={col.key} className="px-3 py-2 text-base-text align-top">
+              <td key={col.key} className="px-3 py-2 text-text align-top">
                 {col.isStatus || isStatusColumn(col.key) ? (
                   <StatusPill value={row[col.key]} />
                 ) : (
@@ -71,7 +71,7 @@ export function AdminTableBody({
                       onImpersonate(row);
                     }}
                     aria-label={`Impersonate ${String(row.display_name ?? row.username ?? "user")}`}
-                    className="text-xs text-pink-primary hover:underline"
+                    className="text-xs text-accent hover:underline"
                   >
                     Impersonate
                   </button>
@@ -84,7 +84,7 @@ export function AdminTableBody({
                       onDelete(id);
                     }}
                     aria-label="Delete row"
-                    className="text-xs text-status-danger hover:underline"
+                    className="text-xs text-bad-ink hover:underline"
                   >
                     Delete
                   </button>
@@ -96,7 +96,7 @@ export function AdminTableBody({
       })}
       {!isLoading && items.length === 0 && (
         <tr>
-          <td colSpan={columns.length + 1} className="px-3 py-4 text-center text-base-text-subtle">
+          <td colSpan={columns.length + 1} className="px-3 py-4 text-center text-text-faint">
             No rows.
           </td>
         </tr>

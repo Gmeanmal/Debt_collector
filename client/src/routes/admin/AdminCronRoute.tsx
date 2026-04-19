@@ -7,6 +7,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@/components/ui/page-header";
 import { DryRunResultCard } from "@/components/admin/cron/DryRunResultCard";
 import { RunHistoryTable } from "@/components/admin/cron/RunHistoryTable";
 
@@ -58,14 +59,11 @@ export function AdminCronRoute() {
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8 flex flex-col gap-8">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-          Cron management
-        </h1>
-        <p className="text-sm text-base-text-muted mt-1">
-          Manually trigger the daily cron job with a mandatory dry-run gate.
-        </p>
-      </div>
+      <PageHeader
+        crumbs={["Home · Admin · Cron"]}
+        title="Cron management"
+        description="Manually trigger the daily cron job with a mandatory dry-run gate."
+      />
 
       <Card>
         <CardHeader>
@@ -88,7 +86,7 @@ export function AdminCronRoute() {
             </Button>
 
             <Button
-              variant="secondary"
+              variant="ghost"
               size="md"
               aria-label="Confirm and apply cron"
               disabled={!applyEnabled || applyMutation.isPending}
@@ -99,7 +97,7 @@ export function AdminCronRoute() {
           </div>
 
           {dryRunExpired && (
-            <p className="text-xs text-base-text-muted">Dry-run expired, run it again.</p>
+            <p className="text-xs text-text-mute">Dry-run expired, run it again.</p>
           )}
 
           {dryRun && !dryRunExpired && <DryRunResultCard result={dryRun.result} />}

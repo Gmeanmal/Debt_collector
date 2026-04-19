@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+
 interface Props {
   label: string;
   total: number;
@@ -18,7 +20,7 @@ const USER_ROLES = ["all", "sub", "goddess", "admin"] as const;
 const USER_STATUSES = ["all", "active", "pending_entry_tribute", "blacklisted", "deleted"] as const;
 
 const selectClass =
-  "px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text focus-visible:ring-2 focus-visible:ring-violet-primary";
+  "px-3 py-1.5 text-sm bg-bg-sunken border border-line rounded-md text-text focus-visible:ring-2 focus-visible:ring-accent";
 
 export function AdminTableToolbar({
   label,
@@ -38,40 +40,30 @@ export function AdminTableToolbar({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
-        <h2 className="font-display text-xl font-bold text-violet-primary tracking-wider">
+        <h2 className="font-serif italic text-xl text-text tracking-tight">
           {label}
         </h2>
-        <span className="text-xs text-base-text-subtle">{total} total</span>
+        <span className="font-mono text-[10px] text-text-faint uppercase tracking-[0.14em]">
+          {total} total
+        </span>
         <form onSubmit={onSearch} className="flex items-center gap-2 sm:ml-auto flex-wrap">
           <input
             type="search"
             placeholder="Search…"
             value={qDraft}
             onChange={(e) => onQDraftChange(e.target.value)}
-            className="flex-1 min-w-0 px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text focus-visible:ring-2 focus-visible:ring-violet-primary"
+            className="flex-1 min-w-0 px-3 py-1.5 text-sm bg-bg-sunken border border-line rounded-md text-text focus-visible:ring-2 focus-visible:ring-accent"
           />
-          <button
-            type="submit"
-            className="px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text hover:bg-base-surface"
-          >
+          <Button type="submit" variant="ghost" size="sm">
             Search
-          </button>
-          <button
-            type="button"
-            onClick={onExportCsv}
-            aria-label="Export CSV"
-            className="px-3 py-1.5 text-sm bg-base-surface-raised border border-base-border rounded-md text-base-text hover:bg-base-surface"
-          >
+          </Button>
+          <Button type="button" variant="ghost" size="sm" onClick={onExportCsv} aria-label="Export CSV">
             Export CSV
-          </button>
+          </Button>
           {canCreate && (
-            <button
-              type="button"
-              onClick={onNew}
-              className="px-3 py-1.5 text-sm bg-violet-primary text-violet-foreground font-semibold rounded-md hover:bg-violet-primary-hover"
-            >
+            <Button type="button" variant="primary" size="sm" onClick={onNew}>
               + New
-            </button>
+            </Button>
           )}
         </form>
       </div>

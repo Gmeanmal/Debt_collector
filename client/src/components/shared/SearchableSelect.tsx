@@ -101,12 +101,10 @@ export function SearchableSelect<T>({
     }
   }
 
-  // Reset activeIdx when filter changes
   useEffect(() => {
     setActiveIdx(-1);
   }, [query]);
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return;
     function handler(e: MouseEvent) {
@@ -118,7 +116,6 @@ export function SearchableSelect<T>({
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
-  // Focus input when opening
   useEffect(() => {
     if (open) {
       inputRef.current?.focus();
@@ -151,11 +148,11 @@ export function SearchableSelect<T>({
         disabled={disabled}
         onClick={openDropdown}
         className={cn(
-          "flex h-11 w-full items-center justify-between gap-2 rounded-md border border-base-border bg-base-surface-raised/60 px-4 py-2 text-sm transition-all duration-200",
-          "focus:border-pink-primary/60 focus:outline-none focus:ring-2 focus:ring-pink-ring",
+          "flex h-11 w-full items-center justify-between gap-2 rounded-[6px] border border-line bg-bg-elev px-4 py-2 text-sm transition-all duration-200",
+          "focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          hasValue ? "text-base-text" : "text-base-text-subtle",
-          open && "border-pink-primary/60 ring-2 ring-pink-ring",
+          hasValue ? "text-text" : "text-text-faint",
+          open && "border-accent ring-2 ring-accent",
         )}
       >
         <span className="flex-1 truncate text-left">{triggerLabel}</span>
@@ -165,14 +162,14 @@ export function SearchableSelect<T>({
               role="button"
               aria-label="Clear selection"
               onClick={handleClear}
-              className="flex h-5 w-5 items-center justify-center rounded-full text-base-text-muted hover:text-base-text"
+              className="flex h-5 w-5 items-center justify-center rounded-full text-text-mute hover:text-text"
             >
               <X className="h-3 w-3" />
             </span>
           )}
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-base-text-subtle transition-transform duration-200",
+              "h-4 w-4 text-text-faint transition-transform duration-200",
               open && "rotate-180",
             )}
           />
@@ -183,12 +180,12 @@ export function SearchableSelect<T>({
       {open && (
         <div
           className={cn(
-            "absolute left-0 top-full z-50 mt-1 w-full rounded-md border border-base-border bg-popover",
-            "shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)]",
+            "absolute left-0 top-full z-50 mt-1 w-full rounded-[10px] border border-line bg-bg-elev",
+            "shadow-md divide-y divide-line",
           )}
         >
           {/* Filter input */}
-          <div className="border-b border-base-border px-3 py-2">
+          <div className="px-3 py-2">
             <input
               ref={inputRef}
               type="text"
@@ -200,7 +197,7 @@ export function SearchableSelect<T>({
               aria-autocomplete="list"
               aria-controls={listboxId}
               aria-activedescendant={activeDescendant}
-              className="w-full bg-transparent text-sm text-base-text placeholder:text-base-text-subtle focus:outline-none"
+              className="w-full bg-transparent text-sm text-text placeholder:text-text-faint focus:outline-none"
             />
           </div>
 
@@ -213,8 +210,8 @@ export function SearchableSelect<T>({
               onClick={() => selectOption(null)}
               className={cn(
                 "flex w-full items-center px-4 py-2.5 text-sm text-left transition-colors",
-                "hover:bg-base-surface-raised text-base-text-muted italic",
-                value === null && "bg-base-surface-raised text-pink-primary",
+                "hover:bg-bg-sunken text-text-mute italic",
+                value === null && "bg-bg-sunken text-accent-deep",
               )}
             >
               All subs (no override)
@@ -224,7 +221,7 @@ export function SearchableSelect<T>({
           {/* Options listbox */}
           <ul ref={listRef} id={listboxId} role="listbox" className="max-h-64 overflow-y-auto py-1">
             {filtered.length === 0 ? (
-              <li className="px-4 py-3 text-sm text-base-text-subtle">{emptyMessage}</li>
+              <li className="px-4 py-3 text-sm text-text-mute">{emptyMessage}</li>
             ) : (
               filtered.map((opt, idx) => {
                 const isSelected = value !== null && getValue(opt) === getValue(value);
@@ -238,9 +235,9 @@ export function SearchableSelect<T>({
                     onClick={() => selectOption(opt)}
                     className={cn(
                       "flex cursor-default items-center gap-3 px-4 py-2 text-sm transition-colors",
-                      "hover:bg-base-surface-raised",
-                      isSelected && "text-pink-primary",
-                      isActive && "bg-base-surface-raised",
+                      "hover:bg-bg-sunken",
+                      isSelected && "text-accent-deep",
+                      isActive && "bg-bg-sunken",
                     )}
                   >
                     {renderOption ? renderOption(opt) : getLabel(opt)}

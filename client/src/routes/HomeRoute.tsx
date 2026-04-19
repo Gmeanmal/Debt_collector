@@ -6,6 +6,7 @@ import { useSubDashboardSummary } from "@/hooks/dashboard/useSubDashboardSummary
 import { DashboardSummaryGrid } from "@/components/dashboard/DashboardSummaryGrid";
 import { SubSummaryGrid } from "@/components/dashboard/SubSummaryGrid";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { PageHeader } from "@/components/ui/page-header";
 
 interface ActionCard {
   to: string;
@@ -84,12 +85,12 @@ function ActionGrid({ actions, alertRoutes }: ActionGridProps) {
             key={a.to}
             to={a.to}
             className={cn(
-              "bg-base-surface rounded-lg p-5 hover:border-pink-primary transition-colors flex flex-col gap-2 border",
-              hasAlert ? "border-pink-primary" : "border-base-border",
+              "bg-bg-elev rounded-lg p-5 hover:border-accent transition-colors flex flex-col gap-2 border",
+              hasAlert ? "border-accent" : "border-line",
             )}
           >
-            <h3 className="text-base-text font-semibold">{a.title}</h3>
-            <p className="text-base-text-muted text-sm">{a.description}</p>
+            <h3 className="text-text font-semibold">{a.title}</h3>
+            <p className="text-text-mute text-sm">{a.description}</p>
           </Link>
         );
       })}
@@ -102,16 +103,14 @@ function SubHome({ displayName }: { displayName: string }) {
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8 flex flex-col gap-6">
-      <div>
-        <h2 className="font-display text-2xl text-pink-primary">{`Welcome, ${displayName}`}</h2>
-      </div>
+      <PageHeader title={`Welcome, ${displayName}`} />
 
       {isLoading && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-lg bg-base-surface border border-base-border p-4 h-20 animate-pulse"
+              className="rounded-lg bg-bg-elev border border-line p-4 h-20 animate-pulse"
             />
           ))}
         </div>
@@ -139,19 +138,17 @@ function GoddessHome({ displayName }: { displayName: string }) {
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8 flex flex-col gap-6">
-      <div>
-        <h2 className="font-display text-2xl text-pink-primary">{`Welcome, ${displayName}`}</h2>
-        <p className="text-base-text-muted text-sm mt-1">
-          Manage your subs, invitations and tributes from here.
-        </p>
-      </div>
+      <PageHeader
+        title={`Welcome, ${displayName}`}
+        description="Manage your subs, invitations and tributes from here."
+      />
 
       {isLoading && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-lg bg-base-surface border border-base-border p-4 h-20 animate-pulse"
+              className="rounded-lg bg-bg-elev border border-line p-4 h-20 animate-pulse"
             />
           ))}
         </div>
@@ -186,10 +183,10 @@ export function HomeRoute() {
   if (user.role === "admin") {
     return (
       <div className="max-w-6xl mx-auto p-4 md:p-8 flex flex-col gap-6">
-        <div>
-          <h2 className="font-display text-2xl text-pink-primary">{`Welcome, ${user.display_name}`}</h2>
-          <p className="text-base-text-muted text-sm mt-1">Operational controls.</p>
-        </div>
+        <PageHeader
+          title={`Welcome, ${user.display_name}`}
+          description="Operational controls."
+        />
         <ActionGrid actions={ADMIN_ACTIONS} />
       </div>
     );

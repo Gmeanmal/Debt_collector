@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
 
 export interface RejectModalProps {
   title?: string;
@@ -49,11 +50,11 @@ export function RejectModal({
 
   return (
     <Modal title={title} onClose={onClose}>
-      {description && <p className="text-sm text-base-text-muted">{description}</p>}
+      {description && <p className="text-sm text-text-mute">{description}</p>}
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-base-text" htmlFor="reject-reason-input">
-          Reason <span className="text-status-danger">*</span>
+        <label className="text-sm font-medium text-text" htmlFor="reject-reason-input">
+          Reason <span className="text-bad-ink">*</span>
         </label>
         <textarea
           id="reject-reason-input"
@@ -66,38 +67,40 @@ export function RejectModal({
           maxLength={MAX_LENGTH}
           rows={3}
           placeholder={placeholder}
-          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-debt-primary"
+          className="bg-bg-sunken border border-line rounded-[6px] px-3 py-2 text-text placeholder:text-text-faint text-sm resize-none focus:outline-none focus:ring-2 focus:ring-accent"
         />
         <div className="flex justify-between items-start gap-2">
           {tooShort && reason.length > 0 ? (
-            <p className="text-status-danger text-xs">{INLINE_ERROR}</p>
+            <p className="text-bad-ink text-xs">{INLINE_ERROR}</p>
           ) : (
             <span />
           )}
-          <span className="text-base-text-subtle text-xs ml-auto">
+          <span className="text-text-faint text-xs ml-auto">
             {reason.length}/{MAX_LENGTH}
           </span>
         </div>
-        {submitError && <p className="text-status-danger text-xs">{submitError}</p>}
+        {submitError && <p className="text-bad-ink text-xs">{submitError}</p>}
       </div>
 
       <div className="flex gap-2 justify-end">
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           type="button"
           onClick={onClose}
           disabled={pending}
-          className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors disabled:opacity-50"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="danger"
+          size="sm"
           type="button"
           onClick={() => void handleConfirm()}
           disabled={confirmDisabled}
-          className="px-3 py-1.5 text-sm bg-debt-primary text-pink-foreground font-semibold rounded hover:bg-debt-primary-hover transition-colors disabled:opacity-50"
         >
           {pending ? "Rejecting…" : confirmLabel}
-        </button>
+        </Button>
       </div>
     </Modal>
   );

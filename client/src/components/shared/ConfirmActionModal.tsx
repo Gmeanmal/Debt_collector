@@ -63,7 +63,6 @@ export function ConfirmActionModal(props: ConfirmActionModalProps) {
 
   const confirmDisabled = isLoading || (isTypedConfirm && typedValue !== expectedString);
 
-  // Focus trap setup
   useEffect(() => {
     prevFocused.current = document.activeElement as HTMLElement | null;
     const node = dialogRef.current;
@@ -78,7 +77,6 @@ export function ConfirmActionModal(props: ConfirmActionModalProps) {
     };
   }, []);
 
-  // Keyboard handling: Esc + Tab trap
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
@@ -118,7 +116,7 @@ export function ConfirmActionModal(props: ConfirmActionModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-base-bg/80 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink-400/55 backdrop-blur-sm px-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby={`${inputId}-title`}
@@ -127,7 +125,7 @@ export function ConfirmActionModal(props: ConfirmActionModalProps) {
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className="bg-base-surface border border-base-border rounded-lg w-full max-w-md p-6 shadow-[var(--shadow-card)] flex flex-col gap-4 focus:outline-none"
+        className="bg-bg-elev border border-line rounded-[10px] w-full max-w-md p-6 shadow-md flex flex-col gap-4 focus:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -135,8 +133,8 @@ export function ConfirmActionModal(props: ConfirmActionModalProps) {
           <h2
             id={`${inputId}-title`}
             className={cn(
-              "text-base font-semibold",
-              isDestructive ? "text-status-danger" : "text-base-text",
+              "font-serif italic text-[20px]",
+              isDestructive ? "text-bad-ink" : "text-text",
             )}
           >
             {title}
@@ -145,18 +143,18 @@ export function ConfirmActionModal(props: ConfirmActionModalProps) {
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="text-base-text-muted hover:text-base-text focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
+            className="text-text-faint hover:text-text focus-visible:ring-2 focus-visible:ring-accent rounded"
           >
             ✕
           </button>
         </div>
 
         {/* Description */}
-        {description && <div className="text-sm text-base-text-muted">{description}</div>}
+        {description && <div className="text-sm text-text-mute">{description}</div>}
 
         {/* Preview block */}
         {props.kind === "preview" && (
-          <div className="bg-base-surface-raised border border-base-border rounded-md p-4">
+          <div className="bg-bg-sunken border border-line rounded-[6px] p-4">
             {props.previewContent}
           </div>
         )}
@@ -164,7 +162,7 @@ export function ConfirmActionModal(props: ConfirmActionModalProps) {
         {/* Typed confirm input */}
         {isTypedConfirm && (
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={inputId} className="text-sm text-base-text">
+            <label htmlFor={inputId} className="text-sm text-text">
               {confirmPrompt}
             </label>
             <input
@@ -174,18 +172,18 @@ export function ConfirmActionModal(props: ConfirmActionModalProps) {
               onChange={(e) => setTypedValue(e.target.value)}
               autoComplete="off"
               aria-label={confirmPrompt}
-              className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-debt-primary"
+              className="bg-bg-sunken border border-line rounded-[6px] px-3 py-2 text-text text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
         )}
 
         {/* Error */}
-        {error && <p className="text-xs text-status-danger">{error}</p>}
+        {error && <p className="text-xs text-bad-ink">{error}</p>}
 
         {/* Actions */}
         <div className="flex gap-2 justify-end">
           <Button
-            variant="secondary"
+            variant="ghost"
             size="sm"
             type="button"
             onClick={onClose}
@@ -194,7 +192,7 @@ export function ConfirmActionModal(props: ConfirmActionModalProps) {
             {cancelLabel}
           </Button>
           <Button
-            variant={isDestructive ? "destructive" : "primary"}
+            variant={isDestructive ? "danger" : "primary"}
             size="sm"
             type="button"
             onClick={onConfirm}
