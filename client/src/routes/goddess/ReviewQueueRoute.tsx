@@ -11,6 +11,7 @@ import { BulkActionBar } from "@/components/reviewQueue/BulkActionBar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 
 export function ReviewQueueRoute() {
   const qc = useQueryClient();
@@ -74,9 +75,11 @@ export function ReviewQueueRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-3xl mx-auto flex flex-col gap-6">
-        <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-          Review Queue
-        </h1>
+        <PageHeader
+          crumbs={["Home · Moderation · Review"]}
+          title={<span className="italic">Review queue</span>}
+          description="Submitted rituals and tasks awaiting your decision."
+        />
 
         <BulkActionBar
           selectedCount={selected.size}
@@ -102,21 +105,21 @@ export function ReviewQueueRoute() {
         )}
 
         {failDetails.length > 0 && (
-          <div className="bg-debt-muted border border-debt-ring rounded-lg p-4 flex flex-col gap-2">
+          <div className="bg-bad-bg border border-line rounded-[10px] p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-status-danger">
+              <p className="text-sm font-semibold text-bad-ink">
                 {failDetails.length} item{failDetails.length !== 1 ? "s" : ""} failed
               </p>
               <button
                 type="button"
                 onClick={() => setDetailsOpen((v) => !v)}
-                className="text-xs text-status-danger underline-offset-2 hover:underline"
+                className="text-xs text-bad-ink underline-offset-2 hover:underline"
               >
                 {detailsOpen ? "Hide details" : "Show details"}
               </button>
             </div>
             {detailsOpen && (
-              <ul className="text-xs text-status-danger/90 list-disc list-inside flex flex-col gap-1">
+              <ul className="text-xs text-bad-ink/90 list-disc list-inside flex flex-col gap-1">
                 {failDetails.map((f) => (
                   <li key={f.id}>{f.error}</li>
                 ))}

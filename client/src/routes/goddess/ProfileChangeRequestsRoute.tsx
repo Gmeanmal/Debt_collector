@@ -12,6 +12,7 @@ import type { AvatarKey } from "@/services/profile/avatarMap";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { PageHeader } from "@/components/ui/page-header";
 import { ProfileRequestCard } from "@/components/profile/ProfileRequestCard";
 import { RejectRequestDialog } from "@/components/profile/RejectRequestDialog";
 import { SetFeeRequestDialog } from "@/components/profile/SetFeeRequestDialog";
@@ -69,14 +70,11 @@ export function ProfileChangeRequestsRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Profile change requests
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Pending requests from your subs to update their profiles.
-          </p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Moderation · Profile changes"]}
+          title={<span className="italic">Profile change requests</span>}
+          description="Pending requests from your subs to update their profiles."
+        />
 
         {isLoading && <ListSkeleton rows={4} />}
         {isError && (

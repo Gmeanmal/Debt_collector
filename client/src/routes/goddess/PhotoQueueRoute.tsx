@@ -9,6 +9,7 @@ import { PhotoReviewCard } from "@/components/goddess/PhotoReviewCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 
 export function PhotoQueueRoute() {
   const qc = useQueryClient();
@@ -36,9 +37,11 @@ export function PhotoQueueRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
-        <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-          Photo Queue
-        </h1>
+        <PageHeader
+          crumbs={["Home · Moderation · Photos"]}
+          title={<span className="italic">Photo queue</span>}
+          description="Profile photos submitted by subs awaiting approval."
+        />
 
         {isLoading && <ListSkeleton rows={3} />}
 

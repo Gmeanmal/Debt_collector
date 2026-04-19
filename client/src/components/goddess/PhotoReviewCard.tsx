@@ -2,6 +2,7 @@ import { useState } from "react";
 import { RejectModal } from "@/components/shared/RejectModal";
 import type { SubPhotoQueueEntry } from "@/services/goddessPhotos/goddessPhotosApi";
 import { formatLondon } from "@/services/format/datetime";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   entry: SubPhotoQueueEntry;
@@ -24,7 +25,7 @@ export function PhotoReviewCard({ entry, onApprove, onReject }: Props) {
   const [rejectOpen, setRejectOpen] = useState(false);
   const [approveErr, setApproveErr] = useState<string | null>(null);
 
-  const subLabel = entry.sub_username ? `@${entry.sub_username}` : "Unknown sub";
+  const subUsername = entry.sub_username ? `@${entry.sub_username}` : "Unknown sub";
 
   async function handleApprove() {
     setApproving(true);
@@ -39,57 +40,59 @@ export function PhotoReviewCard({ entry, onApprove, onReject }: Props) {
   }
 
   return (
-    <article className="bg-base-surface border border-base-border rounded-lg overflow-hidden flex flex-col">
-      <div className="relative bg-base-surface-raised aspect-square overflow-hidden">
+    <article className="bg-bg-elev border border-line rounded-[10px] overflow-hidden flex flex-col">
+      <div className="relative bg-bg-sunken aspect-square overflow-hidden">
         <img
           src={entry.presigned_get_url}
-          alt={`Photo submitted by ${subLabel}`}
+          alt={`Photo submitted by ${subUsername}`}
           loading="lazy"
           className="w-full h-full object-cover"
         />
       </div>
 
-      <div className="p-4 flex flex-col gap-3">
+      <div className="p-[18px] flex flex-col gap-3">
         <div className="flex flex-col gap-0.5">
-          <p className="text-sm font-semibold text-base-text">{subLabel}</p>
-          <p className="text-xs text-base-text-muted">{formatUploadedAt(entry.uploaded_at)}</p>
-          <p className="text-xs text-base-text-subtle">
+          <p className="font-mono text-[11px] tracking-[0.08em] text-text-faint">{subUsername}</p>
+          <p className="text-xs text-text-mute">{formatUploadedAt(entry.uploaded_at)}</p>
+          <p className="text-xs text-text-faint">
             {entry.mime_type} · {formatBytes(entry.byte_size)}
           </p>
         </div>
 
         {approveErr && (
-          <p role="alert" className="text-status-danger text-xs">
+          <p role="alert" className="text-bad-ink text-xs">
             {approveErr}
           </p>
         )}
 
         <div className="flex gap-2">
-          <button
-            type="button"
+          <Button
+            variant="soft"
+            size="sm"
+            className="flex-1"
             onClick={() => void handleApprove()}
             disabled={approving}
-            aria-label={`Approve photo from ${subLabel}`}
-            className="flex-1 px-3 py-1.5 text-xs bg-status-success/20 text-status-success border border-status-success/30 rounded font-semibold hover:bg-status-success/30 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-status-success"
+            aria-label={`Approve photo from ${subUsername}`}
           >
             {approving ? "Approving…" : "Approve"}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            className="flex-1"
             onClick={() => setRejectOpen(true)}
             disabled={approving}
-            aria-label={`Reject photo from ${subLabel}`}
-            className="flex-1 px-3 py-1.5 text-xs bg-debt-muted text-status-danger border border-debt-ring rounded font-semibold hover:bg-debt-primary/20 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-debt-primary"
+            aria-label={`Reject photo from ${subUsername}`}
           >
             Reject
-          </button>
+          </Button>
         </div>
       </div>
 
       {rejectOpen && (
         <RejectModal
           title="Reject photo"
-          description={`Photo from ${subLabel}`}
+          description={`Photo from ${subUsername}`}
           onClose={() => setRejectOpen(false)}
           onConfirm={async (reason) => {
             await onReject(reason);

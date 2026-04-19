@@ -6,6 +6,7 @@ import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { listGoddessSubsApi, type GoddessSub } from "@/services/payments/paymentsApi";
 import { SearchableSelect } from "@/components/shared/SearchableSelect";
 import {
@@ -94,18 +95,21 @@ export function JournalReaderRoute() {
   const allEntries = pages.flat().concat(entries);
   const hasMore = entries.length === PAGE_LIMIT;
 
+  const pageTitle = selectedSub
+    ? <span className="italic">{selectedSub.display_name}'s journal</span>
+    : <span className="italic">Journal</span>;
+
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Journal
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">Read and comment on sub entries.</p>
-        </div>
+        <PageHeader
+          crumbs={["Home · People · Journal"]}
+          title={pageTitle}
+          description="Read and comment on sub entries."
+        />
 
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+          <span className="text-xs font-semibold text-text-faint uppercase tracking-wide">
             Sub
           </span>
           <SearchableSelect<GoddessSub>
@@ -119,10 +123,10 @@ export function JournalReaderRoute() {
             renderOption={(s) => (
               <span className="flex items-center gap-2 min-w-0">
                 <span className="flex-1 min-w-0">
-                  <span className="block truncate font-medium text-base-text">
+                  <span className="block truncate font-medium text-text">
                     {s.display_name}
                   </span>
-                  <span className="block truncate text-xs text-base-text-muted">@{s.username}</span>
+                  <span className="block truncate text-xs text-text-mute">@{s.username}</span>
                 </span>
               </span>
             )}
@@ -138,7 +142,7 @@ export function JournalReaderRoute() {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-base-surface border border-base-border rounded-lg h-28 animate-pulse"
+                className="bg-bg-elev border border-line rounded-[10px] h-28 animate-pulse"
               />
             ))}
           </div>
@@ -170,7 +174,7 @@ export function JournalReaderRoute() {
                       <div className="flex justify-end">
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="ghost"
                           onClick={() => markReadMutation.mutate({ entryId: entry.id })}
                           disabled={markReadMutation.isPending}
                         >
@@ -192,7 +196,7 @@ export function JournalReaderRoute() {
 
             {hasMore && (
               <div className="flex justify-center">
-                <Button variant="outline" size="sm" onClick={loadNextPage}>
+                <Button variant="ghost" size="sm" onClick={loadNextPage}>
                   Load more
                 </Button>
               </div>

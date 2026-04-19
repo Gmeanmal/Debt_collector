@@ -85,12 +85,12 @@ export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-5"
+      className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-5"
     >
-      <h2 className="text-sm font-semibold text-base-text">New entry</h2>
+      <h2 className="text-sm font-semibold text-text">New entry</h2>
 
       <fieldset>
-        <legend className="text-xs font-semibold text-base-text-muted mb-2 uppercase tracking-wide">
+        <legend className="text-xs font-semibold text-text-faint mb-2 uppercase tracking-wide">
           How are you feeling?
         </legend>
         <div className="flex flex-wrap gap-2">
@@ -106,8 +106,8 @@ export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-colors",
                   selected
-                    ? "border-pink-primary bg-pink-primary/10 text-pink-primary"
-                    : "border-base-border bg-base-surface-raised text-base-text-muted hover:border-pink-primary/40 hover:text-pink-primary",
+                    ? "border-accent bg-accent-trace text-accent-deep"
+                    : "border-line bg-bg-sunken text-text-mute hover:border-accent/40 hover:text-accent-deep",
                 )}
               >
                 <span aria-hidden="true">{emoji}</span>
@@ -121,7 +121,7 @@ export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
       <div className="flex flex-col gap-1">
         <label
           htmlFor="journal-body"
-          className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+          className="text-xs font-semibold text-text-faint uppercase tracking-wide"
         >
           Entry
         </label>
@@ -131,15 +131,15 @@ export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
           onChange={(e) => setBody(e.target.value)}
           rows={5}
           placeholder="Write your entry here…"
-          className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+          className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-sm text-text resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
-        {bodyError && <p className="text-xs text-status-danger">{bodyError}</p>}
+        {bodyError && <p className="text-xs text-bad-ink">{bodyError}</p>}
       </div>
 
       <div className="flex flex-col gap-1">
         <label
           htmlFor="journal-attachment"
-          className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+          className="text-xs font-semibold text-text-faint uppercase tracking-wide"
         >
           Attachment <span className="font-normal normal-case">(optional)</span>
         </label>
@@ -149,10 +149,10 @@ export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
           type="file"
           accept={ACCEPTED_MIMES}
           onChange={handleFileChange}
-          className="text-sm text-base-text file:mr-3 file:py-1 file:px-3 file:rounded file:border file:border-base-border file:bg-base-surface-raised file:text-xs file:text-base-text-muted"
+          className="text-sm text-text file:mr-3 file:py-1 file:px-3 file:rounded file:border file:border-line file:bg-bg-sunken file:text-xs file:text-text-mute"
         />
-        {attachmentError && <p className="text-xs text-status-danger">{attachmentError}</p>}
-        {attachment && <p className="text-xs text-base-text-muted">{attachment.name}</p>}
+        {attachmentError && <p className="text-xs text-bad-ink">{attachmentError}</p>}
+        {attachment && <p className="text-xs text-text-mute">{attachment.name}</p>}
       </div>
 
       <label className="flex items-start gap-2 cursor-pointer">
@@ -160,17 +160,17 @@ export function JournalEntryForm({ onSubmit, isPending, error }: Props) {
           type="checkbox"
           checked={isPrivate}
           onChange={(e) => setIsPrivate(e.target.checked)}
-          className="mt-0.5 accent-pink-primary"
+          className="mt-0.5 accent-[var(--color-accent)]"
         />
         <span className="flex flex-col">
-          <span className="text-sm text-base-text font-medium">Private (only me)</span>
-          <span className="text-xs text-base-text-muted">
+          <span className="text-sm text-text font-medium">Private (only me)</span>
+          <span className="text-xs text-text-mute">
             Private entries stay hidden from your Goddess.
           </span>
         </span>
       </label>
 
-      {error && <p className="text-xs text-status-danger">{error}</p>}
+      {error && <p className="text-xs text-bad-ink">{error}</p>}
 
       <div className="flex justify-end">
         <Button type="submit" disabled={isPending} size="md">

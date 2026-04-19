@@ -40,7 +40,7 @@ export function GoddessCommentForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-xs text-pink-primary hover:underline focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
+        className="text-xs text-accent-deep hover:underline focus-visible:ring-2 focus-visible:ring-accent rounded"
         aria-label={existingComment ? "Edit your comment" : "Add a comment"}
       >
         {existingComment ? "Edit comment" : "Add comment"}
@@ -52,7 +52,7 @@ export function GoddessCommentForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <label
         htmlFor={`comment-${entryId}`}
-        className="text-xs font-semibold text-base-text-muted uppercase tracking-wide"
+        className="text-xs font-semibold text-text-faint uppercase tracking-wide"
       >
         Your comment
       </label>
@@ -62,10 +62,10 @@ export function GoddessCommentForm({
         onChange={(e) => setComment(e.target.value)}
         rows={3}
         placeholder="Leave a note for your sub…"
-        className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-sm text-base-text resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+        className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-sm text-text resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       />
-      {commentError && <p className="text-xs text-status-danger">{commentError}</p>}
-      {error && <p className="text-xs text-status-danger">{error}</p>}
+      {commentError && <p className="text-xs text-bad-ink">{commentError}</p>}
+      {error && <p className="text-xs text-bad-ink">{error}</p>}
       <div className="flex gap-2 justify-end">
         <Button
           type="button"

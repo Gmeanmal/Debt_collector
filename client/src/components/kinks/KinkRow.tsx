@@ -32,7 +32,7 @@ function SaveIndicator({ isPending, lastSavedAt }: SaveIndicatorProps) {
 
   if (isPending) {
     return (
-      <span className="flex items-center gap-1 text-xs text-base-text-subtle">
+      <span className="flex items-center gap-1 text-xs text-text-faint">
         <Loader2 size={12} className="animate-spin" aria-hidden="true" />
         Saving…
       </span>
@@ -42,7 +42,7 @@ function SaveIndicator({ isPending, lastSavedAt }: SaveIndicatorProps) {
   if (lastSavedAt !== undefined && now - lastSavedAt < RECENCY_WINDOW_MS) {
     const elapsed = Math.round((now - lastSavedAt) / 1000);
     return (
-      <span className="text-xs text-status-success" role="status">
+      <span className="text-xs text-ok-ink" role="status">
         Saved · {elapsed}s ago
       </span>
     );
@@ -84,32 +84,33 @@ export function KinkRow({ item, onRatingChange, isPending = false, lastSavedAt }
     <>
       <div
         className={cn(
-          "flex items-start justify-between gap-3 py-2.5 border-b border-base-border last:border-0",
+          "flex items-start justify-between gap-3 py-2.5 border-b border-line last:border-0",
+          "hover:bg-bg-sunken transition-colors duration-100",
         )}
       >
         <div className="flex flex-col gap-0.5 min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm text-base-text leading-snug">{item.label}</span>
+            <span className="text-sm text-text leading-snug">{item.label}</span>
             {item.safety_flag && (
               <AlertTriangle
-                className="shrink-0 text-status-warning"
+                className="shrink-0 text-warn-ink"
                 size={14}
                 aria-label="Safety-flagged item — requires care"
               />
             )}
             {item.is_custom && (
-              <span className="text-[10px] px-1 py-0.5 rounded bg-violet-muted text-violet-primary border border-violet-primary/20 leading-none">
+              <span className="text-[10px] px-1 py-0.5 rounded bg-accent-trace text-accent-deep border border-accent/20 leading-none">
                 custom
               </span>
             )}
           </div>
           {item.description && (
-            <p className="text-xs text-base-text-subtle leading-snug line-clamp-2">
+            <p className="text-xs text-text-faint leading-snug line-clamp-2">
               {item.description}
             </p>
           )}
           {item.note && (
-            <p className="text-xs text-base-text-muted italic leading-snug">"{item.note}"</p>
+            <p className="text-xs text-text-mute italic leading-snug">"{item.note}"</p>
           )}
           <SaveIndicator isPending={isPending} lastSavedAt={lastSavedAt} />
         </div>

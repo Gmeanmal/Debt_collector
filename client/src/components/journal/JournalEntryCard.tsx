@@ -52,7 +52,7 @@ function AttachmentPreview({ url, mime }: { url: string; mime: string }) {
         src={url}
         alt="Journal attachment"
         loading="lazy"
-        className="rounded-md max-h-64 object-contain border border-base-border"
+        className="rounded-md max-h-64 object-contain border border-line"
       />
     );
   }
@@ -67,15 +67,18 @@ export function JournalEntryCard({ entry, commentSlot }: Props) {
 
   return (
     <article
-      className={cn("bg-base-surface border border-base-border rounded-lg p-5 flex flex-col gap-3")}
+      className={cn("bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-3")}
     >
       <header className="flex flex-wrap items-center justify-between gap-2">
-        <time dateTime={entry.created_at} className="text-xs text-base-text-muted">
+        <time
+          dateTime={entry.created_at}
+          className="font-mono text-[11px] text-text-faint"
+        >
           {formatTs(entry.created_at)}
         </time>
         <div className="flex flex-wrap items-center gap-2">
           {entry.read_by_goddess_at && (
-            <span className="text-xs text-base-text-subtle">
+            <span className="font-mono text-[11px] text-text-faint">
               Goddess read · {formatRelative(entry.read_by_goddess_at)}
             </span>
           )}
@@ -83,29 +86,32 @@ export function JournalEntryCard({ entry, commentSlot }: Props) {
         </div>
       </header>
 
-      <p className="text-sm text-base-text whitespace-pre-wrap leading-relaxed">{entry.body}</p>
+      <p className="text-sm text-text whitespace-pre-wrap leading-relaxed">{entry.body}</p>
 
       {entry.attachment_presigned_url && entry.attachment_mime && (
         <AttachmentPreview url={entry.attachment_presigned_url} mime={entry.attachment_mime} />
       )}
 
       {entry.goddess_comment && (
-        <div className="mt-1 border-t border-base-border pt-3 flex flex-col gap-1">
-          <p className="text-xs font-semibold text-pink-primary uppercase tracking-wide">
+        <div className="mt-1 border-t border-line pt-3 flex flex-col gap-1">
+          <p className="text-xs font-semibold text-accent-deep uppercase tracking-wide">
             Goddess note
           </p>
-          <p className="text-sm text-base-text-muted italic whitespace-pre-wrap">
+          <p className="text-sm text-text-mute italic whitespace-pre-wrap">
             {entry.goddess_comment}
           </p>
           {entry.goddess_comment_at && (
-            <time dateTime={entry.goddess_comment_at} className="text-xs text-base-text-subtle">
+            <time
+              dateTime={entry.goddess_comment_at}
+              className="font-mono text-[11px] text-text-faint"
+            >
               {formatTs(entry.goddess_comment_at)}
             </time>
           )}
         </div>
       )}
 
-      {commentSlot && <div className="mt-1 border-t border-base-border pt-3">{commentSlot}</div>}
+      {commentSlot && <div className="mt-1 border-t border-line pt-3">{commentSlot}</div>}
     </article>
   );
 }

@@ -32,35 +32,35 @@ function CategorySection({
   const isFiltered = visibleItems.length < totalItems;
 
   return (
-    <div className="border border-base-border rounded-lg overflow-hidden">
+    <div className="border border-line rounded-[10px] overflow-hidden">
       <button
         type="button"
         id={`category-header-${category.id}`}
         onClick={() => setExpanded((v) => !v)}
         className={cn(
           "w-full flex items-center justify-between px-4 py-3 text-left",
-          "bg-base-surface-raised hover:bg-base-surface-raised/70 transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary focus-visible:ring-inset",
+          "bg-bg-sunken hover:bg-bg-inset transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset",
         )}
         aria-expanded={expanded}
         aria-controls={`category-body-${category.id}`}
       >
         <div className="flex items-center gap-2">
           {expanded ? (
-            <ChevronDown size={16} className="text-base-text-muted shrink-0" />
+            <ChevronDown size={16} className="text-text-mute shrink-0" />
           ) : (
-            <ChevronRight size={16} className="text-base-text-muted shrink-0" />
+            <ChevronRight size={16} className="text-text-mute shrink-0" />
           )}
-          <span className="text-sm font-semibold text-base-text">{category.label}</span>
+          <span className="text-sm font-semibold text-text">{category.label}</span>
           {category.safety_flag && (
             <AlertTriangle
               size={14}
-              className="text-status-warning shrink-0"
+              className="text-warn-ink shrink-0"
               aria-label="Safety-flagged category"
             />
           )}
         </div>
-        <span className="text-xs text-base-text-subtle">
+        <span className="text-xs text-text-faint">
           {isFiltered
             ? `${visibleItems.length}/${totalItems} items · ${ratedCount} rated`
             : `${totalItems} items · ${ratedCount} rated`}
@@ -72,7 +72,7 @@ function CategorySection({
           id={`category-body-${category.id}`}
           role="region"
           aria-labelledby={`category-header-${category.id}`}
-          className="px-4 bg-base-surface"
+          className="px-4 bg-bg-elev"
         >
           {visibleItems.map((item) => (
             <KinkRow
@@ -106,7 +106,7 @@ export function KinkMatrix({
 }: Props) {
   if (matrix.categories.length === 0) {
     return (
-      <p className="text-sm text-base-text-muted text-center py-10">
+      <p className="text-sm text-text-mute text-center py-10">
         No kink categories have been configured yet.
       </p>
     );
@@ -122,7 +122,7 @@ export function KinkMatrix({
 
   if (categoriesToRender.length === 0) {
     return (
-      <p className="text-sm text-base-text-muted text-center py-10">All items have been rated.</p>
+      <p className="text-sm text-text-mute text-center py-10">All items have been rated.</p>
     );
   }
 

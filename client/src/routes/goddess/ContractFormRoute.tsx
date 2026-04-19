@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ContractFormFields } from "@/components/contracts/ContractFormFields";
 import { SimulationChart } from "@/components/contracts/SimulationChart";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 import {
   proposeAsGoddessApi,
   simulateDraftApi,
@@ -86,7 +88,7 @@ export function ContractFormRoute() {
   if (!safeUsername) {
     return (
       <div className="p-4 md:p-8">
-        <p className="text-status-danger text-sm">No username in route.</p>
+        <p className="text-bad-ink text-sm">No username in route.</p>
       </div>
     );
   }
@@ -96,17 +98,16 @@ export function ContractFormRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            New Debt Contract
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">Sub: {subLabel}</p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Contracts · New"]}
+          title={<span className="italic">Draft a contract</span>}
+          description={`Sub: ${subLabel}`}
+        />
 
         {banner && (
           <p
             role="status"
-            className="text-sm rounded-md px-4 py-2 bg-debt-muted text-status-danger border border-debt-ring"
+            className="text-sm rounded-md px-4 py-2 bg-bad-bg text-bad-ink border border-line"
           >
             {banner}
           </p>
@@ -114,27 +115,28 @@ export function ContractFormRoute() {
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-base-surface border border-base-border rounded-lg p-6">
-              <h2 className="text-base font-semibold text-base-text mb-4">Contract terms</h2>
+            <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+              <h2 className="text-base font-semibold text-text mb-4">Contract terms</h2>
               <ContractFormFields values={form} onChange={handleChange} />
               <div className="mt-6">
-                <button
+                <Button
                   type="submit"
+                  variant="primary"
                   disabled={proposeMutation.isPending || !sub}
-                  className="w-full px-4 py-2.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary"
+                  className="w-full"
                 >
                   {proposeMutation.isPending ? "Proposing…" : "Propose contract"}
-                </button>
+                </Button>
               </div>
             </div>
 
-            <div className="bg-base-surface border border-base-border rounded-lg p-6">
-              <h2 className="text-base font-semibold text-base-text mb-4">Live projection</h2>
-              {simError && <p className="text-xs text-status-warning mb-3">{simError}</p>}
+            <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+              <h2 className="text-base font-semibold text-text mb-4">Live projection</h2>
+              {simError && <p className="text-xs text-warn-ink mb-3">{simError}</p>}
               {simulation ? (
                 <SimulationChart simulation={simulation} principal={String(form.principal)} />
               ) : (
-                <p className="text-base-text-muted text-sm">Calculating…</p>
+                <p className="text-text-mute text-sm">Calculating…</p>
               )}
             </div>
           </div>

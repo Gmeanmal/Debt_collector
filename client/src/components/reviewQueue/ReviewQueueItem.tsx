@@ -18,10 +18,6 @@ interface Props {
 export function ReviewQueueItemCard({ item, selected, onToggle }: Props) {
   const [noteExpanded, setNoteExpanded] = useState(false);
 
-  const displayName = item.sub_display_name
-    ? `${item.sub_display_name} (@${item.sub_username})`
-    : `@${item.sub_username}`;
-
   const truncatedNote =
     item.note && item.note.length > NOTE_TRUNCATE
       ? `${item.note.slice(0, NOTE_TRUNCATE)}…`
@@ -31,8 +27,8 @@ export function ReviewQueueItemCard({ item, selected, onToggle }: Props) {
 
   return (
     <div
-      className={`bg-base-surface border rounded-lg p-4 flex flex-col gap-3 transition-colors ${
-        selected ? "border-pink-primary" : "border-base-border"
+      className={`bg-bg-elev border rounded-[10px] p-[18px] flex flex-col gap-3 transition-colors hover:bg-bg-sunken ${
+        selected ? "border-line-strong" : "border-line"
       }`}
     >
       <div className="flex items-start gap-3">
@@ -41,7 +37,7 @@ export function ReviewQueueItemCard({ item, selected, onToggle }: Props) {
           checked={selected}
           onChange={() => onToggle(item.id)}
           aria-label={`Select ${item.title}`}
-          className="mt-0.5 accent-pink-primary cursor-pointer"
+          className="mt-0.5 accent-accent cursor-pointer"
         />
 
         <div className="flex-1 min-w-0 flex flex-col gap-2">
@@ -49,11 +45,15 @@ export function ReviewQueueItemCard({ item, selected, onToggle }: Props) {
             <Badge variant={item.kind === "ritual_occurrence" ? "primary" : "info"}>
               {item.kind === "ritual_occurrence" ? "Ritual" : "Task"}
             </Badge>
-            <span className="text-sm font-semibold text-base-text truncate">{item.title}</span>
+            <span className="text-sm font-semibold text-text truncate">{item.title}</span>
           </div>
 
-          <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-base-text-muted">
-            <span>{displayName}</span>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-text-mute">
+            <span className="font-serif italic">{item.sub_display_name ?? ""}</span>
+            {item.sub_display_name && <span>·</span>}
+            <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">
+              @{item.sub_username}
+            </span>
             <span>·</span>
             <span>{formatSubmittedAt(item.submitted_at)}</span>
             <span>·</span>
@@ -61,13 +61,13 @@ export function ReviewQueueItemCard({ item, selected, onToggle }: Props) {
           </div>
 
           {item.note && (
-            <div className="text-xs text-base-text-subtle italic">
+            <div className="text-xs text-text-faint italic">
               {noteExpanded ? item.note : truncatedNote}
               {showExpandButton && (
                 <button
                   type="button"
                   onClick={() => setNoteExpanded((v) => !v)}
-                  className="ml-1 text-pink-primary underline-offset-2 hover:underline focus-visible:ring-1 focus-visible:ring-pink-primary rounded"
+                  className="ml-1 text-accent-deep underline-offset-2 hover:underline focus-visible:ring-1 focus-visible:ring-accent rounded"
                 >
                   {noteExpanded ? "Show less" : "Show more"}
                 </button>
@@ -80,7 +80,7 @@ export function ReviewQueueItemCard({ item, selected, onToggle }: Props) {
               src={item.evidence_presigned_url}
               alt={`Evidence for ${item.title}`}
               loading="lazy"
-              className="rounded max-h-48 w-auto object-contain border border-base-border"
+              className="rounded max-h-48 w-auto object-contain border border-line"
             />
           )}
         </div>

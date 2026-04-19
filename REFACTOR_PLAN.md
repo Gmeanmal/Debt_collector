@@ -241,9 +241,9 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase I · Goddess · moderation & deeper dossier
 
-- [ ] **Step 36 — Kink overview matrix.** _Files: `client/src/routes/goddess/KinkOverviewRoute.tsx`._
-- [ ] **Step 37 — Review queue + Photo queue.** _Files: `client/src/routes/goddess/ReviewQueueRoute.tsx`, `PhotoQueueRoute.tsx`._
-- [ ] **Step 38 — Profile change requests + Contract form + Journal reader + Sub inventory (goddess).** _Files: `client/src/routes/goddess/ProfileChangeRequestsRoute.tsx`, `ContractFormRoute.tsx`, `JournalReaderRoute.tsx`, `InventoryRoute.tsx`._
+- [x] **Step 36 — Kink overview matrix.** _Files: `client/src/routes/goddess/KinkOverviewRoute.tsx`._
+- [x] **Step 37 — Review queue + Photo queue.** _Files: `client/src/routes/goddess/ReviewQueueRoute.tsx`, `PhotoQueueRoute.tsx`._
+- [x] **Step 38 — Profile change requests + Contract form + Journal reader + Sub inventory (goddess).** _Files: `client/src/routes/goddess/ProfileChangeRequestsRoute.tsx`, `ContractFormRoute.tsx`, `JournalReaderRoute.tsx`, `InventoryRoute.tsx`._
 
 → _commit: `refactor(ui): phase I goddess moderation & dossier`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **8 / 13**
-- Steps complete: **35 / 51**
-- Last commit: `refactor(ui): phase H — goddess gatekeeping`
-- Next phase: **I — Goddess · moderation & deeper dossier**
+- Phases complete: **9 / 13**
+- Steps complete: **38 / 51**
+- Last commit: `refactor(ui): phase I — goddess moderation & dossier`
+- Next phase: **J — Sub · today & dashboard & identity**
