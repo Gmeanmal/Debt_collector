@@ -57,7 +57,7 @@ export function SurprisePenaltyFlow({ subId, onClose, onBanner }: Props) {
 
   const { data: allContracts = [] } = useQuery({
     queryKey: queryKeys.goddess.contracts(),
-    queryFn: listGoddessDebtsApi,
+    queryFn: () => listGoddessDebtsApi(),
   });
 
   const activeContracts = allContracts.filter(

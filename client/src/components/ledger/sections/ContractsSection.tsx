@@ -111,9 +111,7 @@ export function ContractsSection() {
             </div>
             <div className="bg-base-surface-raised border border-base-border rounded p-2">
               <p className="text-base-text-muted uppercase tracking-wide">Total paid</p>
-              <p className="text-base-text font-semibold text-sm">
-                {formatGBP(summary.totalPaid)}
-              </p>
+              <p className="text-base-text font-semibold text-sm">{formatGBP(summary.totalPaid)}</p>
             </div>
             <div className="bg-base-surface-raised border border-base-border rounded p-2">
               <p className="text-base-text-muted uppercase tracking-wide">Remaining</p>

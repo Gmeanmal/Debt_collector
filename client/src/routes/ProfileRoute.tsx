@@ -111,7 +111,7 @@ export function ProfileRoute() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
-              <Avatar user={user} size="lg" />
+              {user && <Avatar user={user} size="lg" />}
               <div>
                 <CardTitle className="text-lg">{user?.display_name}</CardTitle>
                 {user?.first_name || user?.last_name ? (

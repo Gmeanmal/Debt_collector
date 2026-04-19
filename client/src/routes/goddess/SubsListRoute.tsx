@@ -39,7 +39,7 @@ export function SubsListRoute() {
 
   const { data: contracts = [] } = useQuery({
     queryKey: queryKeys.goddess.contracts(),
-    queryFn: listGoddessDebtsApi,
+    queryFn: () => listGoddessDebtsApi(),
     enabled: subs.length > 0,
   });
 

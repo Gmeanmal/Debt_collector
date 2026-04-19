@@ -69,22 +69,12 @@ function LimitsCard({ limits }: { limits: LimitItem[] }) {
             {limits.map((l) => (
               <li key={l.id} className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant={l.kind === "hard" ? "destructive" : "secondary"}>{l.kind}</Badge>
-                  <Badge variant="outline">{l.severity}</Badge>
+                  <Badge variant={l.kind === "hard" ? "danger" : "default"}>{l.kind}</Badge>
+                  <Badge variant="default">{l.severity}</Badge>
                   {l.acknowledged_by_goddess_at ? (
-                    <Badge
-                      variant="outline"
-                      className="text-status-success border-status-success/50"
-                    >
-                      acknowledged
-                    </Badge>
+                    <Badge variant="success">acknowledged</Badge>
                   ) : (
-                    <Badge
-                      variant="outline"
-                      className="text-status-warning border-status-warning/50"
-                    >
-                      pending ack
-                    </Badge>
+                    <Badge variant="warning">pending ack</Badge>
                   )}
                 </div>
                 <p className="text-sm text-base-text whitespace-pre-wrap">{l.body}</p>
@@ -110,7 +100,7 @@ function TriggersCard({ triggers }: { triggers: TriggerItem[] }) {
           <ul className="flex flex-col gap-3">
             {triggers.map((t) => (
               <li key={t.id} className="flex flex-col gap-1">
-                <Badge variant="outline" className="w-fit">
+                <Badge variant="default" className="w-fit">
                   {t.severity}
                 </Badge>
                 <p className="text-sm text-base-text">{t.trigger_text}</p>

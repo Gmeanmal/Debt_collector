@@ -3,7 +3,6 @@ import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { components } from "@/types/api.generated";
 import { env } from "@/utils/env";
 
-export type DeclarePaymentIn = components["schemas"]["DeclarePaymentIn"];
 export type RecordPaymentIn = components["schemas"]["RecordPaymentIn"];
 export type EditDeclarationIn = components["schemas"]["EditDeclarationIn"];
 export type ValidateIn = components["schemas"]["ValidateIn"];

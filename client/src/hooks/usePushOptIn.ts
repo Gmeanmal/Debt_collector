@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { get, set, del } from "idb-keyval";
-import {
-  createPushSubscriptionApi,
-  deletePushSubscriptionApi,
-} from "@/api/pushSubscriptions";
+import { createPushSubscriptionApi, deletePushSubscriptionApi } from "@/api/pushSubscriptions";
 import {
   isPushSupported,
   serializeSubscriptionKeys,

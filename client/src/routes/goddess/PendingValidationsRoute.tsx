@@ -43,7 +43,9 @@ function RejectPanel({ decl, onClose }: RejectPanelProps) {
       title="Reject declaration"
       description={description}
       onClose={onClose}
-      onConfirm={(reason) => rejectMutation.mutateAsync(reason)}
+      onConfirm={async (reason) => {
+        await rejectMutation.mutateAsync(reason);
+      }}
     />
   );
 }

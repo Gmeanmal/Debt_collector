@@ -43,12 +43,6 @@ function toAmountDefault(raw: string | null | undefined): string {
   return Number.isFinite(n) ? n.toFixed(2) : "";
 }
 
-// TODO(DECLARE-2): surface the sub's own rolling amount via a dedicated `/sub/me/rolling`
-// read-model endpoint and prefill here. UserOut does not carry `rolling_amount` today.
-function rollingDefault(): string {
-  return "";
-}
-
 export function PaymentFormRoute() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -64,7 +58,6 @@ export function PaymentFormRoute() {
   const [category, setCategory] = useState<PaymentCategory>(initialCategory);
   const [amount, setAmount] = useState<string>(() => {
     if (forcedEntryTribute || pendingEntry) return toAmountDefault(user?.entry_tribute_amount);
-    if (initialCategory === "rolling") return rollingDefault();
     return "";
   });
   const [userEditedAmount, setUserEditedAmount] = useState(false);
@@ -78,10 +71,6 @@ export function PaymentFormRoute() {
     if (userEditedAmount) return;
     if (category === "entry" && (forcedEntryTribute || pendingEntry)) {
       setAmount(toAmountDefault(user?.entry_tribute_amount));
-      return;
-    }
-    if (category === "rolling") {
-      setAmount(rollingDefault());
       return;
     }
     setAmount("");

@@ -11,10 +11,7 @@ import {
 
 function isEmpty(aftercare: Awaited<ReturnType<typeof getOwnAftercare>>): boolean {
   return (
-    !aftercare.needs &&
-    !aftercare.comfort_items &&
-    !aftercare.contact_phrase &&
-    !aftercare.notes
+    !aftercare.needs && !aftercare.comfort_items && !aftercare.contact_phrase && !aftercare.notes
   );
 }
 
@@ -57,9 +54,7 @@ export function AftercareSection() {
           )}
           {data.contact_phrase && (
             <div>
-              <p className="text-xs text-base-text-muted uppercase tracking-wide">
-                Contact phrase
-              </p>
+              <p className="text-xs text-base-text-muted uppercase tracking-wide">Contact phrase</p>
               <p className="text-sm text-base-text whitespace-pre-wrap">{data.contact_phrase}</p>
             </div>
           )}

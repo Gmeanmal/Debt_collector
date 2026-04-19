@@ -22,14 +22,16 @@ const RATING_LABELS: Record<string, string> = {
   prefer_not_to_say: "Prefer not to say",
 };
 
-const RATING_VARIANT: Record<string, "destructive" | "secondary" | "outline"> = {
-  hard_limit: "destructive",
-  soft_limit: "secondary",
-  prefer_not_to_say: "outline",
+type BadgeVariant = "danger" | "default" | "warning";
+
+const RATING_VARIANT: Record<string, BadgeVariant> = {
+  hard_limit: "danger",
+  soft_limit: "warning",
+  prefer_not_to_say: "default",
 };
 
-function ratingVariant(rating: string): "destructive" | "secondary" | "outline" {
-  return RATING_VARIANT[rating] ?? "outline";
+function ratingVariant(rating: string): BadgeVariant {
+  return RATING_VARIANT[rating] ?? "default";
 }
 
 interface KinkItemRowProps {

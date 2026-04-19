@@ -68,13 +68,9 @@ function LimitsPreview({ limits }: { limits: LimitItem[] }) {
         {limits.map((l) => (
           <li key={l.id} className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant={l.kind === "hard" ? "destructive" : "secondary"}>{l.kind}</Badge>
-              <Badge variant="outline">{l.severity}</Badge>
-              {l.acknowledged_by_goddess_at && (
-                <Badge variant="outline" className="text-status-success border-status-success/50">
-                  acknowledged
-                </Badge>
-              )}
+              <Badge variant={l.kind === "hard" ? "danger" : "default"}>{l.kind}</Badge>
+              <Badge variant="default">{l.severity}</Badge>
+              {l.acknowledged_by_goddess_at && <Badge variant="success">acknowledged</Badge>}
             </div>
             <p className="text-sm text-base-text whitespace-pre-wrap">{l.body}</p>
           </li>
@@ -105,7 +101,7 @@ function TriggersPreview({ triggers }: { triggers: TriggerItem[] }) {
         {triggers.map((t) => (
           <li key={t.id} className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2">
-              <Badge variant="outline">{t.severity}</Badge>
+              <Badge variant="default">{t.severity}</Badge>
             </div>
             <p className="text-sm text-base-text">{t.trigger_text}</p>
             {t.notes && <p className="text-xs text-base-text-muted">{t.notes}</p>}

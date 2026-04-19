@@ -63,7 +63,7 @@ export function AdminTable({ schema }: AdminTableProps) {
 
   const filteredItems =
     sortKey && sortDir
-      ? rawItems.toSorted((a, b) => {
+      ? [...rawItems].sort((a, b) => {
           const cmp = compareValues(a[sortKey], b[sortKey]);
           return sortDir === "asc" ? cmp : -cmp;
         })

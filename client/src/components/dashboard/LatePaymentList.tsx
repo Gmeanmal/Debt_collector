@@ -17,7 +17,7 @@ function useContractSlugMap(): Map<string, string> {
   // secondary fetch is unnecessary. Remove this lookup once the DTO includes the slug.
   const { data: contracts = [] } = useQuery({
     queryKey: queryKeys.goddess.contracts(),
-    queryFn: listGoddessDebtsApi,
+    queryFn: () => listGoddessDebtsApi(),
     staleTime: 60_000,
   });
   const map = new Map<string, string>();

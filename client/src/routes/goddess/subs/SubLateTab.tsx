@@ -39,7 +39,7 @@ export function SubLateTab({ subId }: Props) {
 
   const { data: allContracts = [], isLoading: loadingContracts } = useQuery({
     queryKey: queryKeys.goddess.contracts(),
-    queryFn: listGoddessDebtsApi,
+    queryFn: () => listGoddessDebtsApi(),
   });
 
   const isLoading = loadingRolling || loadingContracts;

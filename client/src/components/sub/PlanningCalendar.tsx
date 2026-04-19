@@ -199,7 +199,7 @@ export function PlanningCalendar({ upcoming }: PlanningCalendarProps) {
                   type="button"
                   aria-label={
                     hasDue
-                      ? `${cell.iso}: ${cell.upcoming.length} payment(s) due — ${cell.upcoming.map((u) => `${u.label} ${GBP.format(Number(u.amount))}`).join(", ")}`
+                      ? `${cell.iso}: ${cell.upcoming.length} payment(s) due — ${cell.upcoming.map((u) => `${u.label} ${formatGBP(u.amount)}`).join(", ")}`
                       : cell.iso
                   }
                   className={`${baseClass} ${bgClass} transition-colors`}

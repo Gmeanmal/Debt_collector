@@ -20,7 +20,7 @@ export function SubContractsSection({ subId, username }: Props) {
     error,
   } = useQuery({
     queryKey: queryKeys.goddess.contracts(),
-    queryFn: listGoddessDebtsApi,
+    queryFn: () => listGoddessDebtsApi(),
   });
 
   const contracts = all.filter((c) => c.sub_id === subId);

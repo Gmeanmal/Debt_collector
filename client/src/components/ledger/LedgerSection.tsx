@@ -9,7 +9,13 @@ interface Props {
   children: ReactNode;
 }
 
-export function LedgerSection({ title, subtitle, updatedAt, defaultOpen = false, children }: Props) {
+export function LedgerSection({
+  title,
+  subtitle,
+  updatedAt,
+  defaultOpen = false,
+  children,
+}: Props) {
   return (
     <details
       open={defaultOpen}

@@ -93,8 +93,7 @@ export function LimitsSection() {
     .sort()
     .pop();
 
-  const isLoading =
-    limitsQuery.isLoading || triggersQuery.isLoading || safewordQuery.isLoading;
+  const isLoading = limitsQuery.isLoading || triggersQuery.isLoading || safewordQuery.isLoading;
   const firstError =
     (limitsQuery.error as Error | undefined) ??
     (triggersQuery.error as Error | undefined) ??

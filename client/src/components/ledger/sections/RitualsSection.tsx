@@ -36,9 +36,7 @@ function RitualRow({ ritual }: { ritual: Ritual }) {
           {ritual.paused && <Badge variant="warning">Paused</Badge>}
         </div>
       </div>
-      {ritual.description && (
-        <p className="text-xs text-base-text-muted">{ritual.description}</p>
-      )}
+      {ritual.description && <p className="text-xs text-base-text-muted">{ritual.description}</p>}
       <div className="flex items-center gap-3 text-xs text-base-text-muted flex-wrap">
         {ritual.deadline_time && <span>Deadline {ritual.deadline_time}</span>}
         <span>

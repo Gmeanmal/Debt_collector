@@ -17,7 +17,7 @@ function fmtDate(iso: string): string {
   return formatLondon(iso, "datetime");
 }
 
-function fmtGbp(v: string): string {
+function fmtGbp(v: number | string): string {
   return formatGBP(v);
 }
 

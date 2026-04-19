@@ -6,7 +6,7 @@ import {
   useState,
   type KeyboardEvent,
   type ReactNode,
-  type RefObject,
+  type Ref,
 } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDown, X } from "lucide-react";
@@ -22,7 +22,7 @@ interface SearchableSelectProps<T> {
   emptyMessage?: string;
   renderOption?: (o: T) => ReactNode;
   nullable?: boolean;
-  triggerRef?: RefObject<HTMLButtonElement | null>;
+  triggerRef?: Ref<HTMLButtonElement>;
   ariaLabel?: string;
 }
 
