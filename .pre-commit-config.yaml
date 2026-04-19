@@ -16,7 +16,8 @@ repos:
     hooks:
       - id: prettier
         files: ^client/
-        additional_dependencies: [prettier@3.3.3]
+        exclude: ^client/(pnpm-lock\.yaml|src/types/api\.generated\.ts)$
+        additional_dependencies: [prettier@3.8.2]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
