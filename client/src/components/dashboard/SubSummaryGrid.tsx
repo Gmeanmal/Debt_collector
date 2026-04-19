@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import {
   addGBPDecimalStrings,
   formatGBP,
@@ -23,20 +24,21 @@ function SubTile({ label, value, sublabel, to, dangerBorder = false }: TileProps
   const inner = (
     <div
       className={cn(
-        "luxe-surface relative isolate overflow-hidden rounded-lg p-4 flex flex-col gap-1 min-w-0 border transition-colors",
-        dangerBorder ? "border-status-danger" : "border-base-border",
+        "bg-bg-elev rounded-[10px] p-4 flex flex-col gap-2 min-w-0 border transition-colors",
+        dangerBorder ? "border-bad-ink" : "border-line",
       )}
     >
-      <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-base-text-subtle">
-        {label}
-      </span>
+      <Eyebrow>{label}</Eyebrow>
       <span
-        className="font-display text-3xl tracking-tight leading-none tabular-nums text-base-text"
+        className={cn(
+          "font-display italic font-medium text-[30px] tracking-[-0.02em] leading-none tabular-nums",
+          dangerBorder ? "text-bad-ink" : "text-text",
+        )}
         role="status"
       >
         {value}
       </span>
-      {sublabel && <span className="text-xs text-base-text-muted">{sublabel}</span>}
+      {sublabel && <span className="text-[11px] text-text-mute">{sublabel}</span>}
     </div>
   );
 
@@ -87,7 +89,7 @@ export function SubSummaryGrid({ summary }: Props) {
   const streakSublabel = buildStreakSublabel(summary.journal_streak_days);
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       <SubTile
         label="Pending approvals"
         value={String(summary.pending_approvals_count)}

@@ -38,19 +38,31 @@ export function CategoryRadioGroup({
   isActive,
   forcedEntryTribute,
 }: CategoryRadioGroupProps) {
+  const activeOption = SUB_CATEGORY_OPTIONS.find((o) => o.value === value);
+
   return (
     <fieldset>
-      <legend className="text-sm font-semibold text-base-text mb-2">Category</legend>
-      <div className="flex flex-col gap-3">
-        {SUB_CATEGORY_OPTIONS.map(({ value: v, label, description }) => {
+      <legend className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint mb-2">
+        Category
+      </legend>
+      <div
+        role="radiogroup"
+        aria-label="Category"
+        className="inline-flex items-center gap-0.5 bg-bg-elev border border-line rounded-[999px] p-0.5"
+      >
+        {SUB_CATEGORY_OPTIONS.map(({ value: v, label }) => {
           const disabledByActive = v === "entry" && isActive;
           const disabledByForced = forcedEntryTribute && v !== "entry";
           const disabled = disabledByActive || disabledByForced;
+          const selected = value === v;
           return (
             <label
               key={v}
               className={cn(
-                "flex items-start gap-2 text-sm",
+                "relative inline-flex items-center rounded-[999px] px-3 py-1.5 text-[13px] leading-none transition-colors",
+                selected
+                  ? "bg-accent-trace text-accent-deep font-semibold"
+                  : "text-text-mute hover:text-text",
                 disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer",
               )}
               aria-disabled={disabled}
@@ -59,23 +71,23 @@ export function CategoryRadioGroup({
                 type="radio"
                 name="category"
                 value={v}
-                checked={value === v}
+                checked={selected}
                 disabled={disabled}
                 aria-disabled={disabled}
                 onChange={() => onChange(v)}
-                className="accent-pink-primary mt-1"
+                className="sr-only"
               />
-              <span className="flex flex-col gap-0.5 min-w-0">
-                <span className="text-base-text">{label}</span>
-                <span className="text-xs text-base-text-subtle">{description}</span>
-              </span>
+              <span>{label}</span>
             </label>
           );
         })}
-        <p className="text-xs text-base-text-subtle mt-1">
-          Contract payments (weekly debt, buyout, …) are declared from the contract page.
-        </p>
       </div>
+      {activeOption && (
+        <p className="text-xs text-text-mute mt-2">{activeOption.description}</p>
+      )}
+      <p className="text-xs text-text-faint mt-1">
+        Contract payments (weekly debt, buyout, …) are declared from the contract page.
+      </p>
     </fieldset>
   );
 }

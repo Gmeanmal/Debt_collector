@@ -2,6 +2,7 @@ import { LineChart, Line, Tooltip, ResponsiveContainer } from "recharts";
 import type { TooltipContentProps } from "recharts";
 import { chartColor, CHART_COLORS } from "@/services/dashboard/chartColors";
 import { ChartPanel, ChartError } from "@/components/dashboard/ChartPanel";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import type { DailyLateCount } from "@/types/dashboard";
 import type { DateRange } from "@/hooks/useDashboardDateRange";
 
@@ -20,11 +21,11 @@ function CustomTooltip({ active, payload, label }: TooltipContentProps) {
   const value = payload[0]?.value ?? 0;
   return (
     <div
-      className="rounded-md border border-base-border bg-base-surface-raised px-3 py-2 text-xs shadow-lg"
+      className="bg-bg-elev border border-line rounded-[6px] px-3 py-2 text-[12px] text-text"
       role="tooltip"
     >
-      <p className="text-base-text-muted">{label}</p>
-      <p className="font-medium text-status-danger">
+      <Eyebrow>{label}</Eyebrow>
+      <p className="mt-1 font-medium text-warn-ink">
         {value} {value === 1 ? "sub late" : "subs late"}
       </p>
     </div>

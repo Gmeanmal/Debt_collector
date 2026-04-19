@@ -2,7 +2,7 @@
  * Reads a CSS custom property from :root at call time so chart colours
  * stay in the token system rather than being hardcoded in components.
  *
- * Usage: chartColor("--color-pink-primary") → resolved string e.g. "#ff4fa3"
+ * Usage: chartColor("--color-accent") → resolved string e.g. "#ff4fa3"
  * Falls back to the fallback string when running in a non-browser context (SSR / tests).
  */
 export function chartColor(property: string, fallback = "#888888"): string {
@@ -13,14 +13,14 @@ export function chartColor(property: string, fallback = "#888888"): string {
 
 /** Convenience map of the named chart colours used across dashboard panels. */
 export const CHART_COLORS = {
-  rolling: "--color-pink-primary",
-  oneOff: "--color-gold-accent",
-  contract: "--color-violet-primary",
-  active: "--color-status-success",
-  completed: "--color-status-info",
-  breached: "--color-status-danger",
-  late: "--color-debt-primary",
-  muted: "--color-base-text-subtle",
+  rolling: "--color-accent",
+  oneOff: "--color-signal",
+  contract: "--color-accent-deep",
+  active: "--color-ok-ink",
+  completed: "--color-text-mute",
+  breached: "--color-bad-ink",
+  late: "--color-warn-ink",
+  muted: "--color-text-faint",
 } as const;
 
 export type ChartColorKey = keyof typeof CHART_COLORS;

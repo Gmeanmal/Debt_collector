@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { Eyebrow } from "@/components/ui/eyebrow";
 
 interface Props {
   title: string;
@@ -14,15 +15,15 @@ export function ChartPanel({ title, description, children, className, ariaLabel 
     <section
       aria-label={ariaLabel}
       className={cn(
-        "rounded-lg bg-base-surface border border-base-border p-5 flex flex-col gap-3",
+        "bg-bg-elev border border-line rounded-[10px] p-5 flex flex-col gap-3",
         className,
       )}
     >
       <div>
-        <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-base-text-subtle">
-          {title}
-        </h3>
-        {description && <p className="mt-0.5 text-xs text-base-text-muted">{description}</p>}
+        <Eyebrow>{title}</Eyebrow>
+        {description && (
+          <p className="mt-1 text-[11px] text-text-mute">{description}</p>
+        )}
       </div>
       {children}
     </section>
@@ -33,19 +34,19 @@ export function ChartSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "rounded-lg bg-base-surface border border-base-border p-5 flex flex-col gap-3",
+        "bg-bg-elev border border-line rounded-[10px] p-5 flex flex-col gap-3",
         className,
       )}
     >
-      <div className="h-3 w-1/3 rounded bg-base-surface-raised animate-pulse" />
-      <div className="h-40 rounded bg-base-surface-raised animate-pulse" />
+      <div className="h-3 w-1/3 rounded bg-bg-sunken animate-pulse" />
+      <div className="h-40 rounded bg-bg-sunken animate-pulse" />
     </div>
   );
 }
 
 export function ChartError({ message }: { message: string }) {
   return (
-    <p className="text-sm text-status-danger" role="alert">
+    <p className="text-sm text-bad-ink" role="alert">
       {message}
     </p>
   );

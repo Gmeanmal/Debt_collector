@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+
 interface PendingValidationsBulkBarProps {
   selectedCount: number;
   onValidateSelected: () => void;
@@ -14,22 +16,24 @@ export function PendingValidationsBulkBar({
   const label = isPending ? `Validating ${selectedCount}…` : `Validate selected (${selectedCount})`;
 
   return (
-    <div className="fixed inset-x-0 bottom-4 z-40 flex justify-center px-4 pointer-events-none">
-      <div
-        role="region"
-        aria-label="Bulk validation actions"
-        className="pointer-events-auto bg-base-surface border border-base-border rounded-full shadow-[var(--shadow-card)] px-4 py-2 flex items-center gap-3"
+    <div
+      role="region"
+      aria-label="Bulk validation actions"
+      className="bg-bg-elev border border-line rounded-[10px] px-4 py-2 flex items-center gap-3"
+    >
+      <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+        Selected
+      </span>
+      <span className="font-mono text-[11px] text-text tabular-nums">{selectedCount}</span>
+      <Button
+        type="button"
+        onClick={onValidateSelected}
+        disabled={isPending}
+        variant="primary"
+        size="sm"
       >
-        <span className="text-xs text-base-text-muted">{selectedCount} selected</span>
-        <button
-          type="button"
-          onClick={onValidateSelected}
-          disabled={isPending}
-          className="px-4 py-1.5 text-xs bg-status-success/20 text-status-success border border-status-success/30 rounded-full font-semibold hover:bg-status-success/30 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-status-success"
-        >
-          {label}
-        </button>
-      </div>
+        {label}
+      </Button>
     </div>
   );
 }
@@ -54,7 +58,7 @@ export function PendingValidationsSelectAll({
   }
 
   return (
-    <div className="sticky top-0 z-20 bg-base-bg/95 backdrop-blur-sm border-b border-base-border py-2 flex items-center gap-3">
+    <div className="sticky top-0 z-20 bg-bg/95 backdrop-blur-sm border-b border-line py-2 flex items-center gap-3">
       <input
         type="checkbox"
         checked={allSelected}
@@ -63,10 +67,12 @@ export function PendingValidationsSelectAll({
         }}
         onChange={(e) => handleChange(e.target.checked)}
         aria-label="Select all pending declarations"
-        className="accent-pink-primary cursor-pointer"
+        className="accent-accent cursor-pointer"
       />
-      <span className="text-xs text-base-text-muted">
-        {selectedCount > 0 ? `${selectedCount} of ${totalCount} selected` : `${totalCount} pending`}
+      <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-text-faint">
+        {selectedCount > 0
+          ? `${selectedCount} of ${totalCount} selected`
+          : `${totalCount} pending`}
       </span>
     </div>
   );

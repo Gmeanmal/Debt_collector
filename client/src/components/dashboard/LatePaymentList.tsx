@@ -4,9 +4,9 @@ import { ArrowUpRight, Clock, AlertCircle } from "lucide-react";
 import type { LatePaymentItem } from "@/services/dashboards/dashboardsApi";
 import { listGoddessDebtsApi } from "@/services/debtContracts/debtContractsApi";
 import { Badge } from "@/components/ui/badge";
+import { Money } from "@/components/ui/money";
 import { cn } from "@/lib/utils";
 import { queryKeys } from "@/lib/queryKeys";
-import { formatGBP } from "@/services/format/currency";
 
 interface Props {
   items: LatePaymentItem[];
@@ -40,8 +40,8 @@ export function LatePaymentList({ items }: Props) {
 
   if (items.length === 0) {
     return (
-      <div className="luxe-surface rounded-lg p-8 text-center">
-        <p className="font-display text-lg italic text-base-text-muted">
+      <div className="bg-bg-elev border border-line rounded-[10px] p-8 text-center">
+        <p className="font-display italic text-lg text-text-mute">
           Nothing late. The house is in order.
         </p>
       </div>
@@ -49,23 +49,23 @@ export function LatePaymentList({ items }: Props) {
   }
 
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="bg-bg-elev border border-line rounded-[10px] px-4">
       {items.map((item) => {
         const isLate = item.days_late > 0;
-        const amount = formatGBP(item.amount_due);
+        const amount = Number(item.amount_due);
         const href = linkFor(item, slugMap);
         return (
           <li
             key={`${item.kind}-${item.context_id}`}
-            className="group luxe-surface flex items-center justify-between gap-4 rounded-lg p-4 transition-all duration-200 hover:border-pink-primary/30"
+            className="group flex items-center justify-between gap-4 border-b border-line last:border-b-0 py-3"
           >
             <div className="flex items-center gap-3 min-w-0">
               <div
                 className={cn(
                   "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border",
                   isLate
-                    ? "border-status-danger/30 bg-status-danger/10 text-status-danger"
-                    : "border-status-info/30 bg-status-info/10 text-status-info",
+                    ? "border-line bg-bad-bg text-bad-ink"
+                    : "border-line bg-bg-sunken text-text-mute",
                 )}
               >
                 {isLate ? <AlertCircle className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
@@ -74,18 +74,18 @@ export function LatePaymentList({ items }: Props) {
                 {href ? (
                   <Link
                     to={href}
-                    className="font-display text-base text-base-text hover:text-pink-primary transition-colors truncate flex items-center gap-1"
+                    className="font-display italic text-[16px] text-text hover:text-accent-deep transition-colors truncate flex items-center gap-1"
                   >
                     {item.sub_display_name ?? "Unknown sub"}
                     <ArrowUpRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
                   </Link>
                 ) : (
-                  <span className="font-display text-base text-base-text truncate">
+                  <span className="font-display italic text-[16px] text-text truncate">
                     {item.sub_display_name ?? "Unknown sub"}
                   </span>
                 )}
                 <Badge
-                  variant={item.kind === "rolling" ? "info" : "primary"}
+                  variant={item.kind === "rolling" ? "pink" : "neutral"}
                   className="self-start"
                 >
                   {item.kind}
@@ -93,11 +93,11 @@ export function LatePaymentList({ items }: Props) {
               </div>
             </div>
             <div className="flex flex-col items-end gap-0.5">
-              <span className="font-mono text-base text-base-text">{amount}</span>
+              <Money value={amount} tone={isLate ? "bad" : "default"} />
               <span
                 className={cn(
-                  "text-[10px] font-medium uppercase tracking-[0.12em]",
-                  isLate ? "text-status-danger" : "text-status-success",
+                  "font-mono text-[10px] uppercase tracking-[0.14em]",
+                  isLate ? "text-bad-ink" : "text-ok-ink",
                 )}
               >
                 {isLate ? `${item.days_late}d late` : "On time"}

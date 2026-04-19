@@ -10,6 +10,7 @@ import {
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 import { RejectModal } from "@/components/shared/RejectModal";
 import { PendingValidationRow } from "@/components/payments/PendingValidationRow";
 import {
@@ -134,9 +135,11 @@ export function PendingValidationsRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-3xl mx-auto flex flex-col gap-6">
-        <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-          Pending Validations
-        </h1>
+        <PageHeader
+          crumbs={["Home · Money"]}
+          title={<span className="italic">Pending validations</span>}
+          description="Approve, reject, or ask for proof."
+        />
 
         {isLoading && <ListSkeleton rows={3} />}
         {isError && (

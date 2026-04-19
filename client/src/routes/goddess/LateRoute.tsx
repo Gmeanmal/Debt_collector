@@ -1,5 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionTitle } from "@/components/ui/section-title";
+import { Divider } from "@/components/ui/divider";
+import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { LateRollingSection } from "@/components/goddess/LateRollingSection";
@@ -43,18 +46,20 @@ export function LateRoute() {
     }) ?? [];
 
   return (
-    <div className="px-4 py-10 sm:px-8 md:py-16">
-      <div className="mx-auto flex max-w-5xl flex-col gap-10">
-        <header>
-          <p className="text-xs font-medium uppercase tracking-[0.3em] text-pink-primary/80">
-            The ledger
-          </p>
-          <h1 className="mt-3 font-display text-4xl sm:text-5xl italic leading-none text-base-text">
-            Late
-          </h1>
-        </header>
+    <div className="px-6 py-8 md:px-8 md:py-10">
+      <div className="mx-auto flex max-w-6xl flex-col">
+        <PageHeader
+          crumbs={["Home · Money"]}
+          title="Late"
+          description="The reckoning."
+          actions={
+            <Button variant="soft" size="sm" type="button">
+              Send reminder to all
+            </Button>
+          }
+        />
 
-        <Separator />
+        <SectionTitle eyebrow="Rolling" title="Late rolling tributes" />
 
         {rollingLoading && <ListSkeleton rows={5} />}
 
@@ -67,7 +72,9 @@ export function LateRoute() {
 
         {!rollingLoading && !rollingError && <LateRollingSection items={rollingItems} />}
 
-        <Separator />
+        <Divider />
+
+        <SectionTitle eyebrow="Contracts" title="Overdue contracts" />
 
         {contractsLoading && <ListSkeleton rows={5} />}
 

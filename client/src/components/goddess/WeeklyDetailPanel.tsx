@@ -1,38 +1,22 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Divider } from "@/components/ui/divider";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { ListSkeleton } from "@/components/ui/Skeleton";
-import { SidePanel } from "@/components/ui/SidePanel";
-import { MethodIcon } from "@/components/paymentMethods/MethodIcon";
+import { Money } from "@/components/ui/money";
+import { Stat } from "@/components/ui/stat";
 import { getWeeklyPaymentDetailApi, type WeeklyPaymentDetail } from "@/services/goddess/weeklyApi";
 import { listGoddessSubsApi, type DeclarationSource } from "@/services/payments/paymentsApi";
 import { buildWeeklyCsvBlob, weeklyCsvFilename } from "@/services/goddess/weeklyCsv";
 import { queryKeys } from "@/lib/queryKeys";
 import { formatLondon } from "@/services/format/datetime";
-import { formatGBP } from "@/services/format/currency";
-
-const SOURCE_LABEL: Record<DeclarationSource, string> = {
-  sub_declared: "Self-declared",
-  goddess_recorded: "Goddess-recorded",
-  ingested: "Auto-ingested",
-};
-
-type BadgeVariant = "default" | "primary" | "debt";
-
-const SOURCE_VARIANT: Record<DeclarationSource, BadgeVariant> = {
-  sub_declared: "default",
-  goddess_recorded: "debt",
-  ingested: "default",
-};
 
 function formatMondayLabel(weekStart: string): string {
   return formatLondon(weekStart, "date");
-}
-
-function formatValidatedAt(iso: string | null | undefined): string {
-  return formatLondon(iso, "datetime");
 }
 
 function triggerCsvDownload(payments: WeeklyPaymentDetail[], weekStart: string) {
@@ -47,19 +31,59 @@ function triggerCsvDownload(payments: WeeklyPaymentDetail[], weekStart: string) 
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
+function initialsFor(name: string): string {
+  const parts = name.trim().split(/\s+/).slice(0, 2);
+  const chars = parts.map((p) => p.charAt(0).toUpperCase()).join("");
+  return chars || "·";
+}
+
+function sumByPredicate(
+  payments: WeeklyPaymentDetail[],
+  predicate: (source: DeclarationSource) => boolean,
+): number {
+  return payments.reduce((acc, p) => (predicate(p.source) ? acc + Number(p.amount) : acc), 0);
+}
+
+interface SubRowData {
+  subId: string;
+  displayName: string;
+  username: string | undefined;
+  total: number;
+  count: number;
+}
+
+function groupBySub(
+  payments: WeeklyPaymentDetail[],
+  usernameById: Map<string, string>,
+): SubRowData[] {
+  const map = new Map<string, SubRowData>();
+  for (const p of payments) {
+    const existing = map.get(p.sub_id);
+    const amount = Number(p.amount);
+    if (existing) {
+      existing.total += amount;
+      existing.count += 1;
+    } else {
+      map.set(p.sub_id, {
+        subId: p.sub_id,
+        displayName: p.sub_display_name ?? "Unknown sub",
+        username: usernameById.get(p.sub_id),
+        total: amount,
+        count: 1,
+      });
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => b.total - a.total);
+}
+
 interface WeeklyDetailPanelProps {
   weekStart: string;
   bucketTotal: string;
   bucketCount: number;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
-export function WeeklyDetailPanel({
-  weekStart,
-  bucketTotal,
-  bucketCount,
-  onClose,
-}: WeeklyDetailPanelProps) {
+export function WeeklyDetailPanel({ weekStart, bucketTotal, bucketCount }: WeeklyDetailPanelProps) {
   const headerId = `weekly-detail-header-${weekStart}`;
   const mondayLabel = formatMondayLabel(weekStart);
 
@@ -80,100 +104,116 @@ export function WeeklyDetailPanel({
     return map;
   }, [subs]);
 
-  const payments = data ?? [];
+  const payments = useMemo<WeeklyPaymentDetail[]>(() => data ?? [], [data]);
   const canExport = payments.length > 0;
+
+  const declaredTotal = useMemo(
+    () => sumByPredicate(payments, (s) => s === "sub_declared" || s === "ingested"),
+    [payments],
+  );
+  const recordedTotal = useMemo(
+    () => sumByPredicate(payments, (s) => s === "goddess_recorded"),
+    [payments],
+  );
+  const subRows = useMemo(() => groupBySub(payments, usernameById), [payments, usernameById]);
+  const intakeValue = Number(bucketTotal);
 
   function handleExport() {
     if (canExport) triggerCsvDownload(payments, weekStart);
   }
 
   return (
-    <SidePanel onClose={onClose} labelledBy={headerId} closeButtonLabel="Close weekly detail panel">
-      <div className="flex flex-col gap-6 p-6">
-        <header className="flex flex-col gap-2">
-          <p className="text-xs font-medium uppercase tracking-[0.3em] text-pink-primary/80">
-            The ledger
-          </p>
-          <h2 id={headerId} className="font-display text-2xl italic text-base-text">
-            Week of {mondayLabel}
-          </h2>
-          <p className="text-sm text-base-text-muted">
-            {bucketCount} {bucketCount === 1 ? "payment" : "payments"} ·{" "}
-            <span className="text-base-text font-medium">{formatGBP(bucketTotal)}</span>
-          </p>
-        </header>
+    <section
+      aria-labelledby={headerId}
+      className="bg-bg-elev border border-line rounded-[10px] p-5 flex flex-col gap-5"
+    >
+      <header className="flex flex-col gap-2">
+        <Eyebrow tone="accent">The ledger</Eyebrow>
+        <h2
+          id={headerId}
+          className="font-display italic text-[22px] tracking-[-0.01em] text-text leading-[1.1]"
+        >
+          Week of {mondayLabel}
+        </h2>
+        <p className="text-sm text-text-mute">
+          {bucketCount} {bucketCount === 1 ? "payment" : "payments"} this week
+        </p>
+      </header>
 
-        {isLoading && <ListSkeleton rows={4} />}
+      <div className="grid grid-cols-3 gap-3">
+        <Stat label="Intake" value={<Money value={intakeValue} big />} />
+        <Stat label="Declared" value={<Money value={declaredTotal} big />} />
+        <Stat
+          label="Recorded"
+          value={<Money value={recordedTotal} big tone="accent" />}
+          tone="accent"
+        />
+      </div>
 
-        {isError && (
-          <ErrorState
-            title="Failed to load week detail"
-            message={(error as Error | undefined)?.message ?? "Try refreshing the page."}
-          />
-        )}
+      {isLoading && <ListSkeleton rows={3} />}
 
-        {!isLoading && !isError && payments.length === 0 && (
-          <EmptyState
-            title="No validated payments"
-            message="Nothing was validated inside this week."
-          />
-        )}
+      {isError && (
+        <ErrorState
+          title="Failed to load week detail"
+          message={(error as Error | undefined)?.message ?? "Try refreshing the page."}
+        />
+      )}
 
-        {!isLoading && !isError && payments.length > 0 && (
-          <ul className="flex flex-col gap-3">
-            {payments.map((p) => (
-              <PaymentRow key={p.id} payment={p} username={usernameById.get(p.sub_id)} />
+      {!isLoading && !isError && payments.length === 0 && (
+        <EmptyState
+          title="No tributes this week."
+          message="Nothing has been validated inside this week yet."
+        />
+      )}
+
+      {!isLoading && !isError && payments.length > 0 && (
+        <>
+          <Divider label="Per sub" />
+          <ul className="flex flex-col gap-2">
+            {subRows.map((row) => (
+              <SubSummaryRow key={row.subId} row={row} />
             ))}
           </ul>
-        )}
-      </div>
+        </>
+      )}
 
-      <div className="border-t border-base-border/60 p-4 flex justify-end">
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={!canExport}
-          className="px-4 py-2 text-sm font-semibold rounded-md bg-pink-primary/15 text-pink-primary border border-pink-primary/30 hover:bg-pink-primary/25 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary"
-        >
+      <div className="flex justify-end pt-2 border-t border-line">
+        <Button variant="soft" size="sm" onClick={handleExport} disabled={!canExport}>
           Export CSV
-        </button>
+        </Button>
       </div>
-    </SidePanel>
+    </section>
   );
 }
 
-interface PaymentRowProps {
-  payment: WeeklyPaymentDetail;
-  username: string | undefined;
+interface SubSummaryRowProps {
+  row: SubRowData;
 }
 
-function PaymentRow({ payment, username }: PaymentRowProps) {
-  const subName = payment.sub_display_name ?? "sub";
-  const amountLabel = formatGBP(payment.amount);
-  const sourceLabel = SOURCE_LABEL[payment.source];
-  const sourceVariant = SOURCE_VARIANT[payment.source];
+function SubSummaryRow({ row }: SubSummaryRowProps) {
+  const countLabel = `${row.count} ${row.count === 1 ? "payment" : "payments"}`;
 
   return (
-    <li className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-2">
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div className="min-w-0">
-          <p className="font-semibold text-base-text text-sm">{subName}</p>
-          {username && <p className="text-xs text-base-text-muted">@{username}</p>}
+    <li className="flex items-center justify-between gap-4 py-2">
+      <div className="flex items-center gap-3 min-w-0">
+        <Avatar className="h-9 w-9">
+          <AvatarFallback>{initialsFor(row.displayName)}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0 flex flex-col gap-0.5">
+          <span className="font-display italic text-[15px] text-text truncate">
+            {row.displayName}
+          </span>
+          {row.username && (
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+              @{row.username}
+            </span>
+          )}
         </div>
-        <p className="font-semibold text-base-text text-sm whitespace-nowrap">{amountLabel}</p>
       </div>
-
-      <div className="flex items-center gap-2 flex-wrap text-xs text-base-text-muted capitalize">
-        {payment.method_type && <MethodIcon type={payment.method_type} size="sm" />}
-        {payment.method_name && <span>{payment.method_name}</span>}
-        <span>·</span>
-        <span>{payment.category.replace(/_/g, " ")}</span>
-      </div>
-
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <Badge variant={sourceVariant}>{sourceLabel}</Badge>
-        <span className="text-xs text-base-text-subtle">
-          {formatValidatedAt(payment.validated_at)}
+      <div className="flex flex-col items-end gap-0.5">
+        <Money value={row.total} />
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-mute">
+          {countLabel}
         </span>
       </div>
     </li>

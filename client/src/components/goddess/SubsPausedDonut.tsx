@@ -1,7 +1,8 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import type { TooltipContentProps } from "recharts";
 import { ChartPanel, ChartError } from "@/components/dashboard/ChartPanel";
-import { chartColor } from "@/services/dashboard/chartColors";
+import { chartColor, CHART_COLORS } from "@/services/dashboard/chartColors";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import type { DashboardSummary } from "@/types/dashboard";
 
 interface Props {
@@ -14,12 +15,11 @@ function CustomTooltip({ active, payload }: TooltipContentProps) {
   const entry = payload[0];
   return (
     <div
-      className="rounded-md border border-base-border bg-base-surface-raised px-3 py-2 text-xs shadow-lg"
+      className="bg-bg-elev border border-line rounded-[6px] px-3 py-2 text-[12px] text-text"
       role="tooltip"
     >
-      <p className="font-medium text-base-text">
-        {entry?.name}: {String(entry?.value)}
-      </p>
+      <Eyebrow>{entry?.name}</Eyebrow>
+      <p className="mt-1 text-text-mute">{String(entry?.value)}</p>
     </div>
   );
 }
@@ -30,8 +30,8 @@ export function SubsPausedDonut({ summary, error }: Props) {
   const total = active + paused;
 
   const slices = [
-    { name: "Active", value: active, color: chartColor("--color-status-success") },
-    { name: "Paused", value: paused, color: chartColor("--color-base-text-subtle") },
+    { name: "Active", value: active, color: chartColor(CHART_COLORS.active) },
+    { name: "Paused", value: paused, color: chartColor(CHART_COLORS.muted) },
   ];
 
   return (
@@ -43,7 +43,7 @@ export function SubsPausedDonut({ summary, error }: Props) {
       {error ? (
         <ChartError message={error} />
       ) : total === 0 ? (
-        <p className="text-xs text-base-text-muted">No subs yet.</p>
+        <p className="text-xs text-text-mute">No subs yet.</p>
       ) : (
         <>
           <p className="sr-only">
@@ -69,12 +69,12 @@ export function SubsPausedDonut({ summary, error }: Props) {
             </PieChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-5">
-            <span className="flex items-center gap-1.5 text-xs text-base-text-muted">
-              <span className="inline-block h-2 w-2 rounded-full bg-status-success flex-shrink-0" />
+            <span className="flex items-center gap-1.5 text-xs text-text-mute">
+              <span className="inline-block h-2 w-2 rounded-full bg-ok-ink flex-shrink-0" />
               Active&nbsp;&middot;&nbsp;{active}
             </span>
-            <span className="flex items-center gap-1.5 text-xs text-base-text-muted">
-              <span className="inline-block h-2 w-2 rounded-full bg-base-text-subtle flex-shrink-0" />
+            <span className="flex items-center gap-1.5 text-xs text-text-mute">
+              <span className="inline-block h-2 w-2 rounded-full bg-text-faint flex-shrink-0" />
               Paused&nbsp;&middot;&nbsp;{paused}
             </span>
           </div>

@@ -12,6 +12,7 @@ import type { TooltipContentProps } from "recharts";
 import type { CSSProperties } from "react";
 import { chartColor, CHART_COLORS } from "@/services/dashboard/chartColors";
 import { ChartPanel, ChartError } from "@/components/dashboard/ChartPanel";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import type { MonthlyRevenueBucket } from "@/types/dashboard";
 import { formatGBP } from "@/services/format/currency";
 import { bucketTotalGBP } from "@/services/dashboards/subDashboardFormat";
@@ -33,20 +34,22 @@ function CustomTooltip({ active, payload, label }: TooltipContentProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
     <div
-      className="rounded-md border border-base-border bg-base-surface-raised px-3 py-2 text-xs shadow-lg"
+      className="bg-bg-elev border border-line rounded-[6px] px-3 py-2 text-[12px] text-text"
       role="tooltip"
     >
-      <p className="mb-1 font-medium text-base-text">{label}</p>
-      {payload.map((entry) => (
-        <p key={entry.name} className="flex items-center gap-1.5 text-base-text-muted">
-          <span
-            className="inline-block h-2 w-2 rounded-full flex-shrink-0 bg-[var(--dot)]"
-            // eslint-disable-next-line no-restricted-syntax -- recharts provides color at runtime; bridged via CSS var
-            style={{ ["--dot" as string]: entry.color } as CSSProperties}
-          />
-          {entry.name}: {formatGBP(Number(entry.value ?? 0))}
-        </p>
-      ))}
+      <Eyebrow>{label}</Eyebrow>
+      <div className="mt-1 flex flex-col gap-0.5">
+        {payload.map((entry) => (
+          <p key={entry.name} className="flex items-center gap-1.5 text-text-mute">
+            <span
+              className="inline-block h-2 w-2 rounded-full flex-shrink-0 bg-[var(--dot)]"
+              // eslint-disable-next-line no-restricted-syntax -- recharts provides color at runtime; bridged via CSS var
+              style={{ ["--dot" as string]: entry.color } as CSSProperties}
+            />
+            {entry.name}: {formatGBP(Number(entry.value ?? 0))}
+          </p>
+        ))}
+      </div>
     </div>
   );
 }
@@ -83,27 +86,27 @@ export function MonthlyRevenueChart({ data, error, dateRange }: Props) {
       ) : (
         <>
           {summary && <p className="sr-only">{summary}</p>}
-          <p className="text-xs text-base-text-muted" aria-hidden="true">
+          <p className="text-xs text-text-mute" aria-hidden="true">
             {summary}
           </p>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: -16 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={chartColor("--color-base-border")} />
+              <CartesianGrid strokeDasharray="3 3" stroke={chartColor("--color-line")} />
               <XAxis
                 dataKey="month"
-                tick={{ fill: chartColor("--color-base-text-subtle"), fontSize: 10 }}
+                tick={{ fill: chartColor("--color-text-faint"), fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis
-                tick={{ fill: chartColor("--color-base-text-subtle"), fontSize: 10 }}
+                tick={{ fill: chartColor("--color-text-faint"), fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v: number) => `£${v}`}
               />
               <Tooltip content={CustomTooltip} />
               <Legend
-                wrapperStyle={{ fontSize: 10, color: chartColor("--color-base-text-muted") }}
+                wrapperStyle={{ fontSize: 10, color: chartColor("--color-text-mute") }}
               />
               <Line
                 type="monotone"

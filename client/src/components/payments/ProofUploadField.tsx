@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export const PROOF_ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp"] as const;
 export const PROOF_MAX_BYTES = 5 * 1024 * 1024;
@@ -50,7 +51,6 @@ export function ProofUploadField({ file, onChange, disabled = false }: ProofUplo
     if (err) {
       setError(err);
       onChange(null);
-      // Reset the native input so the same bad file can be re-picked after fixing.
       if (inputRef.current) inputRef.current.value = "";
       return;
     }
@@ -68,16 +68,20 @@ export function ProofUploadField({ file, onChange, disabled = false }: ProofUplo
     inputRef.current?.click();
   }
 
+  function handlePickClick() {
+    inputRef.current?.click();
+  }
+
   const helperId = "proof-helper";
   const errorId = "proof-error";
   const describedBy = [helperId, error ? errorId : ""].filter(Boolean).join(" ");
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor="proof" className="text-sm font-semibold text-base-text">
-        Payment proof <span className="text-status-danger font-normal">*</span>
+      <label htmlFor="proof" className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+        Payment proof <span className="text-bad-ink normal-case">*</span>
       </label>
-      <p id={helperId} className="text-xs text-base-text-subtle">
+      <p id={helperId} className="text-xs text-text-faint">
         JPG, PNG or WEBP. 5 MB max. Screenshot of the transfer confirmation.
       </p>
 
@@ -91,51 +95,55 @@ export function ProofUploadField({ file, onChange, disabled = false }: ProofUplo
         disabled={disabled}
         aria-describedby={describedBy || undefined}
         aria-invalid={error ? true : undefined}
-        className={cn(
-          "block w-full text-sm text-base-text",
-          "file:mr-3 file:rounded-md file:border-0 file:bg-pink-primary file:px-3 file:py-2",
-          "file:text-sm file:font-semibold file:text-pink-foreground",
-          "file:hover:bg-pink-primary-hover file:cursor-pointer",
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary rounded-md",
-          file ? "sr-only" : "",
-        )}
+        className="sr-only"
       />
 
+      {!file && (
+        <button
+          type="button"
+          onClick={handlePickClick}
+          disabled={disabled}
+          aria-label="Choose a payment proof file"
+          className={cn(
+            "border border-dashed border-line rounded-[10px] bg-bg-sunken/40 p-6",
+            "flex flex-col items-center justify-center gap-2 text-center transition-colors",
+            "hover:bg-accent-trace/40 hover:border-accent",
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+            "disabled:opacity-40 disabled:cursor-not-allowed",
+          )}
+        >
+          <span className="font-display italic text-[18px] text-text">Drop a screenshot</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+            or click to choose
+          </span>
+        </button>
+      )}
+
       {file && previewUrl && (
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 p-3 bg-bg-elev border border-line rounded-[10px]">
           <img
             src={previewUrl}
             alt="Payment proof preview"
-            className="h-24 w-24 rounded-md border border-base-border object-cover"
+            className="h-24 w-24 rounded-[6px] border border-line object-cover bg-bg-sunken"
           />
-          <div className="flex flex-col gap-2 min-w-0">
-            <p className="text-xs text-base-text-muted truncate" title={file.name}>
+          <div className="flex flex-col gap-2 min-w-0 flex-1">
+            <p className="text-xs text-text-mute truncate font-mono" title={file.name}>
               {file.name}
             </p>
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={handleReplace}
-                disabled={disabled}
-                className="px-3 py-1 text-xs border border-base-border rounded-md text-base-text hover:bg-base-surface-raised focus-visible:ring-2 focus-visible:ring-pink-primary disabled:opacity-50"
-              >
+              <Button type="button" variant="secondary" size="sm" onClick={handleReplace} disabled={disabled}>
                 Replace
-              </button>
-              <button
-                type="button"
-                onClick={handleRemove}
-                disabled={disabled}
-                className="px-3 py-1 text-xs border border-base-border rounded-md text-base-text-muted hover:text-status-danger focus-visible:ring-2 focus-visible:ring-pink-primary disabled:opacity-50"
-              >
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={handleRemove} disabled={disabled}>
                 Remove
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       )}
 
       {error && (
-        <p id={errorId} className="text-xs text-status-danger" role="alert">
+        <p id={errorId} className="text-xs text-bad-ink" role="alert">
           {error}
         </p>
       )}

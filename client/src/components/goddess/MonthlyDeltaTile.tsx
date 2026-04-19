@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { ChartPanel, ChartError } from "@/components/dashboard/ChartPanel";
+import { Money } from "@/components/ui/money";
 import { formatGBP } from "@/services/format/currency";
 import { bucketTotalGBP } from "@/services/dashboards/subDashboardFormat";
 import type { MonthlyRevenueBucket } from "@/types/dashboard";
@@ -51,7 +52,7 @@ export function MonthlyDeltaTile({ data, error }: Props) {
   const prevLabel = monthLabel(prev);
 
   let deltaText = "";
-  let deltaClass = "text-base-text-muted";
+  let deltaClass = "text-text-mute";
 
   const currentNum = Number(currentTotal);
   const prevNum = Number(prevTotal);
@@ -60,11 +61,11 @@ export function MonthlyDeltaTile({ data, error }: Props) {
     const pct = Math.round(((currentNum - prevNum) / prevNum) * 100);
     const sign = pct >= 0 ? "+" : "";
     deltaText = `${sign}${pct}% vs ${prevLabel}`;
-    if (pct > 0) deltaClass = "text-status-success";
-    else if (pct < 0) deltaClass = "text-status-danger";
+    if (pct > 0) deltaClass = "text-ok-ink";
+    else if (pct < 0) deltaClass = "text-bad-ink";
   } else if (currentNum > 0) {
     deltaText = `New revenue · ${prevLabel} had none`;
-    deltaClass = "text-status-success";
+    deltaClass = "text-ok-ink";
   } else {
     deltaText = `No revenue yet this month`;
   }
@@ -78,15 +79,15 @@ export function MonthlyDeltaTile({ data, error }: Props) {
       {error ? (
         <ChartError message={error} />
       ) : (
-        <div className="flex flex-col gap-1 py-2">
-          <p
-            className="tabular-nums font-display text-3xl italic text-base-text"
-            role="status"
-            aria-label={`This month collected: ${formatGBP(currentNum)}`}
-          >
-            {formatGBP(currentNum)}
+        <div
+          className="flex flex-col gap-1 py-2"
+          role="status"
+          aria-label={`This month collected: ${formatGBP(currentNum)}`}
+        >
+          <Money value={currentNum} big />
+          <p className={cn("font-mono text-[11px] uppercase tracking-[0.12em]", deltaClass)}>
+            {deltaText}
           </p>
-          <p className={cn("text-xs font-medium", deltaClass)}>{deltaText}</p>
         </div>
       )}
     </ChartPanel>

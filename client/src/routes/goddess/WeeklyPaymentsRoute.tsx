@@ -1,14 +1,13 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Separator } from "@/components/ui/separator";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 import { WeekRowButton } from "@/components/goddess/WeekRowButton";
 import { WeeklyDetailPanel } from "@/components/goddess/WeeklyDetailPanel";
 import { getWeeklyPaymentsApi, type WeeklyPaymentBucket } from "@/services/goddess/weeklyApi";
 import { queryKeys } from "@/lib/queryKeys";
-import { formatGBP } from "@/services/format/currency";
 
 export function WeeklyPaymentsRoute() {
   const { data, isLoading, isError, error } = useQuery({
@@ -28,22 +27,20 @@ export function WeeklyPaymentsRoute() {
 
   const handleClose = useCallback(() => setOpenWeek(null), []);
 
-  return (
-    <div className="px-4 py-10 sm:px-8 md:py-16">
-      <div className="mx-auto flex max-w-5xl flex-col gap-10">
-        <header>
-          <p className="text-xs font-medium uppercase tracking-[0.3em] text-pink-primary/80">
-            The ledger
-          </p>
-          <h1 className="mt-3 font-display text-4xl sm:text-5xl italic leading-none text-base-text">
-            Weekly intake.
-          </h1>
-          <p className="mt-3 text-sm text-base-text-muted max-w-md">
-            Last 8 weeks of validated tributes — current week first. Click a row to drill in.
-          </p>
-        </header>
+  const activeWeek = useMemo<WeeklyPaymentBucket | null>(() => {
+    if (openWeek) return openWeek;
+    if (data && data.length > 0) return data[0] ?? null;
+    return null;
+  }, [openWeek, data]);
 
-        <Separator />
+  return (
+    <div className="px-6 py-6 lg:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6">
+        <PageHeader
+          crumbs={["Home · Money"]}
+          title="Weekly intake"
+          description="Last 8 weeks of validated tributes — current week first. Pick a row to drill in."
+        />
 
         {isLoading && <ListSkeleton rows={8} />}
 
@@ -54,30 +51,31 @@ export function WeeklyPaymentsRoute() {
           />
         )}
 
-        {!isLoading && !isError && data && <WeeklyChart buckets={data} onOpen={handleOpen} />}
+        {!isLoading && !isError && data && (
+          <WeeklyLayout
+            buckets={data}
+            activeWeek={activeWeek}
+            onOpen={handleOpen}
+            onClose={handleClose}
+          />
+        )}
       </div>
-
-      {openWeek && (
-        <WeeklyDetailPanel
-          weekStart={openWeek.week_start}
-          bucketTotal={openWeek.total}
-          bucketCount={openWeek.count}
-          onClose={handleClose}
-        />
-      )}
     </div>
   );
 }
 
-interface WeeklyChartProps {
+interface WeeklyLayoutProps {
   buckets: WeeklyPaymentBucket[];
+  activeWeek: WeeklyPaymentBucket | null;
   onOpen: (weekStart: string) => void;
+  onClose: () => void;
 }
 
-function WeeklyChart({ buckets, onOpen }: WeeklyChartProps) {
+function WeeklyLayout({ buckets, activeWeek, onOpen, onClose }: WeeklyLayoutProps) {
   const totalOverall = buckets.reduce((sum, b) => sum + Number(b.total), 0);
+  const allEmpty = totalOverall === 0 && buckets.every((b) => b.count === 0);
 
-  if (totalOverall === 0 && buckets.every((b) => b.count === 0)) {
+  if (allEmpty) {
     return (
       <EmptyState
         title="Nothing yet"
@@ -86,18 +84,31 @@ function WeeklyChart({ buckets, onOpen }: WeeklyChartProps) {
     );
   }
 
-  const max = Math.max(...buckets.map((b) => Number(b.total)), 1);
-
   return (
-    <div className="flex flex-col gap-3">
-      {buckets.map((bucket) => (
-        <WeekRowButton key={bucket.week_start} bucket={bucket} max={max} onOpen={onOpen} />
-      ))}
-      <Separator />
-      <div className="flex justify-between text-sm">
-        <span className="text-base-text-muted">8-week total</span>
-        <span className="font-semibold text-base-text">{formatGBP(totalOverall)}</span>
+    <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-6">
+      <div className="flex flex-col gap-2">
+        {buckets.map((bucket) => (
+          <WeekRowButton
+            key={bucket.week_start}
+            bucket={bucket}
+            active={activeWeek?.week_start === bucket.week_start}
+            onOpen={onOpen}
+          />
+        ))}
       </div>
+      {activeWeek ? (
+        <WeeklyDetailPanel
+          weekStart={activeWeek.week_start}
+          bucketTotal={activeWeek.total}
+          bucketCount={activeWeek.count}
+          onClose={onClose}
+        />
+      ) : (
+        <EmptyState
+          title="Pick a week"
+          message="Select a week on the left to see validated tributes."
+        />
+      )}
     </div>
   );
 }

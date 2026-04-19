@@ -207,10 +207,10 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase E · Goddess · overview & money
 
-- [ ] **Step 22 — Goddess Dashboard + charts panel.** KPIs as `Stat` cards, drained counter in serif, charts retyped w/ token colours (recharts). _Files: `client/src/routes/goddess/DashboardRoute.tsx`, any `components/dashboard/*`._
-- [ ] **Step 23 — Validations queue.** Two-pane layout: list left, inspector right; `source` `Badge` (`sub_declared`/`goddess_recorded`). _Files: `client/src/routes/goddess/PendingValidationsRoute.tsx` + `components/payments/*`._
-- [ ] **Step 24 — Weekly intake.** Week picker + per-sub rows + totals strip. _Files: `client/src/routes/goddess/WeeklyPaymentsRoute.tsx`._
-- [ ] **Step 25 — Late — the reckoning.** Crimson-bar rows (use `--bad-*`), count chips in sidebar nav. _Files: `client/src/routes/goddess/LateRoute.tsx`._
+- [x] **Step 22 — Goddess Dashboard + charts panel.** KPIs as `Stat` cards, drained counter in serif, charts retyped w/ token colours (recharts). _Files: `client/src/routes/goddess/DashboardRoute.tsx`, any `components/dashboard/*`._
+- [x] **Step 23 — Validations queue.** Two-pane layout: list left, inspector right; `source` `Badge` (`sub_declared`/`goddess_recorded`). _Files: `client/src/routes/goddess/PendingValidationsRoute.tsx` + `components/payments/*`._
+- [x] **Step 24 — Weekly intake.** Week picker + per-sub rows + totals strip. _Files: `client/src/routes/goddess/WeeklyPaymentsRoute.tsx`._
+- [x] **Step 25 — Late — the reckoning.** Crimson-bar rows (use `--bad-*`), count chips in sidebar nav. _Files: `client/src/routes/goddess/LateRoute.tsx`._
 
 → _commit: `refactor(ui): phase E goddess overview & money`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **4 / 13**
-- Steps complete: **21 / 51**
-- Last commit: `refactor(ui): phase D — auth & public`
-- Next phase: **E — Goddess · overview & money**
+- Phases complete: **5 / 13**
+- Steps complete: **25 / 51**
+- Last commit: `refactor(ui): phase E — goddess overview & money`
+- Next phase: **F — Goddess · subs & contracts**

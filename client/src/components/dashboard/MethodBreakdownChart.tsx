@@ -1,8 +1,10 @@
 /* eslint-disable no-restricted-syntax -- legend dot backgroundColor is resolved from a CSS var at runtime */
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import type { TooltipContentProps } from "recharts";
-import { chartColor } from "@/services/dashboard/chartColors";
+import { chartColor, CHART_COLORS } from "@/services/dashboard/chartColors";
 import { ChartPanel, ChartError } from "@/components/dashboard/ChartPanel";
+import { Money } from "@/components/ui/money";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import type { MethodBreakdownItem } from "@/types/dashboard";
 import { formatGBP } from "@/services/format/currency";
 
@@ -12,14 +14,14 @@ interface Props {
 }
 
 const PALETTE_VARS = [
-  "--color-pink-primary",
-  "--color-violet-primary",
-  "--color-gold-accent",
-  "--color-status-info",
-  "--color-status-success",
-  "--color-debt-primary",
-  "--color-base-text-subtle",
-  "--color-pink-primary-hover",
+  CHART_COLORS.rolling,
+  CHART_COLORS.contract,
+  CHART_COLORS.oneOff,
+  CHART_COLORS.active,
+  CHART_COLORS.completed,
+  CHART_COLORS.breached,
+  CHART_COLORS.late,
+  CHART_COLORS.muted,
 ];
 
 function CustomTooltip({ active, payload }: TooltipContentProps) {
@@ -32,11 +34,11 @@ function CustomTooltip({ active, payload }: TooltipContentProps) {
       : "";
   return (
     <div
-      className="rounded-md border border-base-border bg-base-surface-raised px-3 py-2 text-xs shadow-lg"
+      className="bg-bg-elev border border-line rounded-[6px] px-3 py-2 text-[12px] text-text"
       role="tooltip"
     >
-      <p className="font-medium text-base-text">{entry.name}</p>
-      <p className="text-base-text-muted">
+      <Eyebrow>{entry.name}</Eyebrow>
+      <p className="mt-1 text-text-mute">
         {formatGBP(Number(entry.value ?? 0))}
         {pct}
       </p>
@@ -46,24 +48,27 @@ function CustomTooltip({ active, payload }: TooltipContentProps) {
 
 function renderLegend(items: MethodBreakdownItem[], total: number) {
   return (
-    <ul className="mt-2 flex flex-col gap-1" aria-label="Method breakdown legend">
+    <ul className="mt-2 flex flex-col" aria-label="Method breakdown legend">
       {items.map((item, i) => {
         const pct = total > 0 ? ((Number(item.total) / total) * 100).toFixed(1) : "0.0";
         const colorVar = PALETTE_VARS[i % PALETTE_VARS.length];
         return (
-          <li key={item.method_type} className="flex items-center gap-2 text-xs">
+          <li
+            key={item.method_type}
+            className="flex items-center gap-2 text-xs border-b border-line last:border-b-0 py-2"
+          >
             <span
               className="inline-block h-2 w-2 rounded-full flex-shrink-0"
               style={{ backgroundColor: chartColor(colorVar) }}
               aria-hidden="true"
             />
-            <span className="text-base-text-muted capitalize">
+            <span className="text-text-mute capitalize">
               {item.method_type.replace("_", " ")}
             </span>
-            <span className="ml-auto font-medium text-base-text">
-              {formatGBP(Number(item.total))}
+            <span className="ml-auto">
+              <Money value={Number(item.total)} />
             </span>
-            <span className="text-base-text-subtle w-12 text-right">{pct}%</span>
+            <span className="font-mono text-[11px] text-text-faint w-12 text-right">{pct}%</span>
           </li>
         );
       })}
@@ -89,7 +94,7 @@ export function MethodBreakdownChart({ data, error }: Props) {
       {error ? (
         <ChartError message={error} />
       ) : data.length === 0 ? (
-        <p className="text-xs text-base-text-muted">No validated payments yet.</p>
+        <p className="text-xs text-text-mute">No validated payments yet.</p>
       ) : (
         <>
           <ResponsiveContainer width="100%" height={160}>

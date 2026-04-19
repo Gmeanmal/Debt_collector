@@ -1,60 +1,56 @@
 import type { WeeklyPaymentBucket } from "@/services/goddess/weeklyApi";
+import { Money } from "@/components/ui/money";
 import { formatLondon } from "@/services/format/datetime";
-import { formatGBP } from "@/services/format/currency";
-
-const WEEK_PART_FMT = new Intl.DateTimeFormat("en-GB", {
-  timeZone: "Europe/London",
-  day: "numeric",
-  month: "short",
-});
+import { cn } from "@/lib/utils";
 
 interface WeekRowButtonProps {
   bucket: WeeklyPaymentBucket;
-  max: number;
+  active?: boolean;
   onOpen: (weekStart: string) => void;
-}
-
-function formatWeekLabel(weekStart: string, weekEnd: string): string {
-  const startStr = WEEK_PART_FMT.format(new Date(weekStart));
-  const endStr = formatLondon(weekEnd, "date");
-  return `${startStr} – ${endStr}`;
 }
 
 function formatMondayLabel(weekStart: string): string {
   return formatLondon(weekStart, "date");
 }
 
-function setBarPct(node: HTMLElement | null, pct: number) {
-  node?.style.setProperty("--bar-pct", `${pct}%`);
-}
-
-export function WeekRowButton({ bucket, max, onOpen }: WeekRowButtonProps) {
+export function WeekRowButton({ bucket, active = false, onOpen }: WeekRowButtonProps) {
   const amount = Number(bucket.total);
-  const pct = max > 0 ? (amount / max) * 100 : 0;
-  const label = formatWeekLabel(bucket.week_start, bucket.week_end);
   const mondayLabel = formatMondayLabel(bucket.week_start);
+  const countLabel = `${bucket.count} ${bucket.count === 1 ? "payment" : "payments"}`;
 
   return (
     <button
       type="button"
       onClick={() => onOpen(bucket.week_start)}
       aria-label={`Show payments for week of ${mondayLabel}`}
-      className="flex flex-col gap-1 w-full text-left rounded-md px-1 py-1 hover:bg-base-surface-raised/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary transition-colors"
+      aria-current={active ? "true" : undefined}
+      className={cn(
+        "group w-full flex items-center justify-between gap-4 text-left",
+        "bg-bg-elev border border-line rounded-[10px] px-4 py-3",
+        "transition-colors duration-150",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
+        active
+          ? "border-l-2 border-l-accent bg-accent-trace/40 text-accent-deep"
+          : "hover:bg-bg-sunken/40",
+      )}
     >
-      <div className="flex items-center justify-between text-xs text-base-text-muted">
-        <span>{label}</span>
-        <span>
-          {bucket.count} {bucket.count === 1 ? "payment" : "payments"} ·{" "}
-          <span className="text-base-text font-medium">{formatGBP(amount)}</span>
+      <span className="flex min-w-0 flex-col gap-1">
+        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+          Week of
         </span>
-      </div>
-      <div className="h-2 w-full rounded-full bg-base-surface-raised overflow-hidden">
-        <div
-          ref={(node) => setBarPct(node, pct)}
-          className="h-full rounded-full bg-pink-primary transition-all duration-300 w-[var(--bar-pct)]"
-          role="presentation"
-        />
-      </div>
+        <span
+          className={cn(
+            "font-display italic text-[16px] tracking-[-0.01em] leading-none truncate",
+            active ? "text-accent-deep" : "text-text",
+          )}
+        >
+          {mondayLabel}
+        </span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-mute">
+          {countLabel}
+        </span>
+      </span>
+      <Money value={amount} tone={active ? "accent" : "default"} />
     </button>
   );
 }

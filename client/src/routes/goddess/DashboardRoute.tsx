@@ -17,7 +17,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionTitle } from "@/components/ui/section-title";
 import { listGoddessSubsApi } from "@/services/payments/paymentsApi";
 import { useGoddessDashboard } from "@/hooks/dashboard/useGoddessDashboard";
 import { useGoddessDashboardCharts } from "@/hooks/dashboard/useGoddessDashboardCharts";
@@ -46,37 +47,29 @@ export function DashboardRoute() {
   const isLoading = dashLoading || summaryLoading;
 
   return (
-    <div className="px-4 py-10 sm:px-8 md:py-16">
-      <div className="mx-auto flex max-w-7xl flex-col gap-10">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.3em] text-pink-primary/80">
-              The ledger
-            </p>
-            <h1 className="mt-3 font-display text-4xl sm:text-5xl italic leading-none text-base-text">
-              Tonight's reckoning.
-            </h1>
-            <p className="mt-3 text-sm text-base-text-muted max-w-md">
-              Tributes, debts, and disobedience — at a glance.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <Link to="/goddess/invite">
-                New invitation
-                <ArrowUpRight />
-              </Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/goddess/payments/record">
-                Record payment
-                <ArrowUpRight />
-              </Link>
-            </Button>
-          </div>
-        </header>
-
-        <Separator />
+    <div className="px-4 py-8 sm:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8">
+        <PageHeader
+          crumbs={["Home · Overview"]}
+          title={<span className="italic">Tonight&apos;s reckoning.</span>}
+          description="Tributes, debts, and disobedience — at a glance."
+          actions={
+            <>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/goddess/invite">
+                  New invitation
+                  <ArrowUpRight />
+                </Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link to="/goddess/payments/record">
+                  Record payment
+                  <ArrowUpRight />
+                </Link>
+              </Button>
+            </>
+          }
+        />
 
         {isLoading && <ListSkeleton rows={2} />}
 
@@ -147,17 +140,16 @@ function DashboardContent({ dash, summary }: ContentProps) {
       <ChartGrid summary={summary} dateRangeState={dateRangeState} />
 
       <section className="flex flex-col gap-4">
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="font-display text-3xl italic text-base-text">Late tonight</h2>
-            <p className="mt-1 text-sm text-base-text-muted">
-              Names overdue. Click to address them personally.
-            </p>
-          </div>
-          <span className="text-xs font-medium uppercase tracking-[0.18em] text-base-text-subtle">
-            {late.length} {late.length === 1 ? "entry" : "entries"}
-          </span>
-        </div>
+        <SectionTitle
+          eyebrow="The reckoning"
+          title="Late tonight"
+          description="Names overdue. Click to address them personally."
+          actions={
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+              {late.length} {late.length === 1 ? "entry" : "entries"}
+            </span>
+          }
+        />
         <LatePaymentList items={late} />
       </section>
     </>

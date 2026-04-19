@@ -1,46 +1,21 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { daysLateClass } from "@/services/goddess/lateColour";
+import { Money } from "@/components/ui/money";
 import type { LateContractItem } from "@/services/goddess/lateContractsApi";
 import { formatLondon } from "@/services/format/datetime";
-import { formatGBP } from "@/services/format/currency";
 
-type SortKey = "days_late" | "overdue_amount" | "sub_display_name";
-type SortDir = "asc" | "desc";
-
-interface SortHeaderProps {
-  label: string;
-  col: SortKey;
-  active: SortKey;
-  dir: SortDir;
-  onSort: (col: SortKey) => void;
-}
-
-function SortHeader({ label, col, active, dir, onSort }: SortHeaderProps) {
-  const isActive = col === active;
-  return (
-    <th className="px-4 py-3 text-left font-medium text-base-text-muted">
-      <button
-        type="button"
-        onClick={() => onSort(col)}
-        className="flex items-center gap-1 hover:text-base-text transition-colors"
-        aria-label={`Sort by ${label}`}
-      >
-        {label}
-        {isActive ? (
-          dir === "asc" ? (
-            <ChevronUp className="h-3 w-3 text-pink-primary" />
-          ) : (
-            <ChevronDown className="h-3 w-3 text-pink-primary" />
-          )
-        ) : (
-          <ChevronDown className="h-3 w-3 opacity-30" />
-        )}
-      </button>
-    </th>
-  );
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0] ?? "")
+    .join("")
+    .toUpperCase();
 }
 
 interface ContractRowProps {
@@ -48,35 +23,46 @@ interface ContractRowProps {
 }
 
 function ContractRow({ item }: ContractRowProps) {
-  const lastPayment = formatLondon(item.last_payment_at, "date");
+  const displayName = item.sub_display_name ?? `@${item.sub_username}`;
+  const hasLastPayment = item.last_payment_at != null && item.last_payment_at !== "";
+  const lastTribute = hasLastPayment ? formatLondon(item.last_payment_at, "date") : "never";
 
   return (
-    <tr className="border-b border-base-border/50 hover:bg-base-surface-raised/50 transition-colors">
-      <td className="px-4 py-3">
-        <Link
-          to={`/goddess/subs/${item.sub_username}`}
-          className="font-medium text-base-text hover:text-pink-primary transition-colors"
-        >
-          {item.sub_display_name ?? `@${item.sub_username}`}
-        </Link>
-      </td>
-      <td className="px-4 py-3">
-        <span className={`font-semibold ${daysLateClass(item.days_late)}`}>{item.days_late}d</span>
-      </td>
-      <td className="px-4 py-3 text-base-text">{formatGBP(item.overdue_amount)}</td>
-      <td className="px-4 py-3 text-base-text-muted">{lastPayment}</td>
-      <td className="px-4 py-3">
-        {item.slug != null ? (
+    <div className="flex flex-col gap-3 rounded-[10px] border border-l-2 border-line border-l-bad-ink bg-bg-elev p-4 sm:flex-row sm:items-center sm:gap-4">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <Avatar className="h-9 w-9">
+          <AvatarFallback>{initials(displayName)}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
           <Link
-            to={`/debts/${item.slug}`}
-            className="text-xs text-pink-primary hover:underline"
-            aria-label={`View contract for ${item.sub_display_name ?? item.sub_username}`}
+            to={`/goddess/subs/${item.sub_username}`}
+            className="block truncate font-medium text-text transition-colors hover:text-accent-deep"
           >
-            View
+            {displayName}
           </Link>
-        ) : null}
-      </td>
-    </tr>
+          <div className="truncate font-mono text-[11px] text-text-faint">@{item.sub_username}</div>
+        </div>
+      </div>
+
+      <div className="min-w-0 sm:flex-1">
+        <Eyebrow>Last tribute</Eyebrow>
+        <div className="mt-1 font-display italic text-[14px] text-text">{lastTribute}</div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <Money value={Number(item.overdue_amount)} tone="bad" big />
+        {item.days_late > 0 && <Badge variant="warn">Late {item.days_late} days</Badge>}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button variant="danger" size="sm" type="button">
+          Breach
+        </Button>
+        <Button variant="soft" size="sm" type="button">
+          Message
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -85,78 +71,17 @@ interface LateContractsSectionProps {
 }
 
 export function LateContractsSection({ items }: LateContractsSectionProps) {
-  const [sortKey, setSortKey] = useState<SortKey>("days_late");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const sorted = useMemo(() => [...items].sort((a, b) => b.days_late - a.days_late), [items]);
 
-  function handleSort(key: SortKey) {
-    if (key === sortKey) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDir("desc");
-    }
+  if (items.length === 0) {
+    return <EmptyState title="Nobody is late. For now." />;
   }
 
-  const sorted = [...items].sort((a, b) => {
-    let cmp = 0;
-    if (sortKey === "days_late") {
-      cmp = a.days_late - b.days_late;
-    } else if (sortKey === "overdue_amount") {
-      cmp = Number(a.overdue_amount) - Number(b.overdue_amount);
-    } else {
-      cmp = (a.sub_display_name ?? "").localeCompare(b.sub_display_name ?? "");
-    }
-    return sortDir === "asc" ? cmp : -cmp;
-  });
-
   return (
-    <section>
-      <h2 className="text-lg font-semibold text-base-text mb-4">Late on contracts</h2>
-      {items.length === 0 ? (
-        <EmptyState
-          title="No contracts are late"
-          message="All subs are currently on time with their debt contract payments."
-        />
-      ) : (
-        <div className="overflow-x-auto rounded-lg border border-base-border">
-          <table className="w-full min-w-[540px] text-sm">
-            <thead>
-              <tr className="border-b border-base-border bg-base-surface-raised">
-                <SortHeader
-                  label="Name"
-                  col="sub_display_name"
-                  active={sortKey}
-                  dir={sortDir}
-                  onSort={handleSort}
-                />
-                <SortHeader
-                  label="Days late"
-                  col="days_late"
-                  active={sortKey}
-                  dir={sortDir}
-                  onSort={handleSort}
-                />
-                <SortHeader
-                  label="Overdue (GBP)"
-                  col="overdue_amount"
-                  active={sortKey}
-                  dir={sortDir}
-                  onSort={handleSort}
-                />
-                <th className="px-4 py-3 text-left font-medium text-base-text-muted">
-                  Last payment
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-base-text-muted">Contract</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((item) => (
-                <ContractRow key={item.contract_id} item={item} />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
+    <div className="flex flex-col gap-3">
+      {sorted.map((item) => (
+        <ContractRow key={item.contract_id} item={item} />
+      ))}
+    </div>
   );
 }
