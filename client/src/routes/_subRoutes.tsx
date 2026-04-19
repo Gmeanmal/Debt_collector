@@ -14,6 +14,7 @@ import { KinksRoute } from "./profile/KinksRoute";
 import { LimitsRoute } from "./profile/LimitsRoute";
 import { TodayRoute } from "./sub/TodayRoute";
 import { JournalRoute } from "./sub/JournalRoute";
+import { LedgerRoute } from "./sub/LedgerRoute";
 import { InventoryRoute as SubInventoryRoute } from "./sub/InventoryRoute";
 import { AftercareRoute } from "./profile/AftercareRoute";
 import { MedicalRoute } from "./profile/MedicalRoute";
@@ -50,6 +51,7 @@ export const SUB_ROUTES: RouteObject[] = [
   { path: "/sub/today", element: subRoute(<TodayRoute />) },
   { path: "/today", element: <Navigate to="/sub/today" replace /> },
   { path: "/sub/journal", element: subRoute(<JournalRoute />) },
+  { path: "/sub/ledger", element: subRoute(<LedgerRoute />) },
   { path: "/sub/profile/inventory", element: subRoute(<SubInventoryRoute />) },
   { path: "/sub/profile/aftercare", element: subRoute(<AftercareRoute />) },
   { path: "/profile/aftercare", element: <Navigate to="/sub/profile/aftercare" replace /> },

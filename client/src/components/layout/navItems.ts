@@ -31,6 +31,7 @@ export const SUB_NAV: NavItem[] = [
   { to: "/sub/debts", label: "Contracts" },
   { to: "/sub/profile/kinks", label: "Kinks" },
   { to: "/sub/profile/limits", label: "Limits" },
+  { to: "/sub/ledger", label: "Ledger" },
   { to: "/sub/journal", label: "Journal" },
   { to: "/sub/profile/inventory", label: "Inventory" },
   { to: "/sub/profile/aftercare", label: "Aftercare" },
