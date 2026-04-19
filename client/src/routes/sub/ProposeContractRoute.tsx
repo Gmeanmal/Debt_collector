@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { ContractFormFields } from "@/components/contracts/ContractFormFields";
 import { SimulationChart } from "@/components/contracts/SimulationChart";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionTitle } from "@/components/ui/section-title";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   proposeAsSubApi,
   simulateDraftApi,
@@ -72,19 +76,16 @@ export function ProposeContractRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Propose a Contract
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Submit proposed terms for your Goddess to review.
-          </p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Contracts · Propose"]}
+          title={<span className="font-serif italic">Propose a Contract</span>}
+          description="Submit proposed terms for your Goddess to review."
+        />
 
         {banner && (
           <p
             role="status"
-            className="text-sm rounded-md px-4 py-2 bg-debt-muted text-status-danger border border-debt-ring"
+            className="text-sm rounded-md px-4 py-2 bg-bad-bg text-bad-ink border border-line"
           >
             {banner}
           </p>
@@ -92,29 +93,31 @@ export function ProposeContractRoute() {
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-base-surface border border-base-border rounded-lg p-6">
-              <h2 className="text-base font-semibold text-base-text mb-4">Proposed terms</h2>
+            <Card>
+              <SectionTitle eyebrow="Terms" title="Proposed terms" className="mb-4" />
               <ContractFormFields values={form} onChange={handleChange} />
               <div className="mt-6">
-                <button
+                <Button
                   type="submit"
+                  variant="primary"
+                  size="lg"
                   disabled={proposeMutation.isPending}
-                  className="w-full px-4 py-2.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary"
+                  className="w-full"
                 >
                   {proposeMutation.isPending ? "Proposing…" : "Propose contract"}
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
 
-            <div className="bg-base-surface border border-base-border rounded-lg p-6">
-              <h2 className="text-base font-semibold text-base-text mb-4">Live projection</h2>
-              {simError && <p className="text-xs text-status-warning mb-3">{simError}</p>}
+            <Card>
+              <SectionTitle eyebrow="Preview" title="Live projection" className="mb-4" />
+              {simError && <p className="text-xs text-warn-ink mb-3">{simError}</p>}
               {simulation ? (
                 <SimulationChart simulation={simulation} principal={String(form.principal)} />
               ) : (
-                <p className="text-base-text-muted text-sm">Calculating…</p>
+                <p className="text-text-mute text-sm">Calculating…</p>
               )}
-            </div>
+            </Card>
           </div>
         </form>
       </div>

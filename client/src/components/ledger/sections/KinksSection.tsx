@@ -23,16 +23,16 @@ const RATING_LABEL: Record<KinkRating, string> = {
   prefer_not_to_say: "Prefer not to say",
 };
 
-type BadgeVariant = "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt";
+type BadgeVariant = "neutral" | "ok" | "warn" | "bad" | "pink" | "ink" | "gold" | "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt";
 
 const RATING_VARIANT: Record<KinkRating, BadgeVariant> = {
-  hard_limit: "danger",
-  soft_limit: "warning",
-  curious: "info",
-  loves: "primary",
-  fetish_need: "primary",
-  not_set: "default",
-  prefer_not_to_say: "default",
+  hard_limit: "bad",
+  soft_limit: "warn",
+  curious: "neutral",
+  loves: "pink",
+  fetish_need: "pink",
+  not_set: "neutral",
+  prefer_not_to_say: "neutral",
 };
 
 const EXCLUDED_RATINGS = new Set<KinkRating>(["not_set"]);
@@ -64,14 +64,14 @@ function flattenRated(matrixData: KinkMatrix): RatedRow[] {
 
 function KinkRow({ row }: { row: RatedRow }) {
   return (
-    <li className="flex items-start justify-between gap-3 py-2 border-b border-base-border/40 last:border-b-0">
+    <li className="flex items-start justify-between gap-3 py-2 border-b border-line/40 last:border-b-0">
       <div className="flex flex-col min-w-0">
-        <span className="text-sm text-base-text">{row.label}</span>
-        <span className="text-xs text-base-text-muted">{row.category}</span>
+        <span className="text-sm text-text">{row.label}</span>
+        <span className="text-xs text-text-mute">{row.category}</span>
       </div>
       <div className="flex items-center gap-2 shrink-0">
         {row.safety_flag && (
-          <Badge variant="warning" aria-label="Safety-flagged kink">
+          <Badge variant="warn" aria-label="Safety-flagged kink">
             Safety
           </Badge>
         )}
@@ -100,7 +100,7 @@ export function KinksSection() {
       {rows.length > 0 && (
         <div className="flex flex-col gap-2">
           {pendingConfirmations > 0 && (
-            <p className="text-xs text-status-warning">
+            <p className="text-xs text-warn-ink">
               {pendingConfirmations} rating{pendingConfirmations === 1 ? "" : "s"} still need your
               explicit consent acknowledgement.
             </p>

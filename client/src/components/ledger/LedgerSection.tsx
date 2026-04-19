@@ -19,30 +19,30 @@ export function LedgerSection({
   return (
     <details
       open={defaultOpen}
-      className="group bg-base-surface border border-base-border rounded-lg overflow-hidden"
+      className="group bg-bg-elev border border-line rounded-[10px] overflow-hidden"
     >
-      <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-3 hover:bg-base-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary">
+      <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-3 hover:bg-bg-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
         <div className="flex flex-col min-w-0">
-          <span className="font-display text-base text-pink-primary tracking-wide">{title}</span>
-          <span className="text-xs text-base-text-muted uppercase tracking-wide">
+          <span className="font-serif italic text-base text-accent tracking-wide">{title}</span>
+          <span className="text-xs text-text-mute uppercase tracking-wide">
             {subtitle ?? "Reported by your goddess"}
           </span>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           {updatedAt && (
-            <span className="text-xs text-base-text-muted hidden sm:inline">
+            <span className="text-xs text-text-mute hidden sm:inline">
               Updated {formatLondon(updatedAt, "datetime")}
             </span>
           )}
           <span
             aria-hidden="true"
-            className="text-base-text-muted transition-transform group-open:rotate-180"
+            className="text-text-mute transition-transform group-open:rotate-180"
           >
             ▾
           </span>
         </div>
       </summary>
-      <div className="border-t border-base-border px-4 py-4">{children}</div>
+      <div className="border-t border-line px-4 py-4">{children}</div>
     </details>
   );
 }
@@ -52,7 +52,7 @@ interface LedgerEmptyProps {
 }
 
 export function LedgerEmpty({ message = "Nothing recorded yet." }: LedgerEmptyProps) {
-  return <p className="text-sm text-base-text-muted italic">{message}</p>;
+  return <p className="text-sm text-text-mute italic">{message}</p>;
 }
 
 interface LedgerLoadingProps {
@@ -61,7 +61,7 @@ interface LedgerLoadingProps {
 
 export function LedgerLoading({ label = "Loading…" }: LedgerLoadingProps) {
   return (
-    <p className="text-sm text-base-text-muted" role="status" aria-live="polite">
+    <p className="text-sm text-text-mute" role="status" aria-live="polite">
       {label}
     </p>
   );
@@ -73,7 +73,7 @@ interface LedgerErrorProps {
 
 export function LedgerError({ message }: LedgerErrorProps) {
   return (
-    <p className="text-sm text-status-danger">
+    <p className="text-sm text-bad-ink">
       Failed to load: {message ?? "please try again later."}
     </p>
   );

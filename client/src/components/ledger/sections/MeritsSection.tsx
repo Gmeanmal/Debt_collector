@@ -17,14 +17,14 @@ import {
 
 function RewardRow({ reward, affordable }: { reward: RewardTier; affordable: boolean }) {
   return (
-    <li className="flex items-start justify-between gap-3 py-2 border-b border-base-border/40 last:border-b-0">
+    <li className="flex items-start justify-between gap-3 py-2 border-b border-line/40 last:border-b-0">
       <div className="flex flex-col min-w-0">
-        <span className="text-sm text-base-text">{reward.name}</span>
+        <span className="text-sm text-text">{reward.name}</span>
         {reward.description && (
-          <span className="text-xs text-base-text-muted">{reward.description}</span>
+          <span className="text-xs text-text-mute">{reward.description}</span>
         )}
       </div>
-      <Badge variant={affordable ? "success" : "default"}>
+      <Badge variant={affordable ? "ok" : "neutral"}>
         {reward.cost} pt{reward.cost === 1 ? "" : "s"}
       </Badge>
     </li>
@@ -50,20 +50,20 @@ export function MeritsSection() {
       {!isLoading && firstError && <LedgerError message={firstError.message} />}
       {!isLoading && !firstError && (
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-3 bg-base-surface-raised border border-base-border rounded p-3">
+          <div className="flex items-center justify-between gap-3 bg-bg-sunken border border-line rounded p-3">
             <div>
-              <p className="text-xs text-base-text-muted uppercase tracking-wide">Points balance</p>
-              <p className="text-lg font-display text-pink-primary">
+              <p className="text-xs text-text-mute uppercase tracking-wide">Points balance</p>
+              <p className="text-lg font-serif italic text-accent">
                 {balance} pt{balance === 1 ? "" : "s"}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-base-text-muted">
+              <p className="text-xs text-text-mute">
                 {balanceQuery.data?.event_count ?? 0} event
                 {(balanceQuery.data?.event_count ?? 0) === 1 ? "" : "s"} recorded
               </p>
               {lastEventAt && (
-                <p className="text-xs text-base-text-muted">
+                <p className="text-xs text-text-mute">
                   Last change {formatLondon(lastEventAt, "datetime")}
                 </p>
               )}
@@ -71,7 +71,7 @@ export function MeritsSection() {
           </div>
 
           <div>
-            <p className="text-xs text-base-text-muted uppercase tracking-wide mb-2">
+            <p className="text-xs text-text-mute uppercase tracking-wide mb-2">
               Redeemable rewards
             </p>
             {activeRewards.length === 0 ? (
@@ -85,7 +85,7 @@ export function MeritsSection() {
             )}
           </div>
 
-          <p className="text-xs text-base-text-muted italic">
+          <p className="text-xs text-text-mute italic">
             Individual reward/penalty events are only visible to your goddess. Your balance above
             reflects every change.
           </p>

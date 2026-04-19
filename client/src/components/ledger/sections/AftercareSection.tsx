@@ -32,9 +32,9 @@ export function AftercareSection() {
       {data && !isEmpty(data) && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
-            <Badge variant="info">Intensity {data.intensity} / 5</Badge>
+            <Badge variant="neutral">Intensity {data.intensity} / 5</Badge>
             {data.read_by_goddess_at && (
-              <span className="text-xs text-status-success">
+              <span className="text-xs text-ok-ink">
                 Read on {formatLondon(data.read_by_goddess_at, "datetime")}
               </span>
             )}
@@ -42,26 +42,26 @@ export function AftercareSection() {
 
           {data.needs && (
             <div>
-              <p className="text-xs text-base-text-muted uppercase tracking-wide">Needs</p>
-              <p className="text-sm text-base-text whitespace-pre-wrap">{data.needs}</p>
+              <p className="text-xs text-text-mute uppercase tracking-wide">Needs</p>
+              <p className="text-sm text-text whitespace-pre-wrap">{data.needs}</p>
             </div>
           )}
           {data.comfort_items && (
             <div>
-              <p className="text-xs text-base-text-muted uppercase tracking-wide">Comfort items</p>
-              <p className="text-sm text-base-text whitespace-pre-wrap">{data.comfort_items}</p>
+              <p className="text-xs text-text-mute uppercase tracking-wide">Comfort items</p>
+              <p className="text-sm text-text whitespace-pre-wrap">{data.comfort_items}</p>
             </div>
           )}
           {data.contact_phrase && (
             <div>
-              <p className="text-xs text-base-text-muted uppercase tracking-wide">Contact phrase</p>
-              <p className="text-sm text-base-text whitespace-pre-wrap">{data.contact_phrase}</p>
+              <p className="text-xs text-text-mute uppercase tracking-wide">Contact phrase</p>
+              <p className="text-sm text-text whitespace-pre-wrap">{data.contact_phrase}</p>
             </div>
           )}
           {data.notes && (
             <div>
-              <p className="text-xs text-base-text-muted uppercase tracking-wide">Notes</p>
-              <p className="text-sm text-base-text whitespace-pre-wrap">{data.notes}</p>
+              <p className="text-xs text-text-mute uppercase tracking-wide">Notes</p>
+              <p className="text-sm text-text whitespace-pre-wrap">{data.notes}</p>
             </div>
           )}
         </div>

@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SignaturePad } from "@/components/signature/SignaturePad";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   getContractBySlugSubApi,
   signContractApi,
@@ -57,21 +60,21 @@ export function ContractSignRoute() {
   if (!safeSlug)
     return (
       <div className="p-4 md:p-8">
-        <p className="text-status-danger text-sm">No contract slug.</p>
+        <p className="text-bad-ink text-sm">No contract slug.</p>
       </div>
     );
 
   if (isLoading)
     return (
       <div className="p-4 md:p-8">
-        <p className="text-base-text-muted text-sm">Loading…</p>
+        <p className="text-text-mute text-sm">Loading…</p>
       </div>
     );
 
   if (isError || !contract)
     return (
       <div className="p-4 md:p-8">
-        <p className="text-status-danger text-sm">Failed to load contract.</p>
+        <p className="text-bad-ink text-sm">Failed to load contract.</p>
       </div>
     );
 
@@ -81,15 +84,16 @@ export function ContractSignRoute() {
     return (
       <div className="p-4 md:p-8">
         <div className="max-w-2xl mx-auto flex flex-col gap-4">
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Sign Contract
-          </h1>
-          <p className="text-sm rounded-md px-4 py-2 bg-debt-muted text-status-danger border border-debt-ring">
+          <PageHeader
+            crumbs={["Home · Contracts · Sign"]}
+            title={<span className="font-serif italic">Sign Contract</span>}
+          />
+          <p className="text-sm rounded-md px-4 py-2 bg-bad-bg text-bad-ink border border-line">
             This contract is not awaiting your signature (status: {contract.status}).
           </p>
           <Link
             to={`/debts/${contract.slug ?? safeSlug}`}
-            className="text-sm text-pink-primary hover:underline"
+            className="text-sm text-accent hover:underline"
           >
             Back to contract
           </Link>
@@ -101,38 +105,42 @@ export function ContractSignRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Sign Contract
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Draw your signature below to finalise the contract. This action is binding.
-          </p>
-          {isAdmin && <p className="text-xs text-base-text-muted mt-1 font-mono">{contractId}</p>}
-        </div>
+        <PageHeader
+          crumbs={["Home · Contracts · Sign"]}
+          title={<span className="font-serif italic">Sign Contract</span>}
+          description="Draw your signature below to finalise the contract. This action is binding."
+        />
+
+        {isAdmin && (
+          <p className="font-mono text-[11px] tracking-[0.08em] text-text-faint">{contractId}</p>
+        )}
 
         {error && (
           <p
             role="status"
-            className="text-sm rounded-md px-4 py-2 bg-debt-muted text-status-danger border border-debt-ring"
+            className="text-sm rounded-md px-4 py-2 bg-bad-bg text-bad-ink border border-line"
           >
             {error}
           </p>
         )}
 
-        <div className="bg-base-surface border border-base-border rounded-lg p-6">
+        <Card>
           <SignaturePad onReady={handleReady} disabled={signMutation.isPending} />
           {signMutation.isPending && (
-            <p className="text-xs text-base-text-muted mt-3">Submitting signature…</p>
+            <p className="text-xs text-text-mute mt-3">Submitting signature…</p>
           )}
-        </div>
+        </Card>
 
-        <Link
-          to={`/debts/${contract.slug ?? safeSlug}`}
-          className="text-sm text-base-text-muted hover:text-pink-primary"
-        >
-          Cancel and go back
-        </Link>
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            size="md"
+            onClick={() => navigate(`/debts/${contract.slug ?? safeSlug}`)}
+          >
+            Cancel and go back
+          </Button>
+        </div>
       </div>
     </div>
   );

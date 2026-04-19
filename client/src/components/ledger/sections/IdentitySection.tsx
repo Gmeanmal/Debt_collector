@@ -11,9 +11,9 @@ interface Row {
 
 function IdentityRow({ label, value }: Row) {
   return (
-    <div className="flex justify-between gap-3 py-1.5 border-b border-base-border/40 last:border-b-0">
-      <span className="text-xs text-base-text-muted uppercase tracking-wide">{label}</span>
-      <span className="text-sm text-base-text text-right break-words">{value || "—"}</span>
+    <div className="flex justify-between gap-3 py-1.5 border-b border-line/40 last:border-b-0">
+      <span className="text-xs text-text-mute uppercase tracking-wide">{label}</span>
+      <span className="text-sm text-text text-right break-words">{value || "—"}</span>
     </div>
   );
 }
@@ -34,10 +34,10 @@ export function IdentitySection() {
               displayName={user.display_name}
             />
             <div className="flex flex-col min-w-0">
-              <span className="font-display text-lg text-base-text tracking-wide truncate">
+              <span className="font-serif italic text-lg text-text tracking-wide truncate">
                 {user.display_name}
               </span>
-              <span className="text-sm text-base-text-muted truncate">{user.email}</span>
+              <span className="text-sm text-text-mute truncate">{user.email}</span>
             </div>
           </div>
 
@@ -61,9 +61,9 @@ export function IdentitySection() {
           </div>
 
           {user.bio && (
-            <div className="bg-base-surface-raised border border-base-border rounded p-3">
-              <p className="text-xs text-base-text-muted uppercase tracking-wide mb-1">Bio</p>
-              <p className="text-sm text-base-text whitespace-pre-wrap">{user.bio}</p>
+            <div className="bg-bg-sunken border border-line rounded p-3">
+              <p className="text-xs text-text-mute uppercase tracking-wide mb-1">Bio</p>
+              <p className="text-sm text-text whitespace-pre-wrap">{user.bio}</p>
             </div>
           )}
         </div>

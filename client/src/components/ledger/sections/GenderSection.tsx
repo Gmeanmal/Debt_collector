@@ -18,23 +18,23 @@ export function GenderSection() {
         <div className="flex flex-col gap-3">
           {taxonomy && (
             <div>
-              <p className="text-xs text-base-text-muted uppercase tracking-wide">Identity</p>
-              <p className="text-sm text-base-text font-semibold">{taxonomy.label}</p>
+              <p className="text-xs text-text-mute uppercase tracking-wide">Identity</p>
+              <p className="text-sm text-text font-semibold">{taxonomy.label}</p>
               {taxonomy.description && (
-                <p className="text-xs text-base-text-muted mt-1">{taxonomy.description}</p>
+                <p className="text-xs text-text-mute mt-1">{taxonomy.description}</p>
               )}
             </div>
           )}
           {freeText && (
             <div>
-              <p className="text-xs text-base-text-muted uppercase tracking-wide">Self-described</p>
-              <p className="text-sm text-base-text">{freeText}</p>
+              <p className="text-xs text-text-mute uppercase tracking-wide">Self-described</p>
+              <p className="text-sm text-text">{freeText}</p>
             </div>
           )}
           {user?.pronouns && (
             <div>
-              <p className="text-xs text-base-text-muted uppercase tracking-wide">Pronouns</p>
-              <p className="text-sm text-base-text">{user.pronouns}</p>
+              <p className="text-xs text-text-mute uppercase tracking-wide">Pronouns</p>
+              <p className="text-sm text-text">{user.pronouns}</p>
             </div>
           )}
         </div>

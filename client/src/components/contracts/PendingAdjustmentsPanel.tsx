@@ -10,6 +10,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { Button } from "@/components/ui/button";
 import { formatLondon } from "@/services/format/datetime";
 import { formatGBP } from "@/services/format/currency";
 
@@ -71,45 +72,47 @@ export function PendingAdjustmentsPanel() {
       {items.map((adj) => (
         <div
           key={adj.id}
-          className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-3"
+          className="bg-bg-elev border border-line rounded-[10px] p-4 flex flex-col gap-3"
         >
           <div className="flex items-start justify-between gap-2 flex-wrap">
             <div>
-              <p className="font-semibold text-base-text text-sm">{fmtGbp(adj.amount)}</p>
-              <p className="text-xs text-base-text-muted mt-0.5">
+              <p className="font-semibold text-text text-sm">{fmtGbp(adj.amount)}</p>
+              <p className="text-xs text-text-mute mt-0.5">
                 Proposed {fmtDate(adj.created_at)} ·{" "}
                 <Link
                   to={`/debts/${adj.contract_id}`}
-                  className="text-pink-primary hover:underline"
+                  className="text-accent hover:underline"
                 >
                   view contract
                 </Link>
               </p>
               {adj.reason && (
-                <p className="text-xs text-base-text-subtle italic mt-1">{adj.reason}</p>
+                <p className="text-xs text-text-faint italic mt-1">{adj.reason}</p>
               )}
             </div>
             <div className="flex gap-2">
-              <button
+              <Button
                 type="button"
+                variant="primary"
+                size="sm"
                 onClick={() => accept.mutate(adj.id)}
                 disabled={accept.isPending}
-                className="px-3 py-1 text-xs bg-status-success/20 text-status-success border border-status-success/30 rounded font-semibold hover:bg-status-success/30 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-status-success"
               >
                 Accept
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="danger"
+                size="sm"
                 onClick={() => refuse.mutate(adj.id)}
                 disabled={refuse.isPending}
-                className="px-3 py-1 text-xs bg-debt-muted text-status-danger border border-debt-ring rounded font-semibold hover:bg-debt-primary/20 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-debt-primary"
               >
                 Refuse
-              </button>
+              </Button>
             </div>
           </div>
           {(accept.isError || refuse.isError) && (
-            <p className="text-xs text-status-danger">
+            <p className="text-xs text-bad-ink">
               {((accept.error ?? refuse.error) as Error | undefined)?.message ?? "Action failed"}
             </p>
           )}

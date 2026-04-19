@@ -11,7 +11,7 @@ import { AftercareSection } from "@/components/ledger/sections/AftercareSection"
 
 export function LedgerAccordion() {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <IdentitySection />
       <GenderSection />
       <KinksSection />

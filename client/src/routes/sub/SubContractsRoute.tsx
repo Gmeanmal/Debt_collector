@@ -4,6 +4,8 @@ import { ContractStatusChip } from "@/components/contracts/ContractStatusChip";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
 import {
   listSubDebtsApi,
   type DebtContractOut,
@@ -47,7 +49,7 @@ function StatusCell({ contract }: { contract: DebtContractOut }) {
   return (
     <div className="flex flex-col gap-0.5">
       <ContractStatusChip status={contract.status} />
-      <span className="text-xs text-status-danger font-semibold">
+      <span className="text-xs text-bad-ink font-semibold">
         Behind · {fmtGbp(behind.amount)} · {behind.periods} period
         {behind.periods !== 1 ? "s" : ""}
       </span>
@@ -69,12 +71,11 @@ export function SubContractsRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Your Contracts
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">All debt contracts you are party to.</p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Contracts"]}
+          title={<span className="font-serif italic">Your Contracts</span>}
+          description="All debt contracts you are party to."
+        />
 
         {isLoading && <ListSkeleton rows={3} />}
         {isError && (
@@ -92,40 +93,40 @@ export function SubContractsRoute() {
         )}
 
         {contracts.length > 0 && (
-          <div className="bg-base-surface border border-base-border rounded-lg overflow-x-auto">
+          <Card className="p-0 overflow-x-auto">
             <table className="w-full min-w-[480px] text-sm">
               <thead>
-                <tr className="border-b border-base-border bg-base-surface-raised text-left">
-                  <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+                <tr className="border-b border-line bg-bg-sunken text-left">
+                  <th className="px-4 py-3 text-xs font-semibold text-text-mute uppercase tracking-wide">
                     Principal
                   </th>
-                  <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+                  <th className="px-4 py-3 text-xs font-semibold text-text-mute uppercase tracking-wide">
                     Balance
                   </th>
-                  <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+                  <th className="px-4 py-3 text-xs font-semibold text-text-mute uppercase tracking-wide">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-xs font-semibold text-base-text-muted uppercase tracking-wide">
+                  <th className="px-4 py-3 text-xs font-semibold text-text-mute uppercase tracking-wide">
                     Updated
                   </th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-base-border">
+              <tbody className="divide-y divide-line">
                 {contracts.map((c) => (
-                  <tr key={c.id} className="hover:bg-base-surface-raised transition-colors">
-                    <td className="px-4 py-3 text-base-text">{fmtGbp(c.principal)}</td>
-                    <td className="px-4 py-3 text-base-text">{fmtGbp(c.balance)}</td>
+                  <tr key={c.id} className="hover:bg-bg-sunken transition-colors">
+                    <td className="px-4 py-3 text-text">{fmtGbp(c.principal)}</td>
+                    <td className="px-4 py-3 text-text">{fmtGbp(c.balance)}</td>
                     <td className="px-4 py-3">
                       <StatusCell contract={c} />
                     </td>
-                    <td className="px-4 py-3 text-base-text-muted text-xs">
+                    <td className="px-4 py-3 text-text-mute text-xs">
                       {fmtDate(c.updated_at)}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link
                         to={`/debts/${c.slug ?? c.id}`}
-                        className="text-xs font-semibold text-pink-primary hover:underline focus-visible:ring-2 focus-visible:ring-pink-primary rounded"
+                        className="text-xs font-semibold text-accent hover:underline focus-visible:ring-2 focus-visible:ring-accent rounded"
                       >
                         View
                       </Link>
@@ -134,7 +135,7 @@ export function SubContractsRoute() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </Card>
         )}
       </div>
     </div>

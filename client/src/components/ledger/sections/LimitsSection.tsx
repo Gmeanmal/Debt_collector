@@ -24,11 +24,11 @@ const KIND_LABEL: Record<LimitKind, string> = {
   soft: "Soft limit",
 };
 
-type BadgeVariant = "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt";
+type BadgeVariant = "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt" | "neutral" | "ok" | "warn" | "bad" | "pink" | "ink" | "gold";
 
 const KIND_VARIANT: Record<LimitKind, BadgeVariant> = {
-  hard: "danger",
-  soft: "warning",
+  hard: "bad",
+  soft: "warn",
 };
 
 const SEVERITY_LABEL: Record<LimitSeverity, string> = {
@@ -39,21 +39,21 @@ const SEVERITY_LABEL: Record<LimitSeverity, string> = {
 
 function LimitRow({ limit }: { limit: LimitItem }) {
   return (
-    <li className="flex flex-col gap-1 py-2 border-b border-base-border/40 last:border-b-0">
+    <li className="flex flex-col gap-1 py-2 border-b border-line/40 last:border-b-0">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className="text-sm text-base-text">{limit.body}</span>
+        <span className="text-sm text-text">{limit.body}</span>
         <div className="flex items-center gap-2 shrink-0">
           <Badge variant={KIND_VARIANT[limit.kind]}>{KIND_LABEL[limit.kind]}</Badge>
-          <Badge variant="default">{SEVERITY_LABEL[limit.severity]}</Badge>
+          <Badge variant="neutral">{SEVERITY_LABEL[limit.severity]}</Badge>
         </div>
       </div>
-      <div className="flex items-center gap-3 text-xs text-base-text-muted">
+      <div className="flex items-center gap-3 text-xs text-text-mute">
         {limit.acknowledged_by_goddess_at ? (
-          <span className="text-status-success">
+          <span className="text-ok-ink">
             Acknowledged by goddess on {formatLondon(limit.acknowledged_by_goddess_at, "date")}
           </span>
         ) : (
-          <span className="text-status-warning">Awaiting goddess acknowledgement</span>
+          <span className="text-warn-ink">Awaiting goddess acknowledgement</span>
         )}
       </div>
     </li>
@@ -62,12 +62,12 @@ function LimitRow({ limit }: { limit: LimitItem }) {
 
 function TriggerRow({ trigger }: { trigger: TriggerItem }) {
   return (
-    <li className="flex items-start justify-between gap-2 py-2 border-b border-base-border/40 last:border-b-0">
+    <li className="flex items-start justify-between gap-2 py-2 border-b border-line/40 last:border-b-0">
       <div className="flex flex-col min-w-0">
-        <span className="text-sm text-base-text">{trigger.trigger_text}</span>
-        {trigger.notes && <span className="text-xs text-base-text-muted">{trigger.notes}</span>}
+        <span className="text-sm text-text">{trigger.trigger_text}</span>
+        {trigger.notes && <span className="text-xs text-text-mute">{trigger.notes}</span>}
       </div>
-      <Badge variant="warning">{SEVERITY_LABEL[trigger.severity]}</Badge>
+      <Badge variant="warn">{SEVERITY_LABEL[trigger.severity]}</Badge>
     </li>
   );
 }
@@ -106,7 +106,7 @@ export function LimitsSection() {
       {!isLoading && !firstError && (
         <div className="flex flex-col gap-5">
           <div>
-            <p className="text-xs text-base-text-muted uppercase tracking-wide mb-2">Limits</p>
+            <p className="text-xs text-text-mute uppercase tracking-wide mb-2">Limits</p>
             {limits.length === 0 ? (
               <LedgerEmpty message="No limits recorded." />
             ) : (
@@ -119,7 +119,7 @@ export function LimitsSection() {
           </div>
 
           <div>
-            <p className="text-xs text-base-text-muted uppercase tracking-wide mb-2">Triggers</p>
+            <p className="text-xs text-text-mute uppercase tracking-wide mb-2">Triggers</p>
             {triggers.length === 0 ? (
               <LedgerEmpty message="No triggers recorded." />
             ) : (
@@ -132,21 +132,21 @@ export function LimitsSection() {
           </div>
 
           <div>
-            <p className="text-xs text-base-text-muted uppercase tracking-wide mb-2">Safeword</p>
+            <p className="text-xs text-text-mute uppercase tracking-wide mb-2">Safeword</p>
             {!safeword ? (
               <LedgerEmpty message="No safeword set." />
             ) : (
-              <div className="bg-base-surface-raised border border-base-border rounded p-3 flex flex-col gap-1">
-                <p className="text-sm text-base-text">
+              <div className="bg-bg-sunken border border-line rounded p-3 flex flex-col gap-1">
+                <p className="text-sm text-text">
                   <span className="font-semibold">Word:</span> {safeword.word}
                 </p>
                 {safeword.signal && (
-                  <p className="text-sm text-base-text-muted">
+                  <p className="text-sm text-text-mute">
                     <span className="font-semibold">Non-verbal signal:</span> {safeword.signal}
                   </p>
                 )}
                 {safeword.emergency_contact_name && (
-                  <p className="text-sm text-base-text-muted">
+                  <p className="text-sm text-text-mute">
                     <span className="font-semibold">Emergency contact:</span>{" "}
                     {safeword.emergency_contact_name}
                     {safeword.emergency_contact_phone

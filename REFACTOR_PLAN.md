@@ -257,9 +257,9 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase K · Sub · money & contracts
 
-- [ ] **Step 42 — Payment history + Declare payment.** _Files: `client/src/routes/sub/PaymentHistoryRoute.tsx`, `PaymentFormRoute.tsx`._
-- [ ] **Step 43 — Contracts list + Propose + Sign + error branch.** _Files: `client/src/routes/sub/SubContractsRoute.tsx`, `ProposeContractRoute.tsx`, `ContractSignRoute.tsx`._
-- [ ] **Step 44 — Pending adjustments + Journal + Ledger.** _Files: `client/src/routes/sub/PendingAdjustmentsRoute.tsx`, `JournalRoute.tsx`, `LedgerRoute.tsx`._
+- [x] **Step 42 — Payment history + Declare payment.** _Files: `client/src/routes/sub/PaymentHistoryRoute.tsx`, `PaymentFormRoute.tsx`._
+- [x] **Step 43 — Contracts list + Propose + Sign + error branch.** _Files: `client/src/routes/sub/SubContractsRoute.tsx`, `ProposeContractRoute.tsx`, `ContractSignRoute.tsx`._
+- [x] **Step 44 — Pending adjustments + Journal + Ledger.** _Files: `client/src/routes/sub/PendingAdjustmentsRoute.tsx`, `JournalRoute.tsx`, `LedgerRoute.tsx`._
 
 → _commit: `refactor(ui): phase K sub money & contracts`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **10 / 13**
-- Steps complete: **41 / 51**
-- Last commit: `refactor(ui): phase J — sub today & identity`
-- Next phase: **K — Sub · money & contracts**
+- Phases complete: **11 / 13**
+- Steps complete: **44 / 51**
+- Last commit: `refactor(ui): phase K — sub money & contracts`
+- Next phase: **L — Admin & tail**

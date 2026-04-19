@@ -50,18 +50,18 @@ function summarise(contracts: DebtContractOut[]): Summary {
 
 function ContractRow({ contract }: { contract: DebtContractOut }) {
   return (
-    <li className="py-2 border-b border-base-border/40 last:border-b-0">
+    <li className="py-2 border-b border-line/40 last:border-b-0">
       <Link
         to={`/debts/${contract.slug}`}
-        className="flex flex-col gap-1 hover:bg-base-surface-raised rounded p-2 -mx-2 focus-visible:ring-2 focus-visible:ring-pink-primary"
+        className="flex flex-col gap-1 hover:bg-bg-sunken rounded p-2 -mx-2 focus-visible:ring-2 focus-visible:ring-accent"
       >
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <span className="text-sm text-base-text font-semibold">
+          <span className="text-sm text-text font-semibold">
             {formatGBP(contract.principal)} principal
           </span>
           <ContractStatusChip status={contract.status} />
         </div>
-        <div className="flex items-center gap-3 text-xs text-base-text-muted flex-wrap">
+        <div className="flex items-center gap-3 text-xs text-text-mute flex-wrap">
           <span>Balance {formatGBP(contract.balance)}</span>
           <span>·</span>
           <span>{contract.progress_pct.toFixed(1)}% paid down</span>
@@ -101,21 +101,21 @@ export function ContractsSection() {
       {contracts.length > 0 && (
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-            <div className="bg-base-surface-raised border border-base-border rounded p-2">
-              <p className="text-base-text-muted uppercase tracking-wide">Open</p>
-              <p className="text-base-text font-semibold text-sm">{summary.openCount}</p>
+            <div className="bg-bg-sunken border border-line rounded p-2">
+              <p className="text-text-mute uppercase tracking-wide">Open</p>
+              <p className="text-text font-semibold text-sm">{summary.openCount}</p>
             </div>
-            <div className="bg-base-surface-raised border border-base-border rounded p-2">
-              <p className="text-base-text-muted uppercase tracking-wide">Closed</p>
-              <p className="text-base-text font-semibold text-sm">{summary.closedCount}</p>
+            <div className="bg-bg-sunken border border-line rounded p-2">
+              <p className="text-text-mute uppercase tracking-wide">Closed</p>
+              <p className="text-text font-semibold text-sm">{summary.closedCount}</p>
             </div>
-            <div className="bg-base-surface-raised border border-base-border rounded p-2">
-              <p className="text-base-text-muted uppercase tracking-wide">Total paid</p>
-              <p className="text-base-text font-semibold text-sm">{formatGBP(summary.totalPaid)}</p>
+            <div className="bg-bg-sunken border border-line rounded p-2">
+              <p className="text-text-mute uppercase tracking-wide">Total paid</p>
+              <p className="text-text font-semibold text-sm">{formatGBP(summary.totalPaid)}</p>
             </div>
-            <div className="bg-base-surface-raised border border-base-border rounded p-2">
-              <p className="text-base-text-muted uppercase tracking-wide">Remaining</p>
-              <p className="text-base-text font-semibold text-sm">
+            <div className="bg-bg-sunken border border-line rounded p-2">
+              <p className="text-text-mute uppercase tracking-wide">Remaining</p>
+              <p className="text-text font-semibold text-sm">
                 {formatGBP(summary.totalRemaining)}
               </p>
             </div>

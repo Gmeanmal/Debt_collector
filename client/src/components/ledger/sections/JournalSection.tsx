@@ -26,45 +26,45 @@ const MOOD_LABEL: Record<JournalMood, string> = {
   overwhelmed: "Overwhelmed",
 };
 
-type BadgeVariant = "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt";
+type BadgeVariant = "neutral" | "ok" | "warn" | "bad" | "pink" | "ink" | "gold" | "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt";
 
 const MOOD_VARIANT: Record<JournalMood, BadgeVariant> = {
-  great: "success",
-  good: "success",
-  neutral: "default",
-  low: "warning",
-  bad: "danger",
-  numb: "default",
-  overwhelmed: "danger",
+  great: "ok",
+  good: "ok",
+  neutral: "neutral",
+  low: "warn",
+  bad: "bad",
+  numb: "neutral",
+  overwhelmed: "bad",
 };
 
 function EntryCard({ entry }: { entry: JournalEntry }) {
   return (
-    <article className="bg-base-surface-raised border border-base-border rounded p-3 flex flex-col gap-2">
+    <article className="bg-bg-sunken border border-line rounded p-3 flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2">
           <Badge variant={MOOD_VARIANT[entry.mood]}>{MOOD_LABEL[entry.mood]}</Badge>
-          {entry.is_private && <Badge variant="info">Private</Badge>}
+          {entry.is_private && <Badge variant="neutral">Private</Badge>}
         </div>
-        <span className="text-xs text-base-text-muted">
+        <span className="text-xs text-text-mute">
           {formatLondon(entry.created_at, "datetime")}
         </span>
       </div>
-      <p className="text-sm text-base-text whitespace-pre-wrap">{entry.body}</p>
+      <p className="text-sm text-text whitespace-pre-wrap">{entry.body}</p>
       {entry.read_by_goddess_at && (
-        <p className="text-xs text-base-text-muted">
+        <p className="text-xs text-text-mute">
           Read by goddess on {formatLondon(entry.read_by_goddess_at, "datetime")}
         </p>
       )}
       {entry.goddess_comment && (
-        <div className="border-l-2 border-pink-primary pl-3 mt-1">
-          <p className="text-xs text-base-text-muted uppercase tracking-wide mb-1">
+        <div className="border-l-2 border-accent pl-3 mt-1">
+          <p className="text-xs text-text-mute uppercase tracking-wide mb-1">
             Goddess comment
             {entry.goddess_comment_at
               ? ` · ${formatLondon(entry.goddess_comment_at, "datetime")}`
               : ""}
           </p>
-          <p className="text-sm text-base-text italic">{entry.goddess_comment}</p>
+          <p className="text-sm text-text italic">{entry.goddess_comment}</p>
         </div>
       )}
     </article>
@@ -89,7 +89,7 @@ export function JournalSection() {
       )}
       {entries.length > 0 && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs text-base-text-muted">
+          <p className="text-xs text-text-mute">
             Showing the {entries.length} most recent entr{entries.length === 1 ? "y" : "ies"}.
           </p>
           <div className="flex flex-col gap-3">

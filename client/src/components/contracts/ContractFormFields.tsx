@@ -7,9 +7,9 @@ import type {
 } from "@/services/debtContracts/debtContractsApi";
 
 export const INPUT_CLASS =
-  "bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary w-full";
+  "bg-bg-sunken border border-line rounded-md px-3 py-2 text-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent w-full";
 
-export const LABEL_CLASS = "text-sm font-semibold text-base-text";
+export const LABEL_CLASS = "text-sm font-semibold text-text";
 
 interface Props {
   values: DebtContractCreate;
@@ -44,7 +44,7 @@ function MonetaryField({
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className={LABEL_CLASS}>
-        {label} <span className="text-base-text-subtle font-normal">(£)</span>
+        {label} <span className="text-text-faint font-normal">(£)</span>
       </label>
       <input
         id={id}
@@ -77,7 +77,7 @@ function PercentField({
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className={LABEL_CLASS}>
-        {label} <span className="text-base-text-subtle font-normal">(%)</span>
+        {label} <span className="text-text-faint font-normal">(%)</span>
       </label>
       <input
         id={id}
@@ -235,7 +235,7 @@ export function ContractFormFields({ values, onChange, disabled }: Props) {
           disabled={disabled}
           checked={values.dom_can_add_surprise_penalty}
           onChange={(e) => onChange({ dom_can_add_surprise_penalty: e.target.checked })}
-          className="w-4 h-4 rounded border-base-border accent-pink-primary focus-visible:ring-2 focus-visible:ring-pink-primary"
+          className="w-4 h-4 rounded border-line accent-accent focus-visible:ring-2 focus-visible:ring-accent"
         />
         <label htmlFor="dom_can_add_surprise_penalty" className={LABEL_CLASS}>
           Allow surprise penalty

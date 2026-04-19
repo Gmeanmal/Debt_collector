@@ -12,6 +12,8 @@ import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { CategoryRadioGroup } from "@/components/payments/CategoryRadioGroup";
 import { MethodPicker } from "@/components/payments/MethodPicker";
 import { ProofUploadField } from "@/components/payments/ProofUploadField";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { queryKeys } from "@/lib/queryKeys";
 import { getSafeword, safewordKey } from "@/services/safeword/safewordApi";
 
@@ -144,110 +146,113 @@ export function PaymentFormRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-lg mx-auto flex flex-col gap-6">
-        <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-          Declare Payment
-        </h1>
+        <PageHeader
+          crumbs={["Home · Money · Declare"]}
+          title="Declare Payment"
+        />
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-base-surface border border-base-border rounded-lg p-6 flex flex-col gap-5"
-        >
-          <CategoryRadioGroup
-            value={category}
-            onChange={handleCategoryChange}
-            isActive={!!isActive}
-            forcedEntryTribute={forcedEntryTribute}
-          />
-
-          <div className="flex flex-col gap-1">
-            <label htmlFor="amount" className="text-sm font-semibold text-base-text">
-              Amount (£)
-            </label>
-            <input
-              id="amount"
-              type="text"
-              inputMode="decimal"
-              placeholder="30.00"
-              value={amount}
-              onChange={(e) => handleAmountChange(e.target.value)}
-              onBlur={validateAmount}
-              className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+        <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <CategoryRadioGroup
+              value={category}
+              onChange={handleCategoryChange}
+              isActive={!!isActive}
+              forcedEntryTribute={forcedEntryTribute}
             />
-            {amountErr && <p className="text-xs text-status-danger">{amountErr}</p>}
-          </div>
 
-          <MethodPicker
-            methods={methods}
-            value={methodId}
-            onChange={setMethodId}
-            loading={methodsLoading}
-          />
+            <div className="flex flex-col gap-1">
+              <label htmlFor="amount" className="text-sm font-semibold text-text">
+                Amount (£)
+              </label>
+              <input
+                id="amount"
+                type="text"
+                inputMode="decimal"
+                placeholder="30.00"
+                value={amount}
+                onChange={(e) => handleAmountChange(e.target.value)}
+                onBlur={validateAmount}
+                className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              />
+              {amountErr && <p className="text-xs text-bad-ink">{amountErr}</p>}
+            </div>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor="externalTs" className="text-sm font-semibold text-base-text">
-              When did you pay?
-            </label>
-            <DateTimePicker
-              id="externalTs"
-              value={externalTs || null}
-              onChange={setExternalTs}
-              placeholder="Pick a date & time"
+            <MethodPicker
+              methods={methods}
+              value={methodId}
+              onChange={setMethodId}
+              loading={methodsLoading}
             />
-            <p className="text-xs text-base-text-subtle">Defaults to now in Europe/London.</p>
-          </div>
 
-          <ProofUploadField file={proof} onChange={setProof} disabled={declareMutation.isPending} />
+            <div className="flex flex-col gap-1">
+              <label htmlFor="externalTs" className="text-sm font-semibold text-text">
+                When did you pay?
+              </label>
+              <DateTimePicker
+                id="externalTs"
+                value={externalTs || null}
+                onChange={setExternalTs}
+                placeholder="Pick a date & time"
+              />
+              <p className="text-xs text-text-faint">Defaults to now in Europe/London.</p>
+            </div>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor="note" className="text-sm font-semibold text-base-text">
-              Note <span className="text-base-text-subtle font-normal">(optional)</span>
-            </label>
-            <textarea
-              id="note"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={2}
-              placeholder="An offering note for your goddess (optional)."
-              className="bg-base-surface-raised border border-base-border rounded-md px-3 py-2 text-base-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
-            />
-          </div>
+            <ProofUploadField file={proof} onChange={setProof} disabled={declareMutation.isPending} />
 
-          {safewordMissing && (
-            <p className="text-sm text-status-warning rounded-md border border-status-warning/40 bg-status-warning/10 px-4 py-3">
-              Set a safeword on the Limits &amp; Triggers page before paying your entry tribute.
-            </p>
-          )}
+            <div className="flex flex-col gap-1">
+              <label htmlFor="note" className="text-sm font-semibold text-text">
+                Note{" "}
+                <span className="text-text-faint font-normal">(optional)</span>
+              </label>
+              <textarea
+                id="note"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                rows={2}
+                placeholder="An offering note for your goddess (optional)."
+                className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-text text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              />
+            </div>
 
-          {submitError && (
-            <p className="text-xs text-status-danger" role="alert">
-              {submitError}
-            </p>
-          )}
+            {safewordMissing && (
+              <p className="text-sm text-warn-ink rounded-md border border-warn-bg bg-warn-bg px-4 py-3">
+                Set a safeword on the Limits &amp; Triggers page before paying your entry tribute.
+              </p>
+            )}
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={() => navigate(forcedEntryTribute ? "/porch" : "/sub/payments")}
-              disabled={declareMutation.isPending}
-              className="w-full sm:w-auto px-4 py-2 text-sm text-base-text-muted border border-base-border rounded-md hover:text-base-text transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-pink-primary"
-            >
-              {declareMutation.isPending && (
-                <span
-                  aria-hidden="true"
-                  className="h-4 w-4 rounded-full border-2 border-pink-foreground/40 border-t-pink-foreground animate-spin"
-                />
-              )}
-              {declareMutation.isPending ? "Uploading…" : "Submit declaration"}
-            </button>
-          </div>
-        </form>
+            {submitError && (
+              <p className="text-xs text-bad-ink" role="alert">
+                {submitError}
+              </p>
+            )}
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => navigate(forcedEntryTribute ? "/porch" : "/sub/payments")}
+                disabled={declareMutation.isPending}
+                className="w-full sm:w-auto"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={!canSubmit}
+                className="w-full sm:w-auto"
+              >
+                {declareMutation.isPending && (
+                  <span
+                    aria-hidden="true"
+                    className="h-4 w-4 rounded-full border-2 border-accent-ink/40 border-t-accent-ink animate-spin"
+                  />
+                )}
+                {declareMutation.isPending ? "Uploading…" : "Submit declaration"}
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

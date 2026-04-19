@@ -28,16 +28,16 @@ function formatFrequency(frequency: string): string {
 
 function RitualRow({ ritual }: { ritual: Ritual }) {
   return (
-    <li className="flex flex-col gap-1 py-2 border-b border-base-border/40 last:border-b-0">
+    <li className="flex flex-col gap-1 py-2 border-b border-line/40 last:border-b-0">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className="text-sm text-base-text font-semibold">{ritual.title}</span>
+        <span className="text-sm text-text font-semibold">{ritual.title}</span>
         <div className="flex items-center gap-2">
-          <Badge variant="info">{formatFrequency(ritual.frequency)}</Badge>
-          {ritual.paused && <Badge variant="warning">Paused</Badge>}
+          <Badge variant="neutral">{formatFrequency(ritual.frequency)}</Badge>
+          {ritual.paused && <Badge variant="warn">Paused</Badge>}
         </div>
       </div>
-      {ritual.description && <p className="text-xs text-base-text-muted">{ritual.description}</p>}
-      <div className="flex items-center gap-3 text-xs text-base-text-muted flex-wrap">
+      {ritual.description && <p className="text-xs text-text-mute">{ritual.description}</p>}
+      <div className="flex items-center gap-3 text-xs text-text-mute flex-wrap">
         {ritual.deadline_time && <span>Deadline {ritual.deadline_time}</span>}
         <span>
           Reward {ritual.points_on_complete} pt

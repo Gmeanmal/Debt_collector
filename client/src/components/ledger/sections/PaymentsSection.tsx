@@ -18,13 +18,13 @@ import {
 
 const LEDGER_PAYMENT_LIMIT = 15;
 
-type BadgeVariant = "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt";
+type BadgeVariant = "neutral" | "ok" | "warn" | "bad" | "pink" | "ink" | "gold" | "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt";
 
 const STATUS_VARIANT: Record<PaymentStatus, BadgeVariant> = {
-  pending: "warning",
-  validated: "success",
-  rejected: "danger",
-  cancelled: "default",
+  pending: "warn",
+  validated: "ok",
+  rejected: "bad",
+  cancelled: "neutral",
 };
 
 const STATUS_LABEL: Record<PaymentStatus, string> = {
@@ -41,9 +41,9 @@ const SOURCE_LABEL: Record<DeclarationSource, string> = {
 };
 
 const SOURCE_VARIANT: Record<DeclarationSource, BadgeVariant> = {
-  sub_declared: "default",
-  goddess_recorded: "debt",
-  ingested: "default",
+  sub_declared: "neutral",
+  goddess_recorded: "pink",
+  ingested: "neutral",
 };
 
 function formatCategory(cat: string): string {
@@ -52,15 +52,15 @@ function formatCategory(cat: string): string {
 
 function PaymentRow({ payment }: { payment: PaymentOut }) {
   return (
-    <li className="flex flex-col gap-1 py-2 border-b border-base-border/40 last:border-b-0">
+    <li className="flex flex-col gap-1 py-2 border-b border-line/40 last:border-b-0">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className="text-sm text-base-text font-semibold">{formatGBP(payment.amount)}</span>
+        <span className="text-sm text-text font-semibold">{formatGBP(payment.amount)}</span>
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant={STATUS_VARIANT[payment.status]}>{STATUS_LABEL[payment.status]}</Badge>
           <Badge variant={SOURCE_VARIANT[payment.source]}>{SOURCE_LABEL[payment.source]}</Badge>
         </div>
       </div>
-      <div className="flex items-center gap-3 text-xs text-base-text-muted flex-wrap">
+      <div className="flex items-center gap-3 text-xs text-text-mute flex-wrap">
         <span className="capitalize">{formatCategory(payment.category)}</span>
         <span>·</span>
         <span>{formatLondon(payment.declared_at, "datetime")}</span>
@@ -72,7 +72,7 @@ function PaymentRow({ payment }: { payment: PaymentOut }) {
         )}
       </div>
       {payment.status === "rejected" && payment.rejection_reason && (
-        <p className="text-xs text-status-danger">Rejected: {payment.rejection_reason}</p>
+        <p className="text-xs text-bad-ink">Rejected: {payment.rejection_reason}</p>
       )}
     </li>
   );
@@ -97,7 +97,7 @@ export function PaymentsSection() {
       )}
       {payments.length > 0 && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs text-base-text-muted">
+          <p className="text-xs text-text-mute">
             Showing the {payments.length} most recent of {totalShown}.
           </p>
           <ul className="flex flex-col">

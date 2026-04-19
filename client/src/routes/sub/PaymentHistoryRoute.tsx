@@ -12,6 +12,8 @@ import {
   type PaymentOut,
 } from "@/services/payments/paymentsApi";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
@@ -27,19 +29,21 @@ const SOURCE_LABEL: Record<DeclarationSource, string> = {
   ingested: "Auto-ingested",
 };
 
-type BadgeVariant = "default" | "primary" | "debt";
+type BadgeTone = "pink" | "ink" | "neutral";
 
-const SOURCE_VARIANT: Record<DeclarationSource, BadgeVariant> = {
-  sub_declared: "default",
-  goddess_recorded: "debt",
-  ingested: "default",
+const SOURCE_TONE: Record<DeclarationSource, BadgeTone> = {
+  sub_declared: "pink",
+  goddess_recorded: "ink",
+  ingested: "neutral",
 };
 
-const STATUS_CHIP: Record<string, string> = {
-  pending: "bg-status-warning/20 text-status-warning",
-  validated: "bg-status-success/20 text-status-success",
-  rejected: "bg-debt-muted text-status-danger",
-  cancelled: "bg-base-surface-raised text-base-text-muted",
+type StatusTone = "warn" | "ok" | "bad" | "neutral";
+
+const STATUS_TONE: Record<string, StatusTone> = {
+  pending: "warn",
+  validated: "ok",
+  rejected: "bad",
+  cancelled: "neutral",
 };
 
 function formatDate(dt: string) {
@@ -79,7 +83,7 @@ function EditModal({ decl, onClose }: EditModalProps) {
   return (
     <Modal title="Edit declaration" onClose={onClose}>
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-base-text" htmlFor="edit-amount">
+        <label className="text-sm font-medium text-text" htmlFor="edit-amount">
           Amount (£)
         </label>
         <input
@@ -87,12 +91,12 @@ function EditModal({ decl, onClose }: EditModalProps) {
           type="text"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+          className="bg-bg-sunken border border-line rounded px-3 py-2 text-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-base-text" htmlFor="edit-method">
+        <label className="text-sm font-medium text-text" htmlFor="edit-method">
           Method
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="edit-method">
@@ -104,8 +108,8 @@ function EditModal({ decl, onClose }: EditModalProps) {
                 className={cn(
                   "flex items-center gap-3 p-3 rounded-md border cursor-pointer transition-colors",
                   selected
-                    ? "border-pink-primary bg-pink-primary/10"
-                    : "border-base-border hover:border-base-border/80 hover:bg-base-surface-raised",
+                    ? "border-accent bg-accent-trace"
+                    : "border-line hover:border-line-strong hover:bg-bg-sunken",
                 )}
               >
                 <input
@@ -118,8 +122,8 @@ function EditModal({ decl, onClose }: EditModalProps) {
                 />
                 <MethodIcon type={m.type} size="md" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-base-text truncate">{m.name}</p>
-                  <p className="text-xs text-base-text-muted truncate">{METHOD_LABELS[m.type]}</p>
+                  <p className="text-sm font-semibold text-text truncate">{m.name}</p>
+                  <p className="text-xs text-text-mute truncate">{METHOD_LABELS[m.type]}</p>
                 </div>
               </label>
             );
@@ -128,7 +132,7 @@ function EditModal({ decl, onClose }: EditModalProps) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-base-text" htmlFor="edit-note">
+        <label className="text-sm font-medium text-text" htmlFor="edit-note">
           Note
         </label>
         <input
@@ -136,26 +140,22 @@ function EditModal({ decl, onClose }: EditModalProps) {
           type="text"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="bg-base-surface-raised border border-base-border rounded px-3 py-2 text-base-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-primary"
+          className="bg-bg-sunken border border-line rounded px-3 py-2 text-text text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
       </div>
 
       <div className="flex gap-2 justify-end">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-3 py-1.5 text-sm text-base-text-muted border border-base-border rounded hover:text-base-text transition-colors"
-        >
+        <Button type="button" variant="ghost" onClick={onClose}>
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="primary"
           onClick={() => editMutation.mutate()}
           disabled={editMutation.isPending}
-          className="px-3 py-1.5 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors disabled:opacity-50"
         >
           Save
-        </button>
+        </Button>
       </div>
     </Modal>
   );
@@ -184,18 +184,19 @@ export function PaymentHistoryRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Payment History
-          </h1>
-          <button
-            type="button"
-            onClick={() => navigate("/sub/payments/new")}
-            className="w-full sm:w-auto px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
-          >
-            Declare payment
-          </button>
-        </div>
+        <PageHeader
+          crumbs={["Home · Money · History"]}
+          title="Payment History"
+          actions={
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => navigate("/sub/payments/new")}
+            >
+              Declare payment
+            </Button>
+          }
+        />
 
         {isLoading && <ListSkeleton rows={3} />}
         {isError && (
@@ -212,69 +213,96 @@ export function PaymentHistoryRoute() {
           />
         )}
 
-        <div className="flex flex-col gap-3">
-          {payments.map((p) => (
-            <div
-              key={p.id}
-              className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-2"
-            >
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-base-text text-sm">
-                    {formatGBP(p.amount)}
-                  </span>
-                  <span
-                    className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold capitalize ${STATUS_CHIP[p.status] ?? ""}`}
-                  >
-                    {p.status}
-                  </span>
-                  <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-base-surface-raised text-base-text-muted capitalize">
-                    {p.category.replace(/_/g, " ")}
-                  </span>
-                  <Badge variant={SOURCE_VARIANT[p.source as DeclarationSource] ?? "default"}>
-                    {SOURCE_LABEL[p.source as DeclarationSource] ?? p.source}
-                  </Badge>
-                </div>
-
-                {p.status === "pending" && (
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setEditing(p)}
-                      aria-label="Edit declaration"
-                      className="text-xs text-base-text-muted hover:text-base-text px-2 py-1 rounded border border-base-border transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => cancelMutation.mutate(p.id)}
-                      aria-label="Cancel declaration"
-                      className="text-xs text-status-danger hover:text-debt-primary-hover px-2 py-1 rounded border border-debt-muted transition-colors focus-visible:ring-2 focus-visible:ring-debt-primary"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <div className="text-xs text-base-text-muted flex gap-3 flex-wrap items-center">
-                <span>{formatDate(p.declared_at)}</span>
-                {p.method_name && (
-                  <span className="inline-flex items-center gap-1.5">
-                    {p.method_type && <MethodIcon type={p.method_type} size="sm" />}
-                    {p.method_name}
-                  </span>
-                )}
-                {p.note && <span className="italic">{p.note}</span>}
-              </div>
-
-              {p.status === "rejected" && p.rejection_reason && (
-                <p className="text-xs text-status-danger">Rejected: {p.rejection_reason}</p>
-              )}
-            </div>
-          ))}
-        </div>
+        {!isLoading && !isError && payments.length > 0 && (
+          <div className="bg-bg-elev border border-line rounded-[10px] overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-bg-sunken">
+                <tr>
+                  <th className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint px-3 py-2 text-left">
+                    Amount
+                  </th>
+                  <th className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint px-3 py-2 text-left">
+                    Status
+                  </th>
+                  <th className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint px-3 py-2 text-left">
+                    Source
+                  </th>
+                  <th className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint px-3 py-2 text-left hidden sm:table-cell">
+                    Method
+                  </th>
+                  <th className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint px-3 py-2 text-left hidden md:table-cell">
+                    Date
+                  </th>
+                  <th className="px-3 py-2" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {payments.map((p) => (
+                  <tr key={p.id} className="hover:bg-bg-sunken/50 transition-colors">
+                    <td className="px-3 py-3">
+                      <span className="font-semibold text-text text-sm">
+                        {formatGBP(p.amount)}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <Badge variant={STATUS_TONE[p.status] ?? "neutral"}>
+                        {p.status}
+                      </Badge>
+                    </td>
+                    <td className="px-3 py-3">
+                      <Badge variant={SOURCE_TONE[p.source as DeclarationSource] ?? "neutral"}>
+                        {SOURCE_LABEL[p.source as DeclarationSource] ?? p.source}
+                      </Badge>
+                    </td>
+                    <td className="px-3 py-3 hidden sm:table-cell">
+                      {p.method_name && (
+                        <span className="inline-flex items-center gap-1.5 text-sm text-text-mute">
+                          {p.method_type && <MethodIcon type={p.method_type} size="sm" />}
+                          {p.method_name}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3 hidden md:table-cell">
+                      <span className="text-xs text-text-faint">{formatDate(p.declared_at)}</span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex flex-col gap-1">
+                        {p.status === "pending" && (
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditing(p)}
+                              aria-label="Edit declaration"
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="danger"
+                              size="sm"
+                              onClick={() => cancelMutation.mutate(p.id)}
+                              aria-label="Cancel declaration"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        )}
+                        {p.status === "rejected" && p.rejection_reason && (
+                          <p className="text-xs text-bad-ink">Rejected: {p.rejection_reason}</p>
+                        )}
+                        {p.note && (
+                          <p className="text-xs text-text-faint italic">{p.note}</p>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {editing && <EditModal decl={editing} onClose={() => setEditing(null)} />}
