@@ -17,21 +17,21 @@ interface Props {
 
 const STATUS_BADGE: Record<
   string,
-  "default" | "warning" | "success" | "danger" | "info" | "primary"
+  "neutral" | "warn" | "ok" | "bad" | "pink" | "default"
 > = {
-  pending: "warning",
-  completed: "success",
-  submitted: "info",
-  approved: "success",
-  rejected: "danger",
-  missed: "danger",
+  pending: "warn",
+  completed: "ok",
+  submitted: "pink",
+  approved: "ok",
+  rejected: "bad",
+  missed: "bad",
 };
 
 function DeadlineLabel({ deadlineTime }: { deadlineTime: string | null }) {
   if (!deadlineTime) return null;
   const [h, m] = deadlineTime.split(":").map(Number);
   const display = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-  return <span className="text-xs text-base-text-muted">Due by {display}</span>;
+  return <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">Due by {display}</span>;
 }
 
 export function RitualCard({ data }: Props) {
@@ -89,21 +89,21 @@ export function RitualCard({ data }: Props) {
   const actionError = completeMut.error ?? submitMut.error;
 
   return (
-    <article className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-3">
+    <article className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2 flex-wrap">
         <div className="flex flex-col gap-0.5">
-          <span className="font-semibold text-base-text text-sm">{ritualTitle}</span>
+          <span className="font-serif italic text-text text-sm">{ritualTitle}</span>
           <DeadlineLabel deadlineTime={deadlineTime} />
         </div>
-        <Badge variant={STATUS_BADGE[occurrence.status] ?? "default"}>{occurrence.status}</Badge>
+        <Badge variant={STATUS_BADGE[occurrence.status] ?? "neutral"}>{occurrence.status}</Badge>
       </div>
 
       {ritualDescription && (
-        <p className="text-xs text-base-text-muted leading-relaxed">{ritualDescription}</p>
+        <p className="text-xs text-text-mute leading-relaxed">{ritualDescription}</p>
       )}
 
       {isPending && (
-        <div className="flex flex-col gap-2 pt-1 border-t border-base-border">
+        <div className="flex flex-col gap-2 pt-1 border-t border-line">
           <Input
             placeholder="Optional note…"
             value={note}
@@ -114,7 +114,7 @@ export function RitualCard({ data }: Props) {
 
           <div className="flex items-center gap-2 flex-wrap">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               type="button"
               disabled={busy}
@@ -134,7 +134,7 @@ export function RitualCard({ data }: Props) {
           </div>
 
           {uploadError && (
-            <p className="text-xs text-status-danger" role="alert">
+            <p className="text-xs text-bad-ink" role="alert">
               {uploadError}
             </p>
           )}
@@ -150,7 +150,7 @@ export function RitualCard({ data }: Props) {
               {completeMut.isPending ? "Saving…" : "Complete"}
             </Button>
             <Button
-              variant="secondary"
+              variant="ghost"
               size="sm"
               disabled={busy}
               onClick={() => submitMut.mutate()}
@@ -161,7 +161,7 @@ export function RitualCard({ data }: Props) {
           </div>
 
           {actionError && (
-            <p className="text-xs text-status-danger" role="alert">
+            <p className="text-xs text-bad-ink" role="alert">
               {(actionError as Error).message}
             </p>
           )}
@@ -169,11 +169,11 @@ export function RitualCard({ data }: Props) {
       )}
 
       {occurrence.note && !isPending && (
-        <p className="text-xs text-base-text-muted italic">"{occurrence.note}"</p>
+        <p className="text-xs text-text-mute italic">"{occurrence.note}"</p>
       )}
 
       {occurrence.status === "rejected" && occurrence.rejection_reason && (
-        <p className="text-xs text-status-danger">{occurrence.rejection_reason}</p>
+        <p className="text-xs text-bad-ink">{occurrence.rejection_reason}</p>
       )}
     </article>
   );

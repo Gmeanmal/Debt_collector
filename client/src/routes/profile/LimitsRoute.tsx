@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ui/page-header";
 import { LimitForm } from "@/components/limits/LimitForm";
 import { LimitsList } from "@/components/limits/LimitsList";
 import { TriggerForm } from "@/components/limits/TriggerForm";
@@ -83,7 +84,7 @@ function SafewordSection() {
   }
 
   return (
-    <Card>
+    <Card className="bg-bg-elev border-line rounded-[10px]">
       <CardHeader>
         <CardTitle className="text-base">Safeword</CardTitle>
       </CardHeader>
@@ -97,7 +98,7 @@ function SafewordSection() {
               onChange={(e) => setWord(e.target.value)}
               placeholder="e.g. red"
             />
-            {errors["word"] && <p className="text-xs text-status-danger">{errors["word"]}</p>}
+            {errors["word"] && <p className="text-xs text-bad-ink">{errors["word"]}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="safeword-signal">Physical signal (optional)</Label>
@@ -190,17 +191,14 @@ export function LimitsRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Limits &amp; Triggers
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Your hard and soft limits, personal triggers, and safeword.
-          </p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Profile · Limits"]}
+          title="Limits &amp; Triggers"
+          description="Your hard and soft limits, personal triggers, and safeword."
+        />
 
         {isPendingEntry && safewordMissing && (
-          <div className="rounded-md border border-status-warning/40 bg-status-warning/10 px-4 py-3 text-sm text-status-warning">
+          <div className="rounded-md border border-warn-ink/40 bg-warn-bg px-4 py-3 text-sm text-warn-ink">
             Set a safeword below before paying your entry tribute.
           </div>
         )}
@@ -208,13 +206,13 @@ export function LimitsRoute() {
         <SafewordSection />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
+          <Card className="bg-bg-elev border-line rounded-[10px]">
             <CardHeader>
               <CardTitle className="text-base">Limits</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-6">
-              <div className="border-b border-base-border/40 pb-5">
-                <p className="text-xs text-base-text-muted mb-3 uppercase tracking-[0.08em]">
+              <div className="border-b border-line/40 pb-5">
+                <p className="text-xs text-text-mute mb-3 uppercase tracking-[0.08em]">
                   Add new limit
                 </p>
                 <LimitForm
@@ -225,20 +223,20 @@ export function LimitsRoute() {
                 />
               </div>
               {limitsLoading ? (
-                <p className="text-sm text-base-text-muted">Loading…</p>
+                <p className="text-sm text-text-mute">Loading…</p>
               ) : (
                 <LimitsList items={limits} />
               )}
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-bg-elev border-line rounded-[10px]">
             <CardHeader>
               <CardTitle className="text-base">Triggers</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-6">
-              <div className="border-b border-base-border/40 pb-5">
-                <p className="text-xs text-base-text-muted mb-3 uppercase tracking-[0.08em]">
+              <div className="border-b border-line/40 pb-5">
+                <p className="text-xs text-text-mute mb-3 uppercase tracking-[0.08em]">
                   Add new trigger
                 </p>
                 <TriggerForm
@@ -249,7 +247,7 @@ export function LimitsRoute() {
                 />
               </div>
               {triggersLoading ? (
-                <p className="text-sm text-base-text-muted">Loading…</p>
+                <p className="text-sm text-text-mute">Loading…</p>
               ) : (
                 <TriggersList items={triggers} />
               )}

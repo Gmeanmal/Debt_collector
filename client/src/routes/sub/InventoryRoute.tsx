@@ -6,6 +6,8 @@ import { InventoryGrid } from "@/components/toys/InventoryGrid";
 import { ToyForm } from "@/components/toys/ToyForm";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 
 export function InventoryRoute() {
   const qc = useQueryClient();
@@ -32,31 +34,28 @@ export function InventoryRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div>
-            <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-              My Inventory
-            </h1>
-            <p className="text-sm text-base-text-muted mt-1">
-              Toys approved by your goddess. Propose a new item for review below.
-            </p>
-          </div>
-          {!showForm && (
-            <button
-              type="button"
-              onClick={() => setShowForm(true)}
-              aria-label="Propose a new toy"
-              className="px-4 py-2 text-sm bg-pink-primary text-pink-foreground font-semibold rounded-md hover:bg-pink-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary shrink-0"
-            >
-              Propose toy
-            </button>
-          )}
-        </div>
+        <PageHeader
+          crumbs={["Home · Profile · Inventory"]}
+          title={<span className="font-serif italic">My Inventory</span>}
+          description="Toys approved by your goddess. Propose a new item for review below."
+          actions={
+            !showForm ? (
+              <Button
+                type="button"
+                onClick={() => setShowForm(true)}
+                aria-label="Propose a new toy"
+                variant="primary"
+              >
+                Propose toy
+              </Button>
+            ) : undefined
+          }
+        />
 
         {showForm && (
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-semibold text-base-text">Propose a toy</p>
-            <p className="text-xs text-base-text-muted">
+            <p className="text-sm font-semibold text-text">Propose a toy</p>
+            <p className="text-xs text-text-mute">
               Your proposal will be visible in your inventory once your goddess approves it.
             </p>
             <ToyForm

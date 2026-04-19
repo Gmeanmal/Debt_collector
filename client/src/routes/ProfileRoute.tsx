@@ -17,6 +17,7 @@ import { ChangeRequestList } from "@/components/profile/ChangeRequestList";
 import { updatePaymentHandleApi, listMyChangeRequestsApi } from "@/services/profile/profileApi";
 import type { AvatarKey } from "@/services/profile/avatarMap";
 import { IdentityFieldsCard } from "@/components/profile/IdentityFieldsCard";
+import { PageHeader } from "@/components/ui/page-header";
 
 function emptyToNull(v: string): string | null {
   return v.trim() === "" ? null : v.trim();
@@ -101,21 +102,28 @@ export function ProfileRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-lg mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            {user?.display_name ?? "Profile"}
-          </h1>
-          {emailHandle && <p className="text-sm text-base-text-muted mt-0.5">@{emailHandle}</p>}
-        </div>
+        <PageHeader
+          crumbs={["Home · Profile"]}
+          title={<span className="font-serif italic">{user?.display_name ?? "Profile"}</span>}
+          description={emailHandle ? `@${emailHandle}` : undefined}
+        />
 
-        <Card>
+        <Card className="bg-bg-elev border border-line rounded-[10px]">
           <CardHeader>
             <div className="flex items-center gap-4">
-              {user && <Avatar user={user} size="lg" />}
+              {user && (
+                <Avatar
+                  user={user}
+                  size="lg"
+                  className="rounded-full border border-line ring-1 ring-transparent hover:ring-line transition-all"
+                />
+              )}
               <div>
-                <CardTitle className="text-lg">{user?.display_name}</CardTitle>
+                <CardTitle className="text-lg font-serif italic text-text">
+                  {user?.display_name}
+                </CardTitle>
                 {user?.first_name || user?.last_name ? (
-                  <p className="text-sm text-base-text-muted">
+                  <p className="text-sm text-text-mute">
                     {[user.first_name, user.last_name].filter(Boolean).join(" ")}
                   </p>
                 ) : null}
@@ -130,7 +138,7 @@ export function ProfileRoute() {
             <Button
               onClick={handleSaveAvatar}
               disabled={avatarMutation.isPending || avatarKey === user?.avatar_key}
-              variant="outline"
+              variant="ghost"
               className="self-end"
             >
               {avatarMutation.isPending ? "Saving…" : "Save avatar"}
@@ -144,12 +152,12 @@ export function ProfileRoute() {
         />
 
         {isSubRole && (
-          <Card>
+          <Card className="bg-bg-elev border border-line rounded-[10px]">
             <CardHeader>
               <CardTitle className="text-base">Payment handle</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
-              <p className="text-xs text-base-text-muted">
+              <p className="text-xs text-text-mute">
                 Your payment identifier (e.g. CashApp tag, Throne handle). Visible to you and your
                 Goddess.
               </p>
@@ -166,7 +174,7 @@ export function ProfileRoute() {
                   maxLength={64}
                 />
                 {paymentHandleError && (
-                  <p className="text-xs text-status-danger">{paymentHandleError}</p>
+                  <p className="text-xs text-bad-ink">{paymentHandleError}</p>
                 )}
               </div>
               <Button
@@ -181,7 +189,7 @@ export function ProfileRoute() {
         )}
 
         {isSubRole && (
-          <Card>
+          <Card className="bg-bg-elev border border-line rounded-[10px]">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base" id={panelHeadingId}>
@@ -203,7 +211,7 @@ export function ProfileRoute() {
                   id="change-request-panel"
                   role="region"
                   aria-labelledby={panelHeadingId}
-                  className="border border-base-border rounded-md px-4 pb-4"
+                  className="border border-line rounded-md px-4 pb-4"
                 >
                   <ChangeRequestPanel
                     onSuccess={handleChangePanelSuccess}

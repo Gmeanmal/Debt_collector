@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { MedicalConsentGate } from "@/components/medical/MedicalConsentGate";
 import { MedicalEditForm } from "@/components/medical/MedicalEditForm";
 import { getOwnMedical, medicalKey } from "@/services/medical/medicalApi";
@@ -25,13 +26,12 @@ function MedicalPlaceholder() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Medical information
-          </h1>
-        </div>
-        <div className="bg-base-surface-raised border border-base-border rounded p-6">
-          <p className="text-base-text">
+        <PageHeader
+          crumbs={["Home · Profile · Medical"]}
+          title="Medical information"
+        />
+        <div className="bg-bg-sunken border border-line rounded-[10px] p-[18px]">
+          <p className="text-text">
             Medical module coming soon — your data has not been collected.
           </p>
         </div>
@@ -68,14 +68,11 @@ function MedicalRouteBody() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Medical information
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Your encrypted health details — accessible to your goddess only in an emergency.
-          </p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Profile · Medical"]}
+          title="Medical information"
+          description="Your encrypted health details — accessible to your goddess only in an emergency."
+        />
 
         {isLoading && <ListSkeleton rows={5} />}
 
@@ -92,14 +89,18 @@ function MedicalRouteBody() {
             title="Failed to load medical information"
             message={error instanceof Error ? error.message : "An unexpected error occurred."}
             cta={
-              <Button variant="outline" size="sm" onClick={() => void refetch()}>
+              <Button variant="ghost" size="sm" onClick={() => void refetch()}>
                 Retry
               </Button>
             }
           />
         )}
 
-        {data && <MedicalEditForm current={data} />}
+        {data && (
+          <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+            <MedicalEditForm current={data} />
+          </div>
+        )}
       </div>
     </div>
   );

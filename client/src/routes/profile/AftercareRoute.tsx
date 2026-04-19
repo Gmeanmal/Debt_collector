@@ -3,6 +3,7 @@ import { getOwnAftercare, aftercareKey } from "@/services/aftercare/aftercareApi
 import { AftercareEditForm } from "@/components/aftercare/AftercareEditForm";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { PageHeader } from "@/components/ui/page-header";
 
 export function AftercareRoute() {
   const { data, isLoading, isError, error } = useQuery({
@@ -13,15 +14,11 @@ export function AftercareRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Aftercare profile
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Describe what helps you recover after an intense scene. Your Goddess will see this when
-            she marks a session complete.
-          </p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Profile · Aftercare"]}
+          title="Aftercare profile"
+          description="Describe what helps you recover after an intense scene. Your Goddess will see this when she marks a session complete."
+        />
 
         {isLoading && <ListSkeleton rows={4} />}
 
@@ -32,7 +29,11 @@ export function AftercareRoute() {
           />
         )}
 
-        {data && <AftercareEditForm initial={data} />}
+        {data && (
+          <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+            <AftercareEditForm initial={data} />
+          </div>
+        )}
       </div>
     </div>
   );

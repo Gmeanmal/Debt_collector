@@ -8,6 +8,7 @@ import { ListSkeleton } from "@/components/ui/Skeleton";
 import { PaymentChart } from "@/components/sub/PaymentChart";
 import { PlanningCalendar } from "@/components/sub/PlanningCalendar";
 import { AftercarePanel } from "@/components/aftercare/AftercarePanel";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   getSubDashboardApi,
   getSubPlanningApi,
@@ -61,25 +62,25 @@ function ContractCard({ contract }: ContractCardProps) {
   return (
     <Link
       to={`/debts/${contract.id}`}
-      className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-3 hover:border-pink-primary transition-colors focus-visible:ring-2 focus-visible:ring-pink-primary"
+      className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-3 hover:border-accent transition-colors focus-visible:ring-2 focus-visible:ring-accent"
     >
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className="font-semibold text-base-text text-sm">
+        <span className="font-serif italic text-text text-sm">
           Principal {formatGBP(contract.principal)}
         </span>
         <ContractStatusChip status={contract.status} />
       </div>
-      <div className="flex items-center justify-between text-xs text-base-text-muted">
+      <div className="flex items-center justify-between text-xs text-text-mute">
         <span>Balance</span>
-        <span className="text-base-text font-semibold">{formatGBP(contract.balance)}</span>
+        <span className="text-text font-semibold">{formatGBP(contract.balance)}</span>
       </div>
-      <div className="h-2 rounded-full bg-base-surface-raised overflow-hidden">
-        <div className={`h-full bg-pink-primary ${progressWidthClass(progressPercent)}`} />
+      <div className="h-2 rounded-full bg-bg-sunken overflow-hidden">
+        <div className={`h-full bg-accent ${progressWidthClass(progressPercent)}`} />
       </div>
-      <div className="text-xs text-base-text-muted">{progressPercent.toFixed(1)}% paid down</div>
+      <div className="text-xs text-text-mute">{progressPercent.toFixed(1)}% paid down</div>
       {contract.next_period_due_at && (
-        <div className="text-xs text-base-text-muted">
-          Next due <span className="text-base-text">{formatDate(contract.next_period_due_at)}</span>
+        <div className="text-xs text-text-mute">
+          Next due <span className="text-text">{formatDate(contract.next_period_due_at)}</span>
         </div>
       )}
     </Link>
@@ -136,14 +137,11 @@ export function SubDashboardRoute() {
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
         {aftercareActive && subId && <AftercarePanel subId={subId} />}
 
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Dashboard
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Your current obligations and recent activity.
-          </p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Overview"]}
+          title={<span className="italic">Dashboard.</span>}
+          description="Your current obligations and recent activity."
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
@@ -152,7 +150,7 @@ export function SubDashboardRoute() {
             accent={dash.is_late ? "danger" : "default"}
             trend={
               dash.is_late ? (
-                <span className="text-status-danger font-semibold uppercase">Late</span>
+                <span className="text-bad-ink font-semibold uppercase">Late</span>
               ) : null
             }
           />
@@ -174,7 +172,7 @@ export function SubDashboardRoute() {
         </div>
 
         {planningLoading && (
-          <div className="bg-base-surface border border-base-border rounded-lg p-6">
+          <div className="bg-bg-elev border border-line rounded-[10px] p-6">
             <ListSkeleton rows={2} />
           </div>
         )}
@@ -187,7 +185,9 @@ export function SubDashboardRoute() {
         )}
 
         <section className="flex flex-col gap-3">
-          <h2 className="font-display text-lg text-pink-primary">Active contracts</h2>
+          <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+            Active contracts
+          </h2>
           {contracts.length === 0 ? (
             <EmptyState
               title="No active contracts"
@@ -203,7 +203,9 @@ export function SubDashboardRoute() {
         </section>
 
         <section className="flex flex-col gap-3">
-          <h2 className="font-display text-lg text-pink-primary">Recent payments</h2>
+          <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint">
+            Recent payments
+          </h2>
           {(dash.recent_payments ?? []).length === 0 ? (
             <EmptyState
               title="No payments yet"
@@ -219,10 +221,10 @@ export function SubDashboardRoute() {
 }
 
 const PAYMENT_STATUS_CLASSES: Record<string, string> = {
-  pending: "bg-status-warning/20 text-status-warning",
-  validated: "bg-status-success/20 text-status-success",
-  rejected: "bg-debt-muted text-status-danger",
-  cancelled: "bg-base-surface-raised text-base-text-muted",
+  pending: "bg-warn-bg text-warn-ink",
+  validated: "bg-ok-bg text-ok-ink",
+  rejected: "bg-bad-bg text-bad-ink",
+  cancelled: "bg-bg-sunken text-text-mute",
 };
 
 interface RecentPaymentsTableProps {
@@ -233,30 +235,30 @@ interface RecentPaymentsTableProps {
 
 function RecentPaymentsTable({ payments }: RecentPaymentsTableProps) {
   return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-3 overflow-x-auto">
+    <div className="bg-bg-elev border border-line rounded-[10px] p-3 overflow-x-auto">
       <table className="w-full min-w-[400px] text-left">
-        <thead>
+        <thead className="bg-bg-sunken">
           <tr>
             {["Amount", "Category", "Status", "Declared"].map((h) => (
               <th
                 key={h}
-                className="pb-2 pr-3 text-xs text-base-text-muted uppercase tracking-wide font-semibold"
+                className="pb-2 pr-3 text-[10px] text-text-faint uppercase tracking-[0.14em] font-mono"
               >
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-line">
           {(payments ?? []).map((p) => (
-            <tr key={p.id} className="border-t border-base-border">
+            <tr key={p.id}>
               <td
-                className="py-2 pr-3 text-base-text text-sm font-semibold whitespace-nowrap"
+                className="py-2 pr-3 text-text text-sm font-semibold whitespace-nowrap"
                 role="status"
               >
                 {formatGBP(p.amount)}
               </td>
-              <td className="py-2 pr-3 text-xs text-base-text-muted capitalize whitespace-nowrap">
+              <td className="py-2 pr-3 text-xs text-text-mute capitalize whitespace-nowrap">
                 {p.category.replace(/_/g, " ")}
               </td>
               <td className="py-2 pr-3 whitespace-nowrap">
@@ -266,7 +268,7 @@ function RecentPaymentsTable({ payments }: RecentPaymentsTableProps) {
                   {p.status}
                 </span>
               </td>
-              <td className="py-2 text-xs text-base-text-muted whitespace-nowrap">
+              <td className="py-2 text-xs text-text-mute whitespace-nowrap">
                 {formatDate(p.declared_at)}
               </td>
             </tr>

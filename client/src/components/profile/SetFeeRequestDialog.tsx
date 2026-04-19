@@ -60,10 +60,10 @@ export function SetFeeRequestDialog({ requestId, onClose, onSuccess }: SetFeeReq
               }}
               placeholder="5.00"
             />
-            {amountError && <p className="text-xs text-status-danger">{amountError}</p>}
+            {amountError && <p className="text-xs text-bad-ink">{amountError}</p>}
           </div>
           <div className="flex gap-2 justify-end">
-            <Button variant="outline" onClick={onClose} disabled={mutation.isPending}>
+            <Button variant="ghost" onClick={onClose} disabled={mutation.isPending}>
               Cancel
             </Button>
             <Button onClick={handleSubmit} disabled={mutation.isPending}>

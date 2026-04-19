@@ -87,7 +87,7 @@ export function ChangeRequestPanel({ onSuccess, onCancel }: ChangeRequestPanelPr
 
   return (
     <div className="flex flex-col gap-4 pt-2">
-      {errors._form && <p className="text-xs text-status-danger">{errors._form}</p>}
+      {errors._form && <p className="text-xs text-bad-ink">{errors._form}</p>}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="cr_first_name">First name</Label>
         <Input
@@ -97,7 +97,7 @@ export function ChangeRequestPanel({ onSuccess, onCancel }: ChangeRequestPanelPr
           placeholder="Proposed first name"
         />
         {errors.proposed_first_name && (
-          <p className="text-xs text-status-danger">{errors.proposed_first_name}</p>
+          <p className="text-xs text-bad-ink">{errors.proposed_first_name}</p>
         )}
       </div>
       <div className="flex flex-col gap-1.5">
@@ -126,7 +126,7 @@ export function ChangeRequestPanel({ onSuccess, onCancel }: ChangeRequestPanelPr
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Explain your request…"
           maxLength={500}
-          className="flex min-h-[80px] w-full rounded-md border border-base-border bg-base-surface-raised/60 px-4 py-2 text-sm text-base-text transition-all duration-200 placeholder:text-base-text-subtle focus:border-pink-primary/60 focus:bg-base-surface-raised focus:outline-none focus:ring-2 focus:ring-pink-ring focus:ring-offset-0 resize-y"
+          className="flex min-h-[80px] w-full rounded-md border border-line bg-bg-sunken/60 px-4 py-2 text-sm text-text transition-all duration-200 placeholder:text-text-faint focus:border-accent/60 focus:bg-bg-sunken focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-0 resize-y"
         />
       </div>
       <div className="flex flex-col gap-2">
@@ -134,7 +134,7 @@ export function ChangeRequestPanel({ onSuccess, onCancel }: ChangeRequestPanelPr
         <AvatarPicker value={avatarKey ?? "default"} onChange={(k) => setAvatarKey(k)} />
       </div>
       <div className="flex gap-2 justify-end pt-2">
-        <Button variant="outline" onClick={onCancel} disabled={mutation.isPending}>
+        <Button variant="ghost" onClick={onCancel} disabled={mutation.isPending}>
           Cancel
         </Button>
         <Button onClick={handleSubmit} disabled={mutation.isPending}>

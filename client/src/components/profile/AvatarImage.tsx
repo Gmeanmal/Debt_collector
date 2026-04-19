@@ -29,7 +29,7 @@ export function AvatarImage({
     <img
       src={entry.src}
       alt={displayName ?? ""}
-      className={`rounded-full object-cover flex-shrink-0 ${sizeClass} ${className}`}
+      className={`rounded-full object-cover flex-shrink-0 border border-line hover:ring-1 hover:ring-line transition-all ${sizeClass} ${className}`}
     />
   );
 }

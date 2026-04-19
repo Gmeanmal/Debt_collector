@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { PageHeader } from "@/components/ui/page-header";
 import { RitualCard } from "@/components/today/RitualCard";
 import { TaskCard } from "@/components/today/TaskCard";
 import { JournalCTA } from "@/components/today/JournalCTA";
@@ -20,10 +21,6 @@ const LONG_DATE_FMT = new Intl.DateTimeFormat("en-GB", {
   year: "numeric",
 });
 
-function TodayDate() {
-  return <p className="text-sm text-base-text-muted mt-1">{LONG_DATE_FMT.format(new Date())}</p>;
-}
-
 export function TodayRoute() {
   const ritualsQuery = useQuery({
     queryKey: todayRitualsKey,
@@ -41,15 +38,17 @@ export function TodayRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-4xl mx-auto flex flex-col gap-8">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Today
-          </h1>
-          <TodayDate />
-        </div>
+        <PageHeader
+          crumbs={["Home · Today"]}
+          title={<span className="italic">Today.</span>}
+          description={LONG_DATE_FMT.format(new Date())}
+        />
 
         <section aria-labelledby="rituals-heading" className="flex flex-col gap-3">
-          <h2 id="rituals-heading" className="font-display text-lg text-pink-primary">
+          <h2
+            id="rituals-heading"
+            className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint"
+          >
             Rituals
           </h2>
 
@@ -76,7 +75,10 @@ export function TodayRoute() {
         </section>
 
         <section aria-labelledby="tasks-heading" className="flex flex-col gap-3">
-          <h2 id="tasks-heading" className="font-display text-lg text-pink-primary">
+          <h2
+            id="tasks-heading"
+            className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint"
+          >
             Open tasks
           </h2>
 
@@ -106,7 +108,10 @@ export function TodayRoute() {
         </section>
 
         <section aria-labelledby="journal-heading" className="flex flex-col gap-3">
-          <h2 id="journal-heading" className="font-display text-lg text-pink-primary">
+          <h2
+            id="journal-heading"
+            className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-faint"
+          >
             Journal
           </h2>
           <JournalCTA />

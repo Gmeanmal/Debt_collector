@@ -46,13 +46,17 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(key)}
             onKeyDown={(e) => handleKeyDown(e, i)}
-            className={`rounded-lg p-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-ring ${
+            className={`rounded-lg p-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
               selected
-                ? "ring-2 ring-pink-primary ring-offset-2 ring-offset-base-surface"
-                : "ring-1 ring-base-border hover:ring-pink-primary/50"
+                ? "ring-2 ring-accent ring-offset-2 ring-offset-bg"
+                : "ring-1 ring-line hover:ring-accent/50"
             }`}
           >
-            <img src={entry.src} alt={entry.label} className="h-16 w-16 rounded-md object-cover" />
+            <img
+              src={entry.src}
+              alt={entry.label}
+              className="h-16 w-16 rounded-full object-cover border border-line hover:ring-1 hover:ring-line transition-all"
+            />
           </button>
         );
       })}

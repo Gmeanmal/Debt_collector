@@ -90,7 +90,7 @@ export function IdentityFieldsCard({ user, onSaved }: Props) {
   }
 
   return (
-    <Card>
+    <Card className="bg-bg-elev border border-line rounded-[10px]">
       <CardHeader>
         <CardTitle className="text-base">Identity</CardTitle>
       </CardHeader>
@@ -130,7 +130,7 @@ export function IdentityFieldsCard({ user, onSaved }: Props) {
             nullable
             ariaLabel="Gender"
           />
-          <p className="text-xs text-base-text-muted min-h-[1rem]">
+          <p className="text-xs text-text-mute min-h-[1rem]">
             {selectedGender?.description ?? ""}
           </p>
         </div>
@@ -167,7 +167,7 @@ export function IdentityFieldsCard({ user, onSaved }: Props) {
             maxLength={200}
           />
           {pendingRealName && (
-            <p className="text-xs text-status-warning">
+            <p className="text-xs text-warn-ink">
               Real name change is pending goddess approval.
             </p>
           )}
@@ -176,7 +176,7 @@ export function IdentityFieldsCard({ user, onSaved }: Props) {
         <Button
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending}
-          variant="outline"
+          variant="ghost"
           className="self-end"
         >
           {mutation.isPending ? "Saving…" : "Save identity"}

@@ -37,25 +37,25 @@ export function ProfileRequestCard({
   const isAwaitingFee = request.status === "awaiting_fee_payment";
 
   return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-3">
+    <div className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <AvatarImage avatarKey={subAvatarKey} size="sm" />
           <div>
-            <p className="font-medium text-base-text text-sm">{subDisplayName}</p>
-            <p className="text-xs text-base-text-muted">{date}</p>
+            <p className="font-medium text-text text-sm">{subDisplayName}</p>
+            <p className="text-xs text-text-mute">{date}</p>
           </div>
         </div>
         {request.proposed_avatar_key && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-base-text-muted">Proposed:</span>
+            <span className="text-xs text-text-mute">Proposed:</span>
             <AvatarImage avatarKey={request.proposed_avatar_key as AvatarKey} size="sm" />
           </div>
         )}
       </div>
 
       {changes.length > 0 && (
-        <ul className="text-xs text-base-text-muted flex flex-col gap-0.5">
+        <ul className="text-xs text-text-mute flex flex-col gap-0.5">
           {changes.map((c) => (
             <li key={c}>• {c}</li>
           ))}
@@ -70,11 +70,11 @@ export function ProfileRequestCard({
             </Button>
           )}
           {isPending && (
-            <Button size="sm" variant="outline" onClick={onSetFee}>
+            <Button size="sm" variant="ghost" onClick={onSetFee}>
               Set fee
             </Button>
           )}
-          <Button size="sm" variant="destructive" onClick={onReject}>
+          <Button size="sm" variant="danger" onClick={onReject}>
             Reject
           </Button>
         </div>

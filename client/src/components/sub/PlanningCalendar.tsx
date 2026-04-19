@@ -92,12 +92,12 @@ function TooltipPopover({ items, top, left }: TooltipPopoverProps) {
         }
       }}
       role="tooltip"
-      className="planning-tooltip fixed z-50 bg-base-surface border border-base-border rounded px-3 py-2 text-xs shadow-lg pointer-events-none"
+      className="planning-tooltip fixed z-50 bg-bg-elev border border-line rounded px-3 py-2 text-xs shadow-lg pointer-events-none"
     >
       {items.map((item, i) => (
         <div key={i} className="flex items-center gap-2">
-          <span className="text-pink-primary font-semibold">{formatGBP(item.amount)}</span>
-          <span className="text-base-text-muted">{item.label}</span>
+          <span className="text-accent font-semibold">{formatGBP(item.amount)}</span>
+          <span className="text-text-mute">{item.label}</span>
         </div>
       ))}
     </div>
@@ -167,14 +167,14 @@ export function PlanningCalendar({ upcoming }: PlanningCalendarProps) {
   }
 
   return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-4">
-      <h3 className="text-sm font-semibold text-base-text-muted uppercase tracking-wide mb-3">
+    <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+      <h3 className="text-sm font-semibold text-text-mute uppercase tracking-wide mb-3">
         30-day payment calendar — {monthLabel}
       </h3>
 
       <div className="grid grid-cols-7 gap-px mb-1">
         {DAY_HEADERS.map((d) => (
-          <div key={d} className="text-center text-xs text-base-text-muted py-1 font-medium">
+          <div key={d} className="text-center text-xs text-text-mute py-1 font-medium">
             {d}
           </div>
         ))}
@@ -186,11 +186,11 @@ export function PlanningCalendar({ upcoming }: PlanningCalendarProps) {
             {week.map((cell) => {
               const hasDue = cell.upcoming.length > 0;
               const baseClass =
-                "relative flex flex-col items-center justify-start pt-1 pb-1 rounded min-h-[40px] focus-visible:ring-2 focus-visible:ring-pink-primary outline-none";
+                "relative flex flex-col items-center justify-start pt-1 pb-1 rounded min-h-[40px] focus-visible:ring-2 focus-visible:ring-accent outline-none";
               const bgClass = cell.isToday
-                ? "bg-pink-primary/10 border border-pink-primary/40"
+                ? "bg-accent/10 border border-accent/40"
                 : cell.inRange
-                  ? "bg-base-surface-raised/60 hover:bg-base-surface-raised"
+                  ? "bg-bg-sunken/60 hover:bg-bg-sunken"
                   : "opacity-30";
 
               return (
@@ -210,14 +210,14 @@ export function PlanningCalendar({ upcoming }: PlanningCalendarProps) {
                   tabIndex={cell.inRange ? 0 : -1}
                 >
                   <span
-                    className={`text-xs font-medium ${cell.isToday ? "text-pink-primary" : cell.inRange ? "text-base-text" : "text-base-text-subtle"}`}
+                    className={`text-xs font-medium ${cell.isToday ? "text-accent" : cell.inRange ? "text-text" : "text-text-faint"}`}
                   >
                     {formatDisplayDate(cell.iso)}
                   </span>
                   {hasDue && (
                     <span
                       aria-hidden="true"
-                      className="mt-0.5 w-1.5 h-1.5 rounded-full bg-pink-primary"
+                      className="mt-0.5 w-1.5 h-1.5 rounded-full bg-accent"
                     />
                   )}
                 </button>

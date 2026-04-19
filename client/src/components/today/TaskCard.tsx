@@ -21,13 +21,13 @@ function formatDue(dueAt: string): string {
 
 const STATUS_BADGE: Record<
   string,
-  "default" | "warning" | "success" | "danger" | "info" | "primary"
+  "neutral" | "warn" | "ok" | "bad" | "pink" | "default"
 > = {
-  open: "warning",
-  submitted: "info",
-  approved: "success",
-  rejected: "danger",
-  cancelled: "default",
+  open: "warn",
+  submitted: "pink",
+  approved: "ok",
+  rejected: "bad",
+  cancelled: "neutral",
 };
 
 export function TaskCard({ task }: Props) {
@@ -69,24 +69,24 @@ export function TaskCard({ task }: Props) {
   const busy = submitMut.isPending || uploading;
 
   return (
-    <article className="bg-base-surface border border-base-border rounded-lg p-4 flex flex-col gap-3">
+    <article className="bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2 flex-wrap">
-        <span className="font-semibold text-base-text text-sm">{task.title}</span>
-        <Badge variant={STATUS_BADGE[task.status] ?? "default"}>{task.status}</Badge>
+        <span className="font-serif italic text-text text-sm">{task.title}</span>
+        <Badge variant={STATUS_BADGE[task.status] ?? "neutral"}>{task.status}</Badge>
       </div>
 
       {task.description && (
-        <p className="text-xs text-base-text-muted leading-relaxed">{task.description}</p>
+        <p className="text-xs text-text-mute leading-relaxed">{task.description}</p>
       )}
 
       {task.due_at && (
-        <p className="text-xs text-base-text-muted">
-          Due <span className="text-base-text font-medium">{formatDue(task.due_at)}</span>
+        <p className="text-xs text-text-mute">
+          Due <span className="text-text font-medium">{formatDue(task.due_at)}</span>
         </p>
       )}
 
       {isOpen && (
-        <div className="flex flex-col gap-2 pt-1 border-t border-base-border">
+        <div className="flex flex-col gap-2 pt-1 border-t border-line">
           <Input
             placeholder="Optional note…"
             value={note}
@@ -97,7 +97,7 @@ export function TaskCard({ task }: Props) {
 
           <div className="flex items-center gap-2 flex-wrap">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               type="button"
               disabled={busy}
@@ -117,7 +117,7 @@ export function TaskCard({ task }: Props) {
           </div>
 
           {uploadError && (
-            <p className="text-xs text-status-danger" role="alert">
+            <p className="text-xs text-bad-ink" role="alert">
               {uploadError}
             </p>
           )}
@@ -133,7 +133,7 @@ export function TaskCard({ task }: Props) {
           </Button>
 
           {submitMut.error && (
-            <p className="text-xs text-status-danger" role="alert">
+            <p className="text-xs text-bad-ink" role="alert">
               {(submitMut.error as Error).message}
             </p>
           )}
@@ -141,11 +141,11 @@ export function TaskCard({ task }: Props) {
       )}
 
       {task.status === "submitted" && (
-        <p className="text-xs text-status-info">Awaiting goddess review.</p>
+        <p className="text-xs text-accent-deep">Awaiting goddess review.</p>
       )}
 
       {task.status === "rejected" && task.rejection_reason && (
-        <p className="text-xs text-status-danger">{task.rejection_reason}</p>
+        <p className="text-xs text-bad-ink">{task.rejection_reason}</p>
       )}
     </article>
   );

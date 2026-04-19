@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { ProfileChangeRequestOut } from "@/services/profile/profileApi";
 import { AvatarImage } from "@/components/profile/AvatarImage";
 import type { AvatarKey } from "@/services/profile/avatarMap";
@@ -13,12 +14,14 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: "Cancelled",
 };
 
-const STATUS_CLASSES: Record<string, string> = {
-  pending: "bg-status-info/15 text-status-info border-status-info/30",
-  approved: "bg-status-success/15 text-status-success border-status-success/30",
-  rejected: "bg-status-danger/15 text-status-danger border-status-danger/30",
-  awaiting_fee_payment: "bg-status-warning/15 text-status-warning border-status-warning/30",
-  cancelled: "bg-base-surface-raised text-base-text-muted border-base-border",
+type BadgeVariant = "pink" | "ok" | "bad" | "warn" | "neutral";
+
+const STATUS_VARIANTS: Record<string, BadgeVariant> = {
+  pending: "pink",
+  approved: "ok",
+  rejected: "bad",
+  awaiting_fee_payment: "warn",
+  cancelled: "neutral",
 };
 
 interface ChangeRequestListProps {
@@ -28,7 +31,7 @@ interface ChangeRequestListProps {
 
 export function ChangeRequestList({ requests, onPayFee }: ChangeRequestListProps) {
   if (requests.length === 0) {
-    return <p className="text-sm text-base-text-muted">No change requests submitted yet.</p>;
+    return <p className="text-sm text-text-mute">No change requests submitted yet.</p>;
   }
 
   return (
@@ -56,15 +59,15 @@ function ChangeRequestRow({ request, onPayFee }: ChangeRequestRowProps) {
   if (request.proposed_avatar_key) changes.push(`Avatar → ${request.proposed_avatar_key}`);
   if (request.proposed_notes) changes.push(`Notes: ${request.proposed_notes}`);
 
+  const badgeVariant: BadgeVariant = STATUS_VARIANTS[request.status] ?? "neutral";
+
   return (
-    <div className="rounded-lg border border-base-border bg-base-surface-raised/40 p-3 flex flex-col gap-2">
+    <div className="rounded-[10px] border border-line bg-bg-elev p-[18px] flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className="text-xs text-base-text-muted">{date}</span>
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${STATUS_CLASSES[request.status] ?? ""}`}
-        >
+        <span className="text-xs text-text-mute">{date}</span>
+        <Badge variant={badgeVariant}>
           {STATUS_LABELS[request.status] ?? request.status}
-        </span>
+        </Badge>
       </div>
 
       {request.proposed_avatar_key && (
@@ -72,7 +75,7 @@ function ChangeRequestRow({ request, onPayFee }: ChangeRequestRowProps) {
       )}
 
       {changes.length > 0 && (
-        <ul className="text-xs text-base-text-muted flex flex-col gap-0.5">
+        <ul className="text-xs text-text-mute flex flex-col gap-0.5">
           {changes.map((c) => (
             <li key={c}>• {c}</li>
           ))}
@@ -81,7 +84,7 @@ function ChangeRequestRow({ request, onPayFee }: ChangeRequestRowProps) {
 
       {request.status === "awaiting_fee_payment" && request.fee_amount && (
         <div className="flex items-center gap-3 mt-1">
-          <span className="text-sm text-status-warning font-semibold">
+          <span className="text-sm text-warn-ink font-semibold">
             Fee: {formatGBP(request.fee_amount)}
           </span>
           <Button size="sm" onClick={() => onPayFee(request.id)}>
@@ -91,7 +94,7 @@ function ChangeRequestRow({ request, onPayFee }: ChangeRequestRowProps) {
       )}
 
       {request.status === "rejected" && request.resolution_note && (
-        <p className="text-xs text-status-danger italic">{request.resolution_note}</p>
+        <p className="text-xs text-bad-ink italic">{request.resolution_note}</p>
       )}
     </div>
   );

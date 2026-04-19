@@ -1,6 +1,7 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { WeeklyPaymentTotal } from "@/services/dashboards/dashboardsApi";
 import { formatGBP } from "@/services/format/currency";
+import { chartColor, CHART_COLORS } from "@/services/dashboard/chartColors";
 
 const WEEK_LABEL_FMT = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Europe/London",
@@ -25,9 +26,9 @@ interface CustomTooltipProps {
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-base-surface border border-base-border rounded px-3 py-2 text-xs shadow-lg">
-      <p className="text-base-text-muted mb-1">w/c {label}</p>
-      <p className="text-pink-primary font-semibold">{formatGBP(payload[0].value)}</p>
+    <div className="bg-bg-elev border border-line rounded px-3 py-2 text-xs shadow-lg">
+      <p className="text-text-mute mb-1">w/c {label}</p>
+      <p className="text-accent font-semibold">{formatGBP(payload[0].value)}</p>
     </div>
   );
 }
@@ -42,19 +43,13 @@ export function PaymentChart({ history }: PaymentChartProps) {
     total: Number(w.total),
   }));
 
-  const pinkVar = getComputedStyle(document.documentElement)
-    .getPropertyValue("--color-pink-primary")
-    .trim();
-  const borderVar = getComputedStyle(document.documentElement)
-    .getPropertyValue("--color-base-border")
-    .trim();
-  const mutedVar = getComputedStyle(document.documentElement)
-    .getPropertyValue("--color-base-text-muted")
-    .trim();
+  const accentVar = chartColor(CHART_COLORS.rolling);
+  const borderVar = chartColor("--color-line");
+  const mutedVar = chartColor("--color-text-mute");
 
   return (
-    <div className="bg-base-surface border border-base-border rounded-lg p-4">
-      <h3 className="text-sm font-semibold text-base-text-muted uppercase tracking-wide mb-4">
+    <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
+      <h3 className="text-sm font-semibold text-text-mute uppercase tracking-wide mb-4">
         Last 12 weeks — validated payments
       </h3>
       <ResponsiveContainer width="100%" height={180}>
@@ -74,8 +69,8 @@ export function PaymentChart({ history }: PaymentChartProps) {
             tickFormatter={(v: number) => `£${v}`}
             width={44}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,79,163,0.08)" }} />
-          <Bar dataKey="total" fill={pinkVar} radius={[3, 3, 0, 0]} maxBarSize={32} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: `${accentVar}14` }} />
+          <Bar dataKey="total" fill={accentVar} radius={[3, 3, 0, 0]} maxBarSize={32} />
         </BarChart>
       </ResponsiveContainer>
     </div>

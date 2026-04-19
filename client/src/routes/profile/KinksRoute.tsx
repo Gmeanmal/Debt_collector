@@ -5,6 +5,7 @@ import { KinkMatrix } from "@/components/kinks/KinkMatrix";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { getKinkMatrix, updateKinkRating, kinksKey } from "@/services/kinks/kinksApi";
 import type { KinkMatrix as KinkMatrixType, KinkRating } from "@/services/kinks/kinksApi";
 
@@ -87,25 +88,21 @@ export function KinksRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-3xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-pink-primary tracking-wider">
-            Kink matrix
-          </h1>
-          <p className="text-sm text-base-text-muted mt-1">
-            Set your ratings for each kink. Items marked with a warning icon are safety-critical and
-            require your acknowledgement.
-          </p>
-        </div>
+        <PageHeader
+          crumbs={["Home · Profile · Kinks"]}
+          title="Kink matrix"
+          description="Set your ratings for each kink. Items marked with a warning icon are safety-critical and require your acknowledgement."
+        />
 
         <label className="flex items-center gap-2 cursor-pointer select-none w-fit">
           <input
             type="checkbox"
             checked={showOnlyUnrated}
             onChange={(e) => setShowOnlyUnrated(e.target.checked)}
-            className="accent-pink-primary h-4 w-4"
+            className="accent-accent h-4 w-4"
             aria-label="Show only unrated"
           />
-          <span className="text-sm text-base-text">Show only unrated</span>
+          <span className="text-sm text-text">Show only unrated</span>
         </label>
 
         {isLoading && <ListSkeleton rows={5} />}
@@ -115,7 +112,7 @@ export function KinksRoute() {
             title="Failed to load kink matrix"
             message={error instanceof Error ? error.message : "An unexpected error occurred."}
             cta={
-              <Button variant="outline" size="sm" onClick={() => void refetch()}>
+              <Button variant="ghost" size="sm" onClick={() => void refetch()}>
                 Retry
               </Button>
             }

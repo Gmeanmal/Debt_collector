@@ -249,9 +249,9 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 ### Phase J · Sub · today & dashboard & identity
 
-- [ ] **Step 39 — Sub Today + Dashboard.** Warmer palette, serif eyebrow "Today", single-column. _Files: `client/src/routes/sub/TodayRoute.tsx`, `client/src/routes/sub/DashboardRoute.tsx`._
-- [ ] **Step 40 — Sub profile (avatar & identity) + Inventory.** _Files: `client/src/routes/ProfileRoute.tsx`, `client/src/routes/sub/InventoryRoute.tsx`._
-- [ ] **Step 41 — Kinks + Limits + Aftercare + Medical.** _Files: `client/src/routes/profile/KinksRoute.tsx`, `LimitsRoute.tsx`, `AftercareRoute.tsx`, `MedicalRoute.tsx`._
+- [x] **Step 39 — Sub Today + Dashboard.** Warmer palette, serif eyebrow "Today", single-column. _Files: `client/src/routes/sub/TodayRoute.tsx`, `client/src/routes/sub/DashboardRoute.tsx`._
+- [x] **Step 40 — Sub profile (avatar & identity) + Inventory.** _Files: `client/src/routes/ProfileRoute.tsx`, `client/src/routes/sub/InventoryRoute.tsx`._
+- [x] **Step 41 — Kinks + Limits + Aftercare + Medical.** _Files: `client/src/routes/profile/KinksRoute.tsx`, `LimitsRoute.tsx`, `AftercareRoute.tsx`, `MedicalRoute.tsx`._
 
 → _commit: `refactor(ui): phase J sub today & identity`_
 
@@ -300,7 +300,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 
 Update these counters as phases close so the orchestrator can tell at a glance.
 
-- Phases complete: **9 / 13**
-- Steps complete: **38 / 51**
-- Last commit: `refactor(ui): phase I — goddess moderation & dossier`
-- Next phase: **J — Sub · today & dashboard & identity**
+- Phases complete: **10 / 13**
+- Steps complete: **41 / 51**
+- Last commit: `refactor(ui): phase J — sub today & identity`
+- Next phase: **K — Sub · money & contracts**
