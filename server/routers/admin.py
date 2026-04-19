@@ -389,9 +389,7 @@ def _register_crud(
             )
             contract_count = int(contract_result.scalar_one())
             if contract_count > 0:
-                raise Conflict(
-                    f"User has {contract_count} active contract(s). Close them first."
-                )
+                raise Conflict(f"User has {contract_count} active contract(s). Close them first.")
         audit = AdminActionDao(session)
         await audit.record(
             admin_id=admin.id,
