@@ -2103,6 +2103,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/notifications/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the caller's active Web Push subscriptions
+         * @description Returns every push subscription owned by the authenticated user, newest first. Endpoints and keys are not returned verbatim beyond the opaque endpoint URL — the payload is meant for the Settings page to show registered devices.
+         */
+        get: operations["list_push_subscriptions_me_notifications_subscriptions_get"];
+        put?: never;
+        /**
+         * Register a Web Push subscription for the authenticated user
+         * @description Stores a browser Web Push subscription (endpoint + ECDH keys) so the server can fan out notifications to this device. If the endpoint is already registered — even under a different account — ownership is rebound to the caller and the keys / user-agent are refreshed. The `User-Agent` request header is captured for later display in the subscriptions list.
+         */
+        post: operations["register_push_subscription_me_notifications_subscriptions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/notifications/subscriptions/{sub_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a Web Push subscription owned by the authenticated user
+         * @description Removes the given subscription so the server stops fanning out to that device. Returns 404 if the subscription does not exist or is owned by a different user — ownership is scoped per-user and silent no-ops would leak existence.
+         */
+        delete: operations["delete_push_subscription_me_notifications_subscriptions__sub_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/preferences": {
         parameters: {
             query?: never;
@@ -8772,6 +8816,57 @@ export interface components {
              * @example false
              */
             active?: boolean | null;
+        };
+        /** PushKeys */
+        PushKeys: {
+            /**
+             * P256Dh
+             * @description ECDH public key (base64url) from the browser PushSubscription
+             * @example BLc4xRzKlKORKWlbdgFaBrrPK3ydWAH...
+             */
+            p256dh: string;
+            /**
+             * Auth
+             * @description Auth secret (base64url) from the browser PushSubscription
+             * @example 4vQK-3eN1aBcDeFgHiJkLm
+             */
+            auth: string;
+        };
+        /** PushSubscriptionIn */
+        PushSubscriptionIn: {
+            /**
+             * Endpoint
+             * @description Browser push endpoint URL
+             * @example https://fcm.googleapis.com/fcm/send/abc123
+             */
+            endpoint: string;
+            /** @description ECDH + auth secret pair bound to this endpoint */
+            keys: components["schemas"]["PushKeys"];
+        };
+        /** PushSubscriptionOut */
+        PushSubscriptionOut: {
+            /**
+             * Id
+             * Format: uuid
+             * @description Subscription UUID
+             */
+            id: string;
+            /**
+             * Endpoint
+             * @description Browser push endpoint URL
+             */
+            endpoint: string;
+            /**
+             * User Agent
+             * @description User-Agent header captured at subscription time
+             */
+            user_agent?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             * @description UTC datetime when the subscription was stored
+             */
+            created_at: string;
         };
         /** RecordPaymentIn */
         RecordPaymentIn: {
@@ -19520,6 +19615,152 @@ export interface operations {
             };
             /** @description Unauthorized — missing or invalid access token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_push_subscriptions_me_notifications_subscriptions_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushSubscriptionOut"][];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    register_push_subscription_me_notifications_subscriptions_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushSubscriptionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushSubscriptionOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_push_subscription_me_notifications_subscriptions__sub_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                sub_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not found — push subscription does not exist or belongs to another user */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
