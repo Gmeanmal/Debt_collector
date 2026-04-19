@@ -80,6 +80,10 @@ class Settings(BaseSettings):
 
     medical_feature_enabled: bool = False
 
+    vapid_public_key: str = ""
+    vapid_private_key: str = ""
+    vapid_subject: str = "mailto:admin@debt-collector.local"
+
     @property
     def is_prod(self) -> bool:
         return self.app_env == AppEnv.prod

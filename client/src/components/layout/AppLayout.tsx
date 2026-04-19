@@ -5,6 +5,7 @@ import { useAuth } from "@/services/auth/useAuth";
 import { ImpersonationBanner } from "@/components/layout/ImpersonationBanner";
 import { SafewordBanner } from "@/components/layout/SafewordBanner";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { PushOptInToggle } from "@/components/layout/PushOptInToggle";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useTheme, type ThemePref } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -164,6 +165,9 @@ export function AppLayout({ children }: AppLayoutProps) {
                       <User className="h-4 w-4" />
                       Profile
                     </NavLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                    <PushOptInToggle />
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={() => void logout()}>

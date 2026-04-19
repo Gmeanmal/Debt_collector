@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from models.notification import NotificationType
 
@@ -44,3 +44,36 @@ class NotificationListOut(BaseModel):
         ..., description="Recent notifications for the authenticated user, newest first"
     )
     unread: int = Field(..., description="Count of unread notifications for this user")
+
+
+class PushKeys(BaseModel):
+    p256dh: str = Field(
+        ...,
+        description="ECDH public key (base64url) from the browser PushSubscription",
+        examples=["BLc4xRzKlKORKWlbdgFaBrrPK3ydWAH..."],
+    )
+    auth: str = Field(
+        ...,
+        description="Auth secret (base64url) from the browser PushSubscription",
+        examples=["4vQK-3eN1aBcDeFgHiJkLm"],
+    )
+
+
+class PushSubscriptionIn(BaseModel):
+    endpoint: str = Field(
+        ...,
+        description="Browser push endpoint URL",
+        examples=["https://fcm.googleapis.com/fcm/send/abc123"],
+    )
+    keys: PushKeys = Field(..., description="ECDH + auth secret pair bound to this endpoint")
+
+
+class PushSubscriptionOut(BaseModel):
+    id: UUID = Field(..., description="Subscription UUID")
+    endpoint: str = Field(..., description="Browser push endpoint URL")
+    user_agent: str | None = Field(
+        default=None, description="User-Agent header captured at subscription time"
+    )
+    created_at: datetime = Field(..., description="UTC datetime when the subscription was stored")
+
+    model_config = ConfigDict(from_attributes=True)

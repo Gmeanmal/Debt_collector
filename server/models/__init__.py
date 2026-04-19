@@ -42,6 +42,7 @@ from models.penalty_rule import PenaltyTrigger as PenaltyTrigger
 from models.profile_change_request import ProfileChangeRequest as ProfileChangeRequest
 from models.profile_change_request import ProfileChangeRequestStatus as ProfileChangeRequestStatus
 from models.punishment_tier import PunishmentTier as PunishmentTier
+from models.push_subscription import PushSubscription as PushSubscription
 from models.reward_redemption import RewardRedemption as RewardRedemption
 from models.reward_tier import RewardTier as RewardTier
 from models.ritual import Ritual as Ritual

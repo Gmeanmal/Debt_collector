@@ -29,6 +29,7 @@ dependencies = [
     "redis>=7.4.0",
     "cryptography>=44.0",
     "pillow>=11.0",
+    "pywebpush>=2.3.0",
 ]
 
 [dependency-groups]
