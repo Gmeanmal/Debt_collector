@@ -27,6 +27,30 @@ function filterByChip(items: NotificationOut[], chip: ChipId): NotificationOut[]
   return items.filter((n) => (types as string[]).includes(n.type));
 }
 
+function isToday(iso: string): boolean {
+  const then = new Date(iso);
+  if (Number.isNaN(then.getTime())) return false;
+  const now = new Date();
+  return (
+    then.getFullYear() === now.getFullYear() &&
+    then.getMonth() === now.getMonth() &&
+    then.getDate() === now.getDate()
+  );
+}
+
+function splitByDay(items: NotificationOut[]): {
+  today: NotificationOut[];
+  earlier: NotificationOut[];
+} {
+  const today: NotificationOut[] = [];
+  const earlier: NotificationOut[] = [];
+  for (const n of items) {
+    if (isToday(n.created_at)) today.push(n);
+    else earlier.push(n);
+  }
+  return { today, earlier };
+}
+
 export function NotificationBell({ enabled }: NotificationBellProps) {
   const [open, setOpen] = useState(false);
   const [activeChip, setActiveChip] = useState<ChipId>("all");
@@ -94,6 +118,11 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
   }
 
   const filtered = filterByChip(items, activeChip).slice(0, VISIBLE_LIMIT);
+  const { today, earlier } = splitByDay(filtered);
+
+  const handleItemSelect = (item: NotificationOut): void => {
+    void handleSelect(item);
+  };
 
   return (
     <div className="relative">
@@ -147,17 +176,38 @@ export function NotificationBell({ enabled }: NotificationBellProps) {
               You&apos;re all caught up.
             </div>
           ) : (
-            <ul>
-              {filtered.map((n) => (
-                <NotificationItem
-                  key={n.id}
-                  notification={n}
-                  onSelect={(item) => {
-                    void handleSelect(item);
-                  }}
-                />
-              ))}
-            </ul>
+            <div>
+              {today.length > 0 && (
+                <section aria-labelledby="notif-group-today">
+                  <h3
+                    id="notif-group-today"
+                    className="px-4 pt-3 pb-1.5 font-serif italic text-[13px] text-text-mute"
+                  >
+                    Today
+                  </h3>
+                  <ul>
+                    {today.map((n) => (
+                      <NotificationItem key={n.id} notification={n} onSelect={handleItemSelect} />
+                    ))}
+                  </ul>
+                </section>
+              )}
+              {earlier.length > 0 && (
+                <section aria-labelledby="notif-group-earlier">
+                  <h3
+                    id="notif-group-earlier"
+                    className="px-4 pt-3 pb-1.5 font-serif italic text-[13px] text-text-mute"
+                  >
+                    Earlier
+                  </h3>
+                  <ul>
+                    {earlier.map((n) => (
+                      <NotificationItem key={n.id} notification={n} onSelect={handleItemSelect} />
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
           )}
         </div>
       )}
