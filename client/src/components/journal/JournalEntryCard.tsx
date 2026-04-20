@@ -70,10 +70,7 @@ export function JournalEntryCard({ entry, commentSlot }: Props) {
       className={cn("bg-bg-elev border border-line rounded-[10px] p-[18px] flex flex-col gap-3")}
     >
       <header className="flex flex-wrap items-center justify-between gap-2">
-        <time
-          dateTime={entry.created_at}
-          className="font-mono text-[11px] text-text-faint"
-        >
+        <time dateTime={entry.created_at} className="font-mono text-[11px] text-text-faint">
           {formatTs(entry.created_at)}
         </time>
         <div className="flex flex-wrap items-center gap-2">

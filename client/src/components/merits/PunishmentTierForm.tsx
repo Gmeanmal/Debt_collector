@@ -110,9 +110,7 @@ export function PunishmentTierForm({ initial, onSubmit, onCancel, isPending, err
           className="bg-bg-sunken border border-line rounded-md px-3 py-2 text-sm text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
         {fieldError(errors, "default_points_penalty") && (
-          <p className="text-xs text-bad-ink">
-            {fieldError(errors, "default_points_penalty")}
-          </p>
+          <p className="text-xs text-bad-ink">{fieldError(errors, "default_points_penalty")}</p>
         )}
       </div>
 

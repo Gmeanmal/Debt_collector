@@ -27,14 +27,7 @@ const sizeClass: Record<StatSize, string> = {
   lg: "text-[40px]",
 };
 
-export function Stat({
-  label,
-  value,
-  sub,
-  tone = "default",
-  size = "md",
-  className,
-}: StatProps) {
+export function Stat({ label, value, sub, tone = "default", size = "md", className }: StatProps) {
   return (
     <div className={cn("bg-bg-elev border border-line rounded-[10px] p-4", className)}>
       <div className="mb-3">

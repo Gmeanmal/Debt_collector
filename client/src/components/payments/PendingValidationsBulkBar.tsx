@@ -70,9 +70,7 @@ export function PendingValidationsSelectAll({
         className="accent-accent cursor-pointer"
       />
       <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-text-faint">
-        {selectedCount > 0
-          ? `${selectedCount} of ${totalCount} selected`
-          : `${totalCount} pending`}
+        {selectedCount > 0 ? `${selectedCount} of ${totalCount} selected` : `${totalCount} pending`}
       </span>
     </div>
   );

@@ -19,12 +19,7 @@ export function NavSections({ nav, onNavigate, density = "compact" }: NavSection
           </div>
           <div className="flex flex-col gap-px">
             {section.items.map((item) => (
-              <NavRow
-                key={item.to}
-                item={item}
-                onNavigate={onNavigate}
-                padClass={itemPad}
-              />
+              <NavRow key={item.to} item={item} onNavigate={onNavigate} padClass={itemPad} />
             ))}
           </div>
         </div>

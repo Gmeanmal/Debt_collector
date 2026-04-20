@@ -15,10 +15,7 @@ interface Props {
   data: OccurrenceWithRitual;
 }
 
-const STATUS_BADGE: Record<
-  string,
-  "neutral" | "warn" | "ok" | "bad" | "pink" | "default"
-> = {
+const STATUS_BADGE: Record<string, "neutral" | "warn" | "ok" | "bad" | "pink" | "default"> = {
   pending: "warn",
   completed: "ok",
   submitted: "pink",
@@ -31,7 +28,11 @@ function DeadlineLabel({ deadlineTime }: { deadlineTime: string | null }) {
   if (!deadlineTime) return null;
   const [h, m] = deadlineTime.split(":").map(Number);
   const display = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-  return <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">Due by {display}</span>;
+  return (
+    <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">
+      Due by {display}
+    </span>
+  );
 }
 
 export function RitualCard({ data }: Props) {

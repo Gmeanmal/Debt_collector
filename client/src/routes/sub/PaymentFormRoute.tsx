@@ -146,10 +146,7 @@ export function PaymentFormRoute() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-lg mx-auto flex flex-col gap-6">
-        <PageHeader
-          crumbs={["Home · Money · Declare"]}
-          title="Declare Payment"
-        />
+        <PageHeader crumbs={["Home · Money · Declare"]} title="Declare Payment" />
 
         <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -197,12 +194,15 @@ export function PaymentFormRoute() {
               <p className="text-xs text-text-faint">Defaults to now in Europe/London.</p>
             </div>
 
-            <ProofUploadField file={proof} onChange={setProof} disabled={declareMutation.isPending} />
+            <ProofUploadField
+              file={proof}
+              onChange={setProof}
+              disabled={declareMutation.isPending}
+            />
 
             <div className="flex flex-col gap-1">
               <label htmlFor="note" className="text-sm font-semibold text-text">
-                Note{" "}
-                <span className="text-text-faint font-normal">(optional)</span>
+                Note <span className="text-text-faint font-normal">(optional)</span>
               </label>
               <textarea
                 id="note"

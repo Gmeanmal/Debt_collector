@@ -69,10 +69,7 @@ export function SubManageRoute() {
             description={`Dossier for @${safeUsername}`}
             actions={
               sub ? (
-                <SendMessageQuickAction
-                  username={safeUsername}
-                  displayName={displayName}
-                />
+                <SendMessageQuickAction username={safeUsername} displayName={displayName} />
               ) : undefined
             }
           />

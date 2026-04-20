@@ -83,13 +83,7 @@ export function RejectModal({
       </div>
 
       <div className="flex gap-2 justify-end">
-        <Button
-          variant="ghost"
-          size="sm"
-          type="button"
-          onClick={onClose}
-          disabled={pending}
-        >
+        <Button variant="ghost" size="sm" type="button" onClick={onClose} disabled={pending}>
           Cancel
         </Button>
         <Button

@@ -21,9 +21,7 @@ export function ChartPanel({ title, description, children, className, ariaLabel 
     >
       <div>
         <Eyebrow>{title}</Eyebrow>
-        {description && (
-          <p className="mt-1 text-[11px] text-text-mute">{description}</p>
-        )}
+        {description && <p className="mt-1 text-[11px] text-text-mute">{description}</p>}
       </div>
       {children}
     </section>

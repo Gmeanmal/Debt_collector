@@ -52,8 +52,8 @@ export function BreachSubRoute() {
           description={
             <>
               Transitions all active contracts to{" "}
-              <span className="text-bad-ink font-semibold">breached</span>, blacklists this sub,
-              and snapshots the outstanding balance.
+              <span className="text-bad-ink font-semibold">breached</span>, blacklists this sub, and
+              snapshots the outstanding balance.
             </>
           }
         />
@@ -105,11 +105,7 @@ export function BreachSubRoute() {
                   Breach this sub? This cannot be undone without a reinstatement.
                 </p>
                 <div className="flex gap-3 justify-end mt-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setBreachOpen(false)}
-                  >
+                  <Button type="button" variant="ghost" onClick={() => setBreachOpen(false)}>
                     Cancel
                   </Button>
                   <Button

@@ -240,9 +240,7 @@ export function PenaltyRuleForm({
             >
               {label}
             </span>
-            {idx < STEP_HEADERS.length - 1 && (
-              <span className="text-text-mute/40 text-xs">›</span>
-            )}
+            {idx < STEP_HEADERS.length - 1 && <span className="text-text-mute/40 text-xs">›</span>}
           </div>
         ))}
       </div>

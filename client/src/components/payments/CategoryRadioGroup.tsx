@@ -82,9 +82,7 @@ export function CategoryRadioGroup({
           );
         })}
       </div>
-      {activeOption && (
-        <p className="text-xs text-text-mute mt-2">{activeOption.description}</p>
-      )}
+      {activeOption && <p className="text-xs text-text-mute mt-2">{activeOption.description}</p>}
       <p className="text-xs text-text-faint mt-1">
         Contract payments (weekly debt, buyout, …) are declared from the contract page.
       </p>

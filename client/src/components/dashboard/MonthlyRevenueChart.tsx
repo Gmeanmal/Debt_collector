@@ -105,9 +105,7 @@ export function MonthlyRevenueChart({ data, error, dateRange }: Props) {
                 tickFormatter={(v: number) => `£${v}`}
               />
               <Tooltip content={CustomTooltip} />
-              <Legend
-                wrapperStyle={{ fontSize: 10, color: chartColor("--color-text-mute") }}
-              />
+              <Legend wrapperStyle={{ fontSize: 10, color: chartColor("--color-text-mute") }} />
               <Line
                 type="monotone"
                 dataKey="Rolling"

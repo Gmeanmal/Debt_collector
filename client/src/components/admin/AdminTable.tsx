@@ -149,9 +149,7 @@ export function AdminTable({ schema }: AdminTableProps) {
         onStatusFilter={setStatusFilter}
       />
 
-      {query.isError && (
-        <p className="text-sm text-bad-ink">{(query.error as Error).message}</p>
-      )}
+      {query.isError && <p className="text-sm text-bad-ink">{(query.error as Error).message}</p>}
 
       <div className="bg-bg-elev border border-line rounded-[10px] overflow-hidden">
         <div className="overflow-x-auto">

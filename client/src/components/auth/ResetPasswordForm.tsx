@@ -96,13 +96,7 @@ export function ResetPasswordForm() {
         </div>
       )}
 
-      <Button
-        type="submit"
-        variant="primary"
-        size="lg"
-        disabled={isSubmitting}
-        className="mt-2"
-      >
+      <Button type="submit" variant="primary" size="lg" disabled={isSubmitting} className="mt-2">
         {isSubmitting ? "Saving…" : "Set new password"}
       </Button>
     </form>

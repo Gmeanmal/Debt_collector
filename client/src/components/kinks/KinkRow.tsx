@@ -105,13 +105,9 @@ export function KinkRow({ item, onRatingChange, isPending = false, lastSavedAt }
             )}
           </div>
           {item.description && (
-            <p className="text-xs text-text-faint leading-snug line-clamp-2">
-              {item.description}
-            </p>
+            <p className="text-xs text-text-faint leading-snug line-clamp-2">{item.description}</p>
           )}
-          {item.note && (
-            <p className="text-xs text-text-mute italic leading-snug">"{item.note}"</p>
-          )}
+          {item.note && <p className="text-xs text-text-mute italic leading-snug">"{item.note}"</p>}
           <SaveIndicator isPending={isPending} lastSavedAt={lastSavedAt} />
         </div>
         <div className="shrink-0">

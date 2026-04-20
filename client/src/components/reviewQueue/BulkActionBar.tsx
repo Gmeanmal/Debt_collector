@@ -19,12 +19,7 @@ export function BulkActionBar({ selectedCount, isPending, onApprove, onReject }:
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <span className="text-sm font-medium text-text">{selectedCount} selected</span>
         <div className="flex gap-2">
-          <Button
-            variant="soft"
-            size="sm"
-            onClick={onApprove}
-            disabled={isPending}
-          >
+          <Button variant="soft" size="sm" onClick={onApprove} disabled={isPending}>
             Approve
           </Button>
           <Button

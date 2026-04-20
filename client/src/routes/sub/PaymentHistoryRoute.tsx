@@ -188,11 +188,7 @@ export function PaymentHistoryRoute() {
           crumbs={["Home · Money · History"]}
           title="Payment History"
           actions={
-            <Button
-              type="button"
-              variant="primary"
-              onClick={() => navigate("/sub/payments/new")}
-            >
+            <Button type="button" variant="primary" onClick={() => navigate("/sub/payments/new")}>
               Declare payment
             </Button>
           }
@@ -240,14 +236,10 @@ export function PaymentHistoryRoute() {
                 {payments.map((p) => (
                   <tr key={p.id} className="hover:bg-bg-sunken/50 transition-colors">
                     <td className="px-3 py-3">
-                      <span className="font-semibold text-text text-sm">
-                        {formatGBP(p.amount)}
-                      </span>
+                      <span className="font-semibold text-text text-sm">{formatGBP(p.amount)}</span>
                     </td>
                     <td className="px-3 py-3">
-                      <Badge variant={STATUS_TONE[p.status] ?? "neutral"}>
-                        {p.status}
-                      </Badge>
+                      <Badge variant={STATUS_TONE[p.status] ?? "neutral"}>{p.status}</Badge>
                     </td>
                     <td className="px-3 py-3">
                       <Badge variant={SOURCE_TONE[p.source as DeclarationSource] ?? "neutral"}>
@@ -292,9 +284,7 @@ export function PaymentHistoryRoute() {
                         {p.status === "rejected" && p.rejection_reason && (
                           <p className="text-xs text-bad-ink">Rejected: {p.rejection_reason}</p>
                         )}
-                        {p.note && (
-                          <p className="text-xs text-text-faint italic">{p.note}</p>
-                        )}
+                        {p.note && <p className="text-xs text-text-faint italic">{p.note}</p>}
                       </div>
                     </td>
                   </tr>

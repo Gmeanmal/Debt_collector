@@ -18,7 +18,21 @@ import {
 
 const LEDGER_PAYMENT_LIMIT = 15;
 
-type BadgeVariant = "neutral" | "ok" | "warn" | "bad" | "pink" | "ink" | "gold" | "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt";
+type BadgeVariant =
+  | "neutral"
+  | "ok"
+  | "warn"
+  | "bad"
+  | "pink"
+  | "ink"
+  | "gold"
+  | "default"
+  | "primary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "info"
+  | "debt";
 
 const STATUS_VARIANT: Record<PaymentStatus, BadgeVariant> = {
   pending: "warn",

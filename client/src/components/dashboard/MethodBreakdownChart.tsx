@@ -62,9 +62,7 @@ function renderLegend(items: MethodBreakdownItem[], total: number) {
               style={{ backgroundColor: chartColor(colorVar) }}
               aria-hidden="true"
             />
-            <span className="text-text-mute capitalize">
-              {item.method_type.replace("_", " ")}
-            </span>
+            <span className="text-text-mute capitalize">{item.method_type.replace("_", " ")}</span>
             <span className="ml-auto">
               <Money value={Number(item.total)} />
             </span>

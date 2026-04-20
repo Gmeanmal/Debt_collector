@@ -121,9 +121,7 @@ export function KinkMatrix({
     .filter(({ visibleItems }) => visibleItems.length > 0);
 
   if (categoriesToRender.length === 0) {
-    return (
-      <p className="text-sm text-text-mute text-center py-10">All items have been rated.</p>
-    );
+    return <p className="text-sm text-text-mute text-center py-10">All items have been rated.</p>;
   }
 
   return (

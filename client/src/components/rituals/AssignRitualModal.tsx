@@ -262,10 +262,7 @@ export function AssignRitualModal({ onClose }: Props) {
             className="mt-0.5 h-4 w-4 accent-accent"
           />
           <div className="flex flex-col gap-0.5">
-            <label
-              htmlFor="ritual-proof"
-              className="cursor-pointer text-sm font-medium text-text"
-            >
+            <label htmlFor="ritual-proof" className="cursor-pointer text-sm font-medium text-text">
               Requires proof
             </label>
             <p className="text-xs text-text-mute">Sub must attach a photo to mark complete</p>

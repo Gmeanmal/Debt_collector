@@ -149,12 +149,8 @@ export function RecordPaymentRoute() {
                 <span className="flex items-center gap-2 min-w-0">
                   <Avatar user={s} size="sm" className="shrink-0" />
                   <span className="flex-1 min-w-0">
-                    <span className="block truncate font-medium text-text">
-                      {s.display_name}
-                    </span>
-                    <span className="block truncate text-xs text-text-mute">
-                      @{s.username}
-                    </span>
+                    <span className="block truncate font-medium text-text">{s.display_name}</span>
+                    <span className="block truncate text-xs text-text-mute">@{s.username}</span>
                   </span>
                   <Badge variant="default" className="shrink-0 ml-auto">
                     {s.status.replace(/_/g, " ")}

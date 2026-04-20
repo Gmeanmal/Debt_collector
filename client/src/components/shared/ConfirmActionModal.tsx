@@ -182,13 +182,7 @@ export function ConfirmActionModal(props: ConfirmActionModalProps) {
 
         {/* Actions */}
         <div className="flex gap-2 justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            type="button"
-            onClick={onClose}
-            disabled={isLoading}
-          >
+          <Button variant="ghost" size="sm" type="button" onClick={onClose} disabled={isLoading}>
             {cancelLabel}
           </Button>
           <Button

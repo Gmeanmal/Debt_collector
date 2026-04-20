@@ -183,10 +183,7 @@ export function HomeRoute() {
   if (user.role === "admin") {
     return (
       <div className="max-w-6xl mx-auto p-4 md:p-8 flex flex-col gap-6">
-        <PageHeader
-          title={`Welcome, ${user.display_name}`}
-          description="Operational controls."
-        />
+        <PageHeader title={`Welcome, ${user.display_name}`} description="Operational controls." />
         <ActionGrid actions={ADMIN_ACTIONS} />
       </div>
     );

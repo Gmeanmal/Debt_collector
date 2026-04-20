@@ -10,13 +10,7 @@ interface PageHeaderProps {
   className?: string;
 }
 
-export function PageHeader({
-  crumbs,
-  title,
-  description,
-  actions,
-  className,
-}: PageHeaderProps) {
+export function PageHeader({ crumbs, title, description, actions, className }: PageHeaderProps) {
   return (
     <header className={cn("pb-5 mb-5 border-b border-line", className)}>
       {crumbs && crumbs.length > 0 && (
@@ -30,9 +24,7 @@ export function PageHeader({
         </h1>
         {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
-      {description && (
-        <p className="text-sm text-text-mute mt-1 max-w-prose">{description}</p>
-      )}
+      {description && <p className="text-sm text-text-mute mt-1 max-w-prose">{description}</p>}
     </header>
   );
 }

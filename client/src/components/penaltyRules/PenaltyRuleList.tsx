@@ -173,9 +173,7 @@ export function PenaltyRuleList({ rules, subs = [] }: Props) {
                   <td className="px-4 py-3 text-text-mute text-xs">
                     {rule.name ?? <span className="italic">—</span>}
                   </td>
-                  <td className="px-4 py-3 font-medium text-text">
-                    {triggerDescription(rule)}
-                  </td>
+                  <td className="px-4 py-3 font-medium text-text">{triggerDescription(rule)}</td>
                   <td className="px-4 py-3">
                     <ActionBadge action={rule.action} />
                   </td>

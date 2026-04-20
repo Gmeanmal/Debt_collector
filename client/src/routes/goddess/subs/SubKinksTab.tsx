@@ -57,9 +57,7 @@ function KinkItemRow({ item }: KinkItemRowProps) {
             </span>
           )}
         </div>
-        {item.note && (
-          <p className="text-xs text-text-mute italic leading-snug">"{item.note}"</p>
-        )}
+        {item.note && <p className="text-xs text-text-mute italic leading-snug">"{item.note}"</p>}
       </div>
       <div className="shrink-0">
         <Badge variant={ratingVariant(item.rating)}>

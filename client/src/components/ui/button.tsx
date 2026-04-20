@@ -10,20 +10,14 @@ const buttonVariants = cva(
       variant: {
         primary:
           "bg-accent text-accent-ink border border-accent hover:bg-pink-500 hover:border-pink-500 active:translate-y-px",
-        secondary:
-          "bg-bg-sunken text-text border border-line hover:border-line-strong",
-        ghost:
-          "bg-transparent text-text-mute hover:text-text hover:bg-bg-sunken/60",
-        outline:
-          "bg-transparent text-text border border-line-strong hover:bg-bg-sunken",
-        destructive:
-          "bg-transparent text-bad-ink border border-bad-ink hover:bg-bad-bg",
+        secondary: "bg-bg-sunken text-text border border-line hover:border-line-strong",
+        ghost: "bg-transparent text-text-mute hover:text-text hover:bg-bg-sunken/60",
+        outline: "bg-transparent text-text border border-line-strong hover:bg-bg-sunken",
+        destructive: "bg-transparent text-bad-ink border border-bad-ink hover:bg-bad-bg",
         link: "text-accent underline-offset-4 hover:underline p-0 h-auto bg-transparent border-0",
-        soft:
-          "bg-accent-trace text-accent-deep border border-transparent hover:bg-accent-soft",
+        soft: "bg-accent-trace text-accent-deep border border-transparent hover:bg-accent-soft",
         ink: "bg-ink-400 text-white border border-ink-400 hover:bg-ink-300",
-        danger:
-          "bg-transparent text-bad-ink border border-bad-ink hover:bg-bad-bg",
+        danger: "bg-transparent text-bad-ink border border-bad-ink hover:bg-bad-bg",
       },
       size: {
         sm: "h-8 px-3 text-xs",

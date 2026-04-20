@@ -101,7 +101,9 @@ export function SubContractsTab({ subId, username }: Props) {
             <tbody className="divide-y divide-line">
               {contracts.map((c) => (
                 <tr key={c.id} className="hover:bg-bg-inset transition-colors">
-                  <td className="px-4 py-3 font-mono tabular-nums text-text">{fmtGbp(c.principal)}</td>
+                  <td className="px-4 py-3 font-mono tabular-nums text-text">
+                    {fmtGbp(c.principal)}
+                  </td>
                   <td className="px-4 py-3">
                     <ContractStatusChip status={c.status} />
                   </td>
@@ -109,9 +111,7 @@ export function SubContractsTab({ subId, username }: Props) {
                     {c.status === "active" ? deriveMonthly(c) : "—"}
                   </td>
                   <td className="px-4 py-3 font-mono tabular-nums text-text">{deriveRate(c)}</td>
-                  <td className="px-4 py-3 text-text-faint text-xs">
-                    {fmtDate(c.updated_at)}
-                  </td>
+                  <td className="px-4 py-3 text-text-faint text-xs">{fmtDate(c.updated_at)}</td>
                   <td className="px-4 py-3 text-right">
                     <Button variant="ghost" size="sm" asChild>
                       <Link to={`/debts/${c.slug ?? c.id}`}>View</Link>

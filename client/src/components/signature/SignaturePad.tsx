@@ -37,22 +37,10 @@ export function SignaturePad({ onReady, disabled }: Props) {
         />
       </div>
       <div className="flex gap-3">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={handleClear}
-          disabled={disabled}
-        >
+        <Button type="button" variant="ghost" size="sm" onClick={handleClear} disabled={disabled}>
           Clear
         </Button>
-        <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          onClick={handleSave}
-          disabled={disabled}
-        >
+        <Button type="button" variant="primary" size="sm" onClick={handleSave} disabled={disabled}>
           Save signature
         </Button>
       </div>

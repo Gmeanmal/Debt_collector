@@ -44,9 +44,7 @@ export function Step3Action({ state, errors, onChange }: Props) {
               key={value}
               className={cn(
                 "flex items-start gap-3 rounded-[10px] border p-4 cursor-pointer transition-colors",
-                checked
-                  ? "border-accent bg-accent-trace"
-                  : "border-line hover:border-accent/40",
+                checked ? "border-accent bg-accent-trace" : "border-line hover:border-accent/40",
               )}
             >
               <input

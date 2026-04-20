@@ -23,7 +23,21 @@ const RATING_LABEL: Record<KinkRating, string> = {
   prefer_not_to_say: "Prefer not to say",
 };
 
-type BadgeVariant = "neutral" | "ok" | "warn" | "bad" | "pink" | "ink" | "gold" | "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt";
+type BadgeVariant =
+  | "neutral"
+  | "ok"
+  | "warn"
+  | "bad"
+  | "pink"
+  | "ink"
+  | "gold"
+  | "default"
+  | "primary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "info"
+  | "debt";
 
 const RATING_VARIANT: Record<KinkRating, BadgeVariant> = {
   hard_limit: "bad",

@@ -110,9 +110,7 @@ function SubGroup({
     <section className="flex flex-col gap-3">
       <header className="flex items-baseline gap-2">
         <span className="font-serif italic text-text">{displayName}</span>
-        <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">
-          @{username}
-        </span>
+        <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">@{username}</span>
         <span className="ml-auto font-mono text-[11px] text-text-faint">
           {rituals.length} ritual{rituals.length !== 1 ? "s" : ""}
         </span>

@@ -20,9 +20,7 @@ function RewardRow({ reward, affordable }: { reward: RewardTier; affordable: boo
     <li className="flex items-start justify-between gap-3 py-2 border-b border-line/40 last:border-b-0">
       <div className="flex flex-col min-w-0">
         <span className="text-sm text-text">{reward.name}</span>
-        {reward.description && (
-          <span className="text-xs text-text-mute">{reward.description}</span>
-        )}
+        {reward.description && <span className="text-xs text-text-mute">{reward.description}</span>}
       </div>
       <Badge variant={affordable ? "ok" : "neutral"}>
         {reward.cost} pt{reward.cost === 1 ? "" : "s"}

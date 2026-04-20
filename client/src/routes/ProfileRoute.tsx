@@ -173,9 +173,7 @@ export function ProfileRoute() {
                   placeholder="@yourhandle"
                   maxLength={64}
                 />
-                {paymentHandleError && (
-                  <p className="text-xs text-bad-ink">{paymentHandleError}</p>
-                )}
+                {paymentHandleError && <p className="text-xs text-bad-ink">{paymentHandleError}</p>}
               </div>
               <Button
                 onClick={handleSaveHandle}

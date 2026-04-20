@@ -73,8 +73,6 @@ interface LedgerErrorProps {
 
 export function LedgerError({ message }: LedgerErrorProps) {
   return (
-    <p className="text-sm text-bad-ink">
-      Failed to load: {message ?? "please try again later."}
-    </p>
+    <p className="text-sm text-bad-ink">Failed to load: {message ?? "please try again later."}</p>
   );
 }

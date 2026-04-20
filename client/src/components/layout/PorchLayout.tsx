@@ -38,8 +38,8 @@ export function PorchLayout({ entryTributeAmount }: PorchLayoutProps) {
           </h1>
           {formattedAmount != null ? (
             <p className="font-sans text-[14.5px] leading-relaxed text-text-mute">
-              <span className="font-display italic text-accent-deep">{formattedAmount}</span>{" "}
-              to enter Mean Mal&apos;s house.
+              <span className="font-display italic text-accent-deep">{formattedAmount}</span> to
+              enter Mean Mal&apos;s house.
             </p>
           ) : (
             <p className="font-sans text-[14.5px] leading-relaxed text-text-mute">
@@ -48,9 +48,8 @@ export function PorchLayout({ entryTributeAmount }: PorchLayoutProps) {
           )}
           {user && (
             <p className="font-sans text-[14.5px] leading-relaxed text-text-mute">
-              Welcome,{" "}
-              <span className="text-accent-deep">{user.display_name}</span>. Declare
-              your entry tribute below to unlock full access.
+              Welcome, <span className="text-accent-deep">{user.display_name}</span>. Declare your
+              entry tribute below to unlock full access.
             </p>
           )}
         </div>

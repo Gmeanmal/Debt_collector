@@ -130,9 +130,7 @@ export function IdentityFieldsCard({ user, onSaved }: Props) {
             nullable
             ariaLabel="Gender"
           />
-          <p className="text-xs text-text-mute min-h-[1rem]">
-            {selectedGender?.description ?? ""}
-          </p>
+          <p className="text-xs text-text-mute min-h-[1rem]">{selectedGender?.description ?? ""}</p>
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -167,9 +165,7 @@ export function IdentityFieldsCard({ user, onSaved }: Props) {
             maxLength={200}
           />
           {pendingRealName && (
-            <p className="text-xs text-warn-ink">
-              Real name change is pending goddess approval.
-            </p>
+            <p className="text-xs text-warn-ink">Real name change is pending goddess approval.</p>
           )}
         </div>
 

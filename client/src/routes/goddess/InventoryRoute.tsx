@@ -112,9 +112,11 @@ export function GoddessInventoryRoute() {
     );
   }
 
-  const pageTitle = sub
-    ? <span className="italic">Inventory — {sub.display_name}</span>
-    : <span className="italic">Inventory</span>;
+  const pageTitle = sub ? (
+    <span className="italic">Inventory — {sub.display_name}</span>
+  ) : (
+    <span className="italic">Inventory</span>
+  );
 
   return (
     <div className="p-4 md:p-8">

@@ -51,12 +51,8 @@ function SidebarFooter({ user }: SidebarFooterProps) {
         {disc}
       </div>
       <div className="min-w-0 flex-1 leading-[1.15]">
-        <div className="text-[12.5px] font-semibold text-text truncate">
-          {user.display_name}
-        </div>
-        <div className="font-mono text-[10.5px] text-text-faint truncate">
-          @{handle}
-        </div>
+        <div className="text-[12.5px] font-semibold text-text truncate">{user.display_name}</div>
+        <div className="font-mono text-[10.5px] text-text-faint truncate">@{handle}</div>
       </div>
     </div>
   );

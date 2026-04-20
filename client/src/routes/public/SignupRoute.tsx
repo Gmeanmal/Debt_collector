@@ -128,12 +128,7 @@ export function SignupRoute() {
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="username">Username {REQUIRED_MARK}</Label>
-              <Input
-                id="username"
-                type="text"
-                autoComplete="username"
-                {...register("username")}
-              />
+              <Input id="username" type="text" autoComplete="username" {...register("username")} />
               {errors.username && <p className={ERROR_CLASS}>{errors.username.message}</p>}
             </div>
 

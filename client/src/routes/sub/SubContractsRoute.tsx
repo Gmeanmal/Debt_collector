@@ -120,9 +120,7 @@ export function SubContractsRoute() {
                     <td className="px-4 py-3">
                       <StatusCell contract={c} />
                     </td>
-                    <td className="px-4 py-3 text-text-mute text-xs">
-                      {fmtDate(c.updated_at)}
-                    </td>
+                    <td className="px-4 py-3 text-text-mute text-xs">{fmtDate(c.updated_at)}</td>
                     <td className="px-4 py-3 text-right">
                       <Link
                         to={`/debts/${c.slug ?? c.id}`}

@@ -112,9 +112,7 @@ export function PunishmentTierList({ tiers, subs = [] }: Props) {
                     </option>
                   ))}
                 </select>
-                {invokeState.error && (
-                  <p className="text-xs text-bad-ink">{invokeState.error}</p>
-                )}
+                {invokeState.error && <p className="text-xs text-bad-ink">{invokeState.error}</p>}
                 <div className="flex gap-2 justify-end">
                   <Button variant="ghost" size="sm" onClick={() => setInvokeState(null)}>
                     Cancel

@@ -67,9 +67,7 @@ export function MobileDrawer({ open, onClose, nav, user }: MobileDrawerProps) {
             <div className="text-[12.5px] font-semibold text-text truncate">
               {user.display_name}
             </div>
-            <div className="font-mono text-[10.5px] text-text-faint truncate">
-              @{handle}
-            </div>
+            <div className="font-mono text-[10.5px] text-text-faint truncate">@{handle}</div>
           </div>
         </div>
       </aside>

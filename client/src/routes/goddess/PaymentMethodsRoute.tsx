@@ -136,12 +136,7 @@ function Modal({ title, onClose, children }: ModalProps) {
       <div className="bg-bg-elev border border-line rounded-[10px] w-full max-w-md p-6 shadow-[var(--shadow-card)]">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold text-text">{title}</h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            aria-label="Close modal"
-          >
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close modal">
             ✕
           </Button>
         </div>

@@ -24,7 +24,21 @@ const KIND_LABEL: Record<LimitKind, string> = {
   soft: "Soft limit",
 };
 
-type BadgeVariant = "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt" | "neutral" | "ok" | "warn" | "bad" | "pink" | "ink" | "gold";
+type BadgeVariant =
+  | "default"
+  | "primary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "info"
+  | "debt"
+  | "neutral"
+  | "ok"
+  | "warn"
+  | "bad"
+  | "pink"
+  | "ink"
+  | "gold";
 
 const KIND_VARIANT: Record<LimitKind, BadgeVariant> = {
   hard: "bad",

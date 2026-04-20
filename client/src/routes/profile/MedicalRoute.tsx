@@ -26,10 +26,7 @@ function MedicalPlaceholder() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <PageHeader
-          crumbs={["Home · Profile · Medical"]}
-          title="Medical information"
-        />
+        <PageHeader crumbs={["Home · Profile · Medical"]} title="Medical information" />
         <div className="bg-bg-sunken border border-line rounded-[10px] p-[18px]">
           <p className="text-text">
             Medical module coming soon — your data has not been collected.

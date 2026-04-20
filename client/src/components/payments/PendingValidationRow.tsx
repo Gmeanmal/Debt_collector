@@ -39,7 +39,7 @@ function formatAmount(amount: string): string {
 function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/);
   const first = parts[0]?.[0] ?? "?";
-  const last = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : "";
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : "";
   return (first + last).toUpperCase();
 }
 
@@ -69,10 +69,8 @@ export function PendingValidationRow({
   const subName = declaration.sub_display_name ?? "sub";
   const amountLabel = formatAmount(declaration.amount);
   const rowDescriptor = `${subName} for ${amountLabel}`;
-  const sourceLabel =
-    SOURCE_LABEL[declaration.source as DeclarationSource] ?? declaration.source;
-  const sourceVariant =
-    SOURCE_VARIANT[declaration.source as DeclarationSource] ?? "neutral";
+  const sourceLabel = SOURCE_LABEL[declaration.source as DeclarationSource] ?? declaration.source;
+  const sourceVariant = SOURCE_VARIANT[declaration.source as DeclarationSource] ?? "neutral";
   const proofUrl = declaration.proof_presigned_url ?? null;
   const amountNumber = Number.parseFloat(declaration.amount);
 
@@ -185,12 +183,7 @@ export function PendingValidationRow({
             >
               Approve
             </Button>
-            <Button
-              type="button"
-              onClick={() => onReject(declaration)}
-              variant="soft"
-              size="sm"
-            >
+            <Button type="button" onClick={() => onReject(declaration)} variant="soft" size="sm">
               Reject
             </Button>
           </div>

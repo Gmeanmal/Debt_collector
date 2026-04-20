@@ -78,7 +78,10 @@ export function ProofUploadField({ file, onChange, disabled = false }: ProofUplo
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor="proof" className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
+      <label
+        htmlFor="proof"
+        className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint"
+      >
         Payment proof <span className="text-bad-ink normal-case">*</span>
       </label>
       <p id={helperId} className="text-xs text-text-faint">
@@ -131,10 +134,22 @@ export function ProofUploadField({ file, onChange, disabled = false }: ProofUplo
               {file.name}
             </p>
             <div className="flex flex-wrap gap-2">
-              <Button type="button" variant="secondary" size="sm" onClick={handleReplace} disabled={disabled}>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleReplace}
+                disabled={disabled}
+              >
                 Replace
               </Button>
-              <Button type="button" variant="ghost" size="sm" onClick={handleRemove} disabled={disabled}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleRemove}
+                disabled={disabled}
+              >
                 Remove
               </Button>
             </div>

@@ -28,9 +28,7 @@ export function SectionTitle({
         <h2 className="font-display italic text-[28px] tracking-[-0.02em] text-text leading-[1.05]">
           {title}
         </h2>
-        {description && (
-          <p className="text-sm text-text-mute mt-1 max-w-prose">{description}</p>
-        )}
+        {description && <p className="text-sm text-text-mute mt-1 max-w-prose">{description}</p>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>

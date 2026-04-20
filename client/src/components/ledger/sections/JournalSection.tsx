@@ -26,7 +26,21 @@ const MOOD_LABEL: Record<JournalMood, string> = {
   overwhelmed: "Overwhelmed",
 };
 
-type BadgeVariant = "neutral" | "ok" | "warn" | "bad" | "pink" | "ink" | "gold" | "default" | "primary" | "success" | "warning" | "danger" | "info" | "debt";
+type BadgeVariant =
+  | "neutral"
+  | "ok"
+  | "warn"
+  | "bad"
+  | "pink"
+  | "ink"
+  | "gold"
+  | "default"
+  | "primary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "info"
+  | "debt";
 
 const MOOD_VARIANT: Record<JournalMood, BadgeVariant> = {
   great: "ok",
@@ -46,9 +60,7 @@ function EntryCard({ entry }: { entry: JournalEntry }) {
           <Badge variant={MOOD_VARIANT[entry.mood]}>{MOOD_LABEL[entry.mood]}</Badge>
           {entry.is_private && <Badge variant="neutral">Private</Badge>}
         </div>
-        <span className="text-xs text-text-mute">
-          {formatLondon(entry.created_at, "datetime")}
-        </span>
+        <span className="text-xs text-text-mute">{formatLondon(entry.created_at, "datetime")}</span>
       </div>
       <p className="text-sm text-text whitespace-pre-wrap">{entry.body}</p>
       {entry.read_by_goddess_at && (

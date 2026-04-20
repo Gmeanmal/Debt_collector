@@ -65,9 +65,7 @@ function ChangeRequestRow({ request, onPayFee }: ChangeRequestRowProps) {
     <div className="rounded-[10px] border border-line bg-bg-elev p-[18px] flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <span className="text-xs text-text-mute">{date}</span>
-        <Badge variant={badgeVariant}>
-          {STATUS_LABELS[request.status] ?? request.status}
-        </Badge>
+        <Badge variant={badgeVariant}>{STATUS_LABELS[request.status] ?? request.status}</Badge>
       </div>
 
       {request.proposed_avatar_key && (

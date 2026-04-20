@@ -4,32 +4,32 @@
 
 @theme inline {
   /* NEW editorial palette — use these for all new components */
-  --color-bg:           var(--bg);
-  --color-bg-elev:      var(--bg-elev);
-  --color-bg-sunken:    var(--bg-sunken);
-  --color-bg-inset:     var(--bg-inset);
-  --color-line:         var(--line);
-  --color-line-strong:  var(--line-strong);
-  --color-text:         var(--text);
-  --color-text-mute:    var(--text-mute);
-  --color-text-faint:   var(--text-faint);
-  --color-accent:       var(--accent);
-  --color-accent-ink:   var(--accent-ink);
-  --color-accent-soft:  var(--accent-soft);
+  --color-bg: var(--bg);
+  --color-bg-elev: var(--bg-elev);
+  --color-bg-sunken: var(--bg-sunken);
+  --color-bg-inset: var(--bg-inset);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-text: var(--text);
+  --color-text-mute: var(--text-mute);
+  --color-text-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
   --color-accent-trace: var(--accent-trace);
-  --color-accent-deep:  var(--accent-deep);
-  --color-signal:       var(--signal);
-  --color-signal-soft:  var(--signal-soft);
-  --color-signal-ink:   var(--signal-ink);
-  --color-ok-bg:        var(--ok-bg);
-  --color-ok-ink:       var(--ok-ink);
-  --color-warn-bg:      var(--warn-bg);
-  --color-warn-ink:     var(--warn-ink);
-  --color-bad-bg:       var(--bad-bg);
-  --color-bad-ink:      var(--bad-ink);
+  --color-accent-deep: var(--accent-deep);
+  --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
+  --color-signal-ink: var(--signal-ink);
+  --color-ok-bg: var(--ok-bg);
+  --color-ok-ink: var(--ok-ink);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-ink: var(--warn-ink);
+  --color-bad-bg: var(--bad-bg);
+  --color-bad-ink: var(--bad-ink);
 
   /* Pink scale (full) — so utilities like bg-pink-400 work in Tailwind */
-  --color-pink-50:  #fff0f7;
+  --color-pink-50: #fff0f7;
   --color-pink-100: #ffd9ea;
   --color-pink-200: #ffb0d4;
   --color-pink-300: #ff82ba;
@@ -48,7 +48,7 @@
   --color-lime-500: #6f961a;
 
   /* Cream scale */
-  --color-cream-50:  #fbf6ed;
+  --color-cream-50: #fbf6ed;
   --color-cream-100: #f3ecdd;
   --color-cream-200: #e7dcc3;
   --color-cream-300: #cdbd9c;
@@ -62,56 +62,56 @@
   --color-ink-500: #0f090d;
 
   /* Legacy aliases — keep until phases B–L migrate components */
-  --color-base-bg:              var(--color-base-bg);
-  --color-base-surface:         var(--color-base-surface);
-  --color-base-surface-raised:  var(--color-base-surface-raised);
-  --color-base-border:          var(--color-base-border);
-  --color-base-text:            var(--color-base-text);
-  --color-base-text-muted:      var(--color-base-text-muted);
-  --color-base-text-subtle:     var(--color-base-text-subtle);
-  --color-pink-primary:         var(--color-pink-primary);
-  --color-pink-primary-hover:   var(--color-pink-primary-hover);
-  --color-pink-foreground:      var(--color-pink-foreground);
-  --color-pink-muted:           var(--color-pink-muted);
-  --color-violet-primary:       var(--color-violet-primary);
-  --color-violet-foreground:    var(--color-violet-foreground);
-  --color-gold-accent:          var(--color-gold-accent);
-  --color-gold-foreground:      var(--color-gold-foreground);
-  --color-debt-primary:         var(--color-debt-primary);
-  --color-debt-muted:           var(--color-debt-muted);
-  --color-status-success:       var(--color-status-success);
-  --color-status-warning:       var(--color-status-warning);
-  --color-status-danger:        var(--color-status-danger);
-  --color-status-info:          var(--color-status-info);
+  --color-base-bg: var(--color-base-bg);
+  --color-base-surface: var(--color-base-surface);
+  --color-base-surface-raised: var(--color-base-surface-raised);
+  --color-base-border: var(--color-base-border);
+  --color-base-text: var(--color-base-text);
+  --color-base-text-muted: var(--color-base-text-muted);
+  --color-base-text-subtle: var(--color-base-text-subtle);
+  --color-pink-primary: var(--color-pink-primary);
+  --color-pink-primary-hover: var(--color-pink-primary-hover);
+  --color-pink-foreground: var(--color-pink-foreground);
+  --color-pink-muted: var(--color-pink-muted);
+  --color-violet-primary: var(--color-violet-primary);
+  --color-violet-foreground: var(--color-violet-foreground);
+  --color-gold-accent: var(--color-gold-accent);
+  --color-gold-foreground: var(--color-gold-foreground);
+  --color-debt-primary: var(--color-debt-primary);
+  --color-debt-muted: var(--color-debt-muted);
+  --color-status-success: var(--color-status-success);
+  --color-status-warning: var(--color-status-warning);
+  --color-status-danger: var(--color-status-danger);
+  --color-status-info: var(--color-status-info);
 
   /* shadcn aliases */
-  --color-background:          var(--background);
-  --color-foreground:          var(--foreground);
-  --color-card:                var(--card);
-  --color-card-foreground:     var(--card-foreground);
-  --color-popover:             var(--popover);
-  --color-popover-foreground:  var(--popover-foreground);
-  --color-primary:             var(--primary);
-  --color-primary-foreground:  var(--primary-foreground);
-  --color-secondary:           var(--secondary);
-  --color-secondary-foreground:var(--secondary-foreground);
-  --color-muted:               var(--muted);
-  --color-muted-foreground:    var(--muted-foreground);
-  --color-accent-foreground:   var(--accent-foreground);
-  --color-destructive:         var(--destructive);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  --color-border:              var(--border);
-  --color-input:               var(--input);
-  --color-ring:                var(--ring);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
 
-  --font-sans:    "Inter", "Söhne", system-ui, -apple-system, sans-serif;
+  --font-sans: "Inter", "Söhne", system-ui, -apple-system, sans-serif;
   --font-display: "Playfair Display", "GT Sectra", Georgia, serif;
-  --font-serif:   "Playfair Display", "GT Sectra", Georgia, serif;
-  --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  --font-serif: "Playfair Display", "GT Sectra", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
 }
 
 html {
@@ -142,13 +142,7 @@ h2,
 
 /* Hairline divider helper — hangover from old charter, still used by some components */
 .luxe-hairline {
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--line) 20%,
-    var(--line) 80%,
-    transparent
-  );
+  background: linear-gradient(to right, transparent, var(--line) 20%, var(--line) 80%, transparent);
 }
 
 /* Legacy card surface helper — used by Card until step 7 rewrites it */

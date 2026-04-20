@@ -79,16 +79,11 @@ export function PendingAdjustmentsPanel() {
               <p className="font-semibold text-text text-sm">{fmtGbp(adj.amount)}</p>
               <p className="text-xs text-text-mute mt-0.5">
                 Proposed {fmtDate(adj.created_at)} ·{" "}
-                <Link
-                  to={`/debts/${adj.contract_id}`}
-                  className="text-accent hover:underline"
-                >
+                <Link to={`/debts/${adj.contract_id}`} className="text-accent hover:underline">
                   view contract
                 </Link>
               </p>
-              {adj.reason && (
-                <p className="text-xs text-text-faint italic mt-1">{adj.reason}</p>
-              )}
+              {adj.reason && <p className="text-xs text-text-faint italic mt-1">{adj.reason}</p>}
             </div>
             <div className="flex gap-2">
               <Button

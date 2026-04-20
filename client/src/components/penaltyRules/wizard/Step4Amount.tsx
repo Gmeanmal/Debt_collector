@@ -89,9 +89,7 @@ export function Step4Amount({ state, errors, onChange }: Props) {
                 className={inputCls}
                 aria-label="Fee percentage"
               />
-              {errors.feePercent && (
-                <p className="text-xs text-bad-ink">{errors.feePercent}</p>
-              )}
+              {errors.feePercent && <p className="text-xs text-bad-ink">{errors.feePercent}</p>}
             </div>
           )}
         </div>
@@ -104,9 +102,7 @@ export function Step4Amount({ state, errors, onChange }: Props) {
             <span className="normal-case font-normal text-accent-deep ml-1">*</span>
           )}
           {action === "notify_only" && (
-            <span className="normal-case font-normal text-text-mute ml-1">
-              (allow negative)
-            </span>
+            <span className="normal-case font-normal text-text-mute ml-1">(allow negative)</span>
           )}
         </label>
         <input
@@ -130,8 +126,7 @@ export function Step4Amount({ state, errors, onChange }: Props) {
         <div className="mt-4 flex flex-col gap-4 border-l-2 border-line/50 pl-4">
           <div className="flex flex-col gap-1">
             <label htmlFor="wizard-name" className={labelCls}>
-              Name{" "}
-              <span className="normal-case font-normal text-text-mute">(optional slug)</span>
+              Name <span className="normal-case font-normal text-text-mute">(optional slug)</span>
             </label>
             <input
               id="wizard-name"
@@ -162,9 +157,7 @@ export function Step4Amount({ state, errors, onChange }: Props) {
               className={inputCls}
               aria-label="Cooldown hours"
             />
-            {errors.cooldownHours && (
-              <p className="text-xs text-bad-ink">{errors.cooldownHours}</p>
-            )}
+            {errors.cooldownHours && <p className="text-xs text-bad-ink">{errors.cooldownHours}</p>}
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer select-none">

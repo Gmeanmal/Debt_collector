@@ -95,9 +95,11 @@ export function JournalReaderRoute() {
   const allEntries = pages.flat().concat(entries);
   const hasMore = entries.length === PAGE_LIMIT;
 
-  const pageTitle = selectedSub
-    ? <span className="italic">{selectedSub.display_name}'s journal</span>
-    : <span className="italic">Journal</span>;
+  const pageTitle = selectedSub ? (
+    <span className="italic">{selectedSub.display_name}'s journal</span>
+  ) : (
+    <span className="italic">Journal</span>
+  );
 
   return (
     <div className="p-4 md:p-8">
@@ -109,9 +111,7 @@ export function JournalReaderRoute() {
         />
 
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-semibold text-text-faint uppercase tracking-wide">
-            Sub
-          </span>
+          <span className="text-xs font-semibold text-text-faint uppercase tracking-wide">Sub</span>
           <SearchableSelect<GoddessSub>
             options={subs}
             value={selectedSub}
@@ -123,9 +123,7 @@ export function JournalReaderRoute() {
             renderOption={(s) => (
               <span className="flex items-center gap-2 min-w-0">
                 <span className="flex-1 min-w-0">
-                  <span className="block truncate font-medium text-text">
-                    {s.display_name}
-                  </span>
+                  <span className="block truncate font-medium text-text">{s.display_name}</span>
                   <span className="block truncate text-xs text-text-mute">@{s.username}</span>
                 </span>
               </span>

@@ -19,10 +19,7 @@ function formatDue(dueAt: string): string {
   return formatLondon(dueAt, "datetime");
 }
 
-const STATUS_BADGE: Record<
-  string,
-  "neutral" | "warn" | "ok" | "bad" | "pink" | "default"
-> = {
+const STATUS_BADGE: Record<string, "neutral" | "warn" | "ok" | "bad" | "pink" | "default"> = {
   open: "warn",
   submitted: "pink",
   approved: "ok",

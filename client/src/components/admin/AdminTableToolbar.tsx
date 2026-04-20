@@ -40,9 +40,7 @@ export function AdminTableToolbar({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
-        <h2 className="font-serif italic text-xl text-text tracking-tight">
-          {label}
-        </h2>
+        <h2 className="font-serif italic text-xl text-text tracking-tight">{label}</h2>
         <span className="font-mono text-[10px] text-text-faint uppercase tracking-[0.14em]">
           {total} total
         </span>
@@ -57,7 +55,13 @@ export function AdminTableToolbar({
           <Button type="submit" variant="ghost" size="sm">
             Search
           </Button>
-          <Button type="button" variant="ghost" size="sm" onClick={onExportCsv} aria-label="Export CSV">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onExportCsv}
+            aria-label="Export CSV"
+          >
             Export CSV
           </Button>
           {canCreate && (

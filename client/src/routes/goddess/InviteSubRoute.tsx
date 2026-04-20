@@ -75,10 +75,7 @@ export function InviteSubRoute() {
         <div className="bg-bg-elev border border-line rounded-[10px] p-[18px]">
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">
-              <label
-                htmlFor="entry_tribute_amount"
-                className="text-sm font-medium text-text-mute"
-              >
+              <label htmlFor="entry_tribute_amount" className="text-sm font-medium text-text-mute">
                 Entry tribute <span className="text-bad-ink">*</span>
               </label>
               <div className="flex items-center bg-bg-sunken border border-line rounded-md focus-within:ring-2 focus-within:ring-accent">

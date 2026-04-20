@@ -115,9 +115,7 @@ export function ContractsSection() {
             </div>
             <div className="bg-bg-sunken border border-line rounded p-2">
               <p className="text-text-mute uppercase tracking-wide">Remaining</p>
-              <p className="text-text font-semibold text-sm">
-                {formatGBP(summary.totalRemaining)}
-              </p>
+              <p className="text-text font-semibold text-sm">{formatGBP(summary.totalRemaining)}</p>
             </div>
           </div>
 

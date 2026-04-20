@@ -44,9 +44,7 @@ function ForgiveModal({ entry, onClose }: ForgiveModalProps) {
 
   return (
     <Modal title="Forgive sub" onClose={onClose}>
-      <p className="text-xs text-text-mute">
-        Balance at breach: {fmtGbp(entry.balance_snapshot)}
-      </p>
+      <p className="text-xs text-text-mute">Balance at breach: {fmtGbp(entry.balance_snapshot)}</p>
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-text" htmlFor="fee">
           Reinstatement fee paid (GBP)
@@ -120,11 +118,7 @@ export function BlacklistRoute() {
         </>
       );
     }
-    return (
-      <span className="text-text-faint">
-        {isAdmin ? subId : "Unknown sub"}
-      </span>
-    );
+    return <span className="text-text-faint">{isAdmin ? subId : "Unknown sub"}</span>;
   }
 
   return (
@@ -185,12 +179,7 @@ export function BlacklistRoute() {
                     )}
                   </div>
                   {!forgiven && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setTarget(e)}
-                    >
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setTarget(e)}>
                       Forgive
                     </Button>
                   )}

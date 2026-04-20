@@ -22,7 +22,12 @@ export const DropdownMenuSubTrigger = React.forwardRef<
 >(({ className, inset, children, ...props }, ref) => (
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
-    className={cn(itemBase, "data-[state=open]:bg-accent-trace data-[state=open]:text-accent-deep", inset && "pl-8", className)}
+    className={cn(
+      itemBase,
+      "data-[state=open]:bg-accent-trace data-[state=open]:text-accent-deep",
+      inset && "pl-8",
+      className,
+    )}
     {...props}
   >
     {children}
@@ -90,11 +95,7 @@ export const DropdownMenuRadioItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.RadioItem>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.RadioItem>
 >(({ className, children, ...props }, ref) => (
-  <DropdownMenuPrimitive.RadioItem
-    ref={ref}
-    className={cn(itemBase, "pl-8", className)}
-    {...props}
-  >
+  <DropdownMenuPrimitive.RadioItem ref={ref} className={cn(itemBase, "pl-8", className)} {...props}>
     <span className="absolute left-2 flex h-4 w-4 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
         <Circle className="h-2 w-2 fill-current" />
@@ -138,9 +139,6 @@ export function DropdownMenuShortcut({
   ...props
 }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
-    <span
-      className={cn("ml-auto text-[10px] font-mono text-text-faint", className)}
-      {...props}
-    />
+    <span className={cn("ml-auto text-[10px] font-mono text-text-faint", className)} {...props} />
   );
 }

@@ -46,9 +46,7 @@ export function ForgotPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
-      <p className="text-sm text-text-mute">
-        Enter your email and we will send you a reset link.
-      </p>
+      <p className="text-sm text-text-mute">Enter your email and we will send you a reset link.</p>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="email">Email</Label>
@@ -65,13 +63,7 @@ export function ForgotPasswordForm() {
         )}
       </div>
 
-      <Button
-        type="submit"
-        variant="primary"
-        size="lg"
-        disabled={isSubmitting}
-        className="mt-2"
-      >
+      <Button type="submit" variant="primary" size="lg" disabled={isSubmitting} className="mt-2">
         {isSubmitting ? "Sending…" : "Send reset link"}
       </Button>
 

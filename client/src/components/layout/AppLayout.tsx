@@ -51,8 +51,12 @@ interface ActiveMatch {
   item: NavItem;
 }
 
-function findActive(nav: NavGroup[], pathname: string, role: UserRole | undefined): ActiveMatch | null {
-  const target = pathname === "/" ? rootRedirectFor(role) ?? "/" : pathname;
+function findActive(
+  nav: NavGroup[],
+  pathname: string,
+  role: UserRole | undefined,
+): ActiveMatch | null {
+  const target = pathname === "/" ? (rootRedirectFor(role) ?? "/") : pathname;
   for (const section of nav) {
     for (const item of section.items) {
       if (item.to === target) return { group: section.group, item };
@@ -121,15 +125,8 @@ export function AppLayout({ children }: AppLayoutProps) {
               user={user}
               onLogout={() => void logout()}
             />
-            <Topbar
-              crumbs={crumbs}
-              title={title}
-              user={user}
-              onLogout={() => void logout()}
-            />
-            <main className="flex-1 min-w-0 overflow-y-auto px-6 md:px-8 py-6">
-              {children}
-            </main>
+            <Topbar crumbs={crumbs} title={title} user={user} onLogout={() => void logout()} />
+            <main className="flex-1 min-w-0 overflow-y-auto px-6 md:px-8 py-6">{children}</main>
           </div>
         </div>
       ) : (

@@ -89,9 +89,7 @@ export function SubProfileCard({ sub, isLoading = false }: SubProfileCardProps) 
         avatarFallback
       )}
       <div className="flex flex-col gap-1.5 min-w-0">
-        <h2 className="font-serif italic text-2xl text-text truncate">
-          {sub.display_name}
-        </h2>
+        <h2 className="font-serif italic text-2xl text-text truncate">{sub.display_name}</h2>
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono text-[11px] tracking-[0.08em] text-text-faint">
             @{sub.username}
