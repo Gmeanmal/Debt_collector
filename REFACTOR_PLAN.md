@@ -274,7 +274,7 @@ Existing screens with **no direct mock** (keep logic, restyle with primitives):
 ### Phase M · Polish, smoke, tests
 
 - [x] **Step 48 — Notification popover screen (45).** Match serif eyebrow + per-item rows; group "Today / Earlier". _Files: `client/src/components/layout/NotificationItem.tsx`, `NotificationBell.tsx`._
-- [ ] **Step 49 — Visual regression baseline.** Run Playwright snapshots, regenerate if diffs are expected. _Files: `client/e2e/**/*.spec.ts` snapshots._
+- [x] **Step 49 — Visual regression baseline.** Run Playwright snapshots, regenerate if diffs are expected. _Files: `client/e2e/**/*.spec.ts` snapshots._
 - [ ] **Step 50 — Smoke: `pnpm typecheck`, `pnpm lint`, `pnpm test:unit`, `pnpm test:e2e`.** Fix anything that regressed on pure presentation. _Files: whatever surfaces._
 - [ ] **Step 51 — Dev browser smoke.** Boot `make server` + `make client`, hit every top-level route in both themes, confirm no remaining inline hex / inline style / unmapped old utility. _Files: n/a — QA step._
 
