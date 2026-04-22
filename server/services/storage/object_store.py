@@ -4,9 +4,10 @@ Dev targets local MinIO (port 4015). Prod targets AWS S3, Cloudflare R2, or Back
 by changing only the S3_* env vars — no code changes required.
 """
 
+import datetime as dt
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from aiobotocore.session import get_session
 
@@ -32,6 +33,14 @@ class _S3Client(Protocol):
     ) -> str: ...
 
     async def delete_object(self, *, Bucket: str, Key: str) -> object: ...
+
+    async def list_objects_v2(
+        self,
+        *,
+        Bucket: str,
+        Prefix: str = ...,
+        ContinuationToken: str = ...,
+    ) -> dict[str, Any]: ...
 
     async def __aenter__(self) -> "_S3Client": ...
 
@@ -95,3 +104,35 @@ async def delete_object(
     cfg = settings or get_settings()
     async with _client(cfg) as client:
         await client.delete_object(Bucket=bucket, Key=key)
+
+
+async def list_objects(
+    bucket: str,
+    prefix: str = "",
+    settings: Settings | None = None,
+) -> AsyncGenerator[tuple[str, dt.datetime], None]:
+    """Yield (key, last_modified_utc) for every object in ``bucket`` under ``prefix``.
+
+    Paginates through list_objects_v2 transparently. ``last_modified_utc`` is naive
+    (UTC) for symmetry with the rest of the codebase.
+    """
+    cfg = settings or get_settings()
+    async with _client(cfg) as client:
+        token: str | None = None
+        while True:
+            kwargs: dict[str, Any] = {"Bucket": bucket, "Prefix": prefix}
+            if token is not None:
+                kwargs["ContinuationToken"] = token
+            resp = await client.list_objects_v2(**kwargs)
+            for item in resp.get("Contents", []) or []:
+                key = item.get("Key")
+                last_modified = item.get("LastModified")
+                if key is None or last_modified is None:
+                    continue
+                # aiobotocore returns tz-aware UTC; strip tz for repo-wide naive-UTC convention.
+                yield key, last_modified.astimezone(dt.UTC).replace(tzinfo=None)
+            if not resp.get("IsTruncated"):
+                break
+            token = resp.get("NextContinuationToken")
+            if token is None:
+                break

@@ -75,6 +75,9 @@ class Settings(BaseSettings):
     s3_bucket_payment_proofs: str = "payment-proofs"
     s3_bucket_journal_attachments: str = "journal-attachments"
 
+    proof_janitor_grace_hours: int = 24
+    proof_janitor_batch_cap: int = 1000
+
     root_kek_b64: str = ""
     root_kek_version: int = 1
 

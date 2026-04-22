@@ -87,7 +87,6 @@ class PaymentController:
         proof_key = build_proof_key(goddess_id, sub_user.id, declaration_uuid, proof_mime)
 
         settings = get_settings()
-        # TODO(DECLARE-follow-up): janitor cron for orphans
         await object_store.upload_object(
             bucket=settings.s3_bucket_payment_proofs,
             key=proof_key,
@@ -96,7 +95,9 @@ class PaymentController:
             settings=settings,
         )
 
-        # TODO(DECLARE-follow-up): handle upload/insert race
+        # If the create below raises, the uploaded object becomes an orphan.
+        # The daily proof_janitor (services/cron/proof_janitor.py) cleans them up
+        # once they fall outside the grace window.
         decl = await self._decl_dao.create(
             {
                 "id": declaration_uuid,

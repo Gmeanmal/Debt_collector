@@ -4,6 +4,17 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+- **MINIO-JANITOR-1 orphan payment-proof cleanup cron** (ref `planning/todo.md` W4 DECLARE-1 known follow-up, `feat(payments)`):
+  - **Why:** the declare-as-sub flow uploads the proof to MinIO/S3 *before* inserting the `payment_declaration` row. A DB rollback after a successful upload leaves the object orphaned (no row, bytes still in the bucket). Two `TODO(DECLARE-follow-up)` markers in `controllers/payment/controller.py` flagged this since DECLARE-1 shipped.
+  - **`services/cron/proof_janitor.py`** — `run_proof_janitor(session, *, dry_run, now, settings) -> JanitorSummary`. Compares every key under the `payment-proofs` bucket against `PaymentDeclarationDao.all_proof_keys()` (new); deletes orphans whose `LastModified` is older than `settings.proof_janitor_grace_hours` (default 24 h). Hard cap at `settings.proof_janitor_batch_cap` deletes per run (default 1000) so a broken state can't balloon into a giant S3 bill in one tick. Returns a structured summary (scanned / referenced / orphan_candidates / within_grace / deleted / dry_run / batch_capped) — same summary used by dry-run and real runs.
+  - **`services/storage/object_store.list_objects(bucket, prefix)`** — async generator over `(key, last_modified_utc)`, paginates through `list_objects_v2` transparently. `_S3Client` Protocol extended.
+  - **`PaymentDeclarationDao.all_proof_keys()`** — returns the set of every non-null `proof_key` currently in the table. Single query.
+  - **Scheduler wiring** — `workers/daily_cron.py` fires `_proof_janitor_job()` at **03:00 Europe/London** daily, after the overnight quiet period but before the 08:00 main cron. Honours the existing `CRON_ENABLED` flag.
+  - **Config** — `proof_janitor_grace_hours: int = 24`, `proof_janitor_batch_cap: int = 1000` in `core/config.Settings`. No `.env.example` change required (defaults work for dev).
+  - **Controller cleanup** — removed the two `TODO(DECLARE-follow-up)` markers in `declare_as_sub`; replaced with a one-line explainer pointing at the janitor.
+  - **Smoke test:** seeded two synthetic orphans under `janitor-test/*.jpg`, ran dry-run with grace=now+1s → flagged both, ran real-run with simulated `now = real_now + 25h` → deleted both + one pre-existing orphan, bucket empty after. Referenced keys (when seeded declarations have proof_keys) are never touched.
+
 ### Fixed
 - **HOTFIX-2 unify late-contract timezone convention** (ref `planning/todo.md` W4 LATE-1 known follow-ups, `fix(payments)`):
   - **`DashboardSummaryController._count_late_contracts` switched from London date arithmetic to UTC-naive**, matching `DashboardController._contracts_late_map` and `GoddessViewsController.late_contracts`. Before: summary KPI could disagree with `/goddess/late` list by one day at midnight BST / GMT boundaries (the exact ghost-KPI failure mode LATE-1 set out to kill). After: the three surfaces share the same predicate — summary, list and dashboard late-card tile will never drift. Verified on seeded data: summary `late_contract_count=1` reconciles with `GET /goddess/contracts/late` list length 1.

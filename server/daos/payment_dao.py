@@ -139,3 +139,12 @@ class PaymentDeclarationDao:
         now = datetime.now(UTC).replace(tzinfo=None)
         delta = now - oldest
         return int(delta.total_seconds() // 3600)
+
+    async def all_proof_keys(self) -> set[str]:
+        """Return every non-null ``proof_key`` currently referenced by a declaration."""
+        result = await self._session.execute(
+            select(PaymentDeclaration.proof_key).where(
+                col(PaymentDeclaration.proof_key).is_not(None)
+            )
+        )
+        return {k for k in result.scalars().all() if k}

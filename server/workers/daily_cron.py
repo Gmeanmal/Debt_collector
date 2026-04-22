@@ -7,6 +7,7 @@ from apscheduler.triggers.cron import CronTrigger
 from controllers.cron_controller import CronController
 from core.db import SessionMaker
 from services.cron.contracts import run_auto_extend_renewals, run_review_reminders
+from services.cron.proof_janitor import run_proof_janitor
 from services.cron.rituals import (
     london_today,
     mark_missed_for_today,
@@ -50,6 +51,11 @@ async def _run_contract_09_job() -> None:
     )
 
 
+async def _proof_janitor_job() -> None:
+    async with SessionMaker() as session:
+        await run_proof_janitor(session, dry_run=False)
+
+
 def start_scheduler() -> AsyncIOScheduler:
     scheduler = AsyncIOScheduler(timezone=LONDON)
     scheduler.add_job(
@@ -76,6 +82,12 @@ def start_scheduler() -> AsyncIOScheduler:
         id="contract_09_job",
         replace_existing=True,
     )
+    scheduler.add_job(
+        _proof_janitor_job,
+        CronTrigger(hour=3, minute=0),
+        id="proof_janitor_job",
+        replace_existing=True,
+    )
     scheduler.start()
     log.info(
         "scheduler_started",
@@ -84,6 +96,7 @@ def start_scheduler() -> AsyncIOScheduler:
             "seed_ritual_occurrences_job": "00:00 Europe/London",
             "mark_missed_ritual_occurrences_job": "23:59 Europe/London",
             "contract_09_job": "09:00 Europe/London (review reminders + auto-extend)",
+            "proof_janitor_job": "03:00 Europe/London (orphan payment-proof cleanup)",
         },
     )
     return scheduler
