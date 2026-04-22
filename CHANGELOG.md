@@ -5,6 +5,13 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **NTH-CEREMONY-1 opt-in full-screen ceremony mode for contract signing** (closes `NTH-ceremony` backlog, `feat(contracts)`):
+  - **`ContractCeremony` component** (`client/src/components/contracts/ContractCeremony.tsx`, 202 lines) — full-screen `role="dialog" aria-modal` overlay. 3 steps: (1) ornate "The Goddess & Her Sub" header panel with principal / rate / periods summary; (2) one clause per screen, rendered serif-italic title + prose body, "Read — Ns" button disabled with a live countdown (default 8 s / clause); (3) signature pad captured via the existing `<SignaturePad>` primitive.
+  - **Gated progression:** the "I read this — continue" button is keyboard-blocked and `aria-disabled` until the countdown reaches 0, so the sub cannot skim past clauses. Countdown resets per clause via `useCountdown(seconds, resetKey=clause.id)`. Esc key exits ceremony at any step.
+  - **`ContractSignRoute` gets an opt-in toggle** — a small card above the plain signature pad offers "Enter ceremony". When activated, the route swaps to the ceremony overlay. Abort returns to the plain form; a successful signature exits via the existing `signMutation` onSuccess (same navigation as before).
+  - **Playwright-walked:** logged in as `sub_dan`, injected a `pending_sub_signature` status + three seeded clauses_json rows, entered ceremony → header panel renders correct money tiles → clause 1 "Tribute fidelity" shows countdown `Read — 3s` (screenshots in `.review-screenshots/NTH-CEREMONY-1/`). Seed reverted after walk.
+  - **Gate:** both new files under the 300-line cap (202 + 179). `pnpm tsc --noEmit` + `pnpm lint` clean; named exports only; no inline CSS; no UUIDs leaked (contract_id only shown for `isAdmin` on the plain path, unchanged).
+
 - **RATE-LIMIT-WARN-2 extend soft rate-limit warning to photo + profile-change modals** (`feat(payments)`):
   - **`GoddessRateLimitsOut` now exposes three counters** — `payment_rejections_today`, `photo_rejections_today`, `profile_change_rejections_today` — plus a single shared `rejections_threshold` replacing the earlier per-kind `payment_rejections_threshold`. One grouped `SELECT action, COUNT(*) FROM admin_action ... GROUP BY action` query instead of three.
   - **New shared hook `useRejectWarning(kind)`** (`client/src/hooks/useRejectWarning.tsx`) — consults the rate-limits query, returns the warning string or `undefined`. Kinds: `"payment" | "photo" | "profile_change"`. Pluralises the noun, reuses the staleTime-30s-cached query across all consumers so the modal open path fires at most one fetch per 30 s regardless of which reject surface is in view.

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SignaturePad } from "@/components/signature/SignaturePad";
+import { ContractCeremony } from "@/components/contracts/ContractCeremony";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,6 +25,7 @@ export function ContractSignRoute() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const [ceremony, setCeremony] = useState(false);
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
@@ -102,6 +104,18 @@ export function ContractSignRoute() {
     );
   }
 
+  if (ceremony) {
+    return (
+      <ContractCeremony
+        contract={contract}
+        pending={signMutation.isPending}
+        error={error}
+        onSign={(sigB64) => signMutation.mutate(sigB64)}
+        onAbort={() => setCeremony(false)}
+      />
+    );
+  }
+
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
@@ -123,6 +137,24 @@ export function ContractSignRoute() {
             {error}
           </p>
         )}
+
+        <div className="flex items-center justify-between rounded-[6px] border border-line bg-bg-elev px-4 py-3">
+          <div>
+            <p className="text-sm font-semibold text-text">Take your time.</p>
+            <p className="text-xs text-text-mute">
+              Enter ceremony mode to read each clause one by one before signing.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="soft"
+            size="sm"
+            onClick={() => setCeremony(true)}
+            aria-label="Enter ceremony signing mode"
+          >
+            Enter ceremony
+          </Button>
+        </div>
 
         <Card>
           <SignaturePad onReady={handleReady} disabled={signMutation.isPending} />
