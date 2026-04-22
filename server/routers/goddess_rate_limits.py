@@ -58,6 +58,15 @@ class GoddessRateLimitsOut(BaseModel):
         ),
         examples=[0],
     )
+    review_queue_reject_calls_today: int = Field(
+        ...,
+        description=(
+            "Number of review-queue bulk calls with `action=reject` authored by this "
+            "goddess since midnight Europe/London. Extracted from "
+            "`admin_action.payload_json->'body'->>'action'`."
+        ),
+        examples=[2],
+    )
     rejections_threshold: int = Field(
         ...,
         description=(
@@ -91,15 +100,32 @@ async def _count_per_action(
     return {action: int(count) for action, count in result.all()}
 
 
+async def _count_review_queue_rejects(
+    session: AsyncSession, admin_id: UUID, start_utc: dt.datetime
+) -> int:
+    """Count review-queue bulk calls where the submitted body had ``action=reject``."""
+    body_action = AdminAction.payload_json["body"]["action"].astext  # type: ignore[index]
+    result = await session.execute(
+        select(func.count()).where(
+            col(AdminAction.admin_id) == admin_id,
+            col(AdminAction.action) == "review_queue_bulk_action",
+            body_action == "reject",
+            col(AdminAction.created_at) >= start_utc,
+        )
+    )
+    return int(result.scalar_one() or 0)
+
+
 @router.get(
     "/rate-limits",
     summary="Daily rate-limit counters for the calling goddess",
     description=(
         "Returns counters the UI uses to surface soft warnings (e.g. an inline banner "
         "above the `RejectModal` textarea when the goddess has already rejected many "
-        "items today). Counters cover `payment_rejected`, `photo_rejected`, and "
-        "`profile_change_rejected` audit kinds; they reset at midnight Europe/London "
-        "and are derived from `admin_action` rows — no caching layer. Goddess only."
+        "items today). Counters cover `payment_rejected`, `photo_rejected`, "
+        "`profile_change_rejected`, and the reject-flavoured `review_queue_bulk_action` "
+        "audit kinds; they reset at midnight Europe/London and are derived from "
+        "`admin_action` rows — no caching layer. Goddess only."
     ),
     response_model=GoddessRateLimitsOut,
     status_code=200,
@@ -111,10 +137,13 @@ async def get_rate_limits(
     session: AsyncSession = Depends(get_session),
 ) -> GoddessRateLimitsOut:
     settings = get_settings()
-    counts = await _count_per_action(session, user.id, _today_start_utc())
+    start_utc = _today_start_utc()
+    counts = await _count_per_action(session, user.id, start_utc)
+    rq_rejects = await _count_review_queue_rejects(session, user.id, start_utc)
     return GoddessRateLimitsOut(
         payment_rejections_today=counts.get("payment_rejected", 0),
         photo_rejections_today=counts.get("photo_rejected", 0),
         profile_change_rejections_today=counts.get("profile_change_rejected", 0),
+        review_queue_reject_calls_today=rq_rejects,
         rejections_threshold=settings.goddess_reject_threshold_per_day,
     )

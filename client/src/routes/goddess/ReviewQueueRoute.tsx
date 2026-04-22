@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { PageHeader } from "@/components/ui/page-header";
+import { queryKeys } from "@/lib/queryKeys";
 
 export function ReviewQueueRoute() {
   const qc = useQueryClient();
@@ -42,7 +43,8 @@ export function ReviewQueueRoute() {
         setDetailsOpen(false);
       }
       setSelected(new Set());
-      qc.invalidateQueries({ queryKey: reviewQueueKey });
+      void qc.invalidateQueries({ queryKey: reviewQueueKey });
+      void qc.invalidateQueries({ queryKey: queryKeys.goddess.rateLimits() });
     },
     onError: (err: Error) => {
       toast.error(err.message ?? "Bulk action failed");

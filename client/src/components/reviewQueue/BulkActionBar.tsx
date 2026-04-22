@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { RejectModal } from "@/components/shared/RejectModal";
+import { useRejectWarning } from "@/hooks/useRejectWarning";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 export function BulkActionBar({ selectedCount, isPending, onApprove, onReject }: Props) {
   const [rejectOpen, setRejectOpen] = useState(false);
+  const warning = useRejectWarning("review_queue");
 
   if (selectedCount === 0) return null;
 
@@ -37,6 +39,7 @@ export function BulkActionBar({ selectedCount, isPending, onApprove, onReject }:
         <RejectModal
           title="Reject selected"
           description={`Reject ${selectedCount} selected item${selectedCount === 1 ? "" : "s"}`}
+          warning={warning}
           placeholder="Explain why these items are being rejected…"
           onClose={() => setRejectOpen(false)}
           onConfirm={async (reason) => {

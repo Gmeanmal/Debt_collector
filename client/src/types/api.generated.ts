@@ -2691,7 +2691,7 @@ export interface paths {
         };
         /**
          * Daily rate-limit counters for the calling goddess
-         * @description Returns counters the UI uses to surface soft warnings (e.g. an inline banner above the `RejectModal` textarea when the goddess has already rejected many items today). Counters cover `payment_rejected`, `photo_rejected`, and `profile_change_rejected` audit kinds; they reset at midnight Europe/London and are derived from `admin_action` rows — no caching layer. Goddess only.
+         * @description Returns counters the UI uses to surface soft warnings (e.g. an inline banner above the `RejectModal` textarea when the goddess has already rejected many items today). Counters cover `payment_rejected`, `photo_rejected`, `profile_change_rejected`, and the reject-flavoured `review_queue_bulk_action` audit kinds; they reset at midnight Europe/London and are derived from `admin_action` rows — no caching layer. Goddess only.
          */
         get: operations["get_rate_limits_goddess_me_rate_limits_get"];
         put?: never;
@@ -6996,6 +6996,12 @@ export interface components {
              * @example 0
              */
             profile_change_rejections_today: number;
+            /**
+             * Review Queue Reject Calls Today
+             * @description Number of review-queue bulk calls with `action=reject` authored by this goddess since midnight Europe/London. Extracted from `admin_action.payload_json->'body'->>'action'`.
+             * @example 2
+             */
+            review_queue_reject_calls_today: number;
             /**
              * Rejections Threshold
              * @description Soft advisory threshold — when any kind-specific counter reaches it, UI surfaces a banner to slow the goddess down. Shared across all reject kinds. Configurable via `GODDESS_REJECT_THRESHOLD_PER_DAY` env var.

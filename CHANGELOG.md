@@ -5,6 +5,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **RATE-LIMIT-WARN-3 extend warning to review-queue bulk reject** (`feat(payments)`):
+  - **New counter `review_queue_reject_calls_today`** on `GoddessRateLimitsOut`. Counts `admin_action` rows where `action='review_queue_bulk_action' AND payload_json->'body'->>'action'='reject'` — isolates reject-flavoured bulk calls from approve-flavoured ones without having to change the audited kind string. One extra query per `/goddess/me/rate-limits` fetch.
+  - **`useRejectWarning` gains `"review_queue"` kind** with noun `"review-queue batch"`. `BulkActionBar` pipes the returned warning into its `RejectModal`.
+  - **`ReviewQueueRoute.bulkMutation.onSuccess`** now also invalidates `queryKeys.goddess.rateLimits()` so the counter ticks live after a reject commits.
+  - **Smoke-tested:** seeded one reject-kind + one approve-kind `review_queue_bulk_action` row; endpoint returned `review_queue_reject_calls_today: 1` (approve row correctly ignored). Rows cleaned.
+
 - **NTH-CEREMONY-1 opt-in full-screen ceremony mode for contract signing** (closes `NTH-ceremony` backlog, `feat(contracts)`):
   - **`ContractCeremony` component** (`client/src/components/contracts/ContractCeremony.tsx`, 202 lines) — full-screen `role="dialog" aria-modal` overlay. 3 steps: (1) ornate "The Goddess & Her Sub" header panel with principal / rate / periods summary; (2) one clause per screen, rendered serif-italic title + prose body, "Read — Ns" button disabled with a live countdown (default 8 s / clause); (3) signature pad captured via the existing `<SignaturePad>` primitive.
   - **Gated progression:** the "I read this — continue" button is keyboard-blocked and `aria-disabled` until the countdown reaches 0, so the sub cannot skim past clauses. Countdown resets per clause via `useCountdown(seconds, resetKey=clause.id)`. Esc key exits ceremony at any step.

@@ -5,12 +5,13 @@ import {
 } from "@/services/goddess/rateLimitsApi";
 import { queryKeys } from "@/lib/queryKeys";
 
-export type RejectKind = "payment" | "photo" | "profile_change";
+export type RejectKind = "payment" | "photo" | "profile_change" | "review_queue";
 
 const NOUN: Record<RejectKind, string> = {
   payment: "payment",
   photo: "photo",
   profile_change: "profile change",
+  review_queue: "review-queue batch",
 };
 
 function countFor(data: GoddessRateLimitsOut, kind: RejectKind): number {
@@ -21,6 +22,8 @@ function countFor(data: GoddessRateLimitsOut, kind: RejectKind): number {
       return data.photo_rejections_today;
     case "profile_change":
       return data.profile_change_rejections_today;
+    case "review_queue":
+      return data.review_queue_reject_calls_today;
   }
 }
 
