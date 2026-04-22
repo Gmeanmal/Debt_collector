@@ -55,6 +55,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
   - **Gate:** ruff clean, pyright 0/0/0.
 
 ### Fixed
+- **HOTFIX-5 goddess `display_name` actually renders in the sidebar** (`chore(db)`):
+  - Root cause: `bootstrap.py` created the goddess `User` row with `username="goddess"` and no `first_name`/`last_name`. The server-side `_display_name(user)` helper falls back to `user.username` when names are empty, so every sidebar / topbar / welcome heading rendered "goddess" instead of "Mean Mal" despite `DEV_GODDESS_DISPLAY_NAME = "Mean Mal"` being set on the `Goddess` row. Closes a KPI-1 known follow-up.
+  - Fix: split the dev goddess name into `first_name="Mean"`, `last_name="Mal"` and switched `username` to `"meanmal"` so the handle matches the payment-method alias. `/auth/me` now returns `display_name: "Mean Mal"` for the seeded goddess.
+
 - **HOTFIX-4 seed round-2 polish** (ref `planning/todo.md` W0 SEED-1 known follow-ups, `fix(db)`):
   - **`goddess_recorded` payments now attribute `created_by` to the goddess user**, not the sub. Before: every validated declaration — including Chris's bonus tributes that the goddess manually recorded — carried `created_by = sub.id`, pretending the sub had declared them. After: `add_validated` sets `created_by = gud()` when `source == goddess_recorded`. Verified: 6 goddess-recorded declarations now correctly attributed to the goddess user.
   - **Dan rolling `last_paid_at` now matches an actual validated payment row.** Previously `last_paid_at = 2026-04-10 20:30` had no corresponding declaration (latest roll_date was 2026-04-02); now the seed appends a 15th rolling payment on 2026-04-10 so the stamp is backed by a real row. Dan payment count 14 → 15; `admin_action` row count 83 → 84 (one extra `payment_validated` audit).

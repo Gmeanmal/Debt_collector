@@ -82,11 +82,15 @@ async def _seed_goddess(session: AsyncSession) -> str:
 
     goddess_user = User(
         id=uuid4(),
-        username="goddess",
+        username="meanmal",
         email=DEV_GODDESS_EMAIL,
         password_hash=hash_password(DEV_GODDESS_PASSWORD),
         role=UserRole.goddess,
         status=UserStatus.active,
+        # Split name so `_display_name` renders "Mean Mal" everywhere (sidebar, topbar,
+        # welcome heading) instead of falling back to the username.
+        first_name="Mean",
+        last_name="Mal",
         theme_preference="dark",
     )
     session.add(goddess_user)
