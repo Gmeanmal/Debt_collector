@@ -15,6 +15,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
   - **Controller cleanup** — removed the two `TODO(DECLARE-follow-up)` markers in `declare_as_sub`; replaced with a one-line explainer pointing at the janitor.
   - **Smoke test:** seeded two synthetic orphans under `janitor-test/*.jpg`, ran dry-run with grace=now+1s → flagged both, ran real-run with simulated `now = real_now + 25h` → deleted both + one pre-existing orphan, bucket empty after. Referenced keys (when seeded declarations have proof_keys) are never touched.
 
+### Changed
+- **HOTFIX-3 split `fake_data.py` per sub** (ref `planning/todo.md` W0 SEED-1 known follow-up, `refactor(db)`):
+  - **Why:** single-file 1688-line orchestrator mixed helpers, per-sub builders, and audit backfill — hard to locate, harder to review a diff against.
+  - **`seeds/_common.py` (504 lines)** — every factory helper (`make_sub`, `rolling`, `add_validated`, `rejected_declaration`, `pending_declaration`, `contract`, `version_from_contract`, `audit`, `profile`, `photo`, `journal`, `kink_rating`, `limit`, `ritual`, `kink_items`, `payment_methods`), the frozen-clock shortcuts (`dt_at/now/ago`), and the goddess-id holder (`set_goddess_user_id/gud`). Helpers are un-prefixed now (`make_sub` not `_make_sub`) because the module is the boundary, not each function.
+  - **`seeds/profiles/` package** — one file per cast member: `chris.py` (378 lines), `dan.py` (275), `ben.py` (217), `eli.py` (118), `invites.py` (68 — alex + jordan), plus an `__init__.py` re-exporting the `seed_*` entrypoints.
+  - **`seeds/fake_data.py` (299 lines)** — slim orchestrator: `_seed_admin_actions` audit backfill + `seed_fake_data()` entrypoint. No per-sub code.
+  - **Behaviour parity verified.** `make init-dbs` row-count diff pre-split vs post-split: **0 rows drift** across 19 tables (user/sub_profile/payment_declaration/payment_allocation/rolling_tribute/debt_contract/debt_event/debt_contract_audit/debt_contract_version/contract_adjustment/blacklist_entry/invitation/payment_method/sub_kink_rating/sub_limit/ritual/sub_photo/journal_entry/admin_action). `admin_action` row count stays at 83 — matches QA-1 baseline.
+  - **Gate:** ruff clean, pyright 0/0/0.
+
 ### Fixed
 - **HOTFIX-2 unify late-contract timezone convention** (ref `planning/todo.md` W4 LATE-1 known follow-ups, `fix(payments)`):
   - **`DashboardSummaryController._count_late_contracts` switched from London date arithmetic to UTC-naive**, matching `DashboardController._contracts_late_map` and `GoddessViewsController.late_contracts`. Before: summary KPI could disagree with `/goddess/late` list by one day at midnight BST / GMT boundaries (the exact ghost-KPI failure mode LATE-1 set out to kill). After: the three surfaces share the same predicate — summary, list and dashboard late-card tile will never drift. Verified on seeded data: summary `late_contract_count=1` reconciles with `GET /goddess/contracts/late` list length 1.
