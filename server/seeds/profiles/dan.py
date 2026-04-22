@@ -74,7 +74,12 @@ async def seed_dan(
     s.add(profile(sub.id, joined_at=joined_at, ownership=OwnershipStatus.in_training))
 
     roll_dates = dan_rolling_dates(FROZEN_TODAY)
-    last_paid = dt_at(date(2026, 4, 10), time(20, 30))
+    # Dan's 15th payment keeps the rolling.last_paid_at consistent with an actual
+    # validated row (previously the last_paid_at referenced a date with no matching
+    # payment declaration).
+    extra_date = date(2026, 4, 10)
+    roll_dates = [*roll_dates, extra_date]
+    last_paid = dt_at(extra_date, time(20, 30))
     roll = rolling(
         sub.id,
         goddess_id,
@@ -186,6 +191,11 @@ async def seed_dan(
                 note="Missed weekly payment — 10% late penalty.",
             )
         )
+    # Chronological order matters — multiplicative ops (period_interest, late_penalty)
+    # compound on whatever the balance is when they fire, so appending-by-kind would
+    # over-compound interest and produce a different balance to what recompute_balance
+    # would yield when run later.
+    events.sort(key=lambda ev: (ev.created_at, ev.id))
     for ev in events:
         s.add(ev)
         if ev.event_type == EventType.payment_applied:

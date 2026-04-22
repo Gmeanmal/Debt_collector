@@ -198,6 +198,9 @@ async def add_validated(
     note: str | None = None,
 ) -> None:
     validated_at = declared_at + timedelta(hours=4)
+    # goddess_recorded payments are entered by the goddess herself, not by the sub —
+    # the audit trail should reflect that.
+    creator_id = gud() if source == DeclarationSource.goddess_recorded else sub.id
     decl = PaymentDeclaration(
         id=uuid4(),
         sub_id=sub.id,
@@ -209,7 +212,7 @@ async def add_validated(
         category=category,
         status=PaymentStatus.validated,
         target_id=target_id,
-        created_by=sub.id,
+        created_by=creator_id,
         declared_at=declared_at,
         validated_at=validated_at,
         validated_by=gud(),

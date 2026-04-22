@@ -261,6 +261,7 @@ async def seed_chris(
                 created_at=dt_at(pay_date, time(9, 30)),
             )
         )
+    events.sort(key=lambda ev: (ev.created_at, ev.id))
     for ev in events:
         s.add(ev)
         if ev.event_type == EventType.payment_applied:
