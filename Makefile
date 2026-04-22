@@ -1,4 +1,4 @@
-.PHONY: help up down minio seed-photos server client install init-dbs flush-dbs reset-dbs feed-dbs migrate migration sync-types check-types-drift fmt lint typecheck quality check erd
+.PHONY: help up down minio seed-photos server client install init-dbs flush-dbs reset-dbs feed-dbs migrate migration sync-types check-types-drift fmt lint typecheck quality check erd proof-janitor-dry proof-janitor-apply
 
 .DEFAULT_GOAL := help
 
@@ -86,3 +86,9 @@ check-types-drift: ## fail if api.generated.ts drifted from live openapi (ci gat
 
 erd: ## generate entity-relationship diagram
 	cd server && uv run python scripts/generate_erd.py
+
+proof-janitor-dry: ## scan payment-proofs bucket for orphans, report what would be deleted
+	cd server && uv run python -m scripts.run_proof_janitor
+
+proof-janitor-apply: ## delete orphaned payment-proofs past the grace window
+	cd server && uv run python -m scripts.run_proof_janitor --apply

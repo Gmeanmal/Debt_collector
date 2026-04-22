@@ -49,8 +49,7 @@ class ProofJanitorOut(BaseModel):
     deleted: int = Field(
         ...,
         description=(
-            "For real runs: keys actually deleted. "
-            "For dry-runs: how many WOULD be deleted."
+            "For real runs: keys actually deleted. For dry-runs: how many WOULD be deleted."
         ),
         examples=[3],
     )

@@ -5,6 +5,11 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **DEV-TOOLS-1 Makefile targets for the payment-proof janitor** (`chore(infra)`):
+  - `make proof-janitor-dry` — scan only, prints `{scanned, referenced, orphan_candidates, within_grace, would_delete, batch_capped}` without hitting the HTTP API.
+  - `make proof-janitor-apply` — same path but actually deletes orphans past the grace window.
+  - Backed by `server/scripts/run_proof_janitor.py` which wires `SessionMaker` + `run_proof_janitor()` directly — same code path as the nightly scheduler and the `/admin/janitor/proofs` endpoint, so numbers match.
+
 - **RATE-LIMIT-WARN-3 extend warning to review-queue bulk reject** (`feat(payments)`):
   - **New counter `review_queue_reject_calls_today`** on `GoddessRateLimitsOut`. Counts `admin_action` rows where `action='review_queue_bulk_action' AND payload_json->'body'->>'action'='reject'` — isolates reject-flavoured bulk calls from approve-flavoured ones without having to change the audited kind string. One extra query per `/goddess/me/rate-limits` fetch.
   - **`useRejectWarning` gains `"review_queue"` kind** with noun `"review-queue batch"`. `BulkActionBar` pipes the returned warning into its `RejectModal`.
