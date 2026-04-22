@@ -78,9 +78,7 @@ async def run_proof_janitor(
 
     if not dry_run:
         for key in to_delete:
-            await object_store.delete_object(
-                cfg.s3_bucket_payment_proofs, key, settings=cfg
-            )
+            await object_store.delete_object(cfg.s3_bucket_payment_proofs, key, settings=cfg)
             deleted += 1
 
     log.info(
