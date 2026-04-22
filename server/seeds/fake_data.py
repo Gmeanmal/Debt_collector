@@ -680,9 +680,9 @@ async def _seed_chris(
         ]
     )
 
-    # Active contract: signed 2026-02-20, ~70% repaid
+    # Active contract: signed 2026-02-20, ~70% repaid after 8 × £100 weekly payments.
     active_signed = contract_signed_dt(date(2026, 2, 20))
-    active_principal = Decimal("800.00")
+    active_principal = Decimal("1100.00")
     active_contract = _contract(
         sub_id=sub.id,
         goddess_id=goddess_id,
@@ -1296,6 +1296,10 @@ async def _seed_invite_alex(
     sub = _make_sub(goddess_id, entry, status=UserStatus.pending_entry_tribute)
     s.add(sub)
     await s.flush()
+
+    # Minimal sub_profile so /auth/me resolves before the porch gate fires.
+    joined_at = _dt(entry.account_created, time(18, 30))
+    s.add(_profile(sub.id, joined_at=joined_at, ownership=OwnershipStatus.free))
 
     # Invitation that was used by Alex
     inv = Invitation(

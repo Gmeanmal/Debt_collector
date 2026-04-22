@@ -4,6 +4,11 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Fixed
+- **HOTFIX-1 seed polish — alex porch + chris contract pct** (ref `planning/todo.md` W0 SEED-1 known follow-ups, `chore(db)`):
+  - **`sub_invite_alex` now has a minimal `sub_profile` row** (`ownership_status=free`, `joined_empire_at` = account-created timestamp). Before: `/auth/me` returned 404 before `porch_gate` could fire → QA-1 porch flow untestable in Playwright. After: `/auth/me` → 200 with Alex's full `UserOut`, any guarded route → 403 with `X-Access-State: pending_entry_tribute`. Porch gate now walkable end-to-end on the seeded data.
+  - **Chris active contract principal £800 → £1100** in `_seed_chris`. Keeps the 8 × £100 weekly payment schedule unchanged, balance settles at £372.42 → ~66 % repaid (matches `revue.md` §P0 narrative "bien avancé ~70 % remboursé" within ±5 pts). Prior 91 % left the "well-advanced active contract" feeling trivially close to payoff.
+
 ### Added
 - **LEDGER-1 sub transparency ledger page — `/sub/ledger` accordion** (ref `planning/todo.md` W11, single `feat(profile)` commit `7e99270`):
   - **New sub-only route `/sub/ledger`, added to the SUB_NAV above "Journal".** Thin route wrapper `routes/sub/LedgerRoute.tsx` (21 lines) renders a single `LedgerAccordion`. Registered in `routes/_subRoutes.tsx` under the shared `subRoute(...)` helper (auth + role guard inherited). No new backend endpoint — every section owns its own `useQuery` against the existing sub services/APIs (`sub/me/*`, `sub/dashboard/summary`, etc.).
