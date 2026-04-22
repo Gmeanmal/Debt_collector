@@ -12,6 +12,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { RejectModal } from "@/components/shared/RejectModal";
+import { getGoddessRateLimitsApi } from "@/services/goddess/rateLimitsApi";
 import { PendingValidationRow } from "@/components/payments/PendingValidationRow";
 import {
   PendingValidationsBulkBar,
@@ -29,20 +30,32 @@ interface RejectPanelProps {
 function RejectPanel({ decl, onClose }: RejectPanelProps) {
   const qc = useQueryClient();
 
+  const { data: rateLimits } = useQuery({
+    queryKey: queryKeys.goddess.rateLimits(),
+    queryFn: getGoddessRateLimitsApi,
+    staleTime: 30_000,
+  });
+
   const rejectMutation = useMutation({
     mutationFn: (reason: string) => rejectDeclarationApi(decl.id, { reason }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.goddess.pendingPayments() });
+      qc.invalidateQueries({ queryKey: queryKeys.goddess.rateLimits() });
       onClose();
     },
   });
 
   const description = `${formatGBP(decl.amount)} — ${decl.sub_display_name ?? "sub"}`;
+  const warning =
+    rateLimits && rateLimits.payment_rejections_today >= rateLimits.payment_rejections_threshold
+      ? `You've already rejected ${rateLimits.payment_rejections_today} payment${rateLimits.payment_rejections_today === 1 ? "" : "s"} today. Take a moment before confirming.`
+      : undefined;
 
   return (
     <RejectModal
       title="Reject declaration"
       description={description}
+      warning={warning}
       onClose={onClose}
       onConfirm={async (reason) => {
         await rejectMutation.mutateAsync(reason);

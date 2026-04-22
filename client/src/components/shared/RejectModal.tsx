@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 export interface RejectModalProps {
   title?: string;
   description?: ReactNode;
+  warning?: ReactNode;
   confirmLabel?: string;
   placeholder?: string;
   onClose: () => void;
@@ -18,6 +19,7 @@ const INLINE_ERROR = `Reason must be at least ${MIN_LENGTH} characters.`;
 export function RejectModal({
   title = "Reject",
   description,
+  warning,
   confirmLabel = "Reject",
   placeholder,
   onClose,
@@ -51,6 +53,15 @@ export function RejectModal({
   return (
     <Modal title={title} onClose={onClose}>
       {description && <p className="text-sm text-text-mute">{description}</p>}
+
+      {warning && (
+        <div
+          role="alert"
+          className="rounded-[6px] border border-status-warning/40 bg-status-warning/10 px-3 py-2 text-sm text-text"
+        >
+          {warning}
+        </div>
+      )}
 
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-text" htmlFor="reject-reason-input">

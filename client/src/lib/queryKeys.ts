@@ -39,6 +39,7 @@ export const queryKeys = {
       ["goddessWeeklyPayments", "detail", weekStart] as const,
     allRolling: (subIds: string[]) => ["goddessAllRolling", subIds] as const,
     rituals: () => ["goddess", "rituals", "all"] as const,
+    rateLimits: () => ["goddess", "rateLimits"] as const,
   },
 
   contracts: {

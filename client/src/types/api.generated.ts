@@ -2682,6 +2682,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goddess/me/rate-limits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Daily rate-limit counters for the calling goddess
+         * @description Returns counters the UI uses to surface soft warnings (e.g. an inline banner above the `RejectModal` textarea when the goddess has already rejected many payments today). Counters reset at midnight Europe/London, derived from `admin_action` rows so there's no caching layer to invalidate. Goddess only.
+         */
+        get: operations["get_rate_limits_goddess_me_rate_limits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/sub/profile/safeword": {
         parameters: {
             query?: never;
@@ -6955,6 +6975,21 @@ export interface components {
              * @description True when the message was delivered successfully.
              */
             sent: boolean;
+        };
+        /** GoddessRateLimitsOut */
+        GoddessRateLimitsOut: {
+            /**
+             * Payment Rejections Today
+             * @description Number of `payment_rejected` audit entries authored by this goddess since midnight Europe/London.
+             * @example 3
+             */
+            payment_rejections_today: number;
+            /**
+             * Payment Rejections Threshold
+             * @description Soft advisory threshold — when reached, UI surfaces a banner to slow the goddess down. Configurable via `GODDESS_REJECT_THRESHOLD_PER_DAY` env var.
+             * @example 5
+             */
+            payment_rejections_threshold: number;
         };
         /**
          * GoddessRejectIn
@@ -21354,6 +21389,51 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    get_rate_limits_goddess_me_rate_limits_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoddessRateLimitsOut"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller is not a goddess */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };

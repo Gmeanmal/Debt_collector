@@ -78,6 +78,8 @@ class Settings(BaseSettings):
     proof_janitor_grace_hours: int = 24
     proof_janitor_batch_cap: int = 1000
 
+    goddess_reject_threshold_per_day: int = 5
+
     root_kek_b64: str = ""
     root_kek_version: int = 1
 

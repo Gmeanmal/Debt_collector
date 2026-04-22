@@ -25,6 +25,7 @@ from routers import (
     debt_contracts,
     goddess_photos,
     goddess_profile,
+    goddess_rate_limits,
     goddess_subs_message,
     goddess_views,
     health,
@@ -144,6 +145,7 @@ app.include_router(goddess_profile.router)
 app.include_router(dashboards.goddess_router)
 app.include_router(dashboards.sub_router)
 app.include_router(goddess_views.router)
+app.include_router(goddess_rate_limits.router)
 app.include_router(safeword.router)
 app.include_router(panic.router)
 app.include_router(journal.router)
