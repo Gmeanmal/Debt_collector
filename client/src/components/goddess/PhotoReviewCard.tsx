@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { RejectModal } from "@/components/shared/RejectModal";
+import { useRejectWarning } from "@/hooks/useRejectWarning";
 import type { SubPhotoQueueEntry } from "@/services/goddessPhotos/goddessPhotosApi";
 import { formatLondon } from "@/services/format/datetime";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ export function PhotoReviewCard({ entry, onApprove, onReject }: Props) {
   const [approving, setApproving] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [approveErr, setApproveErr] = useState<string | null>(null);
+  const warning = useRejectWarning("photo");
 
   const subUsername = entry.sub_username ? `@${entry.sub_username}` : "Unknown sub";
 
@@ -93,6 +95,7 @@ export function PhotoReviewCard({ entry, onApprove, onReject }: Props) {
         <RejectModal
           title="Reject photo"
           description={`Photo from ${subUsername}`}
+          warning={warning}
           onClose={() => setRejectOpen(false)}
           onConfirm={async (reason) => {
             await onReject(reason);

@@ -5,6 +5,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **RATE-LIMIT-WARN-2 extend soft rate-limit warning to photo + profile-change modals** (`feat(payments)`):
+  - **`GoddessRateLimitsOut` now exposes three counters** — `payment_rejections_today`, `photo_rejections_today`, `profile_change_rejections_today` — plus a single shared `rejections_threshold` replacing the earlier per-kind `payment_rejections_threshold`. One grouped `SELECT action, COUNT(*) FROM admin_action ... GROUP BY action` query instead of three.
+  - **New shared hook `useRejectWarning(kind)`** (`client/src/hooks/useRejectWarning.tsx`) — consults the rate-limits query, returns the warning string or `undefined`. Kinds: `"payment" | "photo" | "profile_change"`. Pluralises the noun, reuses the staleTime-30s-cached query across all consumers so the modal open path fires at most one fetch per 30 s regardless of which reject surface is in view.
+  - **`PendingValidationsRoute.RejectPanel` refactored** onto the shared hook (-10 LoC, same behaviour).
+  - **`PhotoReviewCard` + `PhotoQueueRoute`** — card passes `warning={useRejectWarning("photo")}`; route's `rejectMutation.onSuccess` now also invalidates `queryKeys.goddess.rateLimits()` so the counter ticks live.
+  - **`RejectRequestDialog`** — same hook + same invalidation on success for profile-change rejects.
+  - **Smoke-test:** seeded one `photo_rejected` + one `profile_change_rejected` row, GET `/goddess/me/rate-limits` returned `{payment: 0, photo: 1, profile_change: 1, threshold: 5}`. Rows cleaned.
+  - **Gate:** ruff + pyright clean; `pnpm tsc --noEmit` + `pnpm lint` clean; `pnpm sync-types` regenerated the widened schema.
+
 - **RATE-LIMIT-WARN-1 soft rate-limit banner on reject modal** (resolves NTH-rate-limit-warning, `feat(payments)`):
   - **`GET /goddess/me/rate-limits`** (new router `routers/goddess_rate_limits.py`) returns `{payment_rejections_today, payment_rejections_threshold}`. Count derived on the fly from `admin_action` rows where `admin_id = goddess.id AND action = 'payment_rejected' AND created_at >= <today midnight Europe/London in UTC>`. No cache — one query per modal open. Threshold defaults to 5 via `goddess_reject_threshold_per_day: int = 5` in `Settings`; override via env var `GODDESS_REJECT_THRESHOLD_PER_DAY`.
   - **`RejectModal` gains an optional `warning?: ReactNode` slot** above the reason textarea, rendered as an amber `role="alert"` panel. No visual change when `warning` is omitted, so the other call sites (photo rejection, profile-change rejection, review queue bulk) are untouched.

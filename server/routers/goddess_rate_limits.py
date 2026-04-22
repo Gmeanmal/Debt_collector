@@ -8,6 +8,7 @@ server stays the single source of truth and we never cache counts client-side.
 from __future__ import annotations
 
 import datetime as dt
+from uuid import UUID
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends
@@ -27,6 +28,8 @@ _LONDON = ZoneInfo("Europe/London")
 _E401 = {"description": "Unauthorized — missing or invalid access token"}
 _E403 = {"description": "Forbidden — caller is not a goddess"}
 
+_TRACKED_ACTIONS = ("payment_rejected", "photo_rejected", "profile_change_rejected")
+
 router = APIRouter(prefix="/goddess/me", tags=["goddess-rate-limits"])
 
 
@@ -39,11 +42,28 @@ class GoddessRateLimitsOut(BaseModel):
         ),
         examples=[3],
     )
-    payment_rejections_threshold: int = Field(
+    photo_rejections_today: int = Field(
         ...,
         description=(
-            "Soft advisory threshold — when reached, UI surfaces a banner to slow the "
-            "goddess down. Configurable via `GODDESS_REJECT_THRESHOLD_PER_DAY` env var."
+            "Number of `photo_rejected` audit entries authored by this goddess since "
+            "midnight Europe/London."
+        ),
+        examples=[1],
+    )
+    profile_change_rejections_today: int = Field(
+        ...,
+        description=(
+            "Number of `profile_change_rejected` audit entries authored by this goddess "
+            "since midnight Europe/London."
+        ),
+        examples=[0],
+    )
+    rejections_threshold: int = Field(
+        ...,
+        description=(
+            "Soft advisory threshold — when any kind-specific counter reaches it, UI "
+            "surfaces a banner to slow the goddess down. Shared across all reject kinds. "
+            "Configurable via `GODDESS_REJECT_THRESHOLD_PER_DAY` env var."
         ),
         examples=[5],
     )
@@ -55,14 +75,31 @@ def _today_start_utc() -> dt.datetime:
     return start_local.astimezone(dt.UTC).replace(tzinfo=None)
 
 
+async def _count_per_action(
+    session: AsyncSession, admin_id: UUID, start_utc: dt.datetime
+) -> dict[str, int]:
+    """Return ``{action: count}`` grouped in a single query."""
+    result = await session.execute(
+        select(AdminAction.action, func.count())
+        .where(
+            col(AdminAction.admin_id) == admin_id,
+            col(AdminAction.action).in_(_TRACKED_ACTIONS),
+            col(AdminAction.created_at) >= start_utc,
+        )
+        .group_by(col(AdminAction.action))
+    )
+    return {action: int(count) for action, count in result.all()}
+
+
 @router.get(
     "/rate-limits",
     summary="Daily rate-limit counters for the calling goddess",
     description=(
         "Returns counters the UI uses to surface soft warnings (e.g. an inline banner "
         "above the `RejectModal` textarea when the goddess has already rejected many "
-        "payments today). Counters reset at midnight Europe/London, derived from "
-        "`admin_action` rows so there's no caching layer to invalidate. Goddess only."
+        "items today). Counters cover `payment_rejected`, `photo_rejected`, and "
+        "`profile_change_rejected` audit kinds; they reset at midnight Europe/London "
+        "and are derived from `admin_action` rows — no caching layer. Goddess only."
     ),
     response_model=GoddessRateLimitsOut,
     status_code=200,
@@ -74,18 +111,10 @@ async def get_rate_limits(
     session: AsyncSession = Depends(get_session),
 ) -> GoddessRateLimitsOut:
     settings = get_settings()
-    start_utc = _today_start_utc()
-    result = await session.execute(
-        select(func.count())
-        .select_from(AdminAction)
-        .where(
-            col(AdminAction.admin_id) == user.id,
-            col(AdminAction.action) == "payment_rejected",
-            col(AdminAction.created_at) >= start_utc,
-        )
-    )
-    count = int(result.scalar_one() or 0)
+    counts = await _count_per_action(session, user.id, _today_start_utc())
     return GoddessRateLimitsOut(
-        payment_rejections_today=count,
-        payment_rejections_threshold=settings.goddess_reject_threshold_per_day,
+        payment_rejections_today=counts.get("payment_rejected", 0),
+        photo_rejections_today=counts.get("photo_rejected", 0),
+        profile_change_rejections_today=counts.get("profile_change_rejected", 0),
+        rejections_threshold=settings.goddess_reject_threshold_per_day,
     )

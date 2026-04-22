@@ -2691,7 +2691,7 @@ export interface paths {
         };
         /**
          * Daily rate-limit counters for the calling goddess
-         * @description Returns counters the UI uses to surface soft warnings (e.g. an inline banner above the `RejectModal` textarea when the goddess has already rejected many payments today). Counters reset at midnight Europe/London, derived from `admin_action` rows so there's no caching layer to invalidate. Goddess only.
+         * @description Returns counters the UI uses to surface soft warnings (e.g. an inline banner above the `RejectModal` textarea when the goddess has already rejected many items today). Counters cover `payment_rejected`, `photo_rejected`, and `profile_change_rejected` audit kinds; they reset at midnight Europe/London and are derived from `admin_action` rows — no caching layer. Goddess only.
          */
         get: operations["get_rate_limits_goddess_me_rate_limits_get"];
         put?: never;
@@ -6985,11 +6985,23 @@ export interface components {
              */
             payment_rejections_today: number;
             /**
-             * Payment Rejections Threshold
-             * @description Soft advisory threshold — when reached, UI surfaces a banner to slow the goddess down. Configurable via `GODDESS_REJECT_THRESHOLD_PER_DAY` env var.
+             * Photo Rejections Today
+             * @description Number of `photo_rejected` audit entries authored by this goddess since midnight Europe/London.
+             * @example 1
+             */
+            photo_rejections_today: number;
+            /**
+             * Profile Change Rejections Today
+             * @description Number of `profile_change_rejected` audit entries authored by this goddess since midnight Europe/London.
+             * @example 0
+             */
+            profile_change_rejections_today: number;
+            /**
+             * Rejections Threshold
+             * @description Soft advisory threshold — when any kind-specific counter reaches it, UI surfaces a banner to slow the goddess down. Shared across all reject kinds. Configurable via `GODDESS_REJECT_THRESHOLD_PER_DAY` env var.
              * @example 5
              */
-            payment_rejections_threshold: number;
+            rejections_threshold: number;
         };
         /**
          * GoddessRejectIn

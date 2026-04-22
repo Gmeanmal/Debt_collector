@@ -31,7 +31,10 @@ export function PhotoQueueRoute() {
 
   const rejectMutation = useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) => rejectPhoto(id, reason),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.goddessPhotos.queue() }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: queryKeys.goddessPhotos.queue() });
+      void qc.invalidateQueries({ queryKey: queryKeys.goddess.rateLimits() });
+    },
   });
 
   return (

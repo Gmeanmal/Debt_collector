@@ -12,7 +12,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { RejectModal } from "@/components/shared/RejectModal";
-import { getGoddessRateLimitsApi } from "@/services/goddess/rateLimitsApi";
+import { useRejectWarning } from "@/hooks/useRejectWarning";
 import { PendingValidationRow } from "@/components/payments/PendingValidationRow";
 import {
   PendingValidationsBulkBar,
@@ -29,12 +29,7 @@ interface RejectPanelProps {
 
 function RejectPanel({ decl, onClose }: RejectPanelProps) {
   const qc = useQueryClient();
-
-  const { data: rateLimits } = useQuery({
-    queryKey: queryKeys.goddess.rateLimits(),
-    queryFn: getGoddessRateLimitsApi,
-    staleTime: 30_000,
-  });
+  const warning = useRejectWarning("payment");
 
   const rejectMutation = useMutation({
     mutationFn: (reason: string) => rejectDeclarationApi(decl.id, { reason }),
@@ -46,10 +41,6 @@ function RejectPanel({ decl, onClose }: RejectPanelProps) {
   });
 
   const description = `${formatGBP(decl.amount)} — ${decl.sub_display_name ?? "sub"}`;
-  const warning =
-    rateLimits && rateLimits.payment_rejections_today >= rateLimits.payment_rejections_threshold
-      ? `You've already rejected ${rateLimits.payment_rejections_today} payment${rateLimits.payment_rejections_today === 1 ? "" : "s"} today. Take a moment before confirming.`
-      : undefined;
 
   return (
     <RejectModal
