@@ -2660,6 +2660,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goddess/contracts/late/apply-penalty": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk-apply default late penalty to selected contracts
+         * @description For each contract id passed in the body, verifies it is owned by the calling goddess, is active, and is currently late (current period unpaid and past the period start). Writes a `late_penalty` `DebtEvent` with the contract's `late_penalty_percent`, recomputes balance, notifies the sub, and consults the penalty engine exactly like the nightly cron. Idempotent — a second call for the same period is counted as `already_penalised` and does nothing.
+         *
+         *     Returns a summary: `applied`, `already_penalised`, `not_late`, `not_found` counters plus the ids actually penalised.
+         */
+        post: operations["bulk_apply_late_penalty_goddess_contracts_late_apply_penalty_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/sub/profile/safeword": {
         parameters: {
             query?: never;
@@ -5747,6 +5769,45 @@ export interface components {
              * @description Items that could not be acted on, with reasons
              */
             failed: components["schemas"]["BulkItemFailure"][];
+        };
+        /** BulkApplyLatePenaltyIn */
+        BulkApplyLatePenaltyIn: {
+            /**
+             * Contract Ids
+             * @description Contracts to consider for penalty application
+             * @example [
+             *       "b3e1c2d4-0000-0000-0000-000000000001"
+             *     ]
+             */
+            contract_ids: string[];
+        };
+        /** BulkApplyLatePenaltySummary */
+        BulkApplyLatePenaltySummary: {
+            /**
+             * Applied
+             * @description Contracts where a new late_penalty event was written
+             */
+            applied: number;
+            /**
+             * Already Penalised
+             * @description Contracts where a late_penalty event already existed for the current period
+             */
+            already_penalised: number;
+            /**
+             * Not Late
+             * @description Contracts that are active but not currently late (no penalty fired)
+             */
+            not_late: number;
+            /**
+             * Not Found
+             * @description Contract ids not owned by this goddess or not in `active` status
+             */
+            not_found: number;
+            /**
+             * Applied Contract Ids
+             * @description Subset of input ids that actually received a penalty event
+             */
+            applied_contract_ids?: string[];
         };
         /** BulkItemFailure */
         BulkItemFailure: {
@@ -21206,6 +21267,62 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LateContractItem"][];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — caller is not a goddess */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    bulk_apply_late_penalty_goddess_contracts_late_apply_penalty_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkApplyLatePenaltyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkApplyLatePenaltySummary"];
                 };
             };
             /** @description Unauthorized — missing or invalid access token */

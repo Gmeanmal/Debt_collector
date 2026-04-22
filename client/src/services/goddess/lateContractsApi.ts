@@ -3,6 +3,8 @@ import { getAccessToken } from "@/services/auth/tokenStorage";
 import type { components } from "@/types/api.generated";
 
 export type LateContractItem = components["schemas"]["LateContractItem"];
+export type BulkApplyLatePenaltySummary =
+  components["schemas"]["BulkApplyLatePenaltySummary"];
 
 function authHeaders(): Record<string, string> {
   const token = getAccessToken();
@@ -20,5 +22,16 @@ export async function getLateContractsApi(): Promise<LateContractItem[]> {
     headers: authHeaders(),
   });
   if (error || !data) throw new Error(extractMessage(error, "Failed to load late contracts"));
+  return data;
+}
+
+export async function bulkApplyLatePenaltyApi(
+  contractIds: string[],
+): Promise<BulkApplyLatePenaltySummary> {
+  const { data, error } = await apiClient.POST("/goddess/contracts/late/apply-penalty", {
+    headers: authHeaders(),
+    body: { contract_ids: contractIds },
+  });
+  if (error || !data) throw new Error(extractMessage(error, "Failed to apply late penalties"));
   return data;
 }

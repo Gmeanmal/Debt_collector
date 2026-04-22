@@ -4,7 +4,13 @@ from fastapi import APIRouter, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from controllers.goddess_views_controller import GoddessViewsController
+from controllers.late_penalty_controller import (
+    BulkApplyLatePenaltyIn,
+    BulkApplyLatePenaltySummary,
+    LatePenaltyController,
+)
 from core.db import get_session
+from decorators.audit import audit
 from dependencies.auth import require_role
 from models.user import User, UserRole
 from schemas.goddess_views import LateContractItem, LateSubItem, WeeklyPaymentBucket
@@ -112,3 +118,32 @@ async def late_contracts(
     ctrl: GoddessViewsController = Depends(_ctrl),
 ) -> list[LateContractItem]:
     return await ctrl.late_contracts(user)
+
+
+@router.post(
+    "/contracts/late/apply-penalty",
+    summary="Bulk-apply default late penalty to selected contracts",
+    description=(
+        "For each contract id passed in the body, verifies it is owned by the calling "
+        "goddess, is active, and is currently late (current period unpaid and past the "
+        "period start). Writes a `late_penalty` `DebtEvent` with the contract's "
+        "`late_penalty_percent`, recomputes balance, notifies the sub, and consults the "
+        "penalty engine exactly like the nightly cron. Idempotent — a second call for the "
+        "same period is counted as `already_penalised` and does nothing.\n\n"
+        "Returns a summary: `applied`, `already_penalised`, `not_late`, `not_found` "
+        "counters plus the ids actually penalised."
+    ),
+    response_model=BulkApplyLatePenaltySummary,
+    status_code=200,
+    tags=["goddess-views"],
+    responses={401: _E401, 403: _E403, 500: _E500},
+)
+@audit(kind="bulk_late_penalty_applied", entity="debt_contract")
+async def bulk_apply_late_penalty(
+    body: BulkApplyLatePenaltyIn,
+    user: User = Depends(require_role(UserRole.goddess)),
+    session: AsyncSession = Depends(get_session),
+) -> BulkApplyLatePenaltySummary:
+    summary = await LatePenaltyController(session).bulk_apply(user, body.contract_ids)
+    await session.commit()
+    return summary

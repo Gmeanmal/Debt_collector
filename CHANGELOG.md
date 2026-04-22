@@ -5,6 +5,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **LATE-PENALTY-1 bulk apply late penalty from `/goddess/late`** (resolves LATE-1 known follow-up once PENALTY-1 shipped, `feat(payments)`):
+  - **`POST /goddess/contracts/late/apply-penalty`** with body `{contract_ids: UUID[]}` (1-50 ids). Per contract, verifies ownership + active status + signed, checks current period is unpaid and past the start, skips if a `late_penalty` already exists for that period, then writes the `late_penalty` `DebtEvent` (using the contract's `late_penalty_percent`), recomputes balance, notifies the sub with `NotificationType.contract_late_penalty`, and calls `apply_penalty(trigger=contract_missed, source_kind=contract_miss, ...)` — exact parity with the nightly cron path. Returns `{applied, already_penalised, not_late, not_found, applied_contract_ids}`. Decorated with `@audit(kind=bulk_late_penalty_applied, entity=debt_contract)`. Idempotent: second call reports `already_penalised=1, applied=0`.
+  - **New `LatePenaltyController`** (`controllers/late_penalty_controller.py`, ~120 lines) owns the bulk logic. Pydantic input + summary schemas live inside the controller module so they are colocated with the business logic.
+  - **Frontend selection UI** on `/goddess/late` contracts section:
+    - `LateContractsSection` now holds a `Set<string>` of selected contract ids plus "Select all" / per-row checkboxes (indeterminate state when some-but-not-all are selected).
+    - `LatePenaltyBulkBar` (new, 55 lines) — fixed bottom floating pill that renders when ≥ 1 row is selected, disabled while the mutation is pending, shows a toast summary (`"1 applied · 2 already penalised · 1 not late"`), invalidates `queryKeys.goddess.lateContracts()` + `dashboardSummary()` on success.
+    - Playwright-walked: seeded `sub_dan` contract selected → bulk bar appears with "Apply standard penalty (1)" → click → toast shows counter → DB confirms `late_penalty` event at period_index=6 + balance £896.48 → £986.13 + `admin_action` row of kind `bulk_late_penalty_applied`.
+  - **Gate:** server ruff + pyright clean; client `pnpm tsc --noEmit` + `pnpm lint` clean; `pnpm sync-types` regenerated `BulkApplyLatePenaltyIn/Summary`.
+
 - **ADMIN-JANITOR-1 admin-triggered proof janitor** (follow-up to MINIO-JANITOR-1, `feat(admin)`):
   - **`POST /admin/janitor/proofs`** (`{dry_run: bool}` body, returns `ProofJanitorOut` with counters). Writes an `admin_action` row of kind `proof_janitor_dry_run` / `proof_janitor_apply` per call. Admin role required.
   - **`ProofJanitorCard` component** mounted on `/admin/cron` alongside the existing daily-cron card. Exposes both "Run dry-run" (safe, shows what *would* be deleted) and "Apply (delete orphans)" with a live counters panel (scanned / referenced / orphans / within-grace / {would delete|deleted}). Playwright-walked end-to-end on a seeded fresh orphan: dry-run reports `scanned=1, orphan_candidates=1, within_grace=1, would delete=0`.
