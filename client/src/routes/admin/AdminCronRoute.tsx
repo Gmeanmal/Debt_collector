@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/ui/page-header";
 import { DryRunResultCard } from "@/components/admin/cron/DryRunResultCard";
+import { ProofJanitorCard } from "@/components/admin/cron/ProofJanitorCard";
 import { RunHistoryTable } from "@/components/admin/cron/RunHistoryTable";
 
 interface DryRunState {
@@ -103,6 +104,10 @@ export function AdminCronRoute() {
           {dryRun && !dryRunExpired && <DryRunResultCard result={dryRun.result} />}
         </CardContent>
       </Card>
+
+      <Separator />
+
+      <ProofJanitorCard />
 
       <Separator />
 

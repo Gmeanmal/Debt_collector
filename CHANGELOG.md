@@ -5,6 +5,11 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- **ADMIN-JANITOR-1 admin-triggered proof janitor** (follow-up to MINIO-JANITOR-1, `feat(admin)`):
+  - **`POST /admin/janitor/proofs`** (`{dry_run: bool}` body, returns `ProofJanitorOut` with counters). Writes an `admin_action` row of kind `proof_janitor_dry_run` / `proof_janitor_apply` per call. Admin role required.
+  - **`ProofJanitorCard` component** mounted on `/admin/cron` alongside the existing daily-cron card. Exposes both "Run dry-run" (safe, shows what *would* be deleted) and "Apply (delete orphans)" with a live counters panel (scanned / referenced / orphans / within-grace / {would delete|deleted}). Playwright-walked end-to-end on a seeded fresh orphan: dry-run reports `scanned=1, orphan_candidates=1, within_grace=1, would delete=0`.
+  - **Gate:** server ruff + pyright clean; client `pnpm tsc --noEmit` + `pnpm lint` clean; `pnpm sync-types` regenerated typings with the two new schemas.
+
 - **MINIO-JANITOR-1 orphan payment-proof cleanup cron** (ref `planning/todo.md` W4 DECLARE-1 known follow-up, `feat(payments)`):
   - **Why:** the declare-as-sub flow uploads the proof to MinIO/S3 *before* inserting the `payment_declaration` row. A DB rollback after a successful upload leaves the object orphaned (no row, bytes still in the bucket). Two `TODO(DECLARE-follow-up)` markers in `controllers/payment/controller.py` flagged this since DECLARE-1 shipped.
   - **`services/cron/proof_janitor.py`** — `run_proof_janitor(session, *, dry_run, now, settings) -> JanitorSummary`. Compares every key under the `payment-proofs` bucket against `PaymentDeclarationDao.all_proof_keys()` (new); deletes orphans whose `LastModified` is older than `settings.proof_janitor_grace_hours` (default 24 h). Hard cap at `settings.proof_janitor_batch_cap` deletes per run (default 1000) so a broken state can't balloon into a giant S3 bill in one tick. Returns a structured summary (scanned / referenced / orphan_candidates / within_grace / deleted / dry_run / batch_capped) — same summary used by dry-run and real runs.

@@ -17,6 +17,7 @@ from routers import (
     adjustments,
     admin,
     admin_cron,
+    admin_janitor,
     auth,
     blacklist,
     consent,
@@ -134,6 +135,7 @@ app.include_router(blacklist.router)
 app.include_router(adjustments.router)
 app.include_router(money_previews.router)
 app.include_router(admin_cron.router)
+app.include_router(admin_janitor.router)
 app.include_router(admin.router)
 app.include_router(notifications.router)
 app.include_router(me_preferences.router)

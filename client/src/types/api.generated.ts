@@ -1183,6 +1183,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/janitor/proofs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Scan the payment-proofs bucket for orphans (preview or apply)
+         * @description Lists every object in the `payment-proofs` S3 bucket and compares against `payment_declaration.proof_key`. Objects not referenced by any declaration and older than the configured grace window are orphan candidates.
+         *
+         *     - `dry_run=true` (default): scan only, no deletes. The `deleted` counter reports how many keys would be removed.
+         *     - `dry_run=false`: deletes orphans outside the grace window, capped at `proof_janitor_batch_cap` per invocation.
+         *
+         *     A matching `admin_action` row is written for the audit trail. Admin only.
+         */
+        post: operations["run_proofs_janitor_admin_janitor_proofs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/impersonate/{user_id}": {
         parameters: {
             query?: never;
@@ -8678,6 +8703,60 @@ export interface components {
              */
             gender_id?: string | null;
         };
+        /** ProofJanitorIn */
+        ProofJanitorIn: {
+            /**
+             * Dry Run
+             * @description When true, scan-only — no S3 deletes, no DB writes.
+             * @default true
+             * @example true
+             */
+            dry_run: boolean;
+        };
+        /** ProofJanitorOut */
+        ProofJanitorOut: {
+            /**
+             * Scanned
+             * @description Total keys seen in the bucket
+             * @example 142
+             */
+            scanned: number;
+            /**
+             * Referenced
+             * @description Number of distinct keys currently referenced by a payment_declaration row
+             * @example 137
+             */
+            referenced: number;
+            /**
+             * Orphan Candidates
+             * @description Keys not referenced by any declaration
+             * @example 5
+             */
+            orphan_candidates: number;
+            /**
+             * Within Grace
+             * @description Orphans newer than proof_janitor_grace_hours — left alone
+             * @example 2
+             */
+            within_grace: number;
+            /**
+             * Deleted
+             * @description For real runs: keys actually deleted. For dry-runs: how many WOULD be deleted.
+             * @example 3
+             */
+            deleted: number;
+            /**
+             * Dry Run
+             * @description Echoes the input flag
+             */
+            dry_run: boolean;
+            /**
+             * Batch Capped
+             * @description True if the run hit proof_janitor_batch_cap and stopped before finishing
+             * @example false
+             */
+            batch_capped: boolean;
+        };
         /** PublicInvitationOut */
         PublicInvitationOut: {
             /**
@@ -15157,6 +15236,55 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CronRunSummaryOut"][];
+                };
+            };
+            /** @description Unauthorized — missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden — admin role required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_proofs_janitor_admin_janitor_proofs_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProofJanitorIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProofJanitorOut"];
                 };
             };
             /** @description Unauthorized — missing or invalid access token */
