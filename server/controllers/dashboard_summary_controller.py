@@ -18,7 +18,7 @@ from daos.user_dao import UserDao
 from models.debt import DebtContractStatus
 from models.user import User
 from schemas.dashboard import DashboardSummary
-from utils.periods import LONDON, current_period_index
+from utils.periods import current_period_index
 from utils.rolling import days_late as rolling_days_late
 
 
@@ -98,7 +98,12 @@ class DashboardSummaryController:
     async def _count_late_contracts(
         self, goddess_id: UUID, active_sub_ids: list[UUID], now: dt.datetime
     ) -> int:
-        """Count active contracts where the current period payment has not been applied."""
+        """Count active contracts where the current period payment has not been applied.
+
+        Predicate matches DashboardController._contracts_late_map + GoddessViewsController.
+        late_contracts — UTC-naive date arithmetic so summary, list and dashboard late-card
+        never disagree by a day at the BST boundary.
+        """
         contracts = await self._contract_dao.list_active_for_goddess(goddess_id)
         if not contracts:
             return 0
@@ -112,14 +117,12 @@ class DashboardSummaryController:
             [c.id for c in relevant]
         )
 
-        now_london = now.replace(tzinfo=dt.UTC).astimezone(LONDON).date()
         count = 0
         for c in relevant:
             p_start = period_start(c, now)
             if p_start is None:
                 continue
-            p_start_london = p_start.replace(tzinfo=dt.UTC).astimezone(LONDON).date()
-            if (now_london - p_start_london).days <= 0:
+            if (now.date() - p_start.date()).days <= 0:
                 continue
             idx = current_period_index(c, now)
             if idx not in paid_periods.get(c.id, set()):

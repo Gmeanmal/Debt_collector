@@ -5,6 +5,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ## [Unreleased]
 
 ### Fixed
+- **HOTFIX-2 unify late-contract timezone convention** (ref `planning/todo.md` W4 LATE-1 known follow-ups, `fix(payments)`):
+  - **`DashboardSummaryController._count_late_contracts` switched from London date arithmetic to UTC-naive**, matching `DashboardController._contracts_late_map` and `GoddessViewsController.late_contracts`. Before: summary KPI could disagree with `/goddess/late` list by one day at midnight BST / GMT boundaries (the exact ghost-KPI failure mode LATE-1 set out to kill). After: the three surfaces share the same predicate — summary, list and dashboard late-card tile will never drift. Verified on seeded data: summary `late_contract_count=1` reconciles with `GET /goddess/contracts/late` list length 1.
+  - Removed the no-longer-used `LONDON` import from `utils.periods`.
+
 - **HOTFIX-1 seed polish — alex porch + chris contract pct** (ref `planning/todo.md` W0 SEED-1 known follow-ups, `chore(db)`):
   - **`sub_invite_alex` now has a minimal `sub_profile` row** (`ownership_status=free`, `joined_empire_at` = account-created timestamp). Before: `/auth/me` returned 404 before `porch_gate` could fire → QA-1 porch flow untestable in Playwright. After: `/auth/me` → 200 with Alex's full `UserOut`, any guarded route → 403 with `X-Access-State: pending_entry_tribute`. Porch gate now walkable end-to-end on the seeded data.
   - **Chris active contract principal £800 → £1100** in `_seed_chris`. Keeps the 8 × £100 weekly payment schedule unchanged, balance settles at £372.42 → ~66 % repaid (matches `revue.md` §P0 narrative "bien avancé ~70 % remboursé" within ±5 pts). Prior 91 % left the "well-advanced active contract" feeling trivially close to payoff.
