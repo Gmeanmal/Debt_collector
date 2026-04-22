@@ -63,7 +63,11 @@ function ContractRow({ item, selected, onToggle }: ContractRowProps) {
 
       <div className="flex items-center gap-3">
         <Money value={Number(item.overdue_amount)} tone="bad" big />
-        {item.days_late > 0 && <Badge variant="warn">Late {item.days_late} days</Badge>}
+        {item.days_late > 0 && (
+          <Badge variant="warn">
+            Late {item.days_late} day{item.days_late === 1 ? "" : "s"}
+          </Badge>
+        )}
       </div>
 
       <div className="flex items-center gap-2">
