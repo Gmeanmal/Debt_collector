@@ -3,11 +3,13 @@
 import boto3
 from botocore.client import Config
 from fastapi import Depends
-from ..core.config import settings
+
+from ..core.config import get_settings
 
 
 class R2Service:
     def __init__(self):
+        settings = get_settings()
         if not settings.R2_ENDPOINT_URL:
             self.client = None
             return
@@ -22,10 +24,10 @@ class R2Service:
         )
         self.bucket = settings.R2_BUCKET_NAME
 
-    def upload_contract(self, contract_id: int, pdf_bytes: bytes, filename: str = "contract.pdf") -> str:
-        """Upload signed PDF and return object key."""
+    def upload_contract(self, contract_id: int, pdf_bytes: bytes, filename: str = "signed_contract.pdf") -> str:
+        """Upload signed PDF and return the object key."""
         if not self.client:
-            raise RuntimeError("R2 not configured")
+            raise RuntimeError("R2 is not configured. Please set R2 environment variables.")
 
         key = f"contracts/{contract_id}/{filename}"
         self.client.put_object(
@@ -38,9 +40,9 @@ class R2Service:
         return key
 
     def get_presigned_url(self, key: str, expires_in: int = 3600) -> str:
-        """Generate secure temporary URL."""
+        """Generate time-limited secure URL for viewing/downloading."""
         if not self.client:
-            raise RuntimeError("R2 not configured")
+            raise RuntimeError("R2 is not configured.")
         return self.client.generate_presigned_url(
             "get_object",
             Params={"Bucket": self.bucket, "Key": key},
