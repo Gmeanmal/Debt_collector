@@ -23,9 +23,9 @@ class Debt(DebtBase, table=True):
     goddess_id: int = Field(foreign_key="goddess.id")
     sub_id: int = Field(foreign_key="sub.id")
 
-    status: str = Field(default="draft")  # draft, pending_signature, active, completed, breached, terminated
+    status: str = Field(default="draft")
 
-    # R2 PDF Storage for signed contracts
+    # R2 PDF Storage
     pdf_key: Optional[str] = Field(default=None, nullable=True)
     pdf_filename: Optional[str] = Field(default=None, nullable=True)
 
@@ -45,14 +45,4 @@ class DebtRead(DebtBase):
     created_at: datetime
     pdf_key: Optional[str] = None
     pdf_filename: Optional[str] = None
-    pdf_url: Optional[str] = None  # populated by service
-
-
-class DebtUpdate(SQLModel):
-    title: Optional[str] = None
-    amount_gbp: Optional[float] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-    terms: Optional[str] = None
-    ceremony_mode_enabled: Optional[bool] = None
-    status: Optional[str] = None
+    pdf_url: Optional[str] = None   # populated by R2 service
