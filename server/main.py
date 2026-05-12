@@ -1,172 +1,63 @@
+"""Main FastAPI application."""
+
 from contextlib import asynccontextmanager
-
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi.errors import RateLimitExceeded
-from slowapi.middleware import SlowAPIMiddleware
+import uvicorn
 
-from core.config import get_settings
-from core.db import engine
-from core.exception_handlers import register as register_exception_handlers
-from core.logging import configure_logging
-from core.rate_limit import limiter, rate_limit_exceeded_handler
-from dependencies.porch_gate import porch_gate
-from middleware.request_id import RequestIdMiddleware
-from middleware.security_headers import SecurityHeadersMiddleware
-from routers import (
-    adjustments,
-    admin,
-    admin_cron,
-    admin_janitor,
-    auth,
-    blacklist,
-    consent,
-    dashboards,
-    debt_contracts,
-    goddess_photos,
-    goddess_profile,
-    goddess_rate_limits,
-    goddess_subs_message,
-    goddess_views,
-    health,
-    invitations,
-    journal,
-    kinks,
-    limits,
-    me_preferences,
-    merits,
-    money_previews,
-    notifications,
-    panic,
-    payment_methods,
-    penalty_rules,
-    photo,
-    profile,
-    public_invitation,
-    reference,
-    review_queue,
-    rituals,
-    rolling,
-    safeword,
-    signup,
-    sub_aftercare,
-    sub_medical,
-    tasks,
-    toys,
-    tribute_minimum,
-    ws,
-)
-from routers.payments import (
-    goddess_router as payments_goddess_router,
-)
-from routers.payments import (
-    goddess_subs_router,
-)
-from routers.payments import (
-    sub_methods_router as sub_payment_methods_router,
-)
-from routers.payments import (
-    sub_router as payments_sub_router,
-)
-from workers.daily_cron import start_scheduler
+from .core.config import get_settings
+from .db.session import init_db
+from .routers import api_router
+from .services.r2_service import get_r2_service  # ← New import
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
-    configure_logging()
+async def lifespan(app: FastAPI):
+    # Startup
     settings = get_settings()
-    scheduler = start_scheduler() if settings.cron_enabled else None
+    print(f"🚀 Starting Debt Collector - {settings.app_env.upper()} mode")
+    
+    await init_db()
+    
+    # Test R2 connection (non-blocking)
     try:
-        yield
-    finally:
-        if scheduler is not None:
-            scheduler.shutdown(wait=False)
-        await engine.dispose()
+        r2 = get_r2_service()
+        if r2.client:
+            print("✅ R2 storage connected")
+        else:
+            print("⚠️  R2 not configured (optional)")
+    except Exception as e:
+        print(f"⚠️  R2 init warning: {e}")
+    
+    yield
+    # Shutdown
+    print("👋 Shutting down Debt Collector")
 
-
-_settings = get_settings()
 
 app = FastAPI(
-    title="Debt Collector API",
-    version="0.1.0",
+    title="Debt Collector",
+    description="Self-hosted Findom Debt Management Platform",
+    version="1.0.0",
     lifespan=lifespan,
-    openapi_url=None if _settings.is_prod else "/openapi.json",
-    docs_url=None if _settings.is_prod else "/docs",
-    redoc_url=None if _settings.is_prod else "/redoc",
-    dependencies=[Depends(porch_gate)],
 )
 
-app.state.limiter = limiter
-
-if _settings.rate_limit_enabled:
-    app.add_middleware(SlowAPIMiddleware)
-    app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)  # type: ignore[arg-type]
-
-app.add_middleware(
-    SecurityHeadersMiddleware,
-    enable_hsts=_settings.security_hsts_enabled,
-)
+# CORS
+settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_settings.cors_origins_list,
-    allow_origin_regex=_settings.cors_origin_regex or None,
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-CSRF-Token", "X-Confirm-Password"],
-    expose_headers=["X-Access-State"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-# Added last so it runs first on ingress — request_id is available to all inner middleware.
-app.add_middleware(RequestIdMiddleware)
 
-register_exception_handlers(app)
+# Include all routers
+app.include_router(api_router, prefix="/api")
 
-app.include_router(health.router)
-app.include_router(auth.router)
-app.include_router(invitations.router)
-app.include_router(payment_methods.router)
-app.include_router(public_invitation.router)
-app.include_router(signup.router)
-app.include_router(payments_sub_router)
-app.include_router(sub_payment_methods_router)
-app.include_router(payments_goddess_router)
-app.include_router(goddess_subs_router)
-app.include_router(rolling.router)
-app.include_router(debt_contracts.router)
-app.include_router(blacklist.router)
-app.include_router(adjustments.router)
-app.include_router(money_previews.router)
-app.include_router(admin_cron.router)
-app.include_router(admin_janitor.router)
-app.include_router(admin.router)
-app.include_router(notifications.router)
-app.include_router(me_preferences.router)
-app.include_router(profile.router)
-app.include_router(goddess_profile.router)
-app.include_router(dashboards.goddess_router)
-app.include_router(dashboards.sub_router)
-app.include_router(goddess_views.router)
-app.include_router(goddess_rate_limits.router)
-app.include_router(safeword.router)
-app.include_router(panic.router)
-app.include_router(journal.router)
-app.include_router(kinks.router)
-app.include_router(limits.router)
-app.include_router(tribute_minimum.goddess_router)
-app.include_router(toys.goddess_router)
-app.include_router(toys.sub_router)
-app.include_router(rituals.goddess_router)
-app.include_router(rituals.sub_router)
-app.include_router(tasks.goddess_router)
-app.include_router(tasks.sub_router)
-app.include_router(merits.router)
-app.include_router(consent.router)
-app.include_router(penalty_rules.router)
-app.include_router(photo.router)
-app.include_router(goddess_photos.router)
-app.include_router(goddess_subs_message.router)
-app.include_router(review_queue.router)
-app.include_router(sub_aftercare.router)
-app.include_router(sub_medical.sub_router)
-app.include_router(sub_medical.goddess_router)
-app.include_router(reference.router)
-app.include_router(ws.router)
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "version": "1.0.0"}
+
+
+if __name__ == "__main__":
+    uvicorn.run("server.main:app", host="0.0.0.0", port=8000, reload=True)
