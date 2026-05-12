@@ -55,9 +55,16 @@ class Settings(BaseSettings):
     redis_url: str = ""
 
     # Defense-in-depth: HMAC key applied before argon2. Empty string disables pepper.
-    # Must differ from JWT_SECRET_KEY and be rotated independently.
     password_pepper: str = ""
 
+    # ====================== Cloudflare R2 - Contract PDF Storage ======================
+    R2_ENDPOINT_URL: str | None = None
+    R2_ACCESS_KEY_ID: str | None = None
+    R2_SECRET_ACCESS_KEY: str | None = None
+    R2_BUCKET_NAME: str = "debt-collector-contracts"
+    R2_PUBLIC_DOMAIN: str | None = None  # Optional: for public bucket URLs
+
+    # Legacy S3 / other buckets (kept for compatibility)
     r2_endpoint: str = ""
     r2_access_key_id: str = ""
     r2_secret_access_key: str = ""
@@ -66,7 +73,7 @@ class Settings(BaseSettings):
     r2_bucket_vault: str = ""
     r2_presign_ttl_seconds: int = 600
 
-    # S3-compatible object store — dev: MinIO on :4015; prod: AWS S3 / Cloudflare R2 / B2
+    # S3-compatible object store
     s3_endpoint_url: str = "http://localhost:4015"
     s3_region: str = "us-east-1"
     s3_access_key: str = "debt"
